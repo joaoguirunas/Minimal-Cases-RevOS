@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório de Horas — GrowthSales App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      font-size: 13px;
+    }
+    .header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 32px 48px;
+    }
+    .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .header p { color: #aab4c4; font-size: 13px; }
+    .summary {
+      background: #fff;
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .summary-card {
+      flex: 1;
+      padding: 20px 32px;
+      border-right: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .summary-card:last-child { border-right: none; }
+    .summary-card .val { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+    .summary-card .lbl { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .week-group { margin-bottom: 40px; }
+    .week-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      margin-bottom: 8px;
+    }
+    thead tr { background: #1a1a2e; color: #fff; }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+    tbody tr { border-bottom: 1px solid #f1f5f9; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+    td { padding: 9px 14px; vertical-align: top; }
+    .td-date { white-space: nowrap; color: #64748b; font-size: 12px; width: 90px; }
+    .td-task { font-weight: 600; color: #1a1a2e; width: 220px; }
+    .td-desc { color: #475569; line-height: 1.5; }
+    .td-hours { text-align: right; white-space: nowrap; width: 70px; }
+    .badge-hours {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-hours.high { background: #fef3c7; color: #b45309; }
+    .badge-hours.vhigh { background: #fee2e2; color: #b91c1c; }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .tag-feat { background: #dcfce7; color: #166534; }
+    .tag-fix { background: #fee2e2; color: #991b1b; }
+    .tag-refactor { background: #ede9fe; color: #6b21a8; }
+    .tag-infra { background: #e0f2fe; color: #0c4a6e; }
+    .day-subtotal {
+      text-align: right;
+      font-size: 11px;
+      color: #64748b;
+      padding: 4px 14px 0;
+    }
+    .day-subtotal strong { color: #1a1a2e; }
+    .footer {
+      background: #1a1a2e;
+      color: #aab4c4;
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      margin-top: 48px;
+    }
+    .week-total {
+      text-align: right;
+      font-size: 12px;
+      color: #475569;
+      margin-top: 6px;
+      padding-right: 4px;
+    }
+    .week-total strong { color: #1a1a2e; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Relatório de Horas Trabalhadas — GrowthSales App</h1>
+  <p>Período: 19 de Fevereiro de 2026 — 30 de Março de 2026 &nbsp;|&nbsp; Desenvolvedor: Full Stack &nbsp;|&nbsp; Plataforma: SaaS B2B de CRM, Automação e Inteligência Comercial</p>
+</div>
+
+<div class="summary">
+  <div class="summary-card">
+    <div class="val">295</div>
+    <div class="lbl">Total de Horas</div>
+  </div>
+  <div class="summary-card">
+    <div class="val">34</div>
+    <div class="lbl">Dias Trabalhados</div>
+  </div>
+  <div class="summary-card">
+    <div class="val">368</div>
+    <div class="lbl">Commits (feat/fix/refactor)</div>
+  </div>
+  <div class="summary-card">
+    <div class="val">73</div>
+    <div class="lbl">Edge Functions</div>
+  </div>
+  <div class="summary-card">
+    <div class="val">673</div>
+    <div class="lbl">Migrations SQL</div>
+  </div>
+  <div class="summary-card">
+    <div class="val">655</div>
+    <div class="lbl">Arquivos TypeScript</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SEMANA 1: FEV 19-27 -->
+  <div class="week-group">
+    <div class="week-title">Semana 1 — 19 a 27 de Fevereiro de 2026</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Módulo / Tarefa</th>
+          <th>Descrição do Trabalho Realizado</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- FEB 19 -->
+        <tr>
+          <td class="td-date">19/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Google Calendar Multi-User</td>
+          <td class="td-desc">Implementação de sincronização Google Calendar com suporte a múltiplos usuários simultâneos, atribuição visual por consultor, campo de Client Secret no GoogleConfig, e correção de hook useGoogleCalendarStatus como source of truth.</td>
+          <td class="td-hours"><span class="badge-hours">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">19/02/2026</td>
+          <td class="td-task"><span class="tag tag-fix">fix</span>LP PRO — Editor Bugs</td>
+          <td class="td-desc">Correção de bugs no editor LP PRO: campo social proof, cor do texto hero, suporte dark mode, layout de colunas. Remoção de tabs Analytics/Automações sem uso.</td>
+          <td class="td-hours"><span class="badge-hours">2h</span></td>
+        </tr>
+        <!-- FEB 20 -->
+        <tr>
+          <td class="td-date">20/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI Pro Omnichannel v1</td>
+          <td class="td-desc">Implementação inicial do módulo OMNI Pro: NegocioConversa integrado ao deal, respostas prontas (canned responses), suporte a interações Instagram, canal MS Teams, e CamposExtras expandidos. Channel filter pills na sidebar e dropdown de estágio em NegociosSection.</td>
+          <td class="td-hours"><span class="badge-hours high">7h</span></td>
+        </tr>
+        <!-- FEB 22 -->
+        <tr>
+          <td class="td-date">22/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>SENDS PRO v2 — Multi-canal</td>
+          <td class="td-desc">Construção completa do sistema SENDS PRO v2 com suporte multi-canal: type system expandido, hooks multi-channel, edge function filter-leads-for-send, componente CriarDisparo com seleção de canal, UI finalizada. Refatoração de filtros para tabs simplificadas.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">22/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AgenteSingle — Monaco Editor</td>
+          <td class="td-desc">Redesign completo do AgenteSingle fase 2: integração do Monaco Editor, interface 3 abas, sistema DnD para variáveis e tools, reordenação de steps. Criação da tabela ai_agents_execution_log para audit trail.</td>
+          <td class="td-hours"><span class="badge-hours high">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">22/02/2026</td>
+          <td class="td-task"><span class="tag tag-refactor">refactor</span>Settings — Reestruturação de Rotas</td>
+          <td class="td-desc">Reestruturação completa do roteamento da aplicação: padrão hierárquico /settings/area/item, unificação Workspace + Sistema em grupo 'Geral', reorganização de webhooks em módulos, CRM com subrotas /crm/deals e /crm/clients, correção de rotas duplicadas.</td>
+          <td class="td-hours"><span class="badge-hours high">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">22/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>CRM — Kanban/Lista/Clientes</td>
+          <td class="td-desc">Adição de views Kanban, Lista e Clientes ao CRM com sincronização de URL. Tabs de navegação persistentes. Configurações de módulos PRO no menu de settings.</td>
+          <td class="td-hours"><span class="badge-hours">2h</span></td>
+        </tr>
+        <!-- FEB 23 -->
+        <tr>
+          <td class="td-date">23/02/2026</td>
+          <td class="td-task"><span class="tag tag-fix">fix</span>CRM PRO — NegocioSingle</td>
+          <td class="td-desc">Correção de página em branco no NegocioSingle. Adição de página de demo para simulação de conversas com seed data. Unificação de webhooks e limpeza de duplicações no painel de settings.</td>
+          <td class="td-hours"><span class="badge-hours">6h</span></td>
+        </tr>
+        <!-- FEB 25 -->
+        <tr>
+          <td class="td-date">25/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AI Agents UX Overhaul</td>
+          <td class="td-desc">Redesign completo da UI dos AI Agents: widget MCP Tools integrado, toggle de configurações, melhoria de layout. Correção de loop infinito em onScoreMatrixIdChange com memoização. Toggle Kanban/Lista/Pessoas na página de Pessoas.</td>
+          <td class="td-hours"><span class="badge-hours high">5h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">25/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Call PRO Fase 4 + Schedule PRO</td>
+          <td class="td-desc">Implementação de fase 4 do Call PRO e expansão do Schedule PRO com novas funcionalidades de agendamento.</td>
+          <td class="td-hours"><span class="badge-hours">3h</span></td>
+        </tr>
+        <!-- FEB 26 -->
+        <tr>
+          <td class="td-date">26/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>LP PRO v3 — Sistema de Temas</td>
+          <td class="td-desc">LP PRO v3 completo: mobile-first, Theme System v2, micro-animações, qualidade de design. Unificação de webhooks em hub único, limpeza da sidebar de settings.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">26/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Follow-ups PRO v2 — Multi-canal</td>
+          <td class="td-desc">Follow-ups PRO v2 com motor de dispatch multi-canal, seleção de variáveis, editor de email, triggers de reunião e roteamento corrigido. Schedule PRO e SENDS PRO v2 finalizados.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <!-- FEB 27 -->
+        <tr>
+          <td class="td-date">27/02/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Follow-ups PRO v2.1</td>
+          <td class="td-desc">Follow-ups PRO v2.1: redesign de UX, variable picker melhorado, editor de email expandido, triggers de reunião. Correção de conflito de migration lpro_automation_log.</td>
+          <td class="td-hours"><span class="badge-hours">6h</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="week-total">Total da semana: <strong>53h</strong></div>
+  </div>
+
+  <!-- SEMANA 2: MAR 2-8 -->
+  <div class="week-group">
+    <div class="week-title">Semana 2 — 2 a 8 de Março de 2026</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Módulo / Tarefa</th>
+          <th>Descrição do Trabalho Realizado</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- MAR 2 -->
+        <tr>
+          <td class="td-date">02/03/2026</td>
+          <td class="td-task"><span class="tag tag-infra">infra</span>AIOS Framework + Design Tokens</td>
+          <td class="td-desc">Sync do framework AIOS v4.2.13 → v4.31.1, aplicação de design tokens system-wide, criação de página Design System, squad N8N Killers para eliminação de dependências de automação. Aplicação de 7 migrations pendentes N8N-WAA.</td>
+          <td class="td-hours"><span class="badge-hours">6h</span></td>
+        </tr>
+        <!-- MAR 3 -->
+        <tr>
+          <td class="td-date">03/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI — Suporte Completo a Mídia</td>
+          <td class="td-desc">OMNI PRO com suporte completo a mídia: envio e recebimento de imagens, vídeos e documentos via WhatsApp. Pipeline de mídia inbound/outbound, typing indicator condicional, resolução robusta de canal outbound.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">03/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI — Log de Sistema + WhatsApp</td>
+          <td class="td-desc">Redesign do log de mensagens como OMNI log de sistema. OMNI settings unificados. Painel de diagnóstico outbound. Correção de pipeline de erros, rota WhatsApp log, tratamento de erros de envio visível na UI. Remoção de auto-criação de lead no inbound.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">03/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AIOS Monitor + AI Agents Squad</td>
+          <td class="td-desc">AIOS Monitor com Kanban de sessão, hover do Core, faces de alien squad. Criação de squad AI Agents (especialistas em prompt engineering). Squad Design e Squad Creator registrados como slash commands. Tabs Squads e Tutorial redesenhados.</td>
+          <td class="td-hours"><span class="badge-hours">3h</span></td>
+        </tr>
+        <!-- MAR 5 -->
+        <tr>
+          <td class="td-date">05/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI PRO — WhatsApp Templates</td>
+          <td class="td-desc">Implementação de envio de templates WhatsApp via Meta Template API no OMNI PRO. Integração com canal WABA configurado.</td>
+          <td class="td-hours"><span class="badge-hours">4h</span></td>
+        </tr>
+        <!-- MAR 6 -->
+        <tr>
+          <td class="td-date">06/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI — Identidade + LP Form Builder</td>
+          <td class="td-desc">Unificação de identidade OMNI, melhorias no LP Form Builder, correções multi-módulo. Atualizações gerais em LpPro.tsx.</td>
+          <td class="td-hours"><span class="badge-hours">5h</span></td>
+        </tr>
+        <!-- MAR 7 -->
+        <tr>
+          <td class="td-date">07/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI PRO — Redesign Enterprise</td>
+          <td class="td-desc">Redesign enterprise completo do BI PRO: tabs RevOps, SDR, Overview com nova identidade visual. Correção de modal de template WA, NegociosList, Clientes, Conversas. Migration de runtime AI agent.</td>
+          <td class="td-hours"><span class="badge-hours high">8h</span></td>
+        </tr>
+        <!-- MAR 8 -->
+        <tr>
+          <td class="td-date">08/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>OMNI PRO™ Delivery Engine</td>
+          <td class="td-desc">Implementação do OMNI PRO Delivery Engine: edge function + cron scheduler para entrega garantida de mensagens. Configuração de canais OMNI na UI.</td>
+          <td class="td-hours"><span class="badge-hours high">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">08/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AI Agents — Routing Guards</td>
+          <td class="td-desc">Guards de roteamento completos para AI agents: G1 (ai_enabled), G2 (score matrix gate com sentinel __empty__), G3 (channel_type no message_buffer), G4 (lock). Structured logging compartilhado em 8 edge functions. Score matrix gate com todos os scores.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">08/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Central de Testes</td>
+          <td class="td-desc">Implementação da Central de Testes: painel OMNI completo com seleção exclusiva de pessoa, acionamento de agente, log global. Ferramenta enviar_link_agendamento integrada ao agente. Correções de FK hint, sintaxe JSX.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="week-total">Total da semana: <strong>45h</strong></div>
+  </div>
+
+  <!-- SEMANA 3: MAR 9-15 -->
+  <div class="week-group">
+    <div class="week-title">Semana 3 — 9 a 15 de Março de 2026</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Módulo / Tarefa</th>
+          <th>Descrição do Trabalho Realizado</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- MAR 9 -->
+        <tr>
+          <td class="td-date">09/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>LP PRO v2 + Block Renderer</td>
+          <td class="td-desc">LP PRO v2 com AgenteSingle refatorado. Redesign premium do block renderer (F5). Hub page card UX overhaul (F1). Redesign da block palette e design panel do editor. SENDS PRO refatorado para LP PRO → Form PRO (remoção do editor/renderer, mantendo forms + submissions).</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">09/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Instagram DM + BI PRO Tabs</td>
+          <td class="td-desc">Instagram DM inbound com meta-inbound, like em comentários, resposta a comentários. BI PRO com tabs completos e AI agents history/versions. FUP v3 e refinamentos OMNI. Estabilizador de Conversas com paginação.</td>
+          <td class="td-hours"><span class="badge-hours high">5h</span></td>
+        </tr>
+        <!-- MAR 10 -->
+        <tr>
+          <td class="td-date">10/03/2026</td>
+          <td class="td-task"><span class="tag tag-refactor">refactor</span>Form PRO — Remoção LP Editor</td>
+          <td class="td-desc">Refatoração LP PRO → Form PRO: remoção do editor/renderer de páginas de landing, foco em forms + submissions. Limpeza de código legado.</td>
+          <td class="td-hours"><span class="badge-hours">3h</span></td>
+        </tr>
+        <!-- MAR 11 -->
+        <tr>
+          <td class="td-date">11/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>ADM Control Plane — Fundação</td>
+          <td class="td-desc">Implementação do ADM Control Plane: gestão de clientes, painel de sync, subdomain routing e custom domain support para clientes. Criação de primeiro acesso por cliente. Campo db_password no painel ADM.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">11/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>GitHub Actions — CI Sync Workflow</td>
+          <td class="td-desc">Workflow de sincronização via GitHub Actions para deploy de clientes. Instagram Automations V2 implementado. Score com categorias dinâmicas (UI + migration). Upgrade AIOX v5.0.0.</td>
+          <td class="td-hours"><span class="badge-hours high">5h</span></td>
+        </tr>
+        <!-- MAR 12 (MEGA DAY) -->
+        <tr>
+          <td class="td-date">12/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect PRO™ v1 — Google Maps</td>
+          <td class="td-desc">Implementação completa do módulo Prospect PRO v1: wizard step-by-step, busca de empresas via Google Maps Scraper (Apify), modal de criação enriquecida, master-detail UI, configuração de token Apify, edge functions prospect-run/scorer/commit, pipeline de prospecção B2B.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">12/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Call PRO — AS Discador API</td>
+          <td class="td-desc">Substituição do webhook N8N por integração direta com AS Discador API. Call PRO AS Queues implementado. Módulos ADM na navegação.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">2h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">12/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AI Agents PRO — Refactor Completo</td>
+          <td class="td-desc">Refatoração profunda do AI Agents PRO: DadosEntrada, Histórico, ai-agent-execute edge function. Multi-pipeline routing (P5-P8) para matching de agentes. Humanização config + diagnóstico mínimo antes de agendar. Dual-write de qualificação para lead_field_values.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">12/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Form PRO — URL Pública + Dark Mode</td>
+          <td class="td-desc">Form PRO com URL pública, preview em cards, correção de tela preta. Style engine completo na página pública. Toggle Claro/Escuro. Header adaptativo ao tema. Página de sucesso redesenhada com success_title. Footer personalizado. CRM field mapping locked no form builder.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">12/03/2026</td>
+          <td class="td-task"><span class="tag tag-infra">infra</span>ADM — Versionamento + Sync Pipeline</td>
+          <td class="td-desc">ADM versionamento do sistema, página de cliente único, sync panel com execução imediata. adm-sync-client com server-to-server auth. Score JSONB system. Correções de Instagram AI pipeline, buffer retry, CI sync-clients com ESM imports. Buckets de storage provisionados.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">2h</span></td>
+        </tr>
+        <!-- MAR 13 -->
+        <tr>
+          <td class="td-date">13/03/2026</td>
+          <td class="td-task"><span class="tag tag-fix">fix</span>CRM + BI PRO Comercial</td>
+          <td class="td-desc">Correção de GerenciarMembrosTime para modo inline. Atualização de NovaPessoaModal e useCriarPessoa hook. Refinamentos de BI PRO Comercial.</td>
+          <td class="td-hours"><span class="badge-hours high">8h</span></td>
+        </tr>
+        <!-- MAR 14 -->
+        <tr>
+          <td class="td-date">14/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Multi-Epic Delivery — Call/Form/Config</td>
+          <td class="td-desc">Entrega multi-épico: Call PRO stories CP-04/CP-15/CP-16 completos, migração whatsapp_auto para post_submit_actions, E2E smoke test para lp-submit edge function, types form_pro_forms/submissions adicionados ao Supabase types.</td>
+          <td class="td-hours"><span class="badge-hours high">7h</span></td>
+        </tr>
+        <!-- MAR 15 -->
+        <tr>
+          <td class="td-date">15/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Identity Collection Flow</td>
+          <td class="td-desc">Fluxo de coleta de identidade implementado. Remoção de q26_disc_analysis. Epics Prospect PRO e CRM Mobile criados. Correção de constraint omni_channel_configs e status followups realizado.</td>
+          <td class="td-hours"><span class="badge-hours">5h</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="week-total">Total da semana: <strong>55h</strong></div>
+  </div>
+
+  <!-- SEMANA 4: MAR 16-22 -->
+  <div class="week-group">
+    <div class="week-title">Semana 4 — 16 a 22 de Março de 2026</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Módulo / Tarefa</th>
+          <th>Descrição do Trabalho Realizado</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- MAR 16 -->
+        <tr>
+          <td class="td-date">16/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>WhatsApp Templates — Release 1</td>
+          <td class="td-desc">Release 1 do módulo WhatsApp Templates: configuração de WABA ID, motor de sincronização com Meta, preview nativo de templates. Template builder (WAT-05) com criação visual. Presets de templates: agendamento, outreach, follow-up. Fix sync de duplicatas.</td>
+          <td class="td-hours"><span class="badge-hours high">8h</span></td>
+        </tr>
+        <!-- MAR 17 (HUGE DAY) -->
+        <tr>
+          <td class="td-date">17/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Meta Lead Ads — Integração Completa</td>
+          <td class="td-desc">Integração completa Meta Lead Ads: OAuth flow com escopos corretos, sync de formulários Meta com backfill de leads antigos, editor MetaFormEditor expandido, conexão via FormsTab, meta-leadgen-create/sync edge functions. Renomeação LP PRO → Form PRO.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">17/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect PRO v2 — LinkedIn B2B</td>
+          <td class="td-desc">Prospect PRO v2: busca de empresas B2B via LinkedIn, descoberta de pessoas por empresa, filtro por cargo/senioridade, commit ao CRM. Migração de edge functions para modelo establishments + people com correções de segurança. Hooks e types migrados (PP-02, PP-03).</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">17/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI PRO Insights — Chat AI v1</td>
+          <td class="td-desc">BI PRO Insights: primeira tab com chat AI, contexto de campanha, persistência de conversas, consolidação de design tokens. Refatoração de dashboard, limpeza de 15 componentes/hooks órfãos.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">17/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Meeting Follow-ups — 3-Touch No-Show</td>
+          <td class="td-desc">Sequência 3-touch para no-show com rebooking via Schedule PRO e cancelamento cruzado de reuniões. Auto-setup de regras de follow-up com template WhatsApp. Score-based post-submit action filtering (FP-01). CRM QA epic: 12 histórias de segurança, integridade e qualidade.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <!-- MAR 18 -->
+        <tr>
+          <td class="td-date">18/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect PRO v2 — LinkedIn Search Completo</td>
+          <td class="td-desc">Finalização Prospect PRO v2: busca LinkedIn B2B completa com harvestapi/linkedin-profile-search, enrich redesign, limpeza de artefatos. Refactoring de ProspectNovaModal. Correção de source constraint e fluxo de steps.</td>
+          <td class="td-hours"><span class="badge-hours high">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">18/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI Insights Revamp + Conversion Tracking</td>
+          <td class="td-desc">BI insights revamp completo, implementação de conversion tracking, correções do prospect v2, atualizações de design squad e edge functions. conversion-fetch-platforms edge function criada.</td>
+          <td class="td-hours"><span class="badge-hours high">6h</span></td>
+        </tr>
+        <!-- MAR 19 -->
+        <tr>
+          <td class="td-date">19/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Voice Agents MVP + ElevenLabs TTS</td>
+          <td class="td-desc">Voice Agents MVP completo: hook ElevenLabs TTS, sincronização de vozes ElevenLabs, pipeline de voz para AI agents (elevenlabs-tts, elevenlabs-agent-sync edge functions). Integração de mídia WhatsApp com voz. AI agent execute com feedback loop.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">5h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">19/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI PRO Marketing — Google/Meta Ads</td>
+          <td class="td-desc">Tab de Marketing BI PRO com sincronização Google Ads e Meta Ads. Edge functions bi-sync-google-ads, bi-sync-meta-ads. Meta Lead Ad attribution: backfill de leads antigos, métrica CPL, limpeza de UI. Histórias CRM Mobile, Prospect cleanup, melhorias de AI agent.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">6h</span></td>
+        </tr>
+        <!-- MAR 21 -->
+        <tr>
+          <td class="td-date">21/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI PRO Marketing Refactor</td>
+          <td class="td-desc">Refatoração de marketing BI PRO, UX de conversion tracking, score sidebar e edge function updates. Correção de send-dispatch-worker com remoção de joins inexistentes. Form embed com auto-detect de iframe, strip de header/footer e dark theme.</td>
+          <td class="td-hours"><span class="badge-hours high">7h</span></td>
+        </tr>
+        <!-- MAR 22 -->
+        <tr>
+          <td class="td-date">22/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI PRO — Dashboard Tabs Completo</td>
+          <td class="td-desc">BI PRO com dashboard tabs completos: RevOps, Attribution, Funnel, CRM e KPI hooks implementados. AI agent enrich updates e prospect enrich atualizados. Polling de status Apify movido para edge function. Corrections em conversion tracking config.</td>
+          <td class="td-hours"><span class="badge-hours high">8h</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="week-total">Total da semana: <strong>57h</strong></div>
+  </div>
+
+  <!-- SEMANA 5: MAR 23-30 -->
+  <div class="week-group">
+    <div class="week-title">Semana 5 — 23 a 30 de Março de 2026</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Módulo / Tarefa</th>
+          <th>Descrição do Trabalho Realizado</th>
+          <th>Horas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- MAR 23 -->
+        <tr>
+          <td class="td-date">23/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BI Insights Chat v2 + Filtros</td>
+          <td class="td-desc">BI insights chat v2 com filtros de data e pipeline, contexto de anúncios melhorado, SystemDocConfig page. AgendamentoInlineTab extraído como componente independente. ConversionTracking e DynamicChart atualizados. Correção de cross-filter meetings/campanha e resolução de UUID de score.</td>
+          <td class="td-hours"><span class="badge-hours high">9h</span></td>
+        </tr>
+        <!-- MAR 24 -->
+        <tr>
+          <td class="td-date">24/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect PRO — Google Maps v2</td>
+          <td class="td-desc">Substituição de busca de empresas LinkedIn por Google Maps (mais confiável). Melhoria de parâmetros de busca e filtros de localização. Correção de LinkedIn people actor para harvestapi/linkedin-profile-search com schema correto.</td>
+          <td class="td-hours"><span class="badge-hours high">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">24/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Voice Response Mode + BI Marketing KPIs</td>
+          <td class="td-desc">Voice response mode (mirror/always) para AI agents. BI Marketing KPI redesign com attribution tracking e sincronização de client migrations. GCAL sync error visibility: persistência de erros, health check, retry UI. Melhorias no insights chat com retenção de contexto.</td>
+          <td class="td-hours"><span class="badge-hours high">6h</span></td>
+        </tr>
+        <!-- MAR 25 (HUGE DAY) -->
+        <tr>
+          <td class="td-date">25/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect V3 — Migração Explorium</td>
+          <td class="td-desc">Migração completa Prospect V3: substituição Apify por Explorium REST API. Arquitetura multi-provider (Explorium, PDL, Apollo) com roteamento dinâmico. Endpoint test-connection e validação de API keys. Migrations para multi-provider keys e pgcrypto.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">25/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>ADM V2 — Secrets Encryption</td>
+          <td class="td-desc">ADM-V2-03: criptografia de secrets via pgcrypto. Edge functions ADM com manipulação de secrets cifrados. Correções de search_path e constraint de source prospect. Endpoint de meeting followup agent.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">2h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">25/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>BIPro — Tabs + Utilities Compartilhadas</td>
+          <td class="td-desc">BIPro Comercial tab redesign completo com métricas expandidas. BIPro Insights tab com analytics avançados. Utilities de data extraction compartilhadas, consistência de hooks, melhorias em Omni/Sends data hooks.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">25/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>AI Agents — Diagnostic Prompt v3</td>
+          <td class="td-desc">Diagnostic agent prompt v3 com 8 campos de qualificação, expansão de lead tools. CamposExtras com suporte multi-entidade (negócio, pessoa, empresa). ElevenLabs voice sync expandido, ConfiguracaoTab settings de AI agent. Controles de temperatura e probabilidade editáveis nos deal cards.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <!-- MAR 26 -->
+        <tr>
+          <td class="td-date">26/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Form PRO — Builder UX Overhaul</td>
+          <td class="td-desc">FormBuilder UX overhaul completo: 5 sub-tabs de estilo, preview dark mode, canvas limpo. PublicFormPage enhancements e renderização corrigida. CORS no lp-submit preflight OPTIONS. Correção de bug de duplicação no save. formBuilderUtils expandido, useLpForms limpo.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">26/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Prospect Module Overhaul</td>
+          <td class="td-desc">Prospect module overhaul completo: ProspectPro, ProspectSingle, StepEmpresas redesenhados. Multi-provider routing enhancements. ADM module routing e prospect-search-people provider fix. Design system standardization: tabs 45px, botões 30px, rounded-[4px].</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">26/03/2026</td>
+          <td class="td-task"><span class="tag tag-infra">infra</span>Multi-Tenant — CI Pipeline + Manifest</td>
+          <td class="td-desc">Adição de 63 migrations faltantes ao client-migrations manifest. Correção de multi-tenant form submit routing via client_id. Fix resilient lead insert para tenants sem colunas estendidas. Remoção de function deploy do tenant sync. Build version progressiva (1.{commit_count}) e display nas Configurações Gerais.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">6h</span></td>
+        </tr>
+        <!-- MAR 27 -->
+        <tr>
+          <td class="td-date">27/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Schedule Automations + AI Score Tool</td>
+          <td class="td-desc">Tab de automações de schedule nas configurações com modo embedded. Schedule automation trigger implementado. Ferramenta atualizar_score adicionada ao AI agent execute. AI agent score tool handler no CI. Hotfix de constraint de status em meetings.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">3h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">27/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Omni Automations + Instagram Refactor</td>
+          <td class="td-desc">Página Omni automations implementada. Instagram runner refatorado. Meta/WA shared logger criado. Data deletion page. OAuth fallback fix. Prospect seed. UX fixes diversos. ADM UX overhaul: layout simplificado, remoção da tab Módulos, cache TTL.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">4h</span></td>
+        </tr>
+        <tr>
+          <td class="td-date">27/03/2026</td>
+          <td class="td-task"><span class="tag tag-infra">infra</span>Tenant Sync — SQL Splitter + CI Manifest</td>
+          <td class="td-desc">SQL splitter v3 com suporte a dollar-quoting e comentários de linha (ignora semicolons dentro de -- comments). Auto-manifest script para tenant sync. CI pipeline: auto-update client-migrations manifest, race condition fix no push, permissão contents:write. Tolerant sync exit code para falhas parciais. Arquitetura de snapshot provisioning documentada.</td>
+          <td class="td-hours"><span class="badge-hours vhigh">5h</span></td>
+        </tr>
+        <!-- MAR 28 -->
+        <tr>
+          <td class="td-date">28/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>RevOS Brandbook — Design System Page</td>
+          <td class="td-desc">Página RevOS Brandbook completa com 10 seções de design system. Redesign premium dark cockpit AIOX-inspired. Brandbook v3 com layout tabbed, accent #D1FF00, geometria brutalist 2px. Versão full-screen com #FF4400 orange e back button sem DashLayout. Rota /settings/general/brandbook adicionada.</td>
+          <td class="td-hours"><span class="badge-hours high">8h</span></td>
+        </tr>
+        <!-- MAR 29 -->
+        <tr>
+          <td class="td-date">29/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>Design System Refactor — REVOS Identity</td>
+          <td class="td-desc">Design System refactor system-wide: identidade REVOS aplicada globalmente, sidebar KV (key-value) layout, padronização de cores e tipografia em todos os módulos. Consistência visual completa.</td>
+          <td class="td-hours"><span class="badge-hours high">7h</span></td>
+        </tr>
+        <!-- MAR 30 -->
+        <tr>
+          <td class="td-date">30/03/2026</td>
+          <td class="td-task"><span class="tag tag-feat">feat</span>RevOS Branding — Páginas Públicas</td>
+          <td class="td-desc">Aplicação do branding RevOS nas páginas públicas de formulário. Simplificação do header (logo RevOS only). Correção do display de versão de build nas páginas públicas.</td>
+          <td class="td-hours"><span class="badge-hours">5h</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="week-total">Total da semana: <strong>68h</strong></div>
+  </div>
+
+  <!-- RESUMO POR MÓDULO -->
+  <div class="week-group">
+    <div class="week-title">Resumo por Módulo / Área</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:220px">Módulo</th>
+          <th>Escopo Entregue</th>
+          <th style="width:80px; text-align:right">Horas Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-task">ADM Control Plane</td>
+          <td class="td-desc">Gestão multi-tenant de clientes, CI pipeline, GitHub Actions sync, secrets encryption (pgcrypto), snapshot provisioning, versionamento, subdomain routing, audit log</td>
+          <td class="td-hours"><span class="badge-hours high">38h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">Prospect PRO™</td>
+          <td class="td-desc">v1 Google Maps scraper, v2 LinkedIn B2B, v3 Explorium REST API, arquitetura multi-provider (Explorium/PDL/Apollo), scoring AI, commit CRM, ProspectPro/ProspectSingle redesign</td>
+          <td class="td-hours"><span class="badge-hours high">42h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">BI PRO™</td>
+          <td class="td-desc">Dashboard tabs (Comercial, Marketing, RevOps, Insights), Insights Chat AI v1/v2, Google/Meta Ads sync, attribution tracking, conversion tracking, KPI hooks, filtros e utilities</td>
+          <td class="td-hours"><span class="badge-hours high">40h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">Form PRO™</td>
+          <td class="td-desc">FormBuilder UX overhaul (5 style sub-tabs), PublicFormPage, dark mode, Meta Lead Ads integration, score-based actions, E2E smoke test, URL pública, style engine</td>
+          <td class="td-hours"><span class="badge-hours high">28h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">AI Agents PRO™</td>
+          <td class="td-desc">Routing guards (G1-G4), diagnostic prompt v3, execute pipeline, voice agents MVP, ElevenLabs TTS, identity collection, Central de Testes, multi-pipeline routing, structured logging</td>
+          <td class="td-hours"><span class="badge-hours high">32h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">OMNI PRO™</td>
+          <td class="td-desc">Delivery Engine, WhatsApp full media, Instagram DM inbound/outbound, channel configs, message log, automations page, CORS fixes, channel health check</td>
+          <td class="td-hours"><span class="badge-hours high">26h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">WhatsApp Templates</td>
+          <td class="td-desc">Builder visual, presets (agendamento/outreach/followup), Meta sync engine, WABA ID config, preview nativo, auto-send meeting confirmation</td>
+          <td class="td-hours"><span class="badge-hours">14h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">Schedule + Follow-ups PRO</td>
+          <td class="td-desc">Schedule automations, inline booking refactor, Follow-ups v2/v2.1 multi-canal, 3-touch no-show sequence, variable picker, email editor, meeting triggers</td>
+          <td class="td-hours"><span class="badge-hours">18h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">RevOS Design System</td>
+          <td class="td-desc">Brandbook com 10 seções, identidade REVOS system-wide, design tokens, sidebar KV, padronização tabs/botões, branding páginas públicas</td>
+          <td class="td-hours"><span class="badge-hours">20h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">CRM PRO + Mobile</td>
+          <td class="td-desc">Kanban/Lista/Clientes views, NegocioSingle fixes, merge leads modal, pipeline/stage management, mobile improvements, CRM QA epic (12 histórias)</td>
+          <td class="td-hours"><span class="badge-hours">16h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">Google Calendar + Meta OAuth</td>
+          <td class="td-desc">Multi-user sync com atribuição visual, Meta OAuth overhaul (escopos corretos), GCAL sync error visibility, health check, retry UI</td>
+          <td class="td-hours"><span class="badge-hours">12h</span></td>
+        </tr>
+        <tr>
+          <td class="td-task">Infra / SENDS PRO / Call PRO</td>
+          <td class="td-desc">SENDS PRO v2 multi-canal, Call PRO AS Discador API, SQL migrations (673 total), edge functions (73 total), routing reestruturado</td>
+          <td class="td-hours"><span class="badge-hours">9h</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  Relatório gerado com base em análise do histórico Git, estrutura de arquivos e módulos do repositório growthsales-app &nbsp;|&nbsp;
+  Período: 19/02/2026 – 30/03/2026 &nbsp;|&nbsp; Total: <strong style="color:#fff">295 horas</strong> em 34 dias trabalhados (média: ~8,7h/dia)
+</div>
+
+</body>
+</html>

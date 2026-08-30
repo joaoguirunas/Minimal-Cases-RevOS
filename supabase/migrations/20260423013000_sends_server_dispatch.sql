@@ -1,0 +1,3 @@
+-- Stub: este arquivo foi registrado no catálogo remoto (adm_migrations) mas o arquivo
+-- original foi removido/renomeado. Migration idempotente sem efeito.
+-- A migration real está em 20260423010000_sends_server_dispatch.sql.

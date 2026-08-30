@@ -1,0 +1,1490 @@
+[
+  {
+    "order_index": 9,
+    "name": "009_ensure_full_tenant_baseline",
+    "file": "20260312150001_ensure_full_tenant_baseline.sql"
+  },
+  {
+    "order_index": 10,
+    "name": "010_ensure_crm_tenants_baseline",
+    "file": "20260312170001_ensure_crm_tenants_baseline.sql"
+  },
+  {
+    "order_index": 11,
+    "name": "011_prospect_pro_foundation",
+    "file": "20260312180000_prospect_pro_foundation.sql"
+  },
+  {
+    "order_index": 12,
+    "name": "012_callpro_as_queues",
+    "file": "20260312190000_callpro_as_queues.sql"
+  },
+  {
+    "order_index": 13,
+    "name": "013_increment_field_rpc",
+    "file": "20260314135000_increment_field_rpc.sql"
+  },
+  {
+    "order_index": 14,
+    "name": "014_form_pro_rate_limits",
+    "file": "20260314140000_form_pro_rate_limits.sql"
+  },
+  {
+    "order_index": 15,
+    "name": "015_split_prospect_contacts",
+    "file": "20260315195000_split_prospect_contacts_establishments_people.sql"
+  },
+  {
+    "order_index": 16,
+    "name": "016_message_claim_reset",
+    "files": [
+      "20260316210000_fix_message_duplication_atomic_claim.sql",
+      "20260317100000_fix_claim_reset_and_security.sql"
+    ]
+  },
+  {
+    "order_index": 17,
+    "name": "017_meta_lead_forms",
+    "file": "20260317200000_meta_lead_forms_schema.sql"
+  },
+  {
+    "order_index": 18,
+    "name": "018_omni_channel_alerts",
+    "file": "20260318100000_omni_channel_alerts.sql"
+  },
+  {
+    "order_index": 19,
+    "name": "019_instagram_token_refresh",
+    "file": "20260318100001_instagram_token_refresh_cron.sql"
+  },
+  {
+    "order_index": 20,
+    "name": "020_omni_dead_letter",
+    "file": "20260318100002_omni_dead_letter_queue.sql"
+  },
+  {
+    "order_index": 21,
+    "name": "021_omni_retry_dead_letter",
+    "file": "20260318100003_omni_retry_dead_letter_cron.sql"
+  },
+  {
+    "order_index": 22,
+    "name": "022_prospect_pro_v2",
+    "file": "20260318200000_prospect_pro_v2.sql"
+  },
+  {
+    "order_index": 23,
+    "name": "023_conversion_tracking",
+    "file": "20260318800000_conversion_tracking_schema.sql"
+  },
+  {
+    "order_index": 24,
+    "name": "024_conversion_event_rules",
+    "file": "20260318900002_conversion_event_rules.sql"
+  },
+  {
+    "order_index": 25,
+    "name": "025_elevenlabs_infrastructure",
+    "file": "20260319100000_elevenlabs_infrastructure.sql"
+  },
+  {
+    "order_index": 26,
+    "name": "026_insights_context_function",
+    "file": "20260323900000_fix7_insights_meetings_filter_campaign_cross.sql"
+  },
+  {
+    "order_index": 27,
+    "name": "027_instagram_automations_v2",
+    "file": "20260312022045_instagram_automations_v2-ok.sql"
+  },
+  {
+    "order_index": 28,
+    "name": "028_form_pro_public_read",
+    "file": "20260312130000_form_pro_public_read.sql"
+  },
+  {
+    "order_index": 29,
+    "name": "029_realtime_clients_people",
+    "file": "20260312140000_realtime_clients_people.sql"
+  },
+  {
+    "order_index": 30,
+    "name": "030_meetings_followups_as_queue_fk",
+    "file": "20260312191000_meetings_followups_as_queue_fk.sql"
+  },
+  {
+    "order_index": 31,
+    "name": "031_add_apify_token_to_settings",
+    "file": "20260312192000_add_apify_token_to_settings.sql"
+  },
+  {
+    "order_index": 32,
+    "name": "032_callpro_as_dialer_token",
+    "file": "20260312193000_callpro_as_dialer_token.sql"
+  },
+  {
+    "order_index": 33,
+    "name": "033_callpro_request_id",
+    "file": "20260314120000_callpro_request_id.sql"
+  },
+  {
+    "order_index": 34,
+    "name": "034_form_pro_migrate_whatsapp_auto",
+    "file": "20260314130000_form_pro_migrate_whatsapp_auto.sql"
+  },
+  {
+    "order_index": 35,
+    "name": "035_deprecate_widget_type_field",
+    "file": "20260314150000_deprecate_widget_type_field.sql"
+  },
+  {
+    "order_index": 36,
+    "name": "036_settings_google_oauth_fields",
+    "file": "20260314160000_settings_google_oauth_fields.sql"
+  },
+  {
+    "order_index": 37,
+    "name": "037_identity_collection_optout",
+    "file": "20260315200000_identity_collection_optout.sql"
+  },
+  {
+    "order_index": 38,
+    "name": "038_meeting_followups_add_realizado",
+    "file": "20260315210000_meeting_followups_add_realizado.sql"
+  },
+  {
+    "order_index": 39,
+    "name": "039_fix_agent_qualification_field_keys",
+    "file": "20260316200000_fix_agent_qualification_field_keys.sql"
+  },
+  {
+    "order_index": 40,
+    "name": "040_wa_channels_add_waba_id",
+    "file": "20260316220000_wa_channels_add_waba_id.sql"
+  },
+  {
+    "order_index": 41,
+    "name": "041_fix_whatsapp_templates_sync_duplicates",
+    "file": "20260316230000_fix_whatsapp_templates_sync_duplicates.sql"
+  },
+  {
+    "order_index": 42,
+    "name": "042_noshow_cross_meeting_cancel",
+    "file": "20260316500000_noshow_cross_meeting_cancel.sql"
+  },
+  {
+    "order_index": 43,
+    "name": "043_fix_claim_pending_messages_types",
+    "file": "20260317000000_fix_claim_pending_messages_types.sql"
+  },
+  {
+    "order_index": 44,
+    "name": "044_restrict_merge_persons_rpc",
+    "file": "20260317110000_restrict_merge_persons_rpc.sql"
+  },
+  {
+    "order_index": 45,
+    "name": "045_upgrade_agent_templates_phase1",
+    "file": "20260317210000_upgrade_agent_templates_phase1.sql"
+  },
+  {
+    "order_index": 46,
+    "name": "046_create_new_agent_templates_phase2",
+    "file": "20260317220000_create_new_agent_templates_phase2.sql"
+  },
+  {
+    "order_index": 47,
+    "name": "047_meta_lead_forms_add_questions",
+    "file": "20260317300000_meta_lead_forms_add_questions.sql"
+  },
+  {
+    "order_index": 48,
+    "name": "048_form_pro_submissions_source",
+    "file": "20260317400000_form_pro_submissions_source.sql"
+  },
+  {
+    "order_index": 49,
+    "name": "049_meeting_followup_template_support",
+    "file": "20260317400001_meeting_followup_template_support.sql"
+  },
+  {
+    "order_index": 50,
+    "name": "050_prospect_establishments_expand_status",
+    "file": "20260317500000_prospect_establishments_expand_status.sql"
+  },
+  {
+    "order_index": 51,
+    "name": "051_form_pro_submissions_flex_fk",
+    "file": "20260317600000_form_pro_submissions_flex_fk.sql"
+  },
+  {
+    "order_index": 52,
+    "name": "052_backfill_meta_form_id",
+    "file": "20260317600001_backfill_meta_form_id.sql"
+  },
+  {
+    "order_index": 53,
+    "name": "053_restore_form_pro_submissions_fk",
+    "file": "20260318000000_restore_form_pro_submissions_fk.sql"
+  },
+  {
+    "order_index": 54,
+    "name": "054_fix_followup_trigger_lead_id",
+    "file": "20260318900000_fix_followup_trigger_lead_id.sql"
+  },
+  {
+    "order_index": 55,
+    "name": "055_fix_followup_queue_webhook_nullable",
+    "file": "20260318900001_fix_followup_queue_webhook_nullable.sql"
+  },
+  {
+    "order_index": 56,
+    "name": "056_callpro_billing",
+    "file": "20260318900003_callpro_billing.sql"
+  },
+  {
+    "order_index": 57,
+    "name": "057_prospect_source_linkedin",
+    "file": "20260319000000_prospect_source_linkedin.sql"
+  },
+  {
+    "order_index": 58,
+    "name": "058_sends_contacts_retry_count",
+    "file": "20260319100001-sends_contacts_retry_count-ok.sql"
+  },
+  {
+    "order_index": 59,
+    "name": "059_fix_dead_letter_unique_message_id",
+    "file": "20260319100003_fix_dead_letter_unique_message_id.sql"
+  },
+  {
+    "order_index": 60,
+    "name": "060_prospect_audit_log_v2_actions",
+    "file": "20260319100002-prospect_audit_log_v2_actions-ok.sql"
+  },
+  {
+    "order_index": 61,
+    "name": "061_omni_channel_health_cron",
+    "file": "20260319100004_omni_channel_health_cron.sql"
+  },
+  {
+    "order_index": 62,
+    "name": "062_fix_whatsapp_template_variables",
+    "file": "20260319200000_fix_whatsapp_template_variables.sql"
+  },
+  {
+    "order_index": 63,
+    "name": "063_upgrade_diagnostico_prompt_v2",
+    "file": "20260319300002_upgrade_diagnostico_prompt_v2.sql"
+  },
+  {
+    "order_index": 64,
+    "name": "064_propagate_prompt_v2_to_production_agent",
+    "file": "20260319400000_propagate_prompt_v2_to_production_agent.sql"
+  },
+  {
+    "order_index": 65,
+    "name": "065_backfill_goal_moment",
+    "file": "20260319400001_backfill_goal_moment.sql"
+  },
+  {
+    "order_index": 66,
+    "name": "066_fix_production_agent_by_id",
+    "file": "20260319400002_fix_production_agent_by_id.sql"
+  },
+  {
+    "order_index": 67,
+    "name": "067_fix_track_leads_changes_schema_mismatch",
+    "file": "20260319500000-fix_track_leads_changes_schema_mismatch-ok.sql"
+  },
+  {
+    "order_index": 68,
+    "name": "068_voice_agents_mvp_agent_type",
+    "file": "20260319600000_voice_agents_mvp_agent_type.sql"
+  },
+  {
+    "order_index": 69,
+    "name": "069_backfill_meta_leadgen_attribution",
+    "file": "20260319700000_backfill_meta_leadgen_attribution.sql"
+  },
+  {
+    "order_index": 70,
+    "name": "070_fix8_insights_campaign_funnel_reverse",
+    "file": "20260323900001_fix8_insights_campaign_funnel_reverse.sql"
+  },
+  {
+    "order_index": 71,
+    "name": "071_add_voice_response_mode",
+    "file": "20260324000000_add_voice_response_mode.sql"
+  },
+  {
+    "order_index": 72,
+    "name": "072_meetings_gcal_sync_error",
+    "file": "20260324120000_meetings_gcal_sync_error.sql"
+  },
+  {
+    "order_index": 73,
+    "name": "073_delete_all_agent_templates",
+    "file": "20260324200000_delete_all_agent_templates.sql"
+  },
+  {
+    "order_index": 74,
+    "name": "074_fix_meeting_followup_queue_nullable_webhook",
+    "file": "20260325100000_fix_meeting_followup_queue_nullable_webhook.sql"
+  },
+  {
+    "order_index": 75,
+    "name": "075_leads_temperatura_cleanup_qualificacao",
+    "file": "20260325110000_leads_temperatura_cleanup_qualificacao.sql"
+  },
+  {
+    "order_index": 76,
+    "name": "076_fix_english_column_names",
+    "file": "20260325120000_fix_english_column_names.sql"
+  },
+  {
+    "order_index": 77,
+    "name": "077_prospect_explorium_migration",
+    "file": "20260325180000_prospect_explorium_migration.sql"
+  },
+  {
+    "order_index": 78,
+    "name": "078_diagnostico_prompt_v3_temperatura",
+    "file": "20260325200000_diagnostico_prompt_v3_temperatura.sql"
+  },
+  {
+    "order_index": 79,
+    "name": "079_diagnostico_prompt_v3_apply",
+    "file": "20260325200002_diagnostico_prompt_v3_apply.sql"
+  },
+  {
+    "order_index": 80,
+    "name": "080_hotfix_prospect_source_constraint",
+    "file": "20260325220000_hotfix_prospect_source_constraint.sql"
+  },
+  {
+    "order_index": 81,
+    "name": "081_create_meeting_followup_agent",
+    "file": "20260325230000_create_meeting_followup_agent.sql"
+  },
+  {
+    "order_index": 82,
+    "name": "082_elevenlabs_voices_expand",
+    "file": "20260325240000_elevenlabs_voices_expand.sql"
+  },
+  {
+    "order_index": 83,
+    "name": "083_fix_prospect_source_check",
+    "file": "20260326003609_fix_prospect_source_check.sql"
+  },
+  {
+    "order_index": 84,
+    "name": "084_add_lifecycle_stage_to_leads",
+    "file": "20260326100000_add_lifecycle_stage_to_leads.sql"
+  },
+  {
+    "order_index": 85,
+    "name": "085_fix_meeting_followup_resolve_people_id",
+    "file": "20260326110000_fix_meeting_followup_resolve_people_id.sql"
+  },
+  {
+    "order_index": 86,
+    "name": "086_fix_book_meeting_n8n_people_id",
+    "file": "20260326120000_fix_book_meeting_n8n_people_id.sql"
+  },
+  {
+    "order_index": 87,
+    "name": "087_fix_followup_pipeline_complete",
+    "file": "20260326130000_fix_followup_pipeline_complete.sql"
+  },
+  {
+    "order_index": 88,
+    "name": "088_prospect_multi_provider_keys",
+    "file": "20260326140000_prospect_multi_provider_keys.sql"
+  },
+  {
+    "order_index": 89,
+    "name": "089_prospect_source_expand_providers",
+    "file": "20260326150000_prospect_source_expand_providers.sql"
+  },
+  {
+    "order_index": 90,
+    "name": "090_db_cleanup_audit",
+    "file": "20260312120000_db_cleanup_audit.sql"
+  },
+  {
+    "order_index": 91,
+    "name": "091_091_seed_prospect_module",
+    "file": "20260327145201_091_seed_prospect_module.sql"
+  },
+  {
+    "order_index": 92,
+    "name": "092_create_data_deletion_requests",
+    "file": "20260327160000_create_data_deletion_requests.sql"
+  },
+  {
+    "order_index": 93,
+    "name": "093_create_schedule_automations",
+    "file": "20260327180000_create_schedule_automations.sql"
+  },
+  {
+    "order_index": 94,
+    "name": "094_fix_followup_resolve_attendee_emails",
+    "file": "20260327190000_fix_followup_resolve_attendee_emails.sql"
+  },
+  {
+    "order_index": 95,
+    "name": "095_schedule_automation_trigger",
+    "file": "20260327180001_schedule_automation_trigger.sql"
+  },
+  {
+    "order_index": 96,
+    "name": "096_hotfix_meetings_status_constraint",
+    "file": "20260327191000_hotfix_meetings_status_constraint.sql"
+  },
+  {
+    "order_index": 97,
+    "name": "097_add_get_public_settings_rpc",
+    "file": "20260405120000_add_get_public_settings_rpc.sql"
+  },
+  {
+    "order_index": 98,
+    "name": "098_create_user_rpc",
+    "file": "20260405200000_create_user_rpc.sql"
+  },
+  {
+    "order_index": 99,
+    "name": "099_fix_create_user_rpc",
+    "file": "20260405220000_fix_create_user_rpc.sql"
+  },
+  {
+    "order_index": 100,
+    "name": "100_fix_create_user_timeout",
+    "file": "20260405230000_fix_create_user_timeout.sql"
+  },
+  {
+    "order_index": 101,
+    "name": "101_the_mentor_schema_sync",
+    "file": "20260405000000_the_mentor_schema_sync.sql"
+  },
+  {
+    "order_index": 102,
+    "name": "102_fix_meeting_followup_trigger_lead_id",
+    "file": "20260408000000_fix_meeting_followup_trigger_lead_id.sql"
+  },
+  {
+    "order_index": 103,
+    "name": "103_fix_bi_settings_singleton_seed",
+    "file": "20260411000000_fix_bi_settings_singleton_seed.sql"
+  },
+  {
+    "order_index": 104,
+    "name": "104_sends_import_sessions",
+    "file": "20260412000000_sends_import_sessions.sql"
+  },
+  {
+    "order_index": 105,
+    "name": "105_fix_schedule_automation_trigger_lead_id",
+    "file": "20260413000000_fix_schedule_automation_trigger_lead_id.sql"
+  },
+  {
+    "order_index": 106,
+    "name": "106_tiktok_integration",
+    "file": "20260413230000_tiktok_integration.sql"
+  },
+  {
+    "order_index": 107,
+    "name": "107_omni_channel_configs_channel_fix",
+    "file": "20260421000000_omni_channel_configs_channel_fix.sql"
+  },
+  {
+    "order_index": 108,
+    "name": "108_save_agent_complete_rpc",
+    "file": "20260417200205_save_agent_complete_rpc.sql"
+  },
+  {
+    "order_index": 109,
+    "name": "109_add_daily_breakdown_insights",
+    "file": "20260420200000_add_daily_breakdown_insights.sql"
+  },
+  {
+    "order_index": 110,
+    "name": "110_add_meta_system_token_to_bi_settings",
+    "file": "20260420210000_add_meta_system_token_to_bi_settings.sql"
+  },
+  {
+    "order_index": 111,
+    "name": "111_disable_instagram_token_refresh_cron",
+    "file": "20260420220000_disable_instagram_token_refresh_cron.sql"
+  },
+  {
+    "order_index": 112,
+    "name": "112_add_target_post_id_to_instagram_automations",
+    "file": "20260420230000_add_target_post_id_to_instagram_automations.sql"
+  },
+  {
+    "order_index": 113,
+    "name": "113_tldv_integration",
+    "file": "20260421180000_tldv_integration.sql"
+  },
+  {
+    "order_index": 114,
+    "name": "114_coach_schema_playbooks",
+    "file": "20260422000000_coach_schema_playbooks.sql"
+  },
+  {
+    "order_index": 115,
+    "name": "115_coach_schema_evaluations",
+    "file": "20260422000100_coach_schema_evaluations.sql"
+  },
+  {
+    "order_index": 116,
+    "name": "116_coach_seed_playbooks",
+    "file": "20260422000200_coach_seed_playbooks.sql"
+  },
+  {
+    "order_index": 117,
+    "name": "117_coach_bi_view",
+    "file": "20260422000300_coach_bi_view.sql"
+  },
+  {
+    "order_index": 118,
+    "name": "118_coach_module_register",
+    "file": "20260422000301_coach_module_register.sql"
+  },
+  {
+    "order_index": 119,
+    "name": "119_prospect_v1_cleanup_contacts",
+    "file": "20260422000400_prospect_v1_cleanup_contacts.sql"
+  },
+  {
+    "order_index": 120,
+    "name": "120_prospect_rename_people_v2",
+    "file": "20260422000500_prospect_rename_people_v2.sql"
+  },
+  {
+    "order_index": 121,
+    "name": "121_tenant_functions_bootstrap",
+    "file": "20260422000450_tenant_functions_bootstrap.sql"
+  },
+  {
+    "order_index": 121,
+    "name": "121_prospect_drop_v1_tables",
+    "file": "20260422000600_prospect_drop_v1_tables.sql"
+  },
+  {
+    "order_index": 122,
+    "name": "122_prospect_tenant_isolation",
+    "file": "20260422000700_prospect_tenant_isolation.sql"
+  },
+  {
+    "order_index": 123,
+    "name": "123_prospect_people_scoring_columns",
+    "file": "20260422000800_prospect_people_scoring_columns.sql"
+  },
+  {
+    "order_index": 124,
+    "name": "124_prospect_stuck_recovery_cron",
+    "file": "20260422000900_prospect_stuck_recovery_cron.sql"
+  },
+  {
+    "order_index": 125,
+    "name": "125_zoom_integration",
+    "file": "20260422001000_zoom_integration.sql"
+  },
+  {
+    "order_index": 126,
+    "name": "126_capability_token_tables",
+    "file": "20260422001100_capability_token_tables.sql"
+  },
+  {
+    "order_index": 127,
+    "name": "127_secret_access_log",
+    "file": "20260422001200_secret_access_log.sql"
+  },
+  {
+    "order_index": 128,
+    "name": "128_secure_http_post_wrapper",
+    "file": "20260422001300_secure_http_post_wrapper.sql"
+  },
+  {
+    "order_index": 129,
+    "name": "129_capability_token_gc_cron",
+    "file": "20260422001400_capability_token_gc_cron.sql"
+  },
+  {
+    "order_index": 130,
+    "name": "130_move_cron_jwt_to_vault",
+    "file": "20260422001500_move_cron_jwt_to_vault.sql"
+  },
+  {
+    "order_index": 131,
+    "name": "131_action_token_consumed_extend",
+    "file": "20260422001600_action_token_consumed_extend.sql"
+  },
+  {
+    "order_index": 132,
+    "name": "132_vault_bootstrap_service_role_cron",
+    "file": "20260422001700_vault_bootstrap_service_role_cron.sql"
+  },
+  {
+    "order_index": 133,
+    "name": "133_get_booking_session_remove_pii",
+    "file": "20260422001800_get_booking_session_remove_pii.sql"
+  },
+  {
+    "order_index": 134,
+    "name": "134_settings_bi_settings_decouple",
+    "file": "20260422002000_settings_bi_settings_decouple.sql"
+  },
+  {
+    "order_index": 135,
+    "name": "135_settings_login_max_attempts",
+    "file": "20260423001000_settings_login_max_attempts.sql"
+  },
+  {
+    "order_index": 136,
+    "name": "136_settings_audit_log",
+    "file": "20260423002000_settings_audit_log.sql"
+  },
+  {
+    "order_index": 137,
+    "name": "137_tenant_api_keys",
+    "file": "20260423003000_tenant_api_keys.sql"
+  },
+  {
+    "order_index": 138,
+    "name": "138_lgpd_export",
+    "file": "20260423004000_lgpd_export.sql"
+  },
+  {
+    "order_index": 139,
+    "name": "139_user_notification_preferences",
+    "file": "20260423005000_user_notification_preferences.sql"
+  },
+  {
+    "order_index": 140,
+    "name": "140_settings_require_mfa",
+    "file": "20260423006000_settings_require_mfa.sql"
+  },
+  {
+    "order_index": 141,
+    "name": "141_settings_white_label",
+    "file": "20260423007000_settings_white_label.sql"
+  },
+  {
+    "order_index": 142,
+    "name": "142_auth_events_log",
+    "file": "20260423008000_auth_events_log.sql"
+  },
+  {
+    "order_index": 143,
+    "name": "143_tenant_role_permissions",
+    "file": "20260423009000_tenant_role_permissions.sql"
+  },
+  {
+    "order_index": 144,
+    "name": "144_fix_meetings_user_id_rename_residue",
+    "file": "20260424000000_fix_meetings_user_id_rename_residue.sql"
+  },
+  {
+    "order_index": 145,
+    "name": "145_sends_server_dispatch",
+    "file": "20260423010000_sends_server_dispatch.sql"
+  },
+  {
+    "order_index": 146,
+    "name": "146_meeting_evaluations_rls_tenant_scoped",
+    "file": "20260423011000_meeting_evaluations_rls_tenant_scoped.sql"
+  },
+  {
+    "order_index": 147,
+    "name": "147_zoom_token_refresh_cron",
+    "file": "20260423012000_zoom_token_refresh_cron.sql"
+  },
+  {
+    "order_index": 149,
+    "name": "149_crm_round_robin_rpc",
+    "file": "20260423014000_crm_round_robin_rpc.sql"
+  },
+  {
+    "order_index": 150,
+    "name": "150_sends_fk_constraints",
+    "file": "20260423015000_sends_fk_constraints.sql"
+  },
+  {
+    "order_index": 151,
+    "name": "151_drop_crm_messages",
+    "file": "20260423016000_drop_crm_messages.sql"
+  },
+  {
+    "order_index": 152,
+    "name": "152_call_pro_get_call_stats_rpc",
+    "file": "20260423017000_call_pro_get_call_stats_rpc.sql"
+  },
+  {
+    "order_index": 153,
+    "name": "153_auth_login_attempts",
+    "file": "20260423018000_auth_login_attempts.sql"
+  },
+  {
+    "order_index": 154,
+    "name": "154_ai_providers_get_active_key_rpc",
+    "file": "20260424001000_ai_providers_get_active_key_rpc.sql"
+  },
+  {
+    "order_index": 155,
+    "name": "155_mfa_recovery_codes",
+    "file": "20260424003000_mfa_recovery_codes.sql"
+  },
+  {
+    "order_index": 156,
+    "name": "156_mfa_recovery_rpcs",
+    "file": "20260424003500_mfa_recovery_rpcs.sql"
+  },
+  {
+    "order_index": 157,
+    "name": "157_settings_mfa_policy",
+    "file": "20260424004000_settings_mfa_policy.sql"
+  },
+  {
+    "order_index": 158,
+    "name": "158_settings_users_mfa_grace",
+    "file": "20260424004500_settings_users_mfa_grace.sql"
+  },
+  {
+    "order_index": 159,
+    "name": "159_bi_voice_session_log",
+    "file": "20260424010000_bi_voice_session_log.sql"
+  },
+  {
+    "order_index": 160,
+    "name": "160_settings_bi_voice_beta_flag",
+    "file": "20260424011000_settings_bi_voice_beta_flag.sql"
+  },
+  {
+    "order_index": 161,
+    "name": "161_bi_voice_token_log",
+    "file": "20260424002000_bi_voice_token_log.sql"
+  },
+  {
+    "order_index": 162,
+    "name": "162_moddatetime_extension",
+    "file": "20260424006000_moddatetime_extension.sql"
+  },
+  {
+    "order_index": 163,
+    "name": "163_tenant_functions_bootstrap",
+    "file": "20260422002500_tenant_functions_bootstrap.sql"
+  },
+  {
+    "order_index": 164,
+    "name": "164_mfa_recovery_consume_atomic",
+    "file": "20260426002000_mfa_recovery_consume_atomic.sql"
+  },
+  {
+    "order_index": 165,
+    "name": "165_bi_voice_tool_invocations",
+    "file": "20260426000000_bi_voice_tool_invocations.sql"
+  },
+  {
+    "order_index": 166,
+    "name": "166_settings_bi_voice_beta_role_guard",
+    "file": "20260426003000_settings_bi_voice_beta_role_guard.sql"
+  },
+  {
+    "order_index": 167,
+    "name": "167_crm_rls_tenant_isolation",
+    "file": "20260426010000_crm_rls_tenant_isolation.sql"
+  },
+  {
+    "order_index": 168,
+    "name": "168_ensure_crm_tenants_baseline",
+    "file": "20260312170001_ensure_crm_tenants_baseline.sql"
+  },
+  {
+    "order_index": 169,
+    "name": "169_fwup01_rotate_service_role_jwt",
+    "file": "20260427020000_fwup01_rotate_service_role_jwt.sql"
+  },
+  {
+    "order_index": 10169,
+    "name": "169_fwup02_meetings_followups_source",
+    "file": "20260427030000_fwup02_meetings_followups_source.sql"
+  },
+  {
+    "order_index": 170,
+    "name": "170_fwup02_meetings_followups_source",
+    "file": "20260427030000_fwup02_meetings_followups_source.sql"
+  },
+  {
+    "order_index": 171,
+    "name": "171_fwup03_canonicalize_leads_stages_followups",
+    "file": "20260427040000_fwup03_canonicalize_leads_stages_followups.sql"
+  },
+  {
+    "order_index": 172,
+    "name": "172_fwup06_followup_retry_worker_cron",
+    "file": "20260427041000_fwup06_followup_retry_worker_cron.sql"
+  },
+  {
+    "order_index": 173,
+    "name": "173_fwup05_leads_stages_followups_waid_index",
+    "file": "20260427050000_fwup05_leads_stages_followups_waid_index.sql"
+  },
+  {
+    "order_index": 174,
+    "name": "174_fwup07_nao_compareceu_cleanup",
+    "file": "20260427051000_fwup07_nao_compareceu_cleanup.sql"
+  },
+  {
+    "order_index": 175,
+    "name": "175_fwup03b_add_missing_canonical_columns",
+    "file": "20260427060000_fwup03b_add_missing_canonical_columns.sql"
+  },
+  {
+    "order_index": 176,
+    "name": "176_fwup08_leads_stages_followups_as_queue",
+    "file": "20260427061000_fwup08_leads_stages_followups_as_queue.sql"
+  },
+  {
+    "order_index": 177,
+    "name": "177_fwup09_drop_dead_tables",
+    "file": "20260427070000_fwup09_drop_dead_tables.sql"
+  },
+  {
+    "order_index": 10177,
+    "name": "177_fwup11_followup_queue_pt_to_en",
+    "file": "20260427080000_fwup11_followup_queue_pt_to_en.sql"
+  },
+  {
+    "order_index": 178,
+    "name": "178_fwup11_followup_queue_pt_to_en",
+    "file": "20260427080000_fwup11_followup_queue_pt_to_en.sql"
+  },
+  {
+    "order_index": 179,
+    "name": "179_fwup10_reorder_stages_rpc",
+    "file": "20260427090000_fwup10_reorder_stages_rpc.sql"
+  },
+  {
+    "order_index": 180,
+    "name": "180_fwup11b_meeting_followup_queue_people_to_person",
+    "file": "20260427100000_fwup11b_meeting_followup_queue_people_to_person.sql"
+  },
+  {
+    "order_index": 181,
+    "name": "181_fix_trigger_meeting_followup_queue_person_id",
+    "file": "20260427110000_fix_trigger_meeting_followup_queue_person_id.sql"
+  },
+  {
+    "order_index": 182,
+    "name": "182_fwup12_baseline_repair_new_tenants",
+    "file": "20260428010000_fwup12_baseline_repair_new_tenants.sql"
+  },
+  {
+    "order_index": 183,
+    "name": "183_fwup13_baseline_repair_no_txn",
+    "file": "20260428020000_fwup13_baseline_repair_no_txn.sql"
+  },
+  {
+    "order_index": 184,
+    "name": "184_fwup14_missing_columns_baseline_repair",
+    "file": "20260428030000_fwup14_missing_columns_baseline_repair.sql"
+  },
+  {
+    "order_index": 185,
+    "name": "185_fwup15_type_check_and_stage_ids",
+    "file": "20260428040000_fwup15_type_check_and_stage_ids.sql"
+  },
+  {
+    "order_index": 186,
+    "name": "186_fwup16_seed_all_modules",
+    "file": "20260428050000_fwup16_seed_all_modules.sql"
+  },
+  {
+    "order_index": 187,
+    "name": "187_fwup17_rls_policies_baseline_repair",
+    "file": "20260428060000_fwup17_rls_policies_baseline_repair.sql"
+  },
+  {
+    "order_index": 188,
+    "name": "188_fwup18_storage_buckets_and_policies",
+    "file": "20260430070000_fwup18_storage_buckets_and_policies.sql"
+  },
+  {
+    "order_index": 189,
+    "name": "189_fwup20_leads_pipelines_order_index",
+    "file": "20260430080000_fwup20_leads_pipelines_order_index.sql"
+  },
+  {
+    "order_index": 190,
+    "name": "190_fwup21_gcal_credentials_fix",
+    "file": "20260430090000_fwup21_gcal_credentials_fix.sql"
+  },
+  {
+    "order_index": 191,
+    "name": "191_fwup22_settings_update_fix",
+    "file": "20260430100000_fwup22_settings_update_fix.sql"
+  },
+  {
+    "order_index": 10178,
+    "name": "10178_fwup23_sends_import_presets",
+    "file": "20260430110000_fwup23_sends_import_presets.sql"
+  },
+  {
+    "order_index": 10179,
+    "name": "10179_fwup24_followup_control_text",
+    "file": "20260430120000_fwup24_followup_control_text.sql"
+  },
+  {
+    "order_index": 10180,
+    "name": "10180_fwup25_whatsapp_first_reply",
+    "file": "20260430130001_fwup25_whatsapp_first_reply.sql"
+  },
+  {
+    "order_index": 10181,
+    "name": "10181_fwup26_messages_missing_columns",
+    "file": "20260430140000_fwup26_messages_missing_columns.sql"
+  },
+  {
+    "order_index": 10182,
+    "name": "10182_fwup27_clients_people_missing_columns",
+    "file": "20260430150000_fwup27_clients_people_missing_columns.sql"
+  },
+  {
+    "order_index": 10183,
+    "name": "10183_fwup28_get_omni_contacts_rpc",
+    "file": "20260430160000_fwup28_get_omni_contacts_rpc.sql"
+  },
+  {
+    "order_index": 10184,
+    "name": "10184_fwup30_get_omni_contacts_rpc_v2",
+    "file": "20260430180000_fwup30_get_omni_contacts_rpc_v2.sql"
+  },
+  {
+    "order_index": 10185,
+    "name": "10185_add_private_reply_message_type",
+    "file": "20260430190000_add_private_reply_message_type.sql"
+  },
+  {
+    "order_index": 10186,
+    "name": "10186_sends_server_dispatch",
+    "file": "20260423013000_sends_server_dispatch.sql"
+  },
+  {
+    "order_index": 10187,
+    "name": "10187_add_email_chamada_message_types",
+    "file": "20260430200000_add_email_chamada_message_types.sql"
+  },
+  {
+    "order_index": 10188,
+    "name": "10188_fwup31_sends_missing_columns",
+    "file": "20260430220000_fwup31_sends_missing_columns.sql"
+  },
+  {
+    "order_index": 10189,
+    "name": "10189_fwup32_omni_channel_configs_rls",
+    "file": "20260430230000_fwup32_omni_channel_configs_rls.sql"
+  },
+  {
+    "order_index": 10190,
+    "name": "10190_fix_save_agent_complete_humanizacao_cast",
+    "file": "20260430240000_fix_save_agent_complete_humanizacao_cast.sql"
+  },
+  {
+    "order_index": 10191,
+    "name": "10191_ai_agent_stage_trigger",
+    "file": "20260430250000_ai_agent_stage_trigger.sql"
+  },
+  {
+    "order_index": 10192,
+    "name": "10192_fix_save_agent_complete_uuid_guards",
+    "file": "20260430260000_fix_save_agent_complete_uuid_guards.sql"
+  },
+  {
+    "order_index": 10193,
+    "name": "10193_fix_leads_status_ativo",
+    "file": "20260501100000_fix_leads_status_ativo.sql"
+  },
+  {
+    "order_index": 10194,
+    "name": "10194_ensure_full_tenant_baseline",
+    "file": "20260312150001_ensure_full_tenant_baseline.sql"
+  },
+  {
+    "order_index": 10195,
+    "name": "10195_fwup25_whatsapp_first_reply",
+    "file": "20260430130001_fwup25_whatsapp_first_reply.sql"
+  },
+  {
+    "order_index": 10196,
+    "name": "10196_fix_save_agent_complete_nullable_fields",
+    "file": "20260501110000_fix_save_agent_complete_nullable_fields.sql"
+  },
+  {
+    "order_index": 10197,
+    "name": "10197_fix_save_agent_complete_array_types",
+    "file": "20260501120000_fix_save_agent_complete_array_types.sql"
+  },
+  {
+    "order_index": 10198,
+    "name": "10198_fix_save_agent_complete_resolve_created_by",
+    "file": "20260501130000_fix_save_agent_complete_resolve_created_by.sql"
+  },
+  {
+    "order_index": 10199,
+    "name": "10199_ora_schema_drift_reconcile",
+    "file": "20260501140000_ora_schema_drift_reconcile.sql"
+  },
+  {
+    "order_index": 10200,
+    "name": "10200_user_types_canonical_refactor",
+    "file": "20260502120000_user_types_canonical_refactor.sql"
+  },
+  {
+    "order_index": 10201,
+    "name": "10201_leads_add_indicacao_evento_fields",
+    "file": "20260502130000_leads_add_indicacao_evento_fields.sql"
+  },
+  {
+    "order_index": 10202,
+    "name": "10202_leads_add_origem_lista",
+    "file": "20260502140000_leads_add_origem_lista.sql"
+  },
+  {
+    "order_index": 10203,
+    "name": "10203_wa_channels_read_for_users",
+    "file": "20260502180000_wa_channels_read_for_users.sql"
+  },
+  {
+    "order_index": 10204,
+    "name": "10204_remove_prospect_pro",
+    "file": "20260505080000_remove_prospect_pro.sql"
+  },
+  {
+    "order_index": 10205,
+    "name": "10205_fix_usr_01_settings_users_rls_writes",
+    "file": "20260507160901_fix_usr_01_settings_users_rls_writes.sql"
+  },
+  {
+    "order_index": 10206,
+    "name": "10206_fix_usr_03_settings_users_super_admin_invariant",
+    "file": "20260507161250_fix_usr_03_settings_users_super_admin_invariant.sql"
+  },
+  {
+    "order_index": 10209,
+    "name": "10209_ai_agents_add_origem_lista_filters",
+    "file": "20260507170000_ai_agents_add_origem_lista_filters.sql"
+  },
+  {
+    "order_index": 10211,
+    "name": "10211_fix_save_agent_complete_origem_lista_filters",
+    "file": "20260507171000_fix_save_agent_complete_origem_lista_filters.sql"
+  },
+  {
+    "order_index": 10212,
+    "name": "10212_remove_nylas_schema",
+    "file": "20260508000000_remove_nylas_schema.sql"
+  },
+  {
+    "order_index": 10213,
+    "name": "10213_create_lead_types",
+    "file": "20260508010000_create_lead_types.sql"
+  },
+  {
+    "order_index": 10214,
+    "name": "10214_lead_types_add_whatsapp_template",
+    "file": "20260508020000_lead_types_add_whatsapp_template.sql"
+  },
+  {
+    "order_index": 10215,
+    "name": "10215_fix_save_agent_complete_stage_ids_cast",
+    "file": "20260508030000_fix_save_agent_complete_stage_ids_cast.sql"
+  },
+  {
+    "order_index": 10216,
+    "name": "10216_fix_save_agent_complete_history_insert",
+    "file": "20260508040000_fix_save_agent_complete_history_insert.sql"
+  },
+  {
+    "order_index": 10217,
+    "name": "10217_fix_save_agent_complete_created_by_resolution",
+    "file": "20260508050000_fix_save_agent_complete_created_by_resolution.sql"
+  },
+  {
+    "order_index": 10218,
+    "name": "10218_settings_users_add_agente",
+    "file": "20260508060000_settings_users_add_agente.sql"
+  },
+  {
+    "order_index": 10219,
+    "name": "10219_fix_meeting_followup_trigger_column_names",
+    "file": "20260508100000_fix_meeting_followup_trigger_column_names.sql"
+  },
+  {
+    "order_index": 10220,
+    "name": "10220_reload_pgrst_schema_cache",
+    "file": "20260508110000_reload_pgrst_schema_cache.sql"
+  },
+  {
+    "order_index": 10221,
+    "name": "10221_inbound_webhooks",
+    "file": "20260510190000_inbound_webhooks.sql"
+  },
+  {
+    "order_index": 10222,
+    "name": "10222_agent_mentoria_joaoguirunas",
+    "file": "20260510200000_agent_mentoria_joaoguirunas.sql"
+  },
+  {
+    "order_index": 10223,
+    "name": "10223_agent_mentoria_single_step",
+    "file": "20260510210000_agent_mentoria_single_step.sql"
+  },
+  {
+    "order_index": 10224,
+    "name": "10224_fix_get_active_ai_provider_key_fallback",
+    "file": "20260511100000_fix_get_active_ai_provider_key_fallback.sql"
+  },
+  {
+    "order_index": 10225,
+    "name": "10225_fix_insights_context_prospect_guard",
+    "file": "20260511110000_fix_insights_context_prospect_guard.sql"
+  },
+  {
+    "order_index": 10226,
+    "name": "10226_pipe_2_1_lead_field_curso",
+    "file": "20260527130000_pipe_2_1_lead_field_curso.sql"
+  },
+  {
+    "order_index": 10227,
+    "name": "10227_pipe_3_1_dedup_constraints",
+    "file": "20260527140000_pipe_3_1_dedup_constraints.sql"
+  },
+  {
+    "order_index": 10228,
+    "name": "10228_pipe_2_1_append_curso_field",
+    "file": "20260527150000_pipe_2_1_append_curso_field.sql"
+  },
+  {
+    "order_index": 10229,
+    "name": "10229_pipe_1_2_consolidate_pipelines",
+    "file": "20260527160000_pipe_1_2_consolidate_pipelines.sql"
+  },
+  {
+    "order_index": 10230,
+    "name": "10230_fwup32_reparent_orphan_messages_to_canonical",
+    "file": "20260608110000_fwup32_reparent_orphan_messages_to_canonical.sql"
+  },
+  {
+    "order_index": 10231,
+    "name": "10231_fwup31_get_omni_contacts_include_email",
+    "file": "20260609100000_fwup31_get_omni_contacts_include_email.sql"
+  },
+  {
+    "order_index": 10232,
+    "name": "10232_drop_coach_pro_and_call_pro",
+    "file": "20260609000000_drop_coach_pro_and_call_pro.sql"
+  },
+  {
+    "order_index": 10233,
+    "name": "10233_fwup33_fix_messages_rls_instagram_dm",
+    "file": "20260609120000_fwup33_fix_messages_rls_instagram_dm.sql"
+  },
+  {
+    "order_index": 10234,
+    "name": "10234_seed_default_loss_reasons",
+    "file": "20260610000001_seed_default_loss_reasons.sql"
+  },
+  {
+    "order_index": 10235,
+    "name": "10235_whatsapp_template_sync_cron",
+    "file": "20260610000003_whatsapp_template_sync_cron.sql"
+  },
+  {
+    "order_index": 10236,
+    "name": "10236_fwup34_repair_message_type_check_private_reply_email",
+    "file": "20260610100000_fwup34_repair_message_type_check_private_reply_email.sql"
+  },
+  {
+    "order_index": 10237,
+    "name": "10237_process_buffer_pass_lock_preacquired",
+    "file": "20260611220000_process_buffer_pass_lock_preacquired-ok.sql"
+  },
+  {
+    "order_index": 10238,
+    "name": "10238_fix_custom_field_defs_entity_type",
+    "file": "20260611230000_fix_custom_field_defs_entity_type-ok.sql"
+  },
+  {
+    "order_index": 10239,
+    "name": "10239_revert_field_defs_restore_pessoa_migrate_values",
+    "file": "20260612000000_revert_field_defs_restore_pessoa_migrate_values-ok.sql"
+  },
+  {
+    "order_index": 10240,
+    "name": "10240_agenda_gcal_03_email_capture",
+    "file": "20260612160000_agenda_gcal_03_email_capture.sql"
+  },
+  {
+    "order_index": 10241,
+    "name": "10241_agendar_gcal_freebusy",
+    "file": "20260612010000_agendar_gcal_freebusy.sql"
+  },
+  {
+    "order_index": 10242,
+    "name": "10242_multical_user_calendar_connections",
+    "file": "20260613000000_multical_user_calendar_connections.sql"
+  },
+  {
+    "order_index": 10243,
+    "name": "10243_whatsapp_template_sync_cron_20min",
+    "file": "20260612003000_whatsapp_template_sync_cron_20min.sql"
+  },
+  {
+    "order_index": 10244,
+    "name": "10244_calcom_connections",
+    "file": "20260613002000_calcom_connections.sql"
+  },
+  {
+    "order_index": 10245,
+    "name": "10245_meeting_followup_templates_v2",
+    "file": "20260615000000_meeting_followup_templates_v2.sql"
+  },
+  {
+    "order_index": 10246,
+    "name": "10246_business_hours",
+    "file": "20260616000000_business_hours.sql"
+  },
+  {
+    "order_index": 10247,
+    "name": "10247_fix_meetings_followups_rls",
+    "file": "20260616000001_fix_meetings_followups_rls.sql"
+  },
+  {
+    "order_index": 10248,
+    "name": "10248_stage_followup_wa_bridge",
+    "file": "20260618000000_stage_followup_wa_bridge.sql"
+  },
+  {
+    "order_index": 10249,
+    "name": "10249_instagram_automation_comment_dedup",
+    "file": "20260619000000_instagram_automation_comment_dedup.sql"
+  },
+  {
+    "order_index": 10250,
+    "name": "10250_tiktok_channel_constraint",
+    "file": "20260623000000_tiktok_channel_constraint.sql"
+  },
+  {
+    "order_index": 10251,
+    "name": "10251_manychat_tiktok_integration",
+    "file": "20260629000000_manychat_tiktok_integration.sql"
+  },
+  {
+    "order_index": 10252,
+    "name": "10252_manychat_instagram_channel",
+    "file": "20260630000001_manychat_instagram_channel.sql"
+  },
+  {
+    "order_index": 10253,
+    "name": "10253_webhook_logs",
+    "file": "20260630000002_webhook_logs.sql"
+  },
+  {
+    "order_index": 10254,
+    "name": "10254_kiwify_integration_schema",
+    "file": "20260702120000_kiwify_integration_schema.sql"
+  },
+  {
+    "order_index": 10255,
+    "name": "10255_kiwify_rls_manager_fix",
+    "file": "20260702130000_kiwify_rls_manager_fix.sql"
+  },
+  {
+    "order_index": 10256,
+    "name": "10256_messages_source_type_kiwify",
+    "file": "20260702140000_messages_source_type_kiwify.sql"
+  },
+  {
+    "order_index": 10257,
+    "name": "10257_kiwify_reconcile_cron",
+    "file": "20260702150000_kiwify_reconcile_cron.sql"
+  },
+  {
+    "order_index": 10258,
+    "name": "10258_fwup25_fix_category_constraint",
+    "file": "20260430130000_fwup25_fix_category_constraint.sql"
+  },
+  {
+    "order_index": 10259,
+    "name": "10259_kiwify_lead_products",
+    "file": "20260702160000_kiwify_lead_products.sql"
+  },
+  {
+    "order_index": 10260,
+    "name": "10260_kiwify_client_id_and_pending_status",
+    "file": "20260702170000_kiwify_client_id_and_pending_status.sql"
+  },
+  {
+    "order_index": 10261,
+    "name": "10261_email_templates_schema",
+    "file": "20260703120000_email_templates_schema.sql"
+  },
+  {
+    "order_index": 10262,
+    "name": "10262_teams_pipelines_and_priority",
+    "file": "20260707190000_teams_pipelines_and_priority.sql"
+  },
+  {
+    "order_index": 10263,
+    "name": "10263_add_comercial_role",
+    "file": "20260708120000_add_comercial_role.sql"
+  },
+  {
+    "order_index": 10264,
+    "name": "10264_leads_rls_pipeline_access",
+    "file": "20260716140000_leads_rls_pipeline_access.sql"
+  },
+  {
+    "order_index": 10265,
+    "name": "10265_meetings_rls_pipeline_access",
+    "file": "20260716150000_meetings_rls_pipeline_access.sql"
+  },
+  {
+    "order_index": 10266,
+    "name": "10266_whatsapp_templates_purpose",
+    "file": "20260717120000_whatsapp_templates_purpose.sql"
+  },
+  {
+    "order_index": 10267,
+    "name": "10267_clients_people_rls_pipeline_access",
+    "file": "20260717130000_clients_people_rls_pipeline_access.sql"
+  },
+  {
+    "order_index": 10268,
+    "name": "10268_pipeline_kiwify_product_link",
+    "file": "20260717140000_pipeline_kiwify_product_link.sql"
+  },
+  {
+    "order_index": 10269,
+    "name": "10269_retorno_01_scheduled_callbacks",
+    "file": "20260721120000_retorno_01_scheduled_callbacks.sql"
+  },
+  {
+    "order_index": 10270,
+    "name": "10270_retorno_06_callback_cron",
+    "file": "20260722010000_retorno_06_callback_cron.sql"
+  },
+  {
+    "order_index": 10271,
+    "name": "10271_lead_multi_pipeline_ai_priority",
+    "file": "20260727120000_lead_multi_pipeline_ai_priority.sql"
+  },
+  {
+    "order_index": 10272,
+    "name": "10272_lead_stage_duplication_rules",
+    "file": "20260727130000_lead_stage_duplication_rules.sql"
+  },
+  {
+    "order_index": 10273,
+    "name": "10273_clients_people_created_by_rls_fix",
+    "file": "20260728120000_clients_people_created_by_rls_fix.sql"
+  },
+  {
+    "order_index": 10274,
+    "name": "10274_fix_stage_followup_webhook_config_source",
+    "file": "20260729220000_fix_stage_followup_webhook_config_source.sql"
+  },
+  {
+    "order_index": 10275,
+    "name": "10275_followup_queue_add_processing_status",
+    "file": "20260729223000_followup_queue_add_processing_status.sql"
+  },
+  {
+    "order_index": 10276,
+    "name": "10276_claim_followup_queue_batch",
+    "file": "20260729224000_claim_followup_queue_batch.sql"
+  },
+  {
+    "order_index": 10277,
+    "name": "10277_followup_trigger_worker_cron",
+    "file": "20260729230700_followup_trigger_worker_cron.sql"
+  },
+  {
+    "order_index": 10278,
+    "name": "10278_aurea_recomendacao_pipeline_scope",
+    "file": "20260729231500_aurea_recomendacao_pipeline_scope.sql"
+  },
+  {
+    "order_index": 10279,
+    "name": "10279_lead_tags_system",
+    "file": "20260729233000_lead_tags_system.sql"
+  },
+  {
+    "order_index": 10280,
+    "name": "10280_bump_clients_people_on_message",
+    "file": "20260730182000_bump_clients_people_on_message.sql"
+  },
+  {
+    "order_index": 10281,
+    "name": "10281_notif01_unread_conversations",
+    "file": "20260730190000_notif01_unread_conversations.sql"
+  },
+  {
+    "order_index": 10282,
+    "name": "10282_notif02_notification_event_type_inbound_message",
+    "file": "20260730190500_notif02_notification_event_type_inbound_message.sql"
+  },
+  {
+    "order_index": 10283,
+    "name": "10283_notif02_notifications_table",
+    "file": "20260730191000_notif02_notifications_table.sql"
+  },
+  {
+    "order_index": 10284,
+    "name": "10284_notif_rls_and_race_hardening",
+    "file": "20260730200000_notif_rls_and_race_hardening.sql"
+  },
+  {
+    "order_index": 10285,
+    "name": "10285_mark_read_recompute_unread_count",
+    "file": "20260730201000_mark_read_recompute_unread_count.sql"
+  },
+  {
+    "order_index": 10286,
+    "name": "10286_mark_all_notifications_read",
+    "file": "20260730210000_mark_all_notifications_read.sql"
+  },
+  {
+    "order_index": 10287,
+    "name": "10287_closer_meeting_notification",
+    "file": "20260730220000_closer_meeting_notification.sql"
+  },
+  {
+    "order_index": 10288,
+    "name": "10288_evolution_whatsapp_provider",
+    "file": "20260808100000_evolution_whatsapp_provider.sql"
+  },
+  {
+    "order_index": 10289,
+    "name": "10289_active_channel_id",
+    "file": "20260810180000_active_channel_id.sql"
+  },
+  {
+    "order_index": 10290,
+    "name": "10290_omni_contacts_channel_filter",
+    "file": "20260810190000_omni_contacts_channel_filter.sql"
+  },
+  {
+    "order_index": 10291,
+    "name": "10291_omni_media_bucket",
+    "file": "20260811130000_omni_media_bucket.sql"
+  },
+  {
+    "order_index": 10292,
+    "name": "10292_evolution_multi_channel",
+    "file": "20260811140000_evolution_multi_channel.sql"
+  }
+]

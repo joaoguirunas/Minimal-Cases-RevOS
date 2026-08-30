@@ -1,0 +1,69 @@
+name: Bump Version
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'version.json'
+      - '.github/workflows/bump-version.yml'
+
+concurrency:
+  group: bump-version
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    name: Bump version.json
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Bump version
+        run: |
+          CURRENT=$(cat version.json)
+          MAJOR=$(echo $CURRENT | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['major'])")
+          MINOR=$(echo $CURRENT | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['minor'])")
+          BUILD=$(echo $CURRENT | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['build'])")
+
+          NEW_BUILD=$((BUILD + 1))
+          NEW_MINOR=$((MINOR + 1))
+
+          if [ $NEW_MINOR -gt 99 ]; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_MINOR=1
+          else
+            NEW_MAJOR=$MAJOR
+          fi
+
+          VERSION="${NEW_MAJOR}.${NEW_MINOR}"
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          cat > version.json << EOF
+          {
+            "version": "${VERSION}",
+            "major": ${NEW_MAJOR},
+            "minor": ${NEW_MINOR},
+            "build": ${NEW_BUILD},
+            "updated_at": "${NOW}"
+          }
+          EOF
+
+          echo "Bumped to ${VERSION} (build ${NEW_BUILD})"
+
+          # Keep public/version.json in sync (Vite serves from public/)
+          cp version.json public/version.json
+
+      - name: Commit version bump
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json public/version.json
+          git diff --cached --quiet || git commit -m "chore: bump version to $(cat version.json | python3 -c 'import sys,json; print(json.load(sys.stdin)[\"version\"])')"
+          git push

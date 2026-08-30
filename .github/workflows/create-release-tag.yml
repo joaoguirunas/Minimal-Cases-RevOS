@@ -1,0 +1,117 @@
+name: Create Release Tag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/client-migrations.json'
+
+concurrency:
+  group: create-release-tag
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Generate release.json + git tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate release.json and tag
+        env:
+          GITHUB_SHA:                     ${{ github.sha }}
+          GITHUB_TOKEN:                   ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          # ── 1. Determine last release tag ────────────────────────────────────
+          LAST_TAG=$(git tag -l "release-v*" --sort=-version:refname | head -1)
+          echo "Last release tag: ${LAST_TAG:-none}"
+
+          # ── 2. Read current version from version.json ─────────────────────
+          VERSION=$(node -e "const v=require('./version.json'); console.log(v.version)")
+          echo "Release version: ${VERSION}"
+
+          # ── 3. Find new migrations since last tag ─────────────────────────
+          if [ -n "$LAST_TAG" ]; then
+            NEW_MIGRATIONS=$(git diff --name-only "${LAST_TAG}" HEAD -- 'supabase/migrations/*.sql' \
+              | grep -v '/rollbacks/' | sort || true)
+          else
+            # First release: include all client migrations
+            NEW_MIGRATIONS=$(jq -r '.[] | .file // (.files // [] | .[])' supabase/client-migrations.json \
+              | grep -v '^null$' | sort -u || true)
+          fi
+
+          echo "New migrations:"
+          echo "${NEW_MIGRATIONS}"
+
+          # ── 4. Extract changelog from recent commits ──────────────────────
+          if [ -n "$LAST_TAG" ]; then
+            CHANGELOG=$(git log "${LAST_TAG}..HEAD" --pretty=format:"%s" \
+              | grep -v "^chore: bump version" | head -20 | tr '\n' '|' | sed 's/|$//')
+          else
+            CHANGELOG=$(git log --pretty=format:"%s" -20 \
+              | grep -v "^chore: bump version" | head -10 | tr '\n' '|' | sed 's/|$//')
+          fi
+
+          # ── 5. Build release.json ─────────────────────────────────────────
+          MIGRATIONS_JSON=$(echo "${NEW_MIGRATIONS}" | grep -v '^$' \
+            | python3 -c "import sys,json; lines=[l.strip() for l in sys.stdin if l.strip()]; print(json.dumps(lines))" \
+            || echo "[]")
+
+          NOW=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          # Write CHANGELOG to file to avoid shell quoting issues with special chars
+          printf '%s' "${CHANGELOG}" > /tmp/release_changelog.txt
+
+          node -e "
+            const fs = require('fs');
+            const v = require('./version.json');
+            const changelog = fs.readFileSync('/tmp/release_changelog.txt', 'utf8');
+            const release = {
+              version: v.version,
+              major: v.major,
+              minor: v.minor,
+              created_at: '${NOW}',
+              git_sha: '${GITHUB_SHA}',
+              migrations: ${MIGRATIONS_JSON},
+              min_compat_from: '1.0',
+              changelog: changelog
+            };
+            fs.writeFileSync('release.json', JSON.stringify(release, null, 2));
+            console.log('release.json written:', JSON.stringify(release, null, 2));
+          "
+
+          # ── 6. Commit release.json ────────────────────────────────────────
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add release.json
+          git diff --cached --quiet || git commit -m "chore(release): release.json v${VERSION} [skip ci]"
+
+          # ── 7. Create and push git tag ────────────────────────────────────
+          TAG="release-v${VERSION}"
+          if git tag -l "${TAG}" | grep -q "${TAG}"; then
+            echo "Tag ${TAG} already exists — skipping tag creation."
+          else
+            git tag -a "${TAG}" -m "Release v${VERSION} — $(echo ${NEW_MIGRATIONS} | wc -w | tr -d ' ') migration(s)"
+            echo "Created tag: ${TAG}"
+          fi
+
+          git pull --rebase origin main || true
+          git push origin HEAD:main --tags
+
+          echo "Release ${TAG} published."

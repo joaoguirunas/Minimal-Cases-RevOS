@@ -1,0 +1,304 @@
+{%- comment -%}
+  gs-foundation (INLINED) — Growth Sales design backbone for the REAL Kiwify members-area
+  theme (ADR-KFY-02, revised). Pure-CSS style tag block, no visible markup, no schema tag.
+
+  WHY INLINED (not a snippet/section): the Kiwify Code Editor used by this account does not
+  expose an "add file" action — only the theme's fixed 6 sections + 4 snippets are editable.
+  A new snippets/gs-foundation.liquid file (or a foundation section) is therefore unusable.
+  This identical style-tag block is duplicated at the top of all 6 real sections
+  (banner / login / modules / courses / lessons / continue_watching). CSS is idempotent, so
+  duplication across sections is safe — just verbose. If the platform ever allows custom
+  files, this can be collapsed back into a single rendered snippet.
+
+  Does what Tailwind classes can't reach: @import fonts, body/void background, textures,
+  ::selection, and a best-effort override of the platform's --primary-*/gray CSS vars.
+  Per-element accent is guaranteed separately by class edits (KFY-3.5/3.6).
+
+  Logo is NOT handled here — it comes from the real components (club.logo / render 'image').
+  Token values: docs/smart-memory/project/growth-sales-design-system.md §1.
+
+  ── TODO(verify) no runtime da Kiwify ──────────────────────────────────────────
+  1. Cor-principal do painel: se existir, setar #ff3a0e cascateia ember de graça.
+  2. Nomes/formato EXATOS das vars --primary-* / --gray-* (bloco marcado abaixo) —
+     não confirmados na doc; override best-effort, ajustar no editor.
+  3. Kiwify não sanitiza o @import externo. Se bloquear, as stacks de sistema já
+     preservam a hierarquia serif/sans/mono (degradação graciosa).
+{%- endcomment -%}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap');
+
+  :root {
+    /* Surfaces */
+    --void: #050507;
+    --ink: #0e0e11;
+    --ink-2: #16161a;
+    --ink-3: #1f1f24;
+    --hairline: rgba(255,255,255,0.07);
+    --hairline-strong: rgba(255,255,255,0.16);
+    /* Text (bone) */
+    --bone: #f1f1f3;
+    --bone-dim: #c5c5ca;
+    --bone-mute: #84848c;
+    /* Accent (ember) */
+    --ember: #ff3a0e;
+    --ember-glow: #ff5a1f;
+    --ember-hot: #ff7a3d;
+    --signal: #e8e8ee;
+    /* Type stacks — custom face first, system fallback keeps serif/sans/mono */
+    --type-display: 'Fraunces', 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --type-sans: 'Inter Tight', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --type-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    /* Easings */
+    --ease-cinema: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-glide: cubic-bezier(0.25, 1, 0.3, 1);
+    --ease-snap: cubic-bezier(0.5, 0, 0, 1);
+    /* Display scale */
+    --fs-hero: clamp(56px, 7.5vw, 112px);
+    --fs-h2: clamp(44px, 5.5vw, 72px);
+  }
+
+  /* ── Best-effort override of the platform's Tailwind color variables ─────
+     TODO(verify): confirmar nomes e FORMATO reais das vars --primary-* no runtime.
+     A plataforma usa classes numéricas (bg-primary-500/800) e semânticas (bg-primary,
+     text-primary-foreground). Cobrimos as duas convenções mais comuns do
+     Tailwind-com-CSS-vars; valores em formato errado são ignorados (inócuos). O acento
+     por-componente é garantido por classe em KFY-3.5/3.6. */
+  :root, .dark, [data-theme="dark"], [data-theme="light"] {
+    /* shadcn-style semantic tokens (HSL channels → hsl(var(--primary))) */
+    --primary: 11 100% 53%;               /* #ff3a0e ember */
+    --primary-foreground: 240 17% 2%;     /* #050507 void */
+    --ring: 11 100% 53%;
+    /* numeric scale (RGB channels → rgb(var(--primary-500))) */
+    --primary-50: 255 237 232;
+    --primary-100: 255 214 204;
+    --primary-200: 255 173 153;
+    --primary-300: 255 122 61;            /* ember-hot */
+    --primary-400: 255 90 31;             /* ember-glow */
+    --primary-500: 255 58 14;             /* ember */
+    --primary-600: 230 50 10;
+    --primary-700: 194 42 8;
+    --primary-800: 158 34 6;
+    --primary-900: 122 26 4;
+  }
+
+  /* ── Base (dark-first — void domina em light e dark) ─────────────────────── */
+  html { background: var(--void); color-scheme: dark; }
+  body {
+    background: var(--void);
+    color: var(--bone-dim);
+    font-family: var(--type-sans);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  ::selection { background: var(--ember); color: var(--void); }
+
+  /* ── Background textures (fixed, non-interactive, behind content) ───────── */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    background-image:
+      radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.45) 100%),
+      radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+    background-size: 100% 100%, 24px 24px, 100% 3px;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    opacity: 0.8; mix-blend-mode: overlay;
+    background-image: radial-gradient(rgba(255,255,255,0.08) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+  /* Keep the real content above the textures */
+  body > * { position: relative; z-index: 2; }
+</style>
+{% assign slides_count = section.block_order.size %}
+{% assign slides_delay = section.settings.slides_delay | default: 3 %}
+{% assign slides_order = section.block_order %}
+{% assign slides = section.blocks %}
+
+{% if slides_count > 0 or is_preview %}
+  {% comment %}
+    embla class enables the carousel
+    data-slides-delay enables autoplay and controls the delay between slides
+    data-embla-options is the options for the carousel in JSON format; all options are listed in the embla documentation: https://www.embla-carousel.com/api/options/
+  {% endcomment %}
+  <div
+    class="embla relative overflow-hidden group"
+    data-slides-delay="{{ slides_delay }}"
+    data-embla-options='{ "loop": true, "dragFree": false{% if slides_count == 1 %}, "active": false{% endif %} }'
+  >
+    {% comment %} embla__viewport is the area that contains the slides {% endcomment %}
+    <div class="embla__viewport overflow-hidden">
+      <div class="embla__container flex">
+        {%- for slide_id in slides_order -%}
+          {%- assign slide = slides[slide_id].settings -%}
+          <div class="embla__slide flex-shrink-0 w-screen max-w-full">
+            {%- if slide.banner_type == 'image' -%}
+              <picture>
+                {% if slide.desktop_image %}
+                  <source
+                    media="(min-width: 768px)"
+                    srcset="{{ slide.desktop_image }}"
+                  >
+                {% endif %}
+                {% if slide.mobile_image %}
+                  <source srcset="{{ slide.mobile_image }}">
+                {% endif %}
+                <img
+                  src="{{ slide.desktop_image | default: slide.mobile_image }}"
+                  alt=""
+                  loading="lazy"
+                  width="2000"
+                  height="590"
+                  class="
+                    select-none pointer-events-none w-full
+                    aspect-[768/432] sm:aspect-[2000/590] object-cover
+                  "
+                >
+              </picture>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {% comment %}
+      Arrows are used to navigate between slides.
+      data-embla-prev is the button that navigates to the previous slide
+      data-embla-next is the button that navigates to the next slide
+    {% endcomment %}
+    {% if slides_count > 1 %}
+      <button
+        data-embla-prev
+        class="embla__button absolute z-10 transform top-1/2 -translate-y-1/2 flex items-center justify-center rounded-none outline-none p-0 m-0 w-8 lg:w-12 h-8 lg:h-12 *:w-6 lg:*:w-8 *:h-6 lg:*:h-8 opacity-50 sm:opacity-0 sm:group-hover:opacity-50 sm:group-focus-within:opacity-50 text-[#050507] bg-[#ff3a0e] group-hover:hover:opacity-100 focus-visible:outline-[#ff3a0e] focus-visible:focus:opacity-100 transition-all ease-in-out duration-300 left-0 md:left-2 scale-100"
+      >
+        <svg
+          aria-hidden="true"
+          role="img"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+        >
+          <path fill="currentColor" fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+
+      <button
+        data-embla-next
+        class="embla__button absolute z-10 transform top-1/2 -translate-y-1/2 flex items-center justify-center rounded-none outline-none p-0 m-0 w-8 lg:w-12 h-8 lg:h-12 *:w-6 lg:*:w-8 *:h-6 lg:*:h-8 opacity-50 sm:opacity-0 sm:group-hover:opacity-50 sm:group-focus-within:opacity-50 text-[#050507] bg-[#ff3a0e] group-hover:hover:opacity-100 focus-visible:outline-[#ff3a0e] focus-visible:focus:opacity-100 transition-all ease-in-out duration-300 right-0 md:right-2 scale-100"
+      >
+        <svg
+          aria-hidden="true"
+          role="img"
+          width="1em"
+          height="1em"
+          viewBox="0 0 16 16"
+        >
+          <path fill="currentColor" fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8L6.22 5.28a.75.75 0 0 1 0-1.06" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    {% endif %}
+
+    {% comment %}
+      Dots are used to navigate between slides.
+      data-embla-dot is the button that navigates to the corresponding slide, i.e, the first dot navigates to the first slide, the second dot navigates to the second slide, etc.
+    {% endcomment %}
+    {% if slides_count > 1 %}
+      <div class="absolute bottom-4 left-0 right-0 flex gap-1 justify-center">
+        {%- for slide_id in slides_order -%}
+          <button
+            class="flex-shrink-0 w-4 h-4 flex items-center justify-center"
+            data-embla-dot
+          >
+            <div
+              class="dot w-2 h-2 rounded-full bg-[#ff3a0e] opacity-30 hover:opacity-50 transition-all duration-200"
+            ></div>
+          </button>
+        {%- endfor -%}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% comment %}
+  O CONTEÚDO ABAIXO É PARA O EDITOR DE TEMA. SAIBA MAIS EM: https://docs.kiwify.com.br/members-area/reference/schema/overview
+  SCHEMA IS FOR THE THEME EDITOR. KNOW MORE IN: https://docs.kiwify.com.br/en/members-area/reference/schema/overview
+{% endcomment %}
+{% schema %}
+{
+  "name": "t:sections.banner.title",
+  "settings": [
+    {
+      "type": "range",
+      "id": "slides_delay",
+      "label": "t:sections.banner.slides_delay",
+      "min": 3,
+      "max": 60,
+      "step": 1,
+      "default": 3,
+      "unit": "s"
+    }
+  ],
+  "kiwi_extra": {
+    "icon": "fas fa-images"
+  },
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.banner.slide",
+      "settings": [
+        {
+          "type": "select",
+          "id": "banner_type",
+          "label": "t:sections.banner.banner_type",
+          "default": "image",
+          "options": [
+            {
+              "value": "image",
+              "label": "t:sections.banner.image",
+              "kiwi_extra": {
+                "icon": "fas fa-image"
+              }
+            }
+          ],
+          "kiwi_extra": {
+            "icon": "fas fa-cog",
+            "hidden": true
+          }
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "t:sections.banner.mobile_image",
+          "default": "https://placehold.co/768x432"
+        },
+        {
+          "type": "image_picker",
+          "id": "desktop_image",
+          "label": "t:sections.banner.desktop_image",
+          "default": "https://placehold.co/2000x590"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner.title",
+      "blocks": [
+        {
+          "type": "slide"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

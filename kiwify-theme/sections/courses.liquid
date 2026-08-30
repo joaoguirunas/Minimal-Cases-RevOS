@@ -1,0 +1,288 @@
+{%- comment -%}
+  gs-foundation (INLINED) — Growth Sales design backbone for the REAL Kiwify members-area
+  theme (ADR-KFY-02, revised). Pure-CSS style tag block, no visible markup, no schema tag.
+
+  WHY INLINED (not a snippet/section): the Kiwify Code Editor used by this account does not
+  expose an "add file" action — only the theme's fixed 6 sections + 4 snippets are editable.
+  A new snippets/gs-foundation.liquid file (or a foundation section) is therefore unusable.
+  This identical style-tag block is duplicated at the top of all 6 real sections
+  (banner / login / modules / courses / lessons / continue_watching). CSS is idempotent, so
+  duplication across sections is safe — just verbose. If the platform ever allows custom
+  files, this can be collapsed back into a single rendered snippet.
+
+  Does what Tailwind classes can't reach: @import fonts, body/void background, textures,
+  ::selection, and a best-effort override of the platform's --primary-*/gray CSS vars.
+  Per-element accent is guaranteed separately by class edits (KFY-3.5/3.6).
+
+  Logo is NOT handled here — it comes from the real components (club.logo / render 'image').
+  Token values: docs/smart-memory/project/growth-sales-design-system.md §1.
+
+  ── TODO(verify) no runtime da Kiwify ──────────────────────────────────────────
+  1. Cor-principal do painel: se existir, setar #ff3a0e cascateia ember de graça.
+  2. Nomes/formato EXATOS das vars --primary-* / --gray-* (bloco marcado abaixo) —
+     não confirmados na doc; override best-effort, ajustar no editor.
+  3. Kiwify não sanitiza o @import externo. Se bloquear, as stacks de sistema já
+     preservam a hierarquia serif/sans/mono (degradação graciosa).
+{%- endcomment -%}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap');
+
+  :root {
+    /* Surfaces */
+    --void: #050507;
+    --ink: #0e0e11;
+    --ink-2: #16161a;
+    --ink-3: #1f1f24;
+    --hairline: rgba(255,255,255,0.07);
+    --hairline-strong: rgba(255,255,255,0.16);
+    /* Text (bone) */
+    --bone: #f1f1f3;
+    --bone-dim: #c5c5ca;
+    --bone-mute: #84848c;
+    /* Accent (ember) */
+    --ember: #ff3a0e;
+    --ember-glow: #ff5a1f;
+    --ember-hot: #ff7a3d;
+    --signal: #e8e8ee;
+    /* Type stacks — custom face first, system fallback keeps serif/sans/mono */
+    --type-display: 'Fraunces', 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --type-sans: 'Inter Tight', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --type-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    /* Easings */
+    --ease-cinema: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-glide: cubic-bezier(0.25, 1, 0.3, 1);
+    --ease-snap: cubic-bezier(0.5, 0, 0, 1);
+    /* Display scale */
+    --fs-hero: clamp(56px, 7.5vw, 112px);
+    --fs-h2: clamp(44px, 5.5vw, 72px);
+  }
+
+  /* ── Best-effort override of the platform's Tailwind color variables ─────
+     TODO(verify): confirmar nomes e FORMATO reais das vars --primary-* no runtime.
+     A plataforma usa classes numéricas (bg-primary-500/800) e semânticas (bg-primary,
+     text-primary-foreground). Cobrimos as duas convenções mais comuns do
+     Tailwind-com-CSS-vars; valores em formato errado são ignorados (inócuos). O acento
+     por-componente é garantido por classe em KFY-3.5/3.6. */
+  :root, .dark, [data-theme="dark"], [data-theme="light"] {
+    /* shadcn-style semantic tokens (HSL channels → hsl(var(--primary))) */
+    --primary: 11 100% 53%;               /* #ff3a0e ember */
+    --primary-foreground: 240 17% 2%;     /* #050507 void */
+    --ring: 11 100% 53%;
+    /* numeric scale (RGB channels → rgb(var(--primary-500))) */
+    --primary-50: 255 237 232;
+    --primary-100: 255 214 204;
+    --primary-200: 255 173 153;
+    --primary-300: 255 122 61;            /* ember-hot */
+    --primary-400: 255 90 31;             /* ember-glow */
+    --primary-500: 255 58 14;             /* ember */
+    --primary-600: 230 50 10;
+    --primary-700: 194 42 8;
+    --primary-800: 158 34 6;
+    --primary-900: 122 26 4;
+  }
+
+  /* ── Base (dark-first — void domina em light e dark) ─────────────────────── */
+  html { background: var(--void); color-scheme: dark; }
+  body {
+    background: var(--void);
+    color: var(--bone-dim);
+    font-family: var(--type-sans);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  ::selection { background: var(--ember); color: var(--void); }
+
+  /* ── Background textures (fixed, non-interactive, behind content) ───────── */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    background-image:
+      radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.45) 100%),
+      radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+    background-size: 100% 100%, 24px 24px, 100% 3px;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    opacity: 0.8; mix-blend-mode: overlay;
+    background-image: radial-gradient(rgba(255,255,255,0.08) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+  /* Keep the real content above the textures */
+  body > * { position: relative; z-index: 2; }
+</style>
+{% comment %}
+  If this setting is enabled, all courses the user has access to are displayed. Otherwise,
+  only the courses that are selected in the section (as blocks) are displayed.
+{% endcomment %}
+{% if section.settings.all_accessible_courses %}
+  {% assign courses = all_courses_values | where: 'user_data.visible', true | sort_natural: 'name' %}
+{% else %}
+  {% comment %} Filter out blocks that don't exist in all_courses and that are not visible {% endcomment %}
+  {% comment %} Visible means the user has access to the course or can buy it {% endcomment %}
+  {% assign filtered_blocks = section.block_order
+    | reject_exp: 'block_id', 'all_courses[section.blocks[block_id].settings.course_id] == undefined'
+    | reject_exp: 'block_id',
+      'all_courses[section.blocks[block_id].settings.course_id].user_data.visible == false and all_courses[section.blocks[block_id].settings.course_id].custom_offer.enabled == false and not all_courses[section.blocks[block_id].settings.course_id].custom_offer.external_link'
+  %}
+  {% comment %} Initialize empty array that will be populated with existing courses {% endcomment %}
+  {% assign courses = '' | split: ',' %}
+  {% for block_id in filtered_blocks %}
+    {% assign courses = courses | push: all_courses[section.blocks[block_id].settings.course_id] %}
+  {% endfor %}
+{% endif %}
+
+{% if courses.size > 0 or is_preview %}
+  <section
+    id="section__{{ section.id }}"
+    class="kiwi-section relative z-0 hover:z-10 has-[:focus]:z-20 px-6 md:px-12 pb-6 md:pb-12 content-section content-section--courses"
+    data-kiwi-section-id="{{ section.id }}"
+  >
+    <div class="pt-8">
+      <h2
+        id="section__{{ section.id }}__title"
+        class="kiwi-section__title font-[family-name:var(--type-display)] font-normal italic text-2xl md:text-3xl tracking-[-0.02em] text-[#f1f1f3] drop-shadow-hard-light dark:drop-shadow-hard mb-1 sm:mb-3 flex flex-row items-center gap-2 relative z-20"
+      >
+        {{ section.settings.title }}
+      </h2>
+
+      {% if courses.size > 0 %}
+        {% liquid
+          assign section_items = courses
+          assign should_display_progress = true
+
+          assign is_horizontal = false
+          if section.settings.items_layout == 'landscape'
+            assign is_horizontal = true
+          endif
+
+          assign percentage_field = 'progress'
+          assign path_format = '/{id}'
+        %}
+        {% render 'cards',
+          section: section,
+          section_items: section_items,
+          is_preview: is_preview,
+          source: source,
+          should_display_progress: should_display_progress,
+          is_horizontal: is_horizontal,
+          percentage_field: percentage_field,
+          path_format: path_format
+        %}
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% comment %}
+  O CONTEÚDO ABAIXO É PARA O EDITOR DE TEMA. SAIBA MAIS EM: https://docs.kiwify.com.br/members-area/reference/schema/overview
+  SCHEMA IS FOR THE THEME EDITOR. KNOW MORE IN: https://docs.kiwify.com.br/en/members-area/reference/schema/overview
+{% endcomment %}
+{% schema %}
+{
+  "name": "t:sections.courses.section_title",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.courses.title.label",
+      "placeholder": "t:sections.courses.title.placeholder"
+    },
+    {
+      "type": "select",
+      "id": "items_variant",
+      "label": "t:sections.courses.items_variant.label",
+      "options": [
+        {
+          "value": "content_over",
+          "label": "t:sections.courses.items_variant.content_over",
+          "kiwi_extra": {
+            "icon": "fas fa-eye"
+          }
+        },
+        {
+          "value": "content_hidden",
+          "label": "t:sections.courses.items_variant.content_hidden",
+          "kiwi_extra": {
+            "icon": "fas fa-eye-slash"
+          }
+        },
+        {
+          "value": "mouse_hover",
+          "label": "t:sections.courses.items_variant.mouse_hover",
+          "kiwi_extra": {
+            "icon": "CursorClickIcon"
+          }
+        }
+      ],
+      "kiwi_extra": {
+        "labeled": false
+      },
+      "default": "content_over"
+    },
+    {
+      "type": "select",
+      "id": "items_layout",
+      "label": "t:sections.courses.items_layout.label",
+      "options": [
+        {
+          "value": "portrait",
+          "label": "t:sections.courses.items_layout.portrait",
+          "kiwi_extra": {
+            "icon": "fa fa-portrait"
+          }
+        },
+        {
+          "value": "landscape",
+          "label": "t:sections.courses.items_layout.landscape",
+          "kiwi_extra": {
+            "icon": "fa fa-image"
+          }
+        }
+      ],
+      "kiwi_extra": {
+        "labeled": false
+      },
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "all_accessible_courses",
+      "label": "t:sections.courses.all_accessible_courses.label",
+      "default": false
+    }
+  ],
+  "kiwi_extra": {
+    "icon": "fas fa-graduation-cap",
+    "blocks_hidden_if": {
+      "setting": "all_accessible_courses",
+      "value": true
+    }
+  },
+  "blocks": [
+    {
+      "type": "course",
+      "name": "t:sections.courses.course_id.label",
+      "settings": [
+        {
+          "type": "course",
+          "id": "course_id",
+          "label": "t:sections.courses.course_id.label",
+          "placeholder": "t:sections.courses.course_id.placeholder",
+          "kiwi_extra": {
+            "icon": "fas fa-book"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

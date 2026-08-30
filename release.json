@@ -1,0 +1,12 @@
+{
+  "version": "4.92",
+  "major": 4,
+  "minor": 92,
+  "created_at": "2026-08-27T14:59:49.000Z",
+  "git_sha": "d24d908c68ba2e5b0e57a1e3ee849094741aa895",
+  "migrations": [
+    "supabase/migrations/20260827120000_fix_phone_dedup_normalization.sql"
+  ],
+  "min_compat_from": "1.0",
+  "changelog": "Merge branch 'main' of https://github.com/joaoguirunas/joaoguirunas-crm|fix: normaliza telefone no dedup de contatos, evita split de conversa|Merge branch 'main' of https://github.com/joaoguirunas/joaoguirunas-crm|fix: corrige crash na aba WhatsApp > Canais quando existe canal Evolution|Merge branch 'main' of https://github.com/joaoguirunas/joaoguirunas-crm|fix: corrige TDZ que quebrava a seção Conversas do Omni|Merge branch 'main' of https://github.com/joaoguirunas/joaoguirunas-crm|feat: adiciona resposta com citação (quote reply) nas conversas do WhatsApp|Merge branch 'main' of https://github.com/joaoguirunas/joaoguirunas-crm|fix: ordena Kanban por última atualização, não por criação do lead|Merge remote-tracking branch 'origin/main'|fix: debounce realtime invalidation no Kanban de negócios|fix: implementa move de etapa apos disparo no Sends PRO (feature morta)|fix: send-dispatch-worker toma 401 silencioso do cron (rotação de API keys)|fix: oculta botão flutuante do Performance Monitor|fix: dedup por telefone e title ausente em sends-import-contacts; escape hatch de FUP|fix: disparo automático via form/webhook não funciona com canal Evolution|fix: janela 24h/template do WhatsApp não deve valer pro canal não-oficial|feat: move Evolution templates into the connection tab|chore: auto-update client-migrations manifest [skip ci]"
+}

@@ -1,0 +1,69 @@
+{% comment %}
+  This snippet is used to display content cards in courses, lessons, modules, and continue watching sections.
+  It configures the carousel and delegates the card rendering to the cards-item snippet.
+{% endcomment %}
+{% if section_items.size > 0 or is_preview %}
+  <div>
+    {% comment %}
+      embla class enables the carousel
+      data-embla-options is the options for the carousel in JSON format; all options are listed in the embla documentation: https://www.embla-carousel.com/api/options/
+    {% endcomment %}
+    <div class="embla relative group" data-embla-options='{ "loop": false, "dragFree": true }'>
+      {% comment %} embla__viewport is the area that contains the cards {% endcomment %}
+      <div class="embla__viewport">
+        <div class="embla__container flex items-start gap-4 *:flex-grow-0 *:flex-shrink-0 *:basis-auto *:min-w-0 *:max-w-full">
+          {% comment %} Card item loop {% endcomment %}
+          {% for item in section_items %}
+            {% render 'cards-item',
+              item: item,
+              is_horizontal: is_horizontal,
+              percentage_field: percentage_field,
+              path_format: path_format,
+              section: section,
+              should_display_progress: should_display_progress,
+              is_preview: is_preview,
+              source: source
+            %}
+          {% endfor %}
+        </div>
+      </div>
+
+      {% comment %}
+        Arrows are used to navigate between cards.
+        data-embla-prev is the button that navigates to the previous card
+        data-embla-next is the button that navigates to the next card
+      {% endcomment %}
+      {% if section_items.size > 1 %}
+        <button
+          data-embla-prev
+          class="embla__button embla__button--prev absolute z-10 transform top-1/2 -translate-y-1/2 flex items-center justify-center rounded-none outline-none p-0 m-0 w-8 lg:w-12 h-8 lg:h-12 *:w-6 lg:*:w-8 *:h-6 lg:*:h-8 opacity-50 sm:opacity-0 sm:group-hover:opacity-50 sm:group-focus-within:opacity-50 text-[#050507] bg-[#ff3a0e] group-hover:hover:opacity-100 focus-visible:outline-[#ff3a0e] focus-visible:focus:opacity-100 transition-all ease-in-out duration-300 left-0 md:left-2 scale-100"
+        >
+          <svg
+            aria-hidden="true"
+            role="img"
+            width="1em"
+            height="1em"
+            viewBox="0 0 16 16"
+          >
+            <path fill="currentColor" fill-rule="evenodd" d="M9.78 4.22a.75.75 0 0 1 0 1.06L7.06 8l2.72 2.72a.75.75 0 1 1-1.06 1.06L5.47 8.53a.75.75 0 0 1 0-1.06l3.25-3.25a.75.75 0 0 1 1.06 0" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+
+        <button
+          data-embla-next
+          class="embla__button embla__button--next absolute z-10 transform top-1/2 -translate-y-1/2 flex items-center justify-center rounded-none outline-none p-0 m-0 w-8 lg:w-12 h-8 lg:h-12 *:w-6 lg:*:w-8 *:h-6 lg:*:h-8 opacity-50 sm:opacity-0 sm:group-hover:opacity-50 sm:group-focus-within:opacity-50 text-[#050507] bg-[#ff3a0e] group-hover:hover:opacity-100 focus-visible:outline-[#ff3a0e] focus-visible:focus:opacity-100 transition-all ease-in-out duration-300 right-0 md:right-2 scale-100"
+        >
+          <svg
+            aria-hidden="true"
+            role="img"
+            width="1em"
+            height="1em"
+            viewBox="0 0 16 16"
+          >
+            <path fill="currentColor" fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8L6.22 5.28a.75.75 0 0 1 0-1.06" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

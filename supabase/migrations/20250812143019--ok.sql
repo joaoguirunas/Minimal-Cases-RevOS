@@ -1,0 +1,2 @@
+-- Remover versão antiga da função com parâmetros text para evitar conflito de overloading
+DROP FUNCTION IF EXISTS get_dashboard_negocios_aggregated(uuid, text, text, text, text, timestamp, timestamp, integer[]);

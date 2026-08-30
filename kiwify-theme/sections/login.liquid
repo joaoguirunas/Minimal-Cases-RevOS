@@ -1,0 +1,258 @@
+{%- comment -%}
+  gs-foundation (INLINED) — Growth Sales design backbone for the REAL Kiwify members-area
+  theme (ADR-KFY-02, revised). Pure-CSS style tag block, no visible markup, no schema tag.
+
+  WHY INLINED (not a snippet/section): the Kiwify Code Editor used by this account does not
+  expose an "add file" action — only the theme's fixed 6 sections + 4 snippets are editable.
+  A new snippets/gs-foundation.liquid file (or a foundation section) is therefore unusable.
+  This identical style-tag block is duplicated at the top of all 6 real sections
+  (banner / login / modules / courses / lessons / continue_watching). CSS is idempotent, so
+  duplication across sections is safe — just verbose. If the platform ever allows custom
+  files, this can be collapsed back into a single rendered snippet.
+
+  Does what Tailwind classes can't reach: @import fonts, body/void background, textures,
+  ::selection, and a best-effort override of the platform's --primary-*/gray CSS vars.
+  Per-element accent is guaranteed separately by class edits (KFY-3.5/3.6).
+
+  Logo is NOT handled here — it comes from the real components (club.logo / render 'image').
+  Token values: docs/smart-memory/project/growth-sales-design-system.md §1.
+
+  ── TODO(verify) no runtime da Kiwify ──────────────────────────────────────────
+  1. Cor-principal do painel: se existir, setar #ff3a0e cascateia ember de graça.
+  2. Nomes/formato EXATOS das vars --primary-* / --gray-* (bloco marcado abaixo) —
+     não confirmados na doc; override best-effort, ajustar no editor.
+  3. Kiwify não sanitiza o @import externo. Se bloquear, as stacks de sistema já
+     preservam a hierarquia serif/sans/mono (degradação graciosa).
+{%- endcomment -%}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap');
+
+  :root {
+    /* Surfaces */
+    --void: #050507;
+    --ink: #0e0e11;
+    --ink-2: #16161a;
+    --ink-3: #1f1f24;
+    --hairline: rgba(255,255,255,0.07);
+    --hairline-strong: rgba(255,255,255,0.16);
+    /* Text (bone) */
+    --bone: #f1f1f3;
+    --bone-dim: #c5c5ca;
+    --bone-mute: #84848c;
+    /* Accent (ember) */
+    --ember: #ff3a0e;
+    --ember-glow: #ff5a1f;
+    --ember-hot: #ff7a3d;
+    --signal: #e8e8ee;
+    /* Type stacks — custom face first, system fallback keeps serif/sans/mono */
+    --type-display: 'Fraunces', 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    --type-sans: 'Inter Tight', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --type-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    /* Easings */
+    --ease-cinema: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-glide: cubic-bezier(0.25, 1, 0.3, 1);
+    --ease-snap: cubic-bezier(0.5, 0, 0, 1);
+    /* Display scale */
+    --fs-hero: clamp(56px, 7.5vw, 112px);
+    --fs-h2: clamp(44px, 5.5vw, 72px);
+  }
+
+  /* ── Best-effort override of the platform's Tailwind color variables ─────
+     TODO(verify): confirmar nomes e FORMATO reais das vars --primary-* no runtime.
+     A plataforma usa classes numéricas (bg-primary-500/800) e semânticas (bg-primary,
+     text-primary-foreground). Cobrimos as duas convenções mais comuns do
+     Tailwind-com-CSS-vars; valores em formato errado são ignorados (inócuos). O acento
+     por-componente é garantido por classe em KFY-3.5/3.6. */
+  :root, .dark, [data-theme="dark"], [data-theme="light"] {
+    /* shadcn-style semantic tokens (HSL channels → hsl(var(--primary))) */
+    --primary: 11 100% 53%;               /* #ff3a0e ember */
+    --primary-foreground: 240 17% 2%;     /* #050507 void */
+    --ring: 11 100% 53%;
+    /* numeric scale (RGB channels → rgb(var(--primary-500))) */
+    --primary-50: 255 237 232;
+    --primary-100: 255 214 204;
+    --primary-200: 255 173 153;
+    --primary-300: 255 122 61;            /* ember-hot */
+    --primary-400: 255 90 31;             /* ember-glow */
+    --primary-500: 255 58 14;             /* ember */
+    --primary-600: 230 50 10;
+    --primary-700: 194 42 8;
+    --primary-800: 158 34 6;
+    --primary-900: 122 26 4;
+  }
+
+  /* ── Base (dark-first — void domina em light e dark) ─────────────────────── */
+  html { background: var(--void); color-scheme: dark; }
+  body {
+    background: var(--void);
+    color: var(--bone-dim);
+    font-family: var(--type-sans);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  ::selection { background: var(--ember); color: var(--void); }
+
+  /* ── Background textures (fixed, non-interactive, behind content) ───────── */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    background-image:
+      radial-gradient(ellipse at 50% 30%, transparent 30%, rgba(0,0,0,0.45) 100%),
+      radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+    background-size: 100% 100%, 24px 24px, 100% 3px;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    opacity: 0.8; mix-blend-mode: overlay;
+    background-image: radial-gradient(rgba(255,255,255,0.08) 0.5px, transparent 0.5px);
+    background-size: 3px 3px;
+  }
+  /* Keep the real content above the textures */
+  body > * { position: relative; z-index: 2; }
+</style>
+{% assign variant = section.settings.variant %}
+{% assign image_header = section.settings.image_header | default: club.logo %}
+{% if club.kind == 'lite' %}
+  {% assign variant = 'background' %}
+{% endif %}
+
+<section
+  class="flex-1 flex w-full min-h-screen {% if variant == 'background' %}flex-col items-center justify-center {% if section.settings.image_background and club.kind != 'lite' %}text-[var(--bone)] bg-[rgba(5,5,7,0.6)]{% endif %}{% endif %} {% if variant == 'sidebar' %}flex-col sm:flex-row sm:items-stretch sm:justify-stretch{% endif %}"
+>
+  <div
+    class="
+      flex flex-col items-stretch justify-center text-center gap-12 px-4
+      {% if variant == 'background' %} mx-auto w-full {% endif %}
+      {% if variant == 'sidebar' %}
+        flex-1 sm:flex-auto z-10 relative w-full md:min-w-[28rem] md:max-w-[28rem]
+        lg:min-w-[36rem] lg:max-w-[36rem] bg-[var(--ink)] sm:border-r sm:border-[var(--hairline)] py-12 sm:px-8
+      {% endif %}
+    "
+  >
+    <h2 class="font-[family-name:var(--type-display)] font-[300] text-[var(--bone)] text-3xl sm:text-4xl leading-[1.05] tracking-[-0.02em]">
+      {{ 'login.title' | t }}
+    </h2>
+    <div
+      class="
+        flex flex-col items-stretch justify-center bg-[var(--ink-2)] text-[var(--bone)]
+        rounded-none border border-[var(--hairline)] pt-6 sm:pt-10 pb-8 sm:pb-10 gap-4 sm:gap-6 mx-auto w-full
+        {% if variant == 'background' or variant == 'sidebar' %} sm:max-w-[22.5rem] {% endif %}
+      "
+    >
+      {% if club.kind != 'lite' %}
+        {% if image_header %}
+          {% render 'image',
+            src: image_header,
+            preload: true,
+            fadeIn: true,
+            width: 720,
+            height: 128,
+            fit: 'cover',
+            class: 'block w-full mx-auto'
+          %}
+        {% else %}
+          <h1 class="font-normal text-2xl px-4 min-h-16 flex flex-col items-stretch justify-center">
+            {{ club.name }}
+          </h1>
+        {% endif %}
+      {% else %}
+        <h1 class="font-[family-name:var(--type-display)] font-[300] text-[var(--bone)] text-2xl px-4 min-h-16 flex flex-col items-stretch justify-center">
+          {{ club.name }}
+        </h1>
+      {% endif %}
+      {% render 'auth-button' %}
+    </div>
+  </div>
+
+  {% if variant == 'sidebar' and club.kind != 'lite' %}
+    <div class="hidden md:flex flex-1 bg-[var(--ink)]">
+      {% if section.settings.image_background %}
+        {% render 'image',
+          src: section.settings.image_background,
+          fit: 'cover',
+          class: 'w-screen h-svh object-cover',
+          preload: true,
+          fadeIn: true,
+          width: 1920,
+          height: 1080,
+          format: 'avif'
+        %}
+      {% endif %}
+    </div>
+  {% elsif variant == 'background' and section.settings.image_background and club.kind != 'lite' %}
+    <div>
+      {% render 'image',
+        src: section.settings.image_background,
+        fit: 'cover',
+        class: 'w-screen h-svh object-cover',
+        preload: true,
+        fadeIn: true,
+        width: 1920,
+        height: 1080,
+        format: 'avif',
+        wrapper_json: '{"class":["fixed","inset-0","-z-10"]}'
+      %}
+    </div>
+  {% endif %}
+</section>
+
+{% comment %}
+  O CONTEÚDO ABAIXO É PARA O EDITOR DE TEMA. SAIBA MAIS EM: https://docs.kiwify.com.br/members-area/reference/schema/overview
+  SCHEMA IS FOR THE THEME EDITOR. KNOW MORE IN: https://docs.kiwify.com.br/en/members-area/reference/schema/overview
+{% endcomment %}
+{% schema %}
+{
+  "name": "t:sections.login.section_title",
+  "enabled_on": {
+    "templates": ["login"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "t:sections.login.layout.label",
+      "options": [
+        {
+          "value": "sidebar",
+          "label": "t:sections.login.layout.sidebar",
+          "kiwi_extra": {
+            "icon": "fa fa-columns"
+          }
+        },
+        {
+          "value": "background",
+          "label": "t:sections.login.layout.background",
+          "kiwi_extra": {
+            "icon": "fa fa-window-maximize"
+          }
+        }
+      ],
+      "kiwi_extra": {
+        "labeled": true
+      },
+      "default": "background"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_background",
+      "label": "t:sections.login.image_background.label",
+      "info": "t:sections.login.image_background.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_header",
+      "label": "t:sections.login.image_header.label",
+      "info": "t:sections.login.image_header.info"
+    }
+  ]
+}
+{% endschema %}

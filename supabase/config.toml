@@ -1,0 +1,123 @@
+project_id = "maigkwlgzinykfvemexf"
+
+[functions.auth-login]
+verify_jwt = false # Login endpoint — users are unauthenticated when calling; rate limiting handled in code
+
+[functions.create-global-user]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.update-user-email]
+verify_jwt = true
+
+[functions.update-user-password]
+verify_jwt = true
+
+[functions.send-invite-email]
+verify_jwt = true
+
+[functions.filter-leads-for-send]
+verify_jwt = false
+
+[functions.send-dispatch-worker]
+verify_jwt = false # JWT validation is handled in code via getClaims()
+
+
+
+[functions.dispara-webhook]
+verify_jwt = true
+
+[functions.whatsapp-inbound]
+verify_jwt = false # Meta webhook cannot send JWT — validated by HMAC signature instead
+
+[functions.whatsapp-outbound]
+verify_jwt = false # Called from edge functions and internal services without user JWT
+
+[functions.lp-submit]
+verify_jwt = false # Public LP form submission endpoint — no user JWT available
+
+[functions.meta-inbound]
+verify_jwt = false # Meta webhook (Instagram DMs/comments) — no JWT from Meta
+
+[functions.booking-availability]
+verify_jwt = false # Public /agendar page (anonymous lead) — same access as get_booking_session RPC
+
+[functions.whatsapp-templates-sync]
+verify_jwt = false # Called from tenant frontend — JWT from control plane not valid for tenant project
+
+[functions.whatsapp-templates-manage]
+verify_jwt = false # Called from tenant frontend — JWT from control plane not valid for tenant project
+
+[functions.sends-import-contacts]
+verify_jwt = false # Called from frontend with user Bearer token; JWT validation handled in code
+
+[functions.sends-dispatch-batch]
+verify_jwt = false # Called by pg_cron via HTTP POST with service role key; JWT validation handled in code
+
+[functions.tiktok-oauth]
+verify_jwt = false # TikTok OAuth redirect callback — no JWT from TikTok, must be public
+
+[functions.tiktok-inbound]
+verify_jwt = false # TikTok webhook cannot send JWT — validated by HMAC-SHA256 signature instead
+
+[functions.tiktok-outbound]
+verify_jwt = false # Called from OMNI PRO frontend and internal services without user JWT
+
+[functions.tiktok-token-refresh]
+verify_jwt = false # Called by pg_cron via HTTP POST — no user JWT available
+
+[functions.instagram-outbound]
+verify_jwt = false # Called from omni-delivery-engine and internal services without user JWT
+
+[functions.instagram-comment-reply]
+verify_jwt = false # Called from omni-delivery-engine without user JWT
+
+[functions.instagram-automation-runner]
+verify_jwt = false # Called fire-and-forget from meta-inbound without user JWT
+
+[functions.instagram-token-refresh]
+verify_jwt = false # Called by pg_cron via HTTP POST — no user JWT available
+
+[functions.omni-delivery-engine]
+verify_jwt = false # Called by pg_cron via HTTP POST — no user JWT available
+
+[functions.elevenlabs-agent-sync]
+verify_jwt = true # Called from gestor frontend with user JWT to push voice agent config to ElevenLabs Convai API
+
+[functions.elevenlabs-agent-pull]
+verify_jwt = true # Called from gestor frontend with user JWT to fetch voice agent config from ElevenLabs Convai API (read-only, no DB writes)
+
+[functions.webhook-inbound]
+verify_jwt = false # Public inbound webhook — no user JWT; auth handled by per-endpoint token in inbound_webhooks table
+
+[functions.gemini-live-token]
+verify_jwt = true # Called from authenticated frontend — JWT validated inside function via supabase.auth.getUser
+
+[functions.gemini-ws-proxy]
+verify_jwt = false # WebSocket upgrade — JWT validation handled in code via ?token= query param (WS can't set headers)
+
+[functions.calcom-connect]
+verify_jwt = true # Cal.com OAuth connect — crmUserId derived from JWT, never from body
+
+[functions.calcom-disconnect]
+verify_jwt = true # Cal.com disconnect — crmUserId derived from JWT, never from body
+
+[functions.calcom-webhook]
+verify_jwt = false # Cal.com webhook cannot send JWT — validated by HMAC-SHA256 signature instead
+
+[functions.kiwify-connect]
+verify_jwt = true # Kiwify admin connect — caller authenticated via JWT; gestor/super_admin gate enforced in code
+
+[functions.kiwify-inbound]
+verify_jwt = false # Public Kiwify webhook receiver — Kiwify cannot send a Supabase JWT; validated by HMAC signature instead
+
+[functions.kiwify-process-event]
+verify_jwt = false # Invoked by kiwify-inbound / kiwify-reconcile with service_role bearer — no user JWT
+
+[functions.kiwify-dispatch-worker]
+verify_jwt = false # pg_cron worker — no user JWT; runs with service role
+
+[functions.kiwify-reconcile]
+verify_jwt = true # pg_cron worker — gateway validates the service_role JWT; function only reads the role claim

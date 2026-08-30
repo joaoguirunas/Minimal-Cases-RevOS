@@ -1,0 +1,240 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- 20260508050000_fix_save_agent_complete_created_by_resolution.sql
+--
+-- Root cause: 040000 restored the snapshot/version pattern but used
+--   v_created_by := COALESCE(p_created_by, auth.uid())
+-- which inserts an auth.users UUID directly into ai_agents_history.created_by.
+-- That column has a FK to settings_users(id), NOT auth.users — so passing
+-- an auth UID that isn't a settings_users.id causes error 23503.
+--
+-- Fix: adopt the resolution logic from 20260501130000:
+--   1. if p_created_by IS a settings_users.id  → use as-is
+--   2. if p_created_by is an auth.users.id      → look up via auth_user_id
+--   3. fallback: auth.uid() → look up via auth_user_id
+--   4. if nothing matches → NULL (FK allows NULL via ON DELETE SET NULL)
+--
+-- All other fixes are preserved from 040000:
+--   • SELECT FOR UPDATE + snapshot with steps
+--   • INSERT history with version + data (not-null fields)
+--   • current_version increment
+--   • stage_ids::uuid[] cast (42846 fix from 030000)
+--   • origem_lista_filters, all voice fields
+-- ═══════════════════════════════════════════════════════════════════
+
+BEGIN;
+
+CREATE OR REPLACE FUNCTION public.save_agent_complete(
+  p_agent_id    uuid,
+  p_agent_data  jsonb,
+  p_steps_data  jsonb DEFAULT NULL,
+  p_changelog   jsonb DEFAULT NULL,
+  p_created_by  uuid DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_current_version  integer;
+  v_new_version      integer;
+  v_snapshot         jsonb;
+  v_step             jsonb;
+  v_step_id          uuid;
+  v_resolved_user_id uuid;
+BEGIN
+  -- ── 1. Lock agent row + read current version and snapshot ───────────────────
+  SELECT current_version, to_jsonb(a)
+  INTO   v_current_version, v_snapshot
+  FROM   public.ai_agents a
+  WHERE  id = p_agent_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'agent not found: %', p_agent_id;
+  END IF;
+
+  -- Attach current steps to snapshot (needed by restore_agent_version)
+  v_snapshot := jsonb_set(
+    v_snapshot,
+    '{steps}',
+    COALESCE(
+      (SELECT jsonb_agg(to_jsonb(s) ORDER BY s.order_index)
+       FROM public.ai_agents_steps s
+       WHERE s.ai_agent_id = p_agent_id),
+      '[]'::jsonb
+    )
+  );
+
+  v_new_version := v_current_version + 1;
+
+  -- ── 2. Resolve created_by to a valid settings_users.id ──────────────────────
+  -- Accept either a settings_users.id or an auth.users.id from the caller.
+  -- Fall back to auth.uid() when nothing was provided.
+  -- Store NULL if no settings_users row maps to the caller (FK allows NULL).
+  IF p_created_by IS NOT NULL THEN
+    SELECT id INTO v_resolved_user_id
+    FROM public.settings_users
+    WHERE id = p_created_by;
+
+    IF v_resolved_user_id IS NULL THEN
+      SELECT id INTO v_resolved_user_id
+      FROM public.settings_users
+      WHERE auth_user_id = p_created_by;
+    END IF;
+  END IF;
+
+  IF v_resolved_user_id IS NULL THEN
+    SELECT id INTO v_resolved_user_id
+    FROM public.settings_users
+    WHERE auth_user_id = auth.uid();
+  END IF;
+
+  -- ── 3. Write history entry (state BEFORE the update) ────────────────────────
+  INSERT INTO public.ai_agents_history (ai_agent_id, version, data, changelog, created_by)
+  VALUES (p_agent_id, v_current_version, v_snapshot, COALESCE(p_changelog, '{}'::jsonb), v_resolved_user_id);
+
+  -- ── 4. Update agent row ──────────────────────────────────────────────────────
+  UPDATE public.ai_agents SET
+    name                = CASE WHEN p_agent_data ? 'name'
+                               THEN p_agent_data->>'name'
+                               ELSE name END,
+    description         = CASE WHEN p_agent_data ? 'description'
+                               THEN p_agent_data->>'description'
+                               ELSE description END,
+    identity            = CASE WHEN p_agent_data ? 'identity'
+                               THEN p_agent_data->>'identity'
+                               ELSE identity END,
+    general_rules       = CASE WHEN p_agent_data ? 'general_rules'
+                               THEN p_agent_data->>'general_rules'
+                               ELSE general_rules END,
+    input_data          = CASE WHEN p_agent_data ? 'input_data'
+                               THEN p_agent_data->>'input_data'
+                               ELSE input_data END,
+    use_stages          = COALESCE((p_agent_data->>'use_stages')::boolean, use_stages),
+    active              = COALESCE((p_agent_data->>'active')::boolean,     active),
+    pipeline_id         = CASE WHEN p_agent_data ? 'pipeline_id'
+                               THEN NULLIF(p_agent_data->>'pipeline_id', '')::uuid
+                               ELSE pipeline_id END,
+    pipeline_ids        = CASE WHEN p_agent_data ? 'pipeline_ids'
+                               THEN ARRAY(SELECT jsonb_array_elements_text(p_agent_data->'pipeline_ids'))
+                               ELSE pipeline_ids END,
+    leads_stages_id     = CASE WHEN p_agent_data ? 'leads_stages_id'
+                               THEN NULLIF(p_agent_data->>'leads_stages_id', '')::uuid
+                               ELSE leads_stages_id END,
+    score_matrix_ids    = CASE WHEN p_agent_data ? 'score_matrix_ids'
+                               THEN ARRAY(SELECT jsonb_array_elements_text(p_agent_data->'score_matrix_ids'))::uuid[]
+                               ELSE score_matrix_ids END,
+    score_allow_empty   = COALESCE((p_agent_data->>'score_allow_empty')::boolean, score_allow_empty),
+    score_value         = COALESCE((p_agent_data->>'score_value')::integer,       score_value),
+    channel_types       = CASE WHEN p_agent_data ? 'channel_types'
+                               THEN ARRAY(SELECT jsonb_array_elements_text(p_agent_data->'channel_types'))
+                               ELSE channel_types END,
+    stage_ids           = CASE WHEN p_agent_data ? 'stage_ids'
+                               THEN ARRAY(SELECT jsonb_array_elements_text(p_agent_data->'stage_ids'))::uuid[]
+                               ELSE stage_ids END,
+    origem_lista_filters = CASE WHEN p_agent_data ? 'origem_lista_filters'
+                               THEN ARRAY(SELECT jsonb_array_elements_text(p_agent_data->'origem_lista_filters'))
+                               ELSE origem_lista_filters END,
+    llm_provider        = COALESCE((p_agent_data->>'llm_provider'),        llm_provider),
+    llm_model           = COALESCE((p_agent_data->>'llm_model'),           llm_model),
+    llm_temperature     = COALESCE((p_agent_data->>'llm_temperature')::numeric,  llm_temperature),
+    llm_max_tokens      = COALESCE((p_agent_data->>'llm_max_tokens')::integer,   llm_max_tokens),
+    llm_provider_id     = CASE WHEN p_agent_data ? 'llm_provider_id'
+                               THEN NULLIF(p_agent_data->>'llm_provider_id', '')::uuid
+                               ELSE llm_provider_id END,
+    memory_window       = COALESCE((p_agent_data->>'memory_window')::integer,    memory_window),
+    wa_phone_number_id  = CASE WHEN p_agent_data ? 'wa_phone_number_id'
+                               THEN NULLIF(p_agent_data->>'wa_phone_number_id', '')
+                               ELSE wa_phone_number_id END,
+    wa_channel_id       = CASE WHEN p_agent_data ? 'wa_channel_id'
+                               THEN NULLIF(p_agent_data->>'wa_channel_id', '')::uuid
+                               ELSE wa_channel_id END,
+    buffer_ms           = COALESCE((p_agent_data->>'buffer_ms')::integer,  buffer_ms),
+    humanizacao         = COALESCE((p_agent_data->>'humanizacao'),         humanizacao),
+    agent_type          = COALESCE((p_agent_data->>'agent_type'),          agent_type),
+    voice_enabled       = COALESCE((p_agent_data->>'voice_enabled')::boolean,    voice_enabled),
+    voice_response_mode = COALESCE((p_agent_data->>'voice_response_mode'), voice_response_mode),
+    voice_id            = CASE WHEN p_agent_data ? 'voice_id'
+                               THEN NULLIF(p_agent_data->>'voice_id', '')
+                               ELSE voice_id END,
+    voice_first_message = CASE WHEN p_agent_data ? 'voice_first_message'
+                               THEN p_agent_data->>'voice_first_message'
+                               ELSE voice_first_message END,
+    voice_language      = CASE WHEN p_agent_data ? 'voice_language'
+                               THEN p_agent_data->>'voice_language'
+                               ELSE voice_language END,
+    voice_model_id      = CASE WHEN p_agent_data ? 'voice_model_id'
+                               THEN p_agent_data->>'voice_model_id'
+                               ELSE voice_model_id END,
+    voice_stability     = CASE WHEN p_agent_data ? 'voice_stability'
+                               THEN (p_agent_data->>'voice_stability')::numeric
+                               ELSE voice_stability END,
+    voice_similarity    = CASE WHEN p_agent_data ? 'voice_similarity'
+                               THEN (p_agent_data->>'voice_similarity')::numeric
+                               ELSE voice_similarity END,
+    voice_speed         = CASE WHEN p_agent_data ? 'voice_speed'
+                               THEN (p_agent_data->>'voice_speed')::numeric
+                               ELSE voice_speed END,
+    el_sync_status      = CASE WHEN p_agent_data ? 'el_sync_status'
+                               THEN p_agent_data->>'el_sync_status'
+                               ELSE el_sync_status END,
+    current_version     = v_new_version,
+    updated_at          = now()
+  WHERE id = p_agent_id;
+
+  -- ── 5. Upsert steps (if provided) ───────────────────────────────────────────
+  IF p_steps_data IS NOT NULL THEN
+    DELETE FROM public.ai_agents_steps
+    WHERE ai_agent_id = p_agent_id
+      AND id NOT IN (
+        SELECT (step->>'id')::uuid
+        FROM jsonb_array_elements(p_steps_data) AS step
+        WHERE step ? 'id'
+      );
+
+    FOR v_step IN SELECT * FROM jsonb_array_elements(p_steps_data)
+    LOOP
+      IF v_step ? 'id' THEN
+        v_step_id := (v_step->>'id')::uuid;
+        INSERT INTO public.ai_agents_steps (id, ai_agent_id, name, prompt, control, order_index, active)
+        VALUES (
+          v_step_id,
+          p_agent_id,
+          v_step->>'name',
+          v_step->>'prompt',
+          v_step->>'control',
+          COALESCE((v_step->>'order_index')::integer, 1),
+          true
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          name        = EXCLUDED.name,
+          prompt      = EXCLUDED.prompt,
+          control     = EXCLUDED.control,
+          order_index = EXCLUDED.order_index,
+          updated_at  = now();
+      ELSE
+        INSERT INTO public.ai_agents_steps (ai_agent_id, name, prompt, control, order_index, active)
+        VALUES (
+          p_agent_id,
+          v_step->>'name',
+          v_step->>'prompt',
+          v_step->>'control',
+          COALESCE((v_step->>'order_index')::integer, 1),
+          true
+        );
+      END IF;
+    END LOOP;
+  END IF;
+
+  -- ── 6. Return new version ────────────────────────────────────────────────────
+  RETURN jsonb_build_object('ok', true, 'version', v_new_version);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.save_agent_complete(uuid, jsonb, jsonb, jsonb, uuid)
+  TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.save_agent_complete(uuid, jsonb, jsonb, jsonb, uuid)
+  FROM anon;
+
+COMMIT;
