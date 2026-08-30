@@ -65,3 +65,6 @@ docs/
 
 # Claude Code local config
 .claude/
+
+# Handoff doc with real credentials — never commit
+CREDENTIALS.md
