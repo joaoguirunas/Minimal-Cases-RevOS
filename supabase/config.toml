@@ -121,3 +121,15 @@ verify_jwt = false # pg_cron worker — no user JWT; runs with service role
 
 [functions.kiwify-reconcile]
 verify_jwt = true # pg_cron worker — gateway validates the service_role JWT; function only reads the role claim
+
+[functions.yampi-connect]
+verify_jwt = true # Yampi admin connect — caller authenticated via JWT; gestor/super_admin gate enforced in code
+
+[functions.yampi-inbound]
+verify_jwt = false # Public Yampi webhook receiver — Yampi cannot send a Supabase JWT; validated by X-Yampi-Hmac-SHA256 instead
+
+[functions.yampi-process-event]
+verify_jwt = false # Invoked by yampi-inbound / yampi-connect(reprocess) with service_role bearer — no user JWT
+
+[functions.yampi-reconcile]
+verify_jwt = true # pg_cron worker (5 min) — gateway valida o service_role JWT; a função só lê a claim role

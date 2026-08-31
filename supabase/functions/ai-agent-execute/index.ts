@@ -530,6 +530,46 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
       required: ['objective', 'investment', 'framing'],
     },
   },
+  // ── YMP-2.1 — Yampi (loja Minimal Cases: carrinho, Pix, cupom, pedido) ──────
+  {
+    name: 'yampi_enviar_link_carrinho',
+    description: 'Sends the customer their own abandoned-cart recovery link from the Yampi store (cart pre-filled exactly as they left it) as a separate WhatsApp message. Use when the contact wants to resume/finish a purchase they started ("quero finalizar", "me manda o link do carrinho", "voltar pra minha compra"). Requires a known email or WhatsApp.',
+    parameters: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'yampi_consultar_pix_pendente',
+    description: 'Looks up whether this contact has a Pix (or boleto) payment generated in the Yampi store that is still awaiting payment. Returns the Pix copy-paste code / QR info and expiration if found and not yet paid. Use ONLY when the contact asks about a payment they already started ("cadê o código pix", "meu pix venceu?", "onde pago").',
+    parameters: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'yampi_enviar_link_pagamento',
+    description: 'Creates a fresh Yampi payment link (new checkout) with the items of the contact\'s latest abandoned cart and sends it as a separate message. Optionally applies an existing coupon code. Use when the abandoned-cart link expired, the Pix expired, or the customer asks for a new payment link. Requires a known email or WhatsApp.',
+    parameters: {
+      type: 'object',
+      properties: {
+        cupom: { type: 'string', description: 'Optional existing coupon code to attach (e.g. one created via yampi_criar_cupom).' },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'yampi_criar_cupom',
+    description: 'Creates a personalized single-use discount coupon in the Yampi store, named after the customer (e.g. GABRIELLA10). Use ONLY as a closing lever when the contact hesitates on price AND the current funnel step allows a discount — never offer proactively before the customer objects. Max 15%. The coupon is one-time, per-customer, with short validity.',
+    parameters: {
+      type: 'object',
+      properties: {
+        percentual: { type: 'integer', enum: [5, 10, 15], description: 'Discount percentage. Start at 5–10; 15 only as last resort.' },
+        dias_validade: { type: 'integer', description: 'Days until expiration (1–7). Default 2 — short validity creates urgency.' },
+        frete_gratis: { type: 'boolean', description: 'Also grant free shipping. Default false (a loja já tem frete grátis padrão).' },
+      },
+      required: ['percentual'],
+    },
+  },
+  {
+    name: 'yampi_consultar_pedido',
+    description: 'Looks up the contact\'s latest order in the Yampi store: payment status, items, total, and tracking code/URL when shipped. Use when the contact asks about an order they placed ("meu pedido chegou?", "cadê o rastreio", "foi aprovado?").',
+    parameters: { type: 'object', properties: {}, required: [] },
+  },
 ];
 
 // ── RETORNO-02 — Tools condicionais de retorno agendado (ADR-RETORNO-01 D2/D3) ──
@@ -1800,6 +1840,50 @@ function getLLMEndpoint(provider: string): string {
   return 'https://api.openai.com/v1/chat/completions'; // openai default
 }
 
+// ── YMP-2.1 — Yampi helpers (shared by the yampi_* tool cases) ────────────────
+
+/** Digits-only tail comparison (last 8) — tolerant to +55/9th-digit formatting. */
+function phoneTail(v: string | null | undefined): string {
+  return String(v ?? '').replace(/\D/g, '').slice(-8);
+}
+
+/** Does a stored yampi_webhook_events payload belong to this conversation's contact? */
+function yampiEventMatchesContact(
+  payload: Record<string, unknown>,
+  ctx: { email?: string; whatsapp?: string },
+): boolean {
+  const resource = (payload.resource ?? {}) as Record<string, unknown>;
+  const customer = ((resource.customer as Record<string, unknown> | undefined)?.data ??
+    resource.customer ?? {}) as Record<string, unknown>;
+  const tracking = (resource.tracking_data ?? {}) as Record<string, unknown>;
+
+  const evEmail = String(customer.email ?? tracking.email ?? '').toLowerCase().trim();
+  const phoneObj = (customer.phone ?? {}) as Record<string, unknown>;
+  const evPhone = phoneTail(String(phoneObj.full_number ?? phoneObj.number ?? tracking.phone ?? ''));
+
+  const ctxEmail = (ctx.email ?? '').toLowerCase().trim();
+  const ctxPhone = phoneTail(ctx.whatsapp);
+  return (!!ctxEmail && evEmail === ctxEmail) || (!!ctxPhone && evPhone === ctxPhone);
+}
+
+/**
+ * Finds the contact's abandoned carts on the Yampi API (by email, then phone),
+ * newest first. Falls back to an empty list on API errors — callers degrade politely.
+ */
+async function findYampiCartsForContact(
+  client: import('../_shared/yampi-client.ts').YampiApiClient,
+  ctx: { email?: string; whatsapp?: string },
+): Promise<import('../_shared/yampi-client.ts').YampiAbandonedCart[]> {
+  const queries = [ctx.email, ctx.whatsapp].filter((q): q is string => !!q && q.trim() !== '');
+  for (const q of queries) {
+    try {
+      const carts = await client.searchAbandonedCarts(q.trim(), 5);
+      if (carts.length > 0) return carts;
+    } catch (_) { /* try the next identifier */ }
+  }
+  return [];
+}
+
 // ── Tool Executor ─────────────────────────────────────────────────────────────
 
 async function executeTool(
@@ -2312,6 +2396,211 @@ async function executeTool(
           vencimento: payload.boleto_expiry_date ?? '',
           produto: product.product_name ?? '',
         });
+      }
+
+      // ── YMP-2.1 — Yampi tools (loja Minimal Cases) ─────────────────────────
+      // The Yampi client is imported lazily so non-ecommerce tenants pay nothing.
+
+      case 'yampi_enviar_link_carrinho': {
+        if (!ctx.email && !ctx.whatsapp) return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo).';
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+
+        const carts = await findYampiCartsForContact(bound.client, ctx);
+        const cart = carts[0];
+        if (!cart) return 'Nenhum carrinho abandonado encontrado para este contato na loja.';
+
+        const url = cart.unauth_simulate_url ?? cart.simulate_url;
+        if (!url) return 'Carrinho encontrado, mas sem link de recuperação disponível. Use yampi_enviar_link_pagamento para gerar um checkout novo.';
+
+        ctx.__pending_purchase_url = url;
+        const itens = (cart.items?.data ?? [])
+          .map((i) => i.sku?.data?.title).filter(Boolean).slice(0, 4).join(', ');
+        const total = cart.totalizers?.total_formated ?? (cart.totalizers?.total != null ? `R$ ${cart.totalizers.total}` : '');
+        return `Link do carrinho recuperado (itens: ${itens || 'n/d'}${total ? ` · total ${total}` : ''}). O link será enviado automaticamente ao cliente em uma mensagem separada. NÃO inclua o link na sua resposta — apenas confirme que ele receberá o link do carrinho do jeito que deixou.`;
+      }
+
+      case 'yampi_consultar_pix_pendente': {
+        if (!ctx.email && !ctx.whatsapp) return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo).';
+
+        // 1. Latest pix/boleto event for this contact from the webhook log.
+        const { data: events } = await supabase
+          .from('yampi_webhook_events')
+          .select('order_id, trigger, raw_payload, created_at')
+          .in('trigger', ['pix_gerado', 'boleto_gerado'])
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        const evs = (events ?? []) as Array<{ order_id: string | null; trigger: string; raw_payload: Record<string, unknown>; created_at: string }>;
+        const match = evs.find((e) => yampiEventMatchesContact(e.raw_payload, ctx));
+        if (!match || !match.order_id) return 'Nenhum pagamento pendente encontrado para este contato na loja.';
+
+        // 2. Superseded by payment/cancellation?
+        const { data: later } = await supabase
+          .from('yampi_webhook_events')
+          .select('trigger')
+          .eq('order_id', match.order_id)
+          .in('trigger', ['pedido_pago', 'pedido_cancelado'])
+          .limit(1)
+          .maybeSingle();
+        if (later && (later as { trigger: string }).trigger === 'pedido_pago') return 'Este pagamento já foi aprovado — não há pendência.';
+
+        // 3. Fresh transaction data from the API (pix code/expiration).
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+        try {
+          const order = await bound.client.getOrder(match.order_id, 'transactions,items,status') as Record<string, unknown>;
+          const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias ?? order.status) as string | undefined;
+          if (status === 'paid' || status === 'authorized') return 'Este pagamento já foi aprovado — não há pendência.';
+          if (status === 'cancelled' || status === 'canceled') {
+            return JSON.stringify({ situacao: 'pix_expirado_pedido_cancelado', acao_sugerida: 'Ofereça gerar um checkout novo com yampi_enviar_link_pagamento.' });
+          }
+          const txs = ((order.transactions as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>;
+          const tx = txs.find((t) => t.pix_qr_code || t.pix_expiration_date || t.billet_url) ?? txs[txs.length - 1];
+          if (match.trigger === 'pix_gerado') {
+            return JSON.stringify({
+              tipo: 'pix',
+              codigo_copia_cola: tx?.pix_qr_code ?? 'não disponível',
+              expira_em: tx?.pix_expiration_date ?? '',
+              total: order.value_total ?? '',
+            });
+          }
+          return JSON.stringify({
+            tipo: 'boleto',
+            link: tx?.billet_url ?? 'não disponível',
+            linha_digitavel: tx?.billet_barcode ?? 'não disponível',
+            vencimento: tx?.billet_date ?? '',
+            total: order.value_total ?? '',
+          });
+        } catch (e) {
+          return `Erro ao consultar o pedido na Yampi: ${(e as Error).message}`;
+        }
+      }
+
+      case 'yampi_enviar_link_pagamento': {
+        if (!ctx.email && !ctx.whatsapp) return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo).';
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+
+        const carts = await findYampiCartsForContact(bound.client, ctx);
+        const cart = carts[0];
+        const skus = (cart?.items?.data ?? [])
+          .map((i) => ({ id: i.sku?.data?.id, quantity: i.quantity ?? 1 }))
+          .filter((s): s is { id: number; quantity: number } => typeof s.id === 'number');
+        if (skus.length === 0) {
+          return 'Nenhum carrinho com itens encontrado para montar o link. Peça ao cliente qual produto ele quer e use yampi_enviar_link_carrinho após ele montar o carrinho, ou acione um humano.';
+        }
+
+        let promocodeId: number | null = null;
+        const cupom = String(args.cupom ?? '').trim().toUpperCase();
+        if (cupom) {
+          const promo = await bound.client.findPromocode(cupom).catch(() => null);
+          if (!promo) return `Cupom "${cupom}" não encontrado na loja. Crie antes com yampi_criar_cupom.`;
+          promocodeId = promo.id;
+        }
+
+        try {
+          const link = await bound.client.createPaymentLink({
+            name: `CRM ${ctx.nome ?? 'cliente'} ${new Date().toISOString().slice(0, 10)}`.slice(0, 100),
+            active: true,
+            skus,
+            promocode_id: promocodeId,
+            customer_id: cart?.customer?.data?.id ?? null,
+          });
+          if (!link.link_url) return 'A Yampi criou o link mas não retornou a URL. Acione um humano.';
+          ctx.__pending_purchase_url = link.link_url;
+          return `Link de pagamento criado${cupom ? ` com o cupom ${cupom} aplicado` : ''}. O link será enviado automaticamente ao cliente em uma mensagem separada. NÃO inclua o link na sua resposta — apenas confirme que ele receberá o link.`;
+        } catch (e) {
+          return `Erro ao criar link de pagamento na Yampi: ${(e as Error).message}`;
+        }
+      }
+
+      case 'yampi_criar_cupom': {
+        const percentual = Number(args.percentual ?? 0);
+        if (![5, 10, 15].includes(percentual)) return 'Error: percentual deve ser 5, 10 ou 15.';
+        const dias = Math.min(Math.max(Number(args.dias_validade ?? 2) || 2, 1), 7);
+        const freteGratis = args.frete_gratis === true;
+
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+
+        // Personalized code: first name, ASCII-folded, + percent (e.g. GABRIELLA10).
+        const firstName = (ctx.nome ?? 'CLIENTE').split(/\s+/)[0]
+          .normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'CLIENTE';
+        let code = `${firstName}${percentual}`.slice(0, 20);
+
+        try {
+          // Uniqueness: if the code exists and is still usable, reuse it; else suffix.
+          const existing = await bound.client.findPromocode(code);
+          if (existing) {
+            if (existing.active && !existing.expired) {
+              return JSON.stringify({ cupom: code, situacao: 'ja_existia_e_esta_ativo', percentual: existing.value });
+            }
+            for (let n = 2; n <= 9; n++) {
+              const candidate = `${firstName}${percentual}X${n}`.slice(0, 20);
+              if (!(await bound.client.findPromocode(candidate))) { code = candidate; break; }
+            }
+          }
+
+          const now = new Date();
+          const end = new Date(now.getTime() + dias * 24 * 3600_000);
+          const fmt = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
+          await bound.client.createPromocode({
+            code,
+            discount_type: 'p',
+            value: percentual,
+            quantity: 1,
+            once_per_customer: true,
+            accumulate: false,
+            free_shipment: freteGratis,
+            abandoned_cart: false,
+            active: true,
+            start_at: fmt(now),
+            end_at: fmt(end),
+          });
+          return JSON.stringify({
+            cupom: code,
+            percentual,
+            valido_ate: fmt(end),
+            uso: 'único, apenas para este cliente',
+            instrucao: 'Informe o código ao cliente e reforce a validade curta. Você pode anexá-lo a um checkout novo com yampi_enviar_link_pagamento passando cupom.',
+          });
+        } catch (e) {
+          return `Erro ao criar cupom na Yampi: ${(e as Error).message}`;
+        }
+      }
+
+      case 'yampi_consultar_pedido': {
+        if (!ctx.email && !ctx.whatsapp) return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo).';
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+        try {
+          const q = ctx.email || ctx.whatsapp;
+          const orders = await bound.client.searchOrders(q, 3);
+          const order = orders[0] as Record<string, unknown> | undefined;
+          if (!order) return 'Nenhum pedido encontrado para este contato na loja.';
+          const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias ?? order.status) as string | undefined;
+          const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
+            .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
+            .filter(Boolean).slice(0, 5);
+          return JSON.stringify({
+            pedido: order.number ?? order.id,
+            status: status ?? 'desconhecido',
+            total: order.value_total ?? '',
+            itens: items,
+            rastreio_codigo: order.track_code ?? null,
+            rastreio_url: order.track_url ?? null,
+            entregue: order.delivered ?? null,
+          });
+        } catch (e) {
+          return `Erro ao consultar pedidos na Yampi: ${(e as Error).message}`;
+        }
       }
 
       case 'collect_identity': {
