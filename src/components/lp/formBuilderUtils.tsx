@@ -22,9 +22,9 @@ const FONT_MAP: Record<string, string> = {
 };
 export const GOOGLE_FONT_FAMILIES = [
   'Inter', 'Poppins', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Nunito', 'Raleway',
-  'Playfair Display', 'Merriweather', 'Source Sans 3', 'Work Sans', 'DM Sans', 'Outfit',
+  'Source Sans 3', 'Work Sans', 'DM Sans', 'Outfit',
   'Space Grotesk', 'Rubik', 'Manrope', 'Josefin Sans', 'Quicksand', 'Barlow',
-  'Inter Tight', 'Fraunces', 'JetBrains Mono',
+  'Inter Tight', 'JetBrains Mono',
 ];
 export const GOOGLE_FONTS_URL = `https://fonts.googleapis.com/css2?${GOOGLE_FONT_FAMILIES.map(f => `family=${f.replace(/ /g, '+')}:wght@400;600;700;800`).join('&')}&display=swap`;
 export const FONT_OPTIONS = [

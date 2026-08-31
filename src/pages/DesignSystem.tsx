@@ -363,8 +363,8 @@ function TipografiaTab() {
           </div>
           <div className="rounded-[2px] border border-border bg-background p-4">
             <p className="text-[11px] text-muted-foreground mb-2">Display (Brandbook)</p>
-            <p style={{ fontFamily: 'Fraunces, serif' }} className="text-[24px] font-semibold">
-              Fraunces
+            <p style={{ fontFamily: "'IBM Plex Mono', monospace" }} className="text-[24px] font-semibold">
+              IBM Plex Mono
             </p>
             <p className="text-[11px] text-muted-foreground mt-2">
               Variável (op-sz 9..144). Reservado a peças editoriais.

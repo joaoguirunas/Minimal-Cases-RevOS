@@ -15,8 +15,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
 
-    --primary: 19 81% 54%;              /* Minimal orange #e8632b */
-    --primary-hover: 19 81% 60%;
+    --primary: 0 0% 7%;                 /* tinta — botão pill preto (padrão dos e-mails) */
+    --primary-hover: 0 0% 20%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 43 12% 92%;
@@ -25,15 +25,15 @@
     --muted: 43 12% 92%;
     --muted-foreground: 40 4% 45%;      /* #77746d */
 
-    --accent: 19 70% 90%;
-    --accent-foreground: 19 81% 24%;
+    --accent: 43 12% 90%;
+    --accent-foreground: 0 0% 7%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 43 10% 85%;               /* #dcdad4 */
     --input: 43 10% 85%;
-    --ring: 19 81% 54%;
+    --ring: 0 0% 7%;
 
     --radius: 0.125rem;             /* 2px */
 
@@ -41,7 +41,7 @@
     --success-foreground: 0 0% 98%;
     --warning: 48 96% 53%;
     --warning-foreground: 0 0% 98%;
-    --info: 19 81% 54%;
+    --info: 219 79% 56%;               /* azul de link dos e-mails */
     --info-foreground: 0 0% 98%;
 
     --stats-primary: 19 70% 93%;
@@ -75,12 +75,12 @@
 
     --sidebar-background: 43 18% 97%;
     --sidebar-foreground: 0 0% 7%;
-    --sidebar-primary: 19 81% 54%;
+    --sidebar-primary: 0 0% 7%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 43 12% 92%;
     --sidebar-accent-foreground: 0 0% 7%;
     --sidebar-border: 43 10% 85%;
-    --sidebar-ring: 19 81% 54%;
+    --sidebar-ring: 0 0% 7%;
   }
 
   .dark {
@@ -93,9 +93,9 @@
     --popover: 0 0% 9%;
     --popover-foreground: 47 21% 94%;
 
-    --primary: 19 81% 54%;              /* Minimal orange #e8632b */
-    --primary-hover: 19 81% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 47 21% 94%;              /* bone — botão pill branco (padrão dos e-mails dark) */              /* Minimal orange #e8632b */
+    --primary-hover: 0 0% 100%;
+    --primary-foreground: 0 0% 5%;
 
     --secondary: 0 0% 11%;
     --secondary-foreground: 47 21% 94%;
@@ -103,21 +103,21 @@
     --muted: 0 0% 11%;
     --muted-foreground: 42 4% 54%;      /* #8f8c85 */
 
-    --accent: 19 60% 18%;
-    --accent-foreground: 19 80% 88%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 47 21% 94%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 40 4% 14%;                /* #262523 */
     --input: 0 0% 9%;
-    --ring: 19 81% 54%;
+    --ring: 47 21% 94%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
     --warning: 48 96% 53%;
     --warning-foreground: 0 0% 98%;
-    --info: 19 81% 54%;
+    --info: 219 79% 65%;
     --info-foreground: 0 0% 98%;
 
     --stats-primary: 19 60% 16%;
@@ -151,12 +151,12 @@
 
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 47 21% 94%;
-    --sidebar-primary: 19 81% 54%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 47 21% 94%;
+    --sidebar-primary-foreground: 0 0% 5%;
     --sidebar-accent: 0 0% 11%;
     --sidebar-accent-foreground: 47 21% 94%;
     --sidebar-border: 40 4% 14%;
-    --sidebar-ring: 19 81% 54%;
+    --sidebar-ring: 47 21% 94%;
   }
 }
 
