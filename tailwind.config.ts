@@ -88,8 +88,9 @@ export default {
 				DEFAULT: '8px'
 			},
 			fontFamily: {
-				outfit: ['Outfit', 'sans-serif'],
-				mono: ['JetBrains Mono', 'monospace'],
+				outfit: ['Archivo', 'sans-serif'],
+				sans: ['Archivo', 'Helvetica Neue', 'sans-serif'],
+				mono: ['IBM Plex Mono', 'JetBrains Mono', 'monospace'],
 			},
 			fontSize: {
 				base: '14px',

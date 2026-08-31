@@ -304,3 +304,67 @@ pra debug algum dia:
 
 Push para `main` — Vercel deploya automaticamente (depois de conectado
 no passo 7).
+
+## Integração Yampi (YMP)
+
+Conecta a loja Yampi (checkout da Shopify Minimal Cases) ao CRM.
+
+- **Config no painel**: Configurações → Integrações → Yampi (alias + User-Token +
+  User-Secret-Key, de Perfil → Credenciais de API no painel Yampi). O `connect`
+  registra automaticamente um webhook com `cart.reminder`, `order.created`,
+  `order.paid`, `order.status.updated` e `transaction.payment.refused`, e guarda a
+  `secret_key` para validar o header `X-Yampi-Hmac-SHA256` (enforcement ligado).
+- **Fluxo**: `yampi-inbound` (público) persiste em `yampi_webhook_events` de forma
+  idempotente e enfileira `yampi-process-event`, que resolve/cria o contato em
+  `clients_people` por e-mail/telefone (com auto-merge) e marca o evento processado.
+- **Tools do agente IA** (`ai-agent-execute`): `yampi_enviar_link_carrinho`,
+  `yampi_enviar_link_pagamento` (checkout novo, com cupom opcional),
+  `yampi_consultar_pix_pendente`, `yampi_criar_cupom` (cupom personalizado com o
+  nome do cliente, 5/10/15%, uso único, validade curta) e `yampi_consultar_pedido`
+  (status + rastreio).
+- **Deploy**: `supabase functions deploy yampi-connect yampi-inbound yampi-process-event ai-agent-execute`
+  (config.toml já marca `yampi-inbound`/`yampi-process-event` com `verify_jwt=false`).
+  Migration: `supabase/migrations/20260830150000_yampi_integration.sql`.
+- **Testes**: `deno test supabase/functions/yampi-inbound/logic.test.ts`.
+
+## Templates de e-mail Minimal (EMAIL-2.1) + Reestilização (MC-1)
+
+- **Templates**: a migration `20260830160000_minimal_email_templates_seed.sql` insere os
+  6 e-mails da esteira de carrinho abandonado da Minimal Cases (E1–E6) em
+  `email_templates` — editáveis com preview ao vivo em Configurações → Integrações →
+  E-mail → Templates. As imagens ficam em `public/email-assets/` e os templates
+  referenciam `{{asset_base}}`; no envio real, defina `asset_base` como a URL pública
+  do deploy (ex. `https://crm.suaurl.com/email-assets`). No preview isso já resolve
+  sozinho para `/email-assets`.
+- **Tema Minimal**: tokens de cor (`src/index.css`), fontes (Archivo + IBM Plex Mono),
+  logo (`GrowthSalesLogo.tsx` agora renderiza a marca Minimal Cases; assets em
+  `public/logos/minimal-*.png`), favicon e metas (`index.html`). Paleta: papel
+  `#f6f5f2` / ink `#121212` / laranja `#e8632b` no claro; `#0d0d0d` / `#161616` /
+  bone `#f2f0eb` no escuro.
+
+### Esteira da loja (YMP-4)
+Migration `20260830170000_yampi_pipeline_mappings.sql` cria o pipeline
+**"Esteira Minimal — Loja"** (7 stages: Entrou no checkout → Carrinho abandonado →
+Pix/boleto gerado → Pedido criado → Pagamento recusado → Compra finalizada →
+Cancelado), a tabela `yampi_event_mappings` (evento → pipeline/stage, editável na
+UI da integração Yampi, seção "Esteira") e o cron `yampi_reconcile` (5 min).
+
+- `yampi-process-event` agora move/cria o lead do contato no stage mapeado, com
+  precedence guard por pedido/carrinho (evento atrasado nunca regride o lead) e
+  valor do lead = total do carrinho/pedido.
+- **Entrou no checkout**: a Yampi não tem webhook para isso — `yampi-reconcile`
+  varre `GET /checkout/carts` (janela deslizante) e sintetiza `checkout_iniciado`
+  assim que o cliente se identifica no checkout; o lead aparece na esteira na hora.
+  Também reenfileira eventos presos. Deploy: `supabase functions deploy yampi-reconcile`
+  (SEM --no-verify-jwt; requer o Vault secret `service_role_cron`, como o Kiwify).
+
+### Follow-up de e-mail nos stages (EMAIL-3)
+No modal de follow-up de etapa (Follow-ups → etapa → novo), o canal E-mail agora
+aceita **template da biblioteca** (`email_templates`, com preview) além do corpo
+manual — o vínculo vai em `leads_stages_followups.email_template_id` e o
+`followup-trigger-worker` já dava precedência ao template no envio. O modal também
+mostra o status das credenciais do canal (provedor/from de `omni_channel_configs`,
+channel=email — configuradas em Configurações → Integrações → E-mail) e avisa
+quando o canal está inativo. Para os templates da esteira Minimal, defina o secret
+`EMAIL_ASSET_BASE` nas edge functions (URL pública de `/email-assets`):
+`supabase secrets set EMAIL_ASSET_BASE=https://<seu-deploy>/email-assets`.

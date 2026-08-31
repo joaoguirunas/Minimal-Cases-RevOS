@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,75..100,300..800;1,75..100,300..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,34 +6,34 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 210 11% 8%;
+    --background: 43 18% 96%;            /* Minimal paper #f6f5f2 */
+    --foreground: 0 0% 7%;              /* ink #121212 */
 
     --card: 0 0% 100%;
-    --card-foreground: 210 11% 8%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 11% 8%;
+    --popover-foreground: 0 0% 7%;
 
-    --primary: 11 100% 53%;             /* Ember #ff3a0e */
-    --primary-hover: 11 100% 60%;
+    --primary: 19 81% 54%;              /* Minimal orange #e8632b */
+    --primary-hover: 19 81% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 20% 95%;
-    --secondary-foreground: 210 11% 8%;
+    --secondary: 43 12% 92%;
+    --secondary-foreground: 0 0% 7%;
 
-    --muted: 215 20% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 43 12% 92%;
+    --muted-foreground: 40 4% 45%;      /* #77746d */
 
-    --accent: 11 90% 88%;
-    --accent-foreground: 11 100% 20%;
+    --accent: 19 70% 90%;
+    --accent-foreground: 19 81% 24%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 20% 89%;
-    --input: 215 20% 89%;
-    --ring: 11 100% 53%;
+    --border: 43 10% 85%;               /* #dcdad4 */
+    --input: 43 10% 85%;
+    --ring: 19 81% 54%;
 
     --radius: 0.125rem;             /* 2px */
 
@@ -41,12 +41,12 @@
     --success-foreground: 0 0% 98%;
     --warning: 48 96% 53%;
     --warning-foreground: 0 0% 98%;
-    --info: 11 100% 53%;
+    --info: 19 81% 54%;
     --info-foreground: 0 0% 98%;
 
-    --stats-primary: 11 80% 93%;
-    --stats-primary-border: 11 80% 78%;
-    --stats-primary-text: 11 70% 30%;
+    --stats-primary: 19 70% 93%;
+    --stats-primary-border: 19 70% 78%;
+    --stats-primary-text: 19 70% 30%;
     --stats-secondary: 142 76% 95%;
     --stats-secondary-border: 142 76% 85%;
     --stats-secondary-text: 142 76% 30%;
@@ -73,56 +73,56 @@
     --card-summary-border: 38 95% 80%;
     --card-summary-text: 38 95% 25%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 210 11% 8%;
-    --sidebar-primary: 11 100% 53%;
+    --sidebar-background: 43 18% 97%;
+    --sidebar-foreground: 0 0% 7%;
+    --sidebar-primary: 19 81% 54%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 20% 95%;
-    --sidebar-accent-foreground: 210 11% 8%;
-    --sidebar-border: 215 20% 89%;
-    --sidebar-ring: 11 100% 53%;
+    --sidebar-accent: 43 12% 92%;
+    --sidebar-accent-foreground: 0 0% 7%;
+    --sidebar-border: 43 10% 85%;
+    --sidebar-ring: 19 81% 54%;
   }
 
   .dark {
-    --background: 0 0% 4%;              /* #0a0a0a */
-    --foreground: 0 0% 96%;
+    --background: 0 0% 5%;              /* Minimal dark #0d0d0d */
+    --foreground: 47 21% 94%;           /* bone #f2f0eb */
 
-    --card: 240 6% 7%;                  /* #111113 */
-    --card-foreground: 0 0% 96%;
+    --card: 0 0% 9%;                    /* #161616 */
+    --card-foreground: 47 21% 94%;
 
-    --popover: 240 6% 7%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 47 21% 94%;
 
-    --primary: 11 100% 53%;             /* Ember #ff3a0e */
-    --primary-hover: 11 100% 60%;
+    --primary: 19 81% 54%;              /* Minimal orange #e8632b */
+    --primary-hover: 19 81% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 5% 8%;
-    --secondary-foreground: 0 0% 96%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 47 21% 94%;
 
-    --muted: 240 5% 8%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 42 4% 54%;      /* #8f8c85 */
 
-    --accent: 11 60% 18%;
-    --accent-foreground: 11 90% 88%;
+    --accent: 19 60% 18%;
+    --accent-foreground: 19 80% 88%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 14%;
-    --input: 0 0% 8%;
-    --ring: 11 100% 53%;
+    --border: 40 4% 14%;                /* #262523 */
+    --input: 0 0% 9%;
+    --ring: 19 81% 54%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 98%;
     --warning: 48 96% 53%;
     --warning-foreground: 0 0% 98%;
-    --info: 11 100% 53%;
+    --info: 19 81% 54%;
     --info-foreground: 0 0% 98%;
 
-    --stats-primary: 11 60% 16%;
-    --stats-primary-border: 11 60% 28%;
-    --stats-primary-text: 11 80% 72%;
+    --stats-primary: 19 60% 16%;
+    --stats-primary-border: 19 60% 28%;
+    --stats-primary-text: 19 80% 72%;
     --stats-secondary: 142 76% 18%;
     --stats-secondary-border: 142 76% 25%;
     --stats-secondary-text: 142 76% 75%;
@@ -149,14 +149,14 @@
     --card-summary-border: 38 80% 25%;
     --card-summary-text: 38 95% 80%;
 
-    --sidebar-background: 240 6% 7%;
-    --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 11 100% 53%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 47 21% 94%;
+    --sidebar-primary: 19 81% 54%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 8%;
-    --sidebar-accent-foreground: 0 0% 96%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 11 100% 53%;
+    --sidebar-accent: 0 0% 11%;
+    --sidebar-accent-foreground: 47 21% 94%;
+    --sidebar-border: 40 4% 14%;
+    --sidebar-ring: 19 81% 54%;
   }
 }
 
@@ -167,13 +167,13 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: 'Archivo', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 16px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    letter-spacing: -0.01em;
+    font-family: 'Archivo', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: -0.02em;
   }
 
   main {
