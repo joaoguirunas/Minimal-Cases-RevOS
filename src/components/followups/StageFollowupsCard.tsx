@@ -59,7 +59,7 @@ const StageFollowupsCard = ({ stage, followups, leadsCount = 0 }: StageFollowups
   const getFollowupTitle = (f: StageFollowup) =>
     f.tipo === 'whatsapp_template'
       ? (f.whatsapp_template_name ?? allTemplates.find(t => t.id === f.whatsapp_template_id)?.nome ?? allTemplates.find(t => t.id_template === f.template_id)?.nome ?? f.template_id ?? '')
-      : (f.assunto ?? f.mensagem?.split('\n')[0] ?? '');
+      : (f.email_template_name ?? f.assunto ?? f.mensagem?.split('\n')[0] ?? '');
 
   const sortFollowups = (arr: StageFollowup[]) =>
     [...arr].sort((a, b) => {
@@ -91,7 +91,7 @@ const StageFollowupsCard = ({ stage, followups, leadsCount = 0 }: StageFollowups
     const title =
       f.tipo === 'whatsapp_template'
         ? (resolvedName ?? f.template_id ?? 'Template sem nome')
-        : (f.assunto ?? f.mensagem?.split('\n')[0] ?? (f.tipo === 'ligacao' ? 'Ligação via Discador AS' : '—'));
+        : (f.email_template_name ?? f.assunto ?? f.mensagem?.split('\n')[0] ?? (f.tipo === 'ligacao' ? 'Ligação via Discador AS' : '—'));
 
     const handleEye = () => {
       if (f.tipo === 'whatsapp_template' && previewKey) {

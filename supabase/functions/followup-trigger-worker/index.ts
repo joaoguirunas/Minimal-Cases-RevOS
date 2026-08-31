@@ -359,6 +359,11 @@ serve(async (req) => {
             'pessoa.telefone': pessoa?.telefone ?? '',
             'pessoa.whatsapp': pessoa?.whatsapp ?? '',
             'lead.titulo': lead?.title ?? '',
+            // Tokens usados pelos templates da esteira Minimal (EMAIL-2.1):
+            // {{nome}} = primeiro nome; {{asset_base}} = base pública das imagens
+            // (env EMAIL_ASSET_BASE, ex. https://crm.suaurl.com/email-assets).
+            'nome': (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
+            'asset_base': Deno.env.get('EMAIL_ASSET_BASE') ?? '',
           };
 
           const result = await sendEmailWithConfig(emailConfig!, { to: toEmail, subject, html, vars });

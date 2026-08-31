@@ -23,6 +23,23 @@ const SAMPLE_VALUES: Record<string, string> = {
   'etapa.nome': 'Compra Aprovada',
   'agendamento.inicio': '10/07/2026 14:00',
   'agendamento.link_reuniao': 'https://meet.google.com/abc-defg-hij',
+  // Esteira Minimal Cases (templates de carrinho abandonado / Pix — EMAIL-2.1)
+  'produto': 'Case iPhone Couro Porta Cartões Magnético',
+  'modelo_celular': 'iPhone 17 Pro',
+  'modelo_celular_curto': 'IPHONE',
+  'imagem_produto': '/email-assets/prod-couro.jpg',
+  'preco': 'R$ 142,90',
+  'preco_com_cupom': 'R$ 128,61',
+  'total': 'R$ 142,90',
+  'link_checkout': 'https://seguro.minimalcases.com.br/r/EXEMPLO',
+  'cupom': 'VOLTA10',
+  'expira_em': 'hoje 23h59',
+  'remetente': 'Rafael Costa',
+  'cargo': 'Atendimento & Experiência',
+  'link_whatsapp': 'https://wa.me/5511999999999',
+  'unsubscribe': '#',
+  'countdown_gif': '/email-assets/countdown-placeholder.png',
+  'asset_base': '/email-assets',
 };
 
 /** Returns the deduplicated list of variable names referenced in the given text. */

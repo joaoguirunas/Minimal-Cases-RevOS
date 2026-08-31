@@ -12,6 +12,8 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { FileText, MessageSquare, Mail, Smartphone, Clock } from 'lucide-react';
 import { useCreateFollowup, useUpdateFollowup, type StageFollowup, type FollowupCanal } from '@/hooks/useFollowups';
+import { useEmailTemplates } from '@/hooks/useEmailTemplates';
+import { useOmniChannelConfig } from '@/hooks/useOmniChannelConfig';
 import { usePipelines } from '@/hooks/usePipelines';
 import { useWhatsappTemplates } from '@/hooks/useWhatsappTemplates';
 import { ScoreMatrixSelector } from './ScoreMatrixSelector';
@@ -50,6 +52,7 @@ interface FormState {
   template_name: string;
   whatsapp_template_id: string;
   as_queue_id: string;
+  email_template_id: string;
   mensagem: string;
   assunto: string;
   dias: number;
@@ -70,6 +73,7 @@ const defaultForm = (stageId = '', scoreId?: string): FormState => ({
   template_name:        '',
   whatsapp_template_id: '',
   as_queue_id:          '',
+  email_template_id:    '',
   mensagem:             '',
   assunto:              '',
   dias:                 0,
@@ -98,6 +102,8 @@ const FollowupModal = ({
   const updateFollowup = useUpdateFollowup();
   const { pipelines, stages: allStages, isLoading: loadingStages } = usePipelines();
   const { data: whatsappTemplates = [] } = useWhatsappTemplates();
+  const { data: emailTemplates = [] } = useEmailTemplates();
+  const { data: emailChannelConfig } = useOmniChannelConfig('email');
 
   const activePipelines = (pipelines ?? []).filter(p => p.ativo || p.active);
   const activeStages    = (allStages ?? []).filter(s => s.ativo || s.active);
@@ -117,6 +123,7 @@ const FollowupModal = ({
         template_name:        resolvedTemplateName,
         whatsapp_template_id: followup.whatsapp_template_id ?? '',
         as_queue_id:          followup.as_queue_id ?? '',
+        email_template_id:    followup.email_template_id ?? '',
         mensagem:             followup.mensagem ?? '',
         assunto:              followup.assunto ?? '',
         dias:                 followup.dias,
@@ -140,8 +147,11 @@ const FollowupModal = ({
     if (form.canal === 'whatsapp_template' && !form.template_id) {
       toast.error('Selecione um template WhatsApp.'); return;
     }
-    if (['email', 'sms'].includes(form.canal) && !form.mensagem.trim()) {
+    if (form.canal === 'sms' && !form.mensagem.trim()) {
       toast.error('Digite o conteúdo da mensagem.'); return;
+    }
+    if (form.canal === 'email' && !form.email_template_id && !form.mensagem.trim()) {
+      toast.error('Selecione um template de e-mail ou escreva o corpo da mensagem.'); return;
     }
     if (form.dias === 0 && form.horas === 0 && form.minutos === 0) {
       toast.error('Defina pelo menos um intervalo de tempo.'); return;
@@ -154,8 +164,9 @@ const FollowupModal = ({
       template_id:          form.canal === 'whatsapp_template' ? form.template_id || null : null,
       whatsapp_template_id: form.canal === 'whatsapp_template' ? form.whatsapp_template_id || null : null,
       as_queue_id:          null,
+      email_template_id:    form.canal === 'email' ? form.email_template_id || null : null,
       mensagem:             ['email', 'sms'].includes(form.canal) ? form.mensagem || null : null,
-      assunto:              form.canal === 'email' ? form.assunto || null : null,
+      assunto:              form.canal === 'email' && !form.email_template_id ? form.assunto || null : null,
       arquivo_audio:        null,
       dias:                 form.dias,
       horas:                form.horas,
@@ -206,7 +217,7 @@ const FollowupModal = ({
                   <button
                     key={c.value}
                     type="button"
-                    onClick={() => upd({ canal: c.value, template_id: '', template_name: '', mensagem: '', assunto: '', as_queue_id: '' })}
+                    onClick={() => upd({ canal: c.value, template_id: '', template_name: '', mensagem: '', assunto: '', as_queue_id: '', email_template_id: '' })}
                     className={cn(
                       'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors',
                       active
@@ -322,22 +333,73 @@ const FollowupModal = ({
 
           {form.canal === 'email' && (
             <>
+              {/* Credenciais do canal (omni_channel_configs · channel=email) */}
+              {emailChannelConfig && !emailChannelConfig.is_active ? (
+                <p className="text-[11px] text-amber-500/90 rounded-[4px] border border-amber-500/20 bg-amber-500/5 px-2.5 py-1.5">
+                  O canal de e-mail está inativo — o follow-up ficará na fila sem enviar.
+                  Ative e configure o provedor em Configurações → Integrações → E-mail.
+                </p>
+              ) : emailChannelConfig?.is_active ? (
+                <p className="text-[11px] text-muted-foreground/60">
+                  Enviando via {String((emailChannelConfig.credentials as Record<string, unknown>)?.provider ?? 'provedor configurado')}
+                  {(emailChannelConfig.credentials as Record<string, unknown>)?.from_email
+                    ? ` · ${String((emailChannelConfig.credentials as Record<string, unknown>).from_email)}`
+                    : ''} (Configurações → Integrações → E-mail).
+                </p>
+              ) : null}
+
+              {/* Template da biblioteca (email_templates) ou conteúdo manual */}
               <div className="space-y-1.5">
-                <Label className="text-[12px]">Assunto</Label>
-                <Input
-                  value={form.assunto}
-                  onChange={e => upd({ assunto: e.target.value })}
-                  placeholder="Assunto do e-mail"
-                  className="h-8 text-[13px]"
-                />
+                <Label className="text-[12px]">Template de e-mail</Label>
+                <Select
+                  value={form.email_template_id || '_manual'}
+                  onValueChange={v => upd({ email_template_id: v === '_manual' ? '' : v })}
+                >
+                  <SelectTrigger className="h-8 text-[13px]">
+                    <SelectValue placeholder="Escrever manualmente" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background max-h-64">
+                    <SelectItem value="_manual">— Escrever manualmente —</SelectItem>
+                    {emailTemplates.filter(t => t.active).map(t => (
+                      <SelectItem key={t.id} value={t.id} className="text-[13px]">
+                        {t.name}{t.category ? ` · ${t.category}` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground/50">
+                  Templates são criados em Configurações → Integrações → E-mail → Templates (com preview).
+                </p>
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-[12px]">Corpo do e-mail <span className="text-destructive">*</span></Label>
-                <FollowupEmailEditor
-                  content={form.mensagem}
-                  onChange={html => upd({ mensagem: html })}
-                />
-              </div>
+
+              {form.email_template_id ? (
+                <div className="rounded-[4px] border border-border bg-muted/40 px-2.5 py-2 text-[12px] text-muted-foreground">
+                  <span className="font-medium text-foreground">Assunto:</span>{' '}
+                  {emailTemplates.find(t => t.id === form.email_template_id)?.subject ?? '—'}
+                  <span className="block text-[11px] mt-0.5">
+                    Assunto e corpo vêm do template; variáveis são preenchidas no envio.
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-1.5">
+                    <Label className="text-[12px]">Assunto</Label>
+                    <Input
+                      value={form.assunto}
+                      onChange={e => upd({ assunto: e.target.value })}
+                      placeholder="Assunto do e-mail"
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[12px]">Corpo do e-mail <span className="text-destructive">*</span></Label>
+                    <FollowupEmailEditor
+                      content={form.mensagem}
+                      onChange={html => upd({ mensagem: html })}
+                    />
+                  </div>
+                </>
+              )}
             </>
           )}
 

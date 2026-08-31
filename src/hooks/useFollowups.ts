@@ -24,6 +24,8 @@ export interface StageFollowup {
   template_id: string | null;
   whatsapp_template_id: string | null;
   whatsapp_template_name: string | null;
+  email_template_id: string | null;
+  email_template_name: string | null;
   as_queue_id: string | null;
   ativo: boolean;
   control: number | null;
@@ -49,6 +51,8 @@ interface DbFollowup {
   template_id: string | null;
   whatsapp_template_id: string | null;
   whatsapp_template?: { name: string } | null; // not joined — always null
+  email_template_id: string | null;
+  email_template?: { name: string } | null; // joined via select
   as_queue_id: string | null;
   active: boolean;
   control: number | null;
@@ -73,6 +77,8 @@ const mapDbToFollowup = (d: DbFollowup): StageFollowup => ({
   template_id:            d.template_id,
   whatsapp_template_id:   d.whatsapp_template_id,
   whatsapp_template_name: d.whatsapp_template?.name ?? null,
+  email_template_id:      d.email_template_id ?? null,
+  email_template_name:    d.email_template?.name ?? null,
   as_queue_id:            d.as_queue_id,
   ativo:                  d.active,
   control:                d.control,
@@ -91,7 +97,7 @@ export const useStageFollowups = (stageId?: string) => {
       if (!stageId) return [];
       const { data, error } = await (supabase as any)
         .from('leads_stages_followups')
-        .select('*')
+        .select('*, email_template:email_templates(name)')
         .eq('leads_stages_id', stageId)
         .order('days', { ascending: true })
         .order('hours', { ascending: true });
@@ -109,7 +115,7 @@ export const useAllFollowups = (filters?: { stageId?: string; scoreMatrixId?: st
     queryFn: async () => {
       let query = (supabase as any)
         .from('leads_stages_followups')
-        .select('*')
+        .select('*, email_template:email_templates(name)')
         .order('days', { ascending: true })
         .order('hours', { ascending: true });
       if (filters?.stageId)       query = query.eq('leads_stages_id', filters.stageId);
@@ -137,6 +143,7 @@ interface FollowupMutationInput {
   arquivo_audio?: string | null;
   template_id?: string | null;
   whatsapp_template_id?: string | null;
+  email_template_id?: string | null;
   as_queue_id?: string | null;
   ativo: boolean;
   target_stage_id?: string | null;
@@ -158,6 +165,7 @@ const buildInsert = (d: FollowupMutationInput) => ({
   audio_file:           d.arquivo_audio ?? null,
   template_id:          d.template_id ?? null,
   whatsapp_template_id: d.whatsapp_template_id ?? null,
+  email_template_id:    d.email_template_id ?? null,
   as_queue_id:          d.as_queue_id ?? null,
   active:               d.ativo,
   control:              d.control ?? null,
