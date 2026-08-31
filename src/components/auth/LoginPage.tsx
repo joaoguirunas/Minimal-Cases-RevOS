@@ -294,7 +294,7 @@ const LoginPage = () => {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+              className="w-full"
               disabled={isLoading || isBlocked}
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
@@ -305,7 +305,7 @@ const LoginPage = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-[4px]"
+              className="w-full"
               onClick={() => {
                 handleClearCacheAndRestart();
                 emergencyReset();
