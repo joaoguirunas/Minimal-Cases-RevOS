@@ -364,7 +364,6 @@ const LoginPage = () => {
               <Button 
                 type="submit" 
                 disabled={resetInProgress} 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
               >
                 {resetInProgress ? 'Enviando...' : 'Enviar'}
                 {!resetInProgress && <ArrowRight className="ml-2 h-4 w-4" />}
