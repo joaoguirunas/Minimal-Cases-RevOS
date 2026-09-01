@@ -133,3 +133,9 @@ verify_jwt = false # Invoked by yampi-inbound / yampi-connect(reprocess) with se
 
 [functions.yampi-reconcile]
 verify_jwt = true # pg_cron worker (5 min) — gateway valida o service_role JWT; a função só lê a claim role
+
+[functions.zoppy-connect]
+verify_jwt = true # Zoppy admin connect/import — JWT do usuário; gate gestor no código
+
+[functions.zoppy-sync]
+verify_jwt = false # Worker de import — invocado por zoppy-connect e por si mesmo com service_role bearer

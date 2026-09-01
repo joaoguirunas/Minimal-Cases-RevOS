@@ -17,12 +17,13 @@ const CallMegaConfig          = lazy(() => import('@/components/config/CallMegaC
 const ManyChatIntegrationConfig = lazy(() => import('@/components/config/ManyChatIntegrationConfig'));
 const KiwifyIntegrationConfig   = lazy(() => import('@/components/config/KiwifyIntegrationConfig'));
 const YampiIntegrationConfig    = lazy(() => import('@/components/config/YampiIntegrationConfig'));
+const ZoppyIntegrationConfig    = lazy(() => import('@/components/config/ZoppyIntegrationConfig'));
 const FormProConfig             = lazy(() => import('@/components/config/FormProConfig'));
 const EvolutionIntegrationConfig = lazy(() => import('@/components/config/EvolutionIntegrationConfig'));
 
 // ── Integration card definitions ───────────────────────────────────────────────
 
-type IntegrationId = 'meta' | 'meta-leads' | 'whatsapp-evolution' | 'tiktok' | 'manychat' | 'kiwify' | 'yampi' | 'google-ads' | 'google-cal' | 'teams' | 'ia' | 'elevenlabs' | 'email' | 'sms' | 'telefonia';
+type IntegrationId = 'meta' | 'meta-leads' | 'whatsapp-evolution' | 'tiktok' | 'manychat' | 'kiwify' | 'yampi' | 'zoppy' | 'google-ads' | 'google-cal' | 'teams' | 'ia' | 'elevenlabs' | 'email' | 'sms' | 'telefonia';
 
 const INTEGRATIONS: {
   id: IntegrationId;
@@ -72,6 +73,12 @@ const INTEGRATIONS: {
     name: 'Yampi',
     description: 'Carrinho abandonado, Pix, pedidos e cupons da loja',
     logo: '/logos/yampi.png',
+  },
+  {
+    id: 'zoppy',
+    name: 'Zoppy',
+    description: 'Importa a base antiga: clientes, pedidos e carrinhos',
+    logo: '/logos/zoppy.png',
   },
   {
     id: 'google-ads',
@@ -182,6 +189,7 @@ function DetailView({ id, onBack }: { id: IntegrationId; onBack: () => void }) {
         {id === 'manychat'    && <ManyChatIntegrationConfig />}
         {id === 'kiwify'      && <KiwifyIntegrationConfig />}
         {id === 'yampi'       && <YampiIntegrationConfig />}
+        {id === 'zoppy'       && <ZoppyIntegrationConfig />}
         {id === 'google-ads'  && <AdsConfig platform="google" />}
         {id === 'google-cal'  && <GoogleConfig />}
         {id === 'teams'       && <TeamsConfig />}

@@ -368,3 +368,15 @@ channel=email — configuradas em Configurações → Integrações → E-mail) 
 quando o canal está inativo. Para os templates da esteira Minimal, defina o secret
 `EMAIL_ASSET_BASE` nas edge functions (URL pública de `/email-assets`):
 `supabase secrets set EMAIL_ASSET_BASE=https://<seu-deploy>/email-assets`.
+
+### Integração Zoppy — import da base antiga (ZPY-1/2)
+Configurações → Integrações → Zoppy: cole a **Chave de API** (menu da plataforma
+Zoppy) e a chave **zoppy-access** (fornecida pelo time da Zoppy), conecte e rode os
+imports — **Clientes primeiro** (cria/atualiza contatos em `clients_people`, com
+dedupe por e-mail/telefone e RFM da Zoppy guardado em `zoppy_customers.rfm_position`),
+depois Pedidos e Carrinhos abandonados (staging `zoppy_orders` / `zoppy_abandoned_carts`
+com itens em jsonb — a esteira ativa continua sendo a do Yampi). O worker `zoppy-sync`
+processa páginas de 100 e se re-invoca até terminar; progresso em `zoppy_sync_state`
+(a UI mostra e permite retomar de erro). Migration: `20260831110000_zoppy_integration.sql`.
+Deploy: `supabase functions deploy zoppy-connect zoppy-sync` (o zoppy-sync com
+`--no-verify-jwt`, validação service-role no código).
