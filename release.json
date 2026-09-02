@@ -1,12 +1,12 @@
 {
-  "version": "5.17",
+  "version": "5.21",
   "major": 5,
-  "minor": 17,
-  "created_at": "2026-09-02T09:46:40.000Z",
-  "git_sha": "911b7918381e16e2287587c3a96e8a77071c63c8",
+  "minor": 21,
+  "created_at": "2026-09-02T21:46:50.000Z",
+  "git_sha": "9a14465265e397889ebe98f1df5b1c4ac9f9e840",
   "migrations": [
-    "supabase/migrations/20260903100000_esteira_stage_redesign.sql"
+    "supabase/migrations/20260903120000_email_assets_bucket.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): stages reais de recuperação no pipeline da loja|chore(release): release.json v5.16 [skip ci]"
+  "changelog": "feat(klaviyo): trava de envios fail-safe + imagens dos e-mails em bucket público|fix(esteira): preço efetivo do item e link de recuperação autenticado|fix(design): remove font-['Outfit'] órfã — headers caíam na serifada|fix(esteira): data real do carrinho no lead (badge de dias)|chore(release): release.json v5.17 [skip ci]"
 }
