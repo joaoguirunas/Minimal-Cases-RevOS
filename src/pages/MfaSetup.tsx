@@ -152,7 +152,7 @@ const MfaSetup = () => {
           </nav>
         )}
 
-        <div className="border border-border rounded-[4px] bg-card">
+        <div className="border border-border rounded-lg bg-card">
           {/* Step: intro */}
           {step === 'intro' && (
             <div className="p-6 space-y-5">
@@ -214,7 +214,7 @@ const MfaSetup = () => {
               {qrSvg ? (
                 <div className="flex justify-center">
                   <div
-                    className="bg-white p-3 rounded-[4px] inline-block"
+                    className="bg-white p-3 rounded-lg inline-block"
                     role="img"
                     aria-label="QR code para configurar autenticador MFA"
                     dangerouslySetInnerHTML={{ __html: qrSvg }}
@@ -233,7 +233,7 @@ const MfaSetup = () => {
                   </p>
                   <div className="flex items-center gap-2">
                     <code
-                      className="flex-1 text-[11px] font-mono bg-muted px-2 py-1 rounded-[3px] border border-border break-all select-all"
+                      className="flex-1 text-[11px] font-mono bg-muted px-2 py-1 rounded-md border border-border break-all select-all"
                       aria-label="Chave secreta manual para configurar autenticador"
                     >
                       {secret}
@@ -320,7 +320,7 @@ const MfaSetup = () => {
               {verifyError && (
                 <p
                   role="alert"
-                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-[4px] px-3 py-2"
+                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2"
                 >
                   {verifyError}
                 </p>

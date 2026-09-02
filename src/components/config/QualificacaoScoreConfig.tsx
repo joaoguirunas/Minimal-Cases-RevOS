@@ -14,7 +14,7 @@ export default function QualificacaoScoreConfig() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-5">
-        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-[2px] p-0">
+        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-md p-0">
           {([
             { value: 'motivos', label: 'Motivos de Perda' },
             { value: 'campos',  label: 'Campos Personalizados' },

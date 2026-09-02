@@ -41,7 +41,7 @@ export default function Step3Consent({ isFocused, onNext }: Step3ConsentProps) {
       </ol>
 
       {/* Escopos a copiar */}
-      <div className="border border-border rounded-[4px] bg-muted/30 divide-y divide-border">
+      <div className="border border-border rounded-lg bg-muted/30 divide-y divide-border">
         {SCOPES.map((scope, i) => (
           <div key={i} className="flex items-center justify-between gap-2 px-3 py-2">
             <code className="text-[10px] text-muted-foreground font-mono truncate">{scope}</code>
@@ -49,7 +49,7 @@ export default function Step3Consent({ isFocused, onNext }: Step3ConsentProps) {
               type="button"
               onClick={() => handleCopy(scope, scope)}
               aria-label={`Copiar ${scope}`}
-              className="shrink-0 p-1.5 rounded-[3px] hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="shrink-0 p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
               {copied === scope
                 ? <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -60,7 +60,7 @@ export default function Step3Consent({ isFocused, onNext }: Step3ConsentProps) {
       </div>
 
       {/* Callout Testing vs Production */}
-      <div className="flex items-start gap-2.5 p-3 rounded-[4px] border border-blue-500/20 bg-blue-500/5">
+      <div className="flex items-start gap-2.5 p-3 rounded-lg border border-blue-500/20 bg-blue-500/5">
         <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
         <div className="space-y-1">
           <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Modo Testing</p>

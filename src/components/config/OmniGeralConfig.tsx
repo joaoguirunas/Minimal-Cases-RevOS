@@ -10,7 +10,7 @@ export default function OmniGeralConfig() {
       </div>
 
       <Tabs defaultValue="dedup" className="space-y-5">
-        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-[2px] p-0">
+        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-md p-0">
           <TabsTrigger
             value="dedup"
             className="flex-1 text-[13px] h-full px-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary"

@@ -102,7 +102,7 @@ export default function GoogleWizard({
           <Button
             size="sm"
             variant="ghost"
-            className="h-[28px] text-[11px] text-muted-foreground gap-1.5 rounded-[4px]"
+            className="h-[28px] text-[11px] text-muted-foreground gap-1.5 rounded-lg"
             onClick={handleReset}
           >
             <RefreshCw className="w-3 h-3" aria-hidden="true" />
@@ -128,7 +128,7 @@ export default function GoogleWizard({
   return (
     <div className="space-y-5">
       {/* Stepper */}
-      <div className="border border-border rounded-[4px] bg-card px-4 py-3">
+      <div className="border border-border rounded-lg bg-card px-4 py-3">
         <WizardStepper
           steps={wizardSteps}
           onStepClick={goToStep}
@@ -163,7 +163,7 @@ export default function GoogleWizard({
         <Button
           size="sm"
           variant="ghost"
-          className="h-[28px] text-[11px] text-muted-foreground gap-1.5 rounded-[4px]"
+          className="h-[28px] text-[11px] text-muted-foreground gap-1.5 rounded-lg"
           onClick={handleReset}
         >
           <RefreshCw className="w-3 h-3" aria-hidden="true" />

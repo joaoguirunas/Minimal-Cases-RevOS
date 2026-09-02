@@ -210,7 +210,7 @@ const ResetPasswordPage = () => {
   if (isCheckingSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md rounded-[4px]">
+        <Card className="w-full max-w-md rounded-lg">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <Logo />
@@ -227,7 +227,7 @@ const ResetPasswordPage = () => {
   if (linkError && !hasValidSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md rounded-[4px]">
+        <Card className="w-full max-w-md rounded-lg">
           <CardHeader className="space-y-4">
             <Logo />
             <div className="flex justify-center">
@@ -250,7 +250,7 @@ const ResetPasswordPage = () => {
               <>
                 <Button 
                   onClick={() => setShowResendForm(true)}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
                 >
                   <Mail className="h-4 w-4 mr-2" />
                   Solicitar Novo Link
@@ -258,7 +258,7 @@ const ResetPasswordPage = () => {
                 <Button 
                   onClick={() => navigate('/login')} 
                   variant="outline"
-                  className="w-full rounded-[4px]"
+                  className="w-full rounded-lg"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Voltar ao Login
@@ -276,12 +276,12 @@ const ResetPasswordPage = () => {
                     placeholder="seu@email.com"
                     disabled={isResending}
                     required
-                    className="rounded-[4px]"
+                    className="rounded-lg"
                   />
                 </div>
                 <Button 
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
                   disabled={isResending}
                 >
                   {isResending ? 'Enviando...' : 'Enviar Link de Recuperação'}
@@ -307,7 +307,7 @@ const ResetPasswordPage = () => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md rounded-[4px]">
+        <Card className="w-full max-w-md rounded-lg">
           <CardHeader className="space-y-4">
             <Logo />
             <div className="flex justify-center">
@@ -330,7 +330,7 @@ const ResetPasswordPage = () => {
             </div>
             <Button 
               onClick={() => navigate('/login')} 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
             >
               Ir para o Login
             </Button>
@@ -343,7 +343,7 @@ const ResetPasswordPage = () => {
   // Password reset form
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md rounded-[4px]">
+      <Card className="w-full max-w-md rounded-lg">
         <CardHeader className="space-y-4">
           <Logo />
           <div className="text-center">
@@ -370,7 +370,7 @@ const ResetPasswordPage = () => {
                   disabled={isLoading}
                   required
                   minLength={6}
-                  className="pr-10 rounded-[4px]"
+                  className="pr-10 rounded-lg"
                 />
                 <Button
                   type="button"
@@ -402,13 +402,13 @@ const ResetPasswordPage = () => {
                 disabled={isLoading}
                 required
                 minLength={6}
-                className="rounded-[4px]"
+                className="rounded-lg"
               />
             </div>
 
             <Button 
               type="submit" 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]" 
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg" 
               disabled={isLoading}
             >
               {isLoading ? 'Redefinindo...' : 'Redefinir Senha'}
@@ -419,7 +419,7 @@ const ResetPasswordPage = () => {
                 type="button"
                 onClick={() => navigate('/login')} 
                 variant="outline"
-                className="w-full rounded-[4px]"
+                className="w-full rounded-lg"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar ao Login

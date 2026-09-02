@@ -135,14 +135,14 @@ export const WhatsappTemplateModal: React.FC<WhatsappTemplateModalProps> = ({
 
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Slug</label>
-                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-[2px] mt-1">{template.slug}</p>
+                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-md mt-1">{template.slug}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">ID Template (Meta)</label>
-                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-[2px] mt-1">{template.id_template}</p>
+                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-md mt-1">{template.id_template}</p>
               </div>
 
               <div>
@@ -156,7 +156,7 @@ export const WhatsappTemplateModal: React.FC<WhatsappTemplateModalProps> = ({
             </div>
 
             {template.provider === 'evolution' && (
-              <p className="text-sm text-muted-foreground/70 bg-muted px-3 py-2 rounded-[2px]">
+              <p className="text-sm text-muted-foreground/70 bg-muted px-3 py-2 rounded-md">
                 Template WhatsApp não-oficial (Evolution) — texto livre, sem aprovação ou registro na Meta.
               </p>
             )}
@@ -169,14 +169,14 @@ export const WhatsappTemplateModal: React.FC<WhatsappTemplateModalProps> = ({
               </label>
               {isSynced ? (
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-sm font-mono bg-muted px-2 py-1 rounded-[2px]">{template.meta_template_name}</p>
+                  <p className="text-sm font-mono bg-muted px-2 py-1 rounded-md">{template.meta_template_name}</p>
                   <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
                   <span className="text-[10px] text-green-600">Sincronizado</span>
                 </div>
               ) : (
                 <>
                   <p className="text-xs text-muted-foreground/60 mt-0.5 mb-1">
-                    Nome exato registrado no Meta Business Manager (ex: <code className="font-mono bg-muted px-1 rounded-[2px]">murilo_atendimento</code>)
+                    Nome exato registrado no Meta Business Manager (ex: <code className="font-mono bg-muted px-1 rounded-md">murilo_atendimento</code>)
                   </p>
                   <div className="flex gap-2">
                     <Input

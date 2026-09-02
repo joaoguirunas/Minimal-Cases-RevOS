@@ -68,7 +68,7 @@ const MultiSelectScoreMatrix = ({ selectedMatrixIds, onMatrixIdsChange, disabled
   return (
     <div className="space-y-2">
       <Select onValueChange={handleAddMatrix} disabled={disabled || availableMatrices.length === 0}>
-        <SelectTrigger className="w-full rounded-[4px] bg-background">
+        <SelectTrigger className="w-full rounded-lg bg-background">
           <SelectValue placeholder={availableMatrices.length === 0 ? "Todos selecionados" : "Selecionar scores..."} />
         </SelectTrigger>
         <SelectContent className="bg-background z-50 max-h-[300px]">

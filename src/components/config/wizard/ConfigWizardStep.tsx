@@ -46,7 +46,7 @@ export default function ConfigWizardStep({
   }, [isFocused]);
 
   return (
-    <div className="border border-border rounded-[4px] bg-card p-5 space-y-4">
+    <div className="border border-border rounded-lg bg-card p-5 space-y-4">
       <div className="space-y-1.5">
         <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
           Step {stepNumber}{isOptional ? ' (opcional)' : ''}
@@ -79,7 +79,7 @@ export default function ConfigWizardStep({
       <div className="flex items-center gap-3 pt-1">
         <Button
           size="sm"
-          className="rounded-[4px] h-[30px]"
+          className="rounded-lg h-[30px]"
           onClick={onCta}
           disabled={ctaDisabled || ctaState === 'loading' || ctaState === 'success'}
         >

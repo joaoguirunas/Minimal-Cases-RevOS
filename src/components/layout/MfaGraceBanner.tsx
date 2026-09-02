@@ -55,7 +55,7 @@ export function MfaGraceBanner({ graceUntil, onDismiss }: MfaGraceBannerProps) {
       <button
         onClick={onDismiss}
         aria-label="Dispensar aviso de MFA (volta no próximo login)"
-        className="shrink-0 p-1 rounded-[3px] hover:bg-black/10 transition-colors"
+        className="shrink-0 p-1 rounded-md hover:bg-black/10 transition-colors"
       >
         <X className="w-3.5 h-3.5" aria-hidden="true" />
       </button>

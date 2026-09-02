@@ -86,7 +86,7 @@ export const WhatsappTemplateDetails: React.FC<WhatsappTemplateDetailsProps> = (
 
   if (previewComponents.length === 0) {
     return (
-      <div className="rounded-[4px] border border-border bg-muted/30 p-4 space-y-2">
+      <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
         <p className="text-[12px] font-medium text-muted-foreground">Pré-visualização indisponível</p>
         <p className="text-[11px] text-muted-foreground/60">
           Este template não possui componentes de texto legíveis. Verifique a configuração no painel da operadora.
@@ -108,12 +108,12 @@ export const WhatsappTemplateDetails: React.FC<WhatsappTemplateDetailsProps> = (
 
       {/* Variáveis disponíveis */}
       {template.variables && Array.isArray(template.variables) && template.variables.length > 0 && (
-        <div className="mb-4 p-3 bg-muted rounded-[2px] border border-border">
+        <div className="mb-4 p-3 bg-muted rounded-md border border-border">
           <p className="text-xs font-medium text-muted-foreground mb-2">Variáveis disponíveis:</p>
           <div className="space-y-1.5">
             {template.variables.map((variable: any, index: number) => (
               <div key={index} className="flex items-start gap-2 text-xs">
-                <Badge variant="outline" className="rounded-[4px] px-1.5 py-0.5 h-5 font-mono text-[10px]">
+                <Badge variant="outline" className="rounded-lg px-1.5 py-0.5 h-5 font-mono text-[10px]">
                   {`{{${variable.placeholder || variable.position}}}`}
                 </Badge>
                 <div className="flex-1 min-w-0">

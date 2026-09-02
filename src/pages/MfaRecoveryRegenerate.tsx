@@ -69,7 +69,7 @@ const MfaRecoveryRegenerate = () => {
           </p>
         </div>
 
-        <div className="border border-border rounded-[4px] bg-card">
+        <div className="border border-border rounded-lg bg-card">
           {/* Step: verify */}
           {step === 'verify' && (
             <div className="p-6 space-y-5">
@@ -110,7 +110,7 @@ const MfaRecoveryRegenerate = () => {
                 <p
                   role="alert"
                   aria-live="assertive"
-                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-[4px] px-3 py-2"
+                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2"
                 >
                   {verifyError}
                 </p>

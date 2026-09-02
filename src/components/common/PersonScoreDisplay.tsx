@@ -16,7 +16,7 @@ interface PersonScoreDisplayProps {
 export const PersonScoreDisplay = ({ scoreMatrix }: PersonScoreDisplayProps) => {
   if (!scoreMatrix) {
     return (
-      <Card className="border border-border rounded-[2px]">
+      <Card className="border border-border rounded-md">
         <CardHeader>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-muted-foreground" />
@@ -39,7 +39,7 @@ export const PersonScoreDisplay = ({ scoreMatrix }: PersonScoreDisplayProps) => 
   };
 
   return (
-    <Card className="border border-border rounded-[2px]">
+    <Card className="border border-border rounded-md">
       <CardHeader>
         <div className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />

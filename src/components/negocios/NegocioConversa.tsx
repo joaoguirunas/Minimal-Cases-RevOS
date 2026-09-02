@@ -419,7 +419,7 @@ const NegocioConversa = ({ negocioId }: NegocioConversaProps) => {
             <span className="text-[14px] font-semibold truncate min-w-0" title={pessoaName}>{pessoaName}</span>
             <div className="flex-shrink-0"><ScoreBadge score={pessoaScore} /></div>
             {aiEnabled && (
-              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide rounded-[2px] px-1.5 py-0.5 transition-all duration-300 flex-shrink-0 ${
+              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide rounded-md px-1.5 py-0.5 transition-all duration-300 flex-shrink-0 ${
                 aiIsProcessing
                   ? 'text-violet-400 bg-violet-400/20 border border-violet-400/30'
                   : 'text-violet-400 bg-violet-400/10 border border-violet-400/20'
@@ -439,7 +439,7 @@ const NegocioConversa = ({ negocioId }: NegocioConversaProps) => {
             size="sm"
             onClick={() => toggleAIMutation.mutate({ pessoaId: negocio?.person_id!, enabled: !aiEnabled })}
             disabled={toggleAIMutation.isPending}
-            className={`gap-1.5 text-xs h-[30px] px-2.5 rounded-[4px] ${aiEnabled ? 'text-violet-400 hover:text-violet-300' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`gap-1.5 text-xs h-[30px] px-2.5 rounded-lg ${aiEnabled ? 'text-violet-400 hover:text-violet-300' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <Bot className="w-3.5 h-3.5" />
             {aiEnabled ? 'IA on' : 'IA off'}

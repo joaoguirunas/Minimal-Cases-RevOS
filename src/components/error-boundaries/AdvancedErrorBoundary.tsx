@@ -187,7 +187,7 @@ ${this.state.error?.message}
     const config = levelConfig[level];
 
     return (
-      <Card className="p-6 m-4 border-red-200 bg-red-50 rounded-[4px]">
+      <Card className="p-6 m-4 border-red-200 bg-red-50 rounded-lg">
         <div className="flex items-start gap-4">
           <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
           <div className="flex-1">
@@ -199,7 +199,7 @@ ${this.state.error?.message}
             </p>
             
             {process.env.NODE_ENV === 'development' && (
-              <details className="mb-4 p-3 bg-red-100 rounded-[4px] border border-red-200">
+              <details className="mb-4 p-3 bg-red-100 rounded-lg border border-red-200">
                 <summary className="cursor-pointer font-medium text-red-800">
                   Detalhes do erro (desenvolvimento)
                 </summary>
@@ -213,7 +213,7 @@ ${this.state.error?.message}
               <Button
                 onClick={this.handleRetry}
                 disabled={isRecovering}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-[4px]"
+                className="bg-red-600 hover:bg-red-700 text-white rounded-lg"
               >
                 {isRecovering ? (
                   <>
@@ -232,7 +232,7 @@ ${this.state.error?.message}
                 <Button
                   onClick={this.handleGoHome}
                   variant="outline"
-                  className="border-red-300 text-red-700 hover:bg-red-100 rounded-[4px]"
+                  className="border-red-300 text-red-700 hover:bg-red-100 rounded-lg"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Ir para Home
@@ -242,7 +242,7 @@ ${this.state.error?.message}
               <Button
                 onClick={this.handleReportBug}
                 variant="outline"
-                className="border-red-300 text-red-700 hover:bg-red-100 rounded-[4px]"
+                className="border-red-300 text-red-700 hover:bg-red-100 rounded-lg"
               >
                 <Bug className="w-4 h-4 mr-2" />
                 Reportar Bug

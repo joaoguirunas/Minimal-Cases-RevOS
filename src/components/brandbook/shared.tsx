@@ -27,10 +27,10 @@ export function SectionHeader({ num, title, subtitle }: { num: string; title: st
 
 export function GlowCard({ children, className = '', glow }: { children: React.ReactNode; className?: string; glow?: string }) {
   return (
-    <div className={`group/card relative rounded-[2px] border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.10] hover:bg-white/[0.035] ${className}`}>
+    <div className={`group/card relative rounded-md border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.10] hover:bg-white/[0.035] ${className}`}>
       {glow && (
         <div
-          className="pointer-events-none absolute inset-0 rounded-[2px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 -z-10"
+          className="pointer-events-none absolute inset-0 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 -z-10"
           style={{ boxShadow: `0 0 80px 4px ${glow}10, inset 0 0 60px 2px ${glow}06` }}
         />
       )}
@@ -74,7 +74,7 @@ export function TokenRow({ token, value, desc }: { token: string; value: string;
 export function SwatchRow({ color, name, token }: { color: string; name: string; token: string }) {
   return (
     <div className="flex items-center gap-4 py-2 border-b border-white/[0.04] last:border-0">
-      <div className="w-8 h-8 rounded-[2px] border border-white/[0.08] shrink-0" style={{ backgroundColor: color }} />
+      <div className="w-8 h-8 rounded-md border border-white/[0.08] shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-medium text-white/60">{name}</p>
         <p className="text-[9px] font-mono text-white/25">{token}</p>

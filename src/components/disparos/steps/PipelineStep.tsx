@@ -66,7 +66,7 @@ export default function PipelineStep({
               >
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-start justify-between">
-                    <div className="p-2.5 rounded-[4px] bg-muted border border-border">
+                    <div className="p-2.5 rounded-lg bg-muted border border-border">
                       <Layers className="w-5 h-5 text-foreground" />
                     </div>
                     {isSelected && (
@@ -83,7 +83,7 @@ export default function PipelineStep({
                     )}
                   </div>
 
-                  <Badge variant="secondary" className="rounded-[2px] text-[12px] bg-muted text-muted-foreground">
+                  <Badge variant="secondary" className="rounded-md text-[12px] bg-muted text-muted-foreground">
                     <ListChecks className="w-3 h-3 mr-1" />
                     {stageCount} {stageCount === 1 ? 'etapa' : 'etapas'}
                   </Badge>

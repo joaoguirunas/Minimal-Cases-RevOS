@@ -120,7 +120,7 @@ const EtapasCRMTab = () => {
             const isExpanded = expandedPipelines.has(pipeline.id);
 
             return (
-              <div key={pipeline.id} className="border border-border rounded-[4px] overflow-hidden">
+              <div key={pipeline.id} className="border border-border rounded-lg overflow-hidden">
                 {/* Pipeline header */}
                 <button
                   type="button"
@@ -211,7 +211,7 @@ const AgendamentoTab = () => {
             variant="outline"
             onClick={handleAutoSetup}
             disabled={autoSetup.isPending}
-            className="flex-shrink-0 h-[30px] rounded-[4px] text-xs gap-1.5"
+            className="flex-shrink-0 h-[30px] rounded-lg text-xs gap-1.5"
           >
             {autoSetup.isPending
               ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -223,7 +223,7 @@ const AgendamentoTab = () => {
       </div>
 
       <Tabs defaultValue="agendado">
-        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-[2px] p-0">
+        <TabsList className="h-[45px] w-full justify-start gap-0 bg-card dark:bg-zinc-950 border border-border rounded-md p-0">
           {MEETING_STATUSES.map(s => {
             const count = agendamentoFollowups.filter(f => f.meeting_status === s).length;
             return (
@@ -235,7 +235,7 @@ const AgendamentoTab = () => {
                 <span className={cn('w-1.5 h-1.5 rounded-full flex-shrink-0', MEETING_STATUS_DOT[s])} />
                 {MEETING_STATUS_LABELS[s]}
                 {count > 0 && (
-                  <span className="text-[10px] font-medium px-1 leading-none rounded-[2px] bg-white/[0.06] text-muted-foreground/60">
+                  <span className="text-[10px] font-medium px-1 leading-none rounded-md bg-white/[0.06] text-muted-foreground/60">
                     {count}
                   </span>
                 )}

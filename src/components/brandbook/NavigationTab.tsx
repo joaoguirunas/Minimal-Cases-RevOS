@@ -15,15 +15,15 @@ export default function NavigationTab() {
         <SectionHeader num="01" title="Search Modal" subtitle="Cmd+K triggered search — configurable, keyboard navigable" />
         <GlowCard glow="#FF4400">
           <div className="max-w-md mx-auto">
-            <div className="rounded-[2px] border border-white/[0.10] bg-[#111113] p-1 shadow-2xl">
+            <div className="rounded-md border border-white/[0.10] bg-[#111113] p-1 shadow-2xl">
               <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]">
                 <Search className="w-4 h-4 text-white/25" />
                 <input className="flex-1 bg-transparent text-[12px] text-white/60 placeholder:text-white/20 outline-none" placeholder="Search contacts, deals, reports..." />
-                <kbd className="px-1.5 py-0.5 rounded-[2px] bg-white/[0.04] border border-white/[0.06] text-[8px] font-mono text-white/20">ESC</kbd>
+                <kbd className="px-1.5 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-[8px] font-mono text-white/20">ESC</kbd>
               </div>
               <div className="py-2">
                 {['Recent: Ana Costa', 'Recent: Pipeline Q4', 'Action: Create Deal'].map((item, i) => (
-                  <div key={item} className={`py-1.5 flex items-center gap-2 text-[10px] ${i === 0 ? 'bg-[#FF4400]/[0.12] text-white border-l-2 border-[#FF4400] pl-[10px] pr-3' : 'px-3 text-white/30 hover:bg-white/[0.06]'} cursor-pointer rounded-[2px] mx-1`}>
+                  <div key={item} className={`py-1.5 flex items-center gap-2 text-[10px] ${i === 0 ? 'bg-[#FF4400]/[0.12] text-white border-l-2 border-[#FF4400] pl-[10px] pr-3' : 'px-3 text-white/30 hover:bg-white/[0.06]'} cursor-pointer rounded-md mx-1`}>
                     <Search className="w-3 h-3 text-white/15" />
                     {item}
                   </div>
@@ -46,15 +46,15 @@ export default function NavigationTab() {
             <GlowCard key={label} glow="#3B82F6">
               <p className="text-[9px] font-mono text-white/20 mb-3">{label}</p>
               <div className="flex items-center gap-1">
-                <button className={`w-7 h-7 rounded-[2px] border border-white/[0.06] flex items-center justify-center ${current === 1 ? 'opacity-30 cursor-not-allowed' : 'text-white/30 hover:text-white/50'}`} disabled={current === 1}>
+                <button className={`w-7 h-7 rounded-md border border-white/[0.06] flex items-center justify-center ${current === 1 ? 'opacity-30 cursor-not-allowed' : 'text-white/30 hover:text-white/50'}`} disabled={current === 1}>
                   <ChevronLeft className="w-3 h-3" />
                 </button>
                 {Array.from({ length: Math.min(pages, 5) }).map((_, i) => (
-                  <button key={i} className={`w-7 h-7 rounded-[2px] text-[10px] font-mono flex items-center justify-center ${i + 1 === current ? 'bg-[#FF4400] text-white' : 'border border-white/[0.06] text-white/30'}`}>
+                  <button key={i} className={`w-7 h-7 rounded-md text-[10px] font-mono flex items-center justify-center ${i + 1 === current ? 'bg-[#FF4400] text-white' : 'border border-white/[0.06] text-white/30'}`}>
                     {i + 1}
                   </button>
                 ))}
-                <button className="w-7 h-7 rounded-[2px] border border-white/[0.06] flex items-center justify-center text-white/30 hover:text-white/50">
+                <button className="w-7 h-7 rounded-md border border-white/[0.06] flex items-center justify-center text-white/30 hover:text-white/50">
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
@@ -122,7 +122,7 @@ export default function NavigationTab() {
         <div className="grid grid-cols-2 gap-8">
           <GlowCard glow="#3B82F6">
             <p className="text-[9px] font-mono text-white/20 mb-3">Expanded (240px)</p>
-            <div className="w-[200px] rounded-[2px] border border-white/[0.06] bg-white/[0.02] p-3 space-y-1">
+            <div className="w-[200px] rounded-md border border-white/[0.06] bg-white/[0.02] p-3 space-y-1">
               {[
                 { icon: Home, label: 'Dashboard', active: true },
                 { icon: Users, label: 'Contacts', active: false },
@@ -130,7 +130,7 @@ export default function NavigationTab() {
                 { icon: FileText, label: 'Reports', active: false },
                 { icon: Settings, label: 'Settings', active: false },
               ].map(({ icon: Icon, label, active }) => (
-                <div key={label} className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-[2px] text-[10px] ${active ? 'bg-[#FF4400]/10 text-[#FF4400]' : 'text-white/30 hover:bg-white/[0.03]'}`}>
+                <div key={label} className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[10px] ${active ? 'bg-[#FF4400]/10 text-[#FF4400]' : 'text-white/30 hover:bg-white/[0.03]'}`}>
                   <Icon className="w-3.5 h-3.5" />
                   <span>{label}</span>
                 </div>
@@ -139,7 +139,7 @@ export default function NavigationTab() {
           </GlowCard>
           <GlowCard glow="#6C16F8">
             <p className="text-[9px] font-mono text-white/20 mb-3">Collapsed (icon-only)</p>
-            <div className="w-[48px] rounded-[2px] border border-white/[0.06] bg-white/[0.02] p-2 space-y-1">
+            <div className="w-[48px] rounded-md border border-white/[0.06] bg-white/[0.02] p-2 space-y-1">
               {[
                 { icon: Home, active: true },
                 { icon: Users, active: false },
@@ -147,7 +147,7 @@ export default function NavigationTab() {
                 { icon: FileText, active: false },
                 { icon: Settings, active: false },
               ].map(({ icon: Icon, active }, i) => (
-                <div key={i} className={`w-8 h-8 rounded-[2px] flex items-center justify-center ${active ? 'bg-[#FF4400]/10 text-[#FF4400]' : 'text-white/20 hover:bg-white/[0.03]'}`}>
+                <div key={i} className={`w-8 h-8 rounded-md flex items-center justify-center ${active ? 'bg-[#FF4400]/10 text-[#FF4400]' : 'text-white/20 hover:bg-white/[0.03]'}`}>
                   <Icon className="w-3.5 h-3.5" />
                 </div>
               ))}
@@ -161,7 +161,7 @@ export default function NavigationTab() {
         <SectionHeader num="06" title="Bottom Bar" subtitle="Mobile navigation — 5 items with active state" />
         <GlowCard glow="#EC4899">
           <div className="max-w-xs mx-auto">
-            <div className="flex items-center justify-around py-2 rounded-[2px] border border-white/[0.06] bg-white/[0.02]">
+            <div className="flex items-center justify-around py-2 rounded-md border border-white/[0.06] bg-white/[0.02]">
               {[
                 { icon: Home, label: 'Home', active: true },
                 { icon: Heart, label: 'Likes', active: false },

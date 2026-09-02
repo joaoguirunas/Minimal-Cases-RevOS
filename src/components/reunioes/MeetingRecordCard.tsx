@@ -95,15 +95,15 @@ const TagInput = ({ value, onChange, placeholder }: { value: string[]; onChange:
       <div className="flex gap-1.5">
         <Input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add(); } }}
-          placeholder={placeholder} className="h-[30px] text-xs rounded-[2px]" />
-        <Button type="button" variant="outline" size="sm" onClick={add} className="h-[30px] px-2 rounded-[2px] shrink-0">
+          placeholder={placeholder} className="h-[30px] text-xs rounded-md" />
+        <Button type="button" variant="outline" size="sm" onClick={add} className="h-[30px] px-2 rounded-md shrink-0">
           <Plus className="w-3 h-3" />
         </Button>
       </div>
       {value.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {value.map((tag, i) => (
-            <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] text-[11px] bg-muted border border-border text-foreground">
+            <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] bg-muted border border-border text-foreground">
               {tag}
               <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))}>
                 <X className="w-2.5 h-2.5 text-muted-foreground" />
@@ -191,16 +191,16 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
 
   return (
     <>
-      <div className="border border-border bg-card rounded-[2px] overflow-hidden">
+      <div className="border border-border bg-card rounded-md overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border bg-card">
           <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] text-[11px] font-medium border shrink-0', typeConfig.color)}>
+            <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border shrink-0', typeConfig.color)}>
               <TypeIcon className="w-3 h-3" />
               {typeConfig.label}
             </span>
             {record.source && !isEditing && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-[2px] text-[11px] font-medium border border-border bg-muted text-muted-foreground shrink-0">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border border-border bg-muted text-muted-foreground shrink-0">
                 {SOURCE_LABELS[record.source] ?? record.source}
               </span>
             )}
@@ -217,7 +217,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
 
           <div className="flex items-center gap-0.5 shrink-0">
             {record.url && !isEditing && (
-              <Button variant="ghost" size="sm" asChild className="h-[30px] w-[30px] p-0 rounded-[2px]">
+              <Button variant="ghost" size="sm" asChild className="h-[30px] w-[30px] p-0 rounded-md">
                 <a href={record.url} target="_blank" rel="noopener noreferrer" title="Abrir link">
                   <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
                 </a>
@@ -226,11 +226,11 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
             {isEditing ? (
               <>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}
-                  className="h-[30px] w-[30px] p-0 rounded-[2px] text-muted-foreground">
+                  className="h-[30px] w-[30px] p-0 rounded-md text-muted-foreground">
                   <X className="w-3.5 h-3.5" />
                 </Button>
                 <Button size="sm" onClick={handleSave} disabled={updateMutation.isPending}
-                  className="h-[30px] px-2.5 rounded-[2px] text-xs gap-1">
+                  className="h-[30px] px-2.5 rounded-md text-xs gap-1">
                   <Check className="w-3 h-3" />
                   {updateMutation.isPending ? 'Salvando...' : 'Salvar'}
                 </Button>
@@ -238,11 +238,11 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
             ) : (
               <>
                 <Button variant="ghost" size="sm" onClick={startEditing}
-                  className="h-[30px] w-[30px] p-0 rounded-[2px] text-muted-foreground hover:text-foreground">
+                  className="h-[30px] w-[30px] p-0 rounded-md text-muted-foreground hover:text-foreground">
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setShowConfirm(true)}
-                  className="h-[30px] w-[30px] p-0 rounded-[2px] text-muted-foreground hover:text-destructive hover:bg-destructive/5">
+                  className="h-[30px] w-[30px] p-0 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/5">
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </>
@@ -260,8 +260,8 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
               <div className="space-y-1">
                 <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Fonte</Label>
                 <Select value={editSource} onValueChange={setEditSource}>
-                  <SelectTrigger className="h-8 text-xs rounded-[2px]"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-                  <SelectContent className="rounded-[2px]">
+                  <SelectTrigger className="h-8 text-xs rounded-md"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+                  <SelectContent className="rounded-md">
                     {SOURCES.map(s => <SelectItem key={s.value} value={s.value} className="text-xs">{s.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -272,11 +272,11 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                 <>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">URL da Gravação</Label>
-                    <Input value={editUrl} onChange={e => setEditUrl(e.target.value)} placeholder="https://loom.com/share/..." className="h-8 text-xs rounded-[2px]" />
+                    <Input value={editUrl} onChange={e => setEditUrl(e.target.value)} placeholder="https://loom.com/share/..." className="h-8 text-xs rounded-md" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Duração (minutos)</Label>
-                    <Input type="number" value={editDurMin} onChange={e => setEditDurMin(e.target.value)} placeholder="Ex: 45" className="h-8 text-xs rounded-[2px]" />
+                    <Input type="number" value={editDurMin} onChange={e => setEditDurMin(e.target.value)} placeholder="Ex: 45" className="h-8 text-xs rounded-md" />
                   </div>
                 </>
               )}
@@ -286,11 +286,11 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                 <>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Título</Label>
-                    <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Título do registro..." className="h-8 text-xs rounded-[2px]" />
+                    <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Título do registro..." className="h-8 text-xs rounded-md" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Conteúdo</Label>
-                    <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} className="min-h-[120px] text-xs rounded-[2px] resize-none" />
+                    <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} className="min-h-[120px] text-xs rounded-md resize-none" />
                   </div>
                 </>
               )}
@@ -307,8 +307,8 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Sentimento</Label>
                     <Select value={editSentiment ?? 'neutro'} onValueChange={v => setEditSentiment(v as MeetingRecord['ai_sentiment'])}>
-                      <SelectTrigger className="h-8 text-xs rounded-[2px]"><SelectValue /></SelectTrigger>
-                      <SelectContent className="rounded-[2px]">
+                      <SelectTrigger className="h-8 text-xs rounded-md"><SelectValue /></SelectTrigger>
+                      <SelectContent className="rounded-md">
                         <SelectItem value="positivo" className="text-xs">Positivo</SelectItem>
                         <SelectItem value="neutro" className="text-xs">Neutro</SelectItem>
                         <SelectItem value="negativo" className="text-xs">Negativo</SelectItem>
@@ -330,11 +330,11 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Título</Label>
-                    <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Título..." className="h-8 text-xs rounded-[2px]" />
+                    <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Título..." className="h-8 text-xs rounded-md" />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Conteúdo adicional</Label>
-                    <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} placeholder="Observações..." className="min-h-[80px] text-xs rounded-[2px] resize-none" />
+                    <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} placeholder="Observações..." className="min-h-[80px] text-xs rounded-md resize-none" />
                   </div>
                 </>
               )}
@@ -347,7 +347,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
               {/* Recording embed */}
               {record.record_type === 'recording' && record.url && (
                 isLoomUrl(record.url) ? (
-                  <div className="rounded-[2px] overflow-hidden bg-muted aspect-video">
+                  <div className="rounded-md overflow-hidden bg-muted aspect-video">
                     <iframe src={record.url.replace('/share/', '/embed/')} className="w-full h-full"
                       allowFullScreen title={record.title || 'Gravação'} />
                   </div>
@@ -374,7 +374,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                     {showTranscript ? 'Ocultar transcrição' : 'Ver transcrição'}
                   </button>
                   {showTranscript && (
-                    <div className="border border-border rounded-[2px] p-3 bg-muted/30">
+                    <div className="border border-border rounded-md p-3 bg-muted/30">
                       <MeetingTranscriptViewer transcript_json={record.transcript_json} />
                     </div>
                   )}
@@ -386,7 +386,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                 record.record_type === 'note' || record.record_type === 'ai_summary') && record.content && (
                 <div>
                   <div className={cn(
-                    'text-xs text-muted-foreground whitespace-pre-wrap rounded-[2px] bg-muted p-3 border border-border',
+                    'text-xs text-muted-foreground whitespace-pre-wrap rounded-md bg-muted p-3 border border-border',
                     !expanded && 'max-h-32 overflow-hidden relative'
                   )}>
                     {record.content}
@@ -411,7 +411,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                   <div className="flex items-center gap-4 flex-wrap">
                     {record.ai_score != null && <ScoreGauge score={record.ai_score} />}
                     {record.ai_sentiment && (
-                      <span className={cn('inline-flex items-center px-2.5 py-1 rounded-[2px] text-xs font-medium border',
+                      <span className={cn('inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border',
                         SENTIMENT_CONFIG[record.ai_sentiment]?.cls)}>
                         {SENTIMENT_CONFIG[record.ai_sentiment]?.label}
                       </span>
@@ -422,7 +422,7 @@ export const MeetingRecordCard = ({ record }: MeetingRecordCardProps) => {
                       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Tópicos</p>
                       <div className="flex flex-wrap gap-1">
                         {record.ai_key_topics.map((t, i) => (
-                          <Badge key={i} variant="secondary" className="text-[11px] rounded-[2px] px-2 py-0.5">{t}</Badge>
+                          <Badge key={i} variant="secondary" className="text-[11px] rounded-md px-2 py-0.5">{t}</Badge>
                         ))}
                       </div>
                     </div>

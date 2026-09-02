@@ -113,10 +113,10 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] rounded-[4px]">
+        <DialogContent className="max-w-4xl max-h-[90vh] rounded-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-[4px] flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary" />
               </div>
               {time.nome}
@@ -129,7 +129,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
           <ScrollArea className="max-h-[70vh] pr-4">
             <div className="space-y-6">
               {/* Informações do Time */}
-              <Card className="rounded-[4px]">
+              <Card className="rounded-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Info className="w-5 h-5" />
@@ -145,7 +145,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Tipo</label>
                       <div className="mt-1">
-                        <Badge className={`text-xs rounded-[4px] ${getTipoColor(time.tipo)}`}>
+                        <Badge className={`text-xs rounded-lg ${getTipoColor(time.tipo)}`}>
                           {getTipoLabel(time.tipo)}
                         </Badge>
                       </div>
@@ -153,7 +153,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Status</label>
                       <div className="mt-1">
-                        <Badge variant={time.ativo ? "default" : "secondary"} className="text-xs rounded-[4px]">
+                        <Badge variant={time.ativo ? "default" : "secondary"} className="text-xs rounded-lg">
                           {time.ativo ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </div>
@@ -167,7 +167,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                   {time.descricao && (
                     <div>
                       <label className="text-sm font-medium text-muted-foreground">Descrição</label>
-                      <p className="text-sm mt-1 p-3 bg-muted rounded-[4px]">{time.descricao}</p>
+                      <p className="text-sm mt-1 p-3 bg-muted rounded-lg">{time.descricao}</p>
                     </div>
                   )}
                   
@@ -181,14 +181,14 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
               </Card>
 
               {/* Lista de Membros */}
-              <Card className="rounded-[4px]">
+              <Card className="rounded-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-base">
                       <Users className="w-5 h-5" />
                       Membros do Time
                     </div>
-                    <Badge variant="outline" className="rounded-[4px]">
+                    <Badge variant="outline" className="rounded-lg">
                       {membros.length} {membros.length === 1 ? 'membro' : 'membros'}
                     </Badge>
                   </CardTitle>
@@ -205,10 +205,10 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                         return (
                           <div
                             key={membro.usuario_id}
-                            className="flex items-center justify-between p-3 border rounded-[4px] hover:bg-muted/50 transition-colors"
+                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-primary/10 rounded-[4px] flex items-center justify-center">
+                              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
                                 <Users className="w-4 h-4 text-primary" />
                               </div>
                               <div>
@@ -232,7 +232,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleConfigurarHorarios(usuario)}
-                                className="gap-2 rounded-[4px]"
+                                className="gap-2 rounded-lg"
                               >
                                 <Settings className="w-4 h-4" />
                                 Horários
@@ -241,7 +241,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleRemoverUsuario(usuario)}
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-[4px]"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
                               >
                                 <UserMinus className="w-4 h-4" />
                               </Button>
@@ -276,7 +276,7 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
 
       {/* Dialog de Confirmação de Remoção */}
       <AlertDialog open={removerUsuarioDialogOpen} onOpenChange={setRemoverUsuarioDialogOpen}>
-        <AlertDialogContent className="rounded-[4px]">
+        <AlertDialogContent className="rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Remover usuário do time</AlertDialogTitle>
             <AlertDialogDescription>
@@ -285,10 +285,10 @@ const VerMaisTimeModal = ({ open, onOpenChange, time }: VerMaisTimeModalProps) =
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-[4px]">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-lg">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmarRemocaoUsuario}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-[4px]"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
             >
               Remover
             </AlertDialogAction>

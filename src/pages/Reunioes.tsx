@@ -409,13 +409,13 @@ const Reunioes = () => {
         {/* Actions (right) */}
         <div className="flex items-center gap-1.5 shrink-0">
           {crmUserId && (
-            <Button variant="ghost" size="sm" onClick={() => setIsMeuHorarioModalOpen(true)} className="h-[30px] px-2.5 text-xs rounded-[4px] text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => setIsMeuHorarioModalOpen(true)} className="h-[30px] px-2.5 text-xs rounded-lg text-muted-foreground">
               <Clock className="w-3.5 h-3.5 mr-1.5" />
               Meu Horário
             </Button>
           )}
           {(isSuperAdmin || isGestor || currentUserId) && (
-            <Button variant="ghost" size="sm" onClick={() => setIsBloquearModalOpen(true)} className="h-[30px] px-2.5 text-xs rounded-[4px] text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => setIsBloquearModalOpen(true)} className="h-[30px] px-2.5 text-xs rounded-lg text-muted-foreground">
               <Shield className="w-3.5 h-3.5 mr-1.5" />
               Bloquear
             </Button>
@@ -429,10 +429,10 @@ const Reunioes = () => {
               await refetch();
             }
             toast.success("Atualizado");
-          }} disabled={isLoading || isSyncingGCal} className="h-[30px] w-[30px] p-0 text-xs rounded-[4px] text-muted-foreground">
+          }} disabled={isLoading || isSyncingGCal} className="h-[30px] w-[30px] p-0 text-xs rounded-lg text-muted-foreground">
             <RefreshCw className={cn("w-3.5 h-3.5", (isLoading || isSyncingGCal) && "animate-spin")} />
           </Button>
-          <Button size="sm" onClick={() => setIsModalOpen(true)} className="h-[30px] px-3 text-xs rounded-[4px]">
+          <Button size="sm" onClick={() => setIsModalOpen(true)} className="h-[30px] px-3 text-xs rounded-lg">
             <Plus className="w-3.5 h-3.5 mr-1.5" />
             Nova Reunião
           </Button>
@@ -503,10 +503,10 @@ const Reunioes = () => {
           <div className="flex items-center gap-1.5 shrink-0">
             {(isSuperAdmin || isGestor) && calendarEligibleUsers.length > 0 && (
               <Select value={calendarUserFilter || crmUserId || ""} onValueChange={setCalendarUserFilter}>
-                <SelectTrigger className="h-[26px] w-44 text-xs rounded-[4px] bg-muted border-border py-0">
+                <SelectTrigger className="h-[26px] w-44 text-xs rounded-lg bg-muted border-border py-0">
                   <SelectValue placeholder="Ver agenda de..." />
                 </SelectTrigger>
-                <SelectContent className="rounded-[4px] text-xs">
+                <SelectContent className="rounded-lg text-xs">
                   <SelectItem value="all" className="text-xs">Todos</SelectItem>
                   {calendarEligibleUsers.map(u => (
                     <SelectItem key={u.id} value={u.id} className="text-xs">
@@ -520,7 +520,7 @@ const Reunioes = () => {
               <button
                 onClick={async () => { await syncGCal(); await refetchExternal(); }}
                 disabled={isSyncingGCal}
-                className="flex items-center gap-1.5 h-6 px-2 rounded-[2px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+                className="flex items-center gap-1.5 h-6 px-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
               >
                 <RefreshCw className={cn("w-3 h-3", isSyncingGCal && "animate-spin")} />
                 Sincronizar
@@ -551,13 +551,13 @@ const Reunioes = () => {
                 placeholder="Buscar cliente ou consultor..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="pl-8 h-[30px] text-xs rounded-[4px] bg-muted border-transparent focus:border-border focus:bg-background"
+                className="pl-8 h-[30px] text-xs rounded-lg bg-muted border-transparent focus:border-border focus:bg-background"
               />
             </div>
             <button
               onClick={() => setShowAdvancedFilters(v => !v)}
               className={cn(
-                "flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] text-xs border transition-colors shrink-0",
+                "flex items-center gap-1.5 h-[30px] px-3 rounded-lg text-xs border transition-colors shrink-0",
                 advancedFilterCount > 0
                   ? "border-primary/40 bg-primary/5 text-primary"
                   : "border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -573,7 +573,7 @@ const Reunioes = () => {
               <ChevronDown className={cn("w-3 h-3 transition-transform", showAdvancedFilters && "rotate-180")} />
             </button>
             {hasActiveFilters && (
-              <button onClick={clearAllFilters} className="flex items-center gap-1 h-[30px] px-2.5 rounded-[4px] text-xs text-muted-foreground hover:text-foreground hover:bg-muted border border-border transition-colors shrink-0">
+              <button onClick={clearAllFilters} className="flex items-center gap-1 h-[30px] px-2.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted border border-border transition-colors shrink-0">
                 <X className="w-3 h-3" /> Limpar
               </button>
             )}
@@ -595,7 +595,7 @@ const Reunioes = () => {
                         key={key}
                         onClick={() => setActiveStatusFilter(prev => prev === key ? "" : key)}
                         className={cn(
-                          "flex items-center gap-1.5 h-[30px] px-2.5 rounded-[4px] text-xs border transition-colors",
+                          "flex items-center gap-1.5 h-[30px] px-2.5 rounded-lg text-xs border transition-colors",
                           active
                             ? "bg-muted border-border text-foreground"
                             : "border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -609,10 +609,10 @@ const Reunioes = () => {
                   })}
                   {/* Fine-grain select for non-strip statuses */}
                   <Select value={statusFilter} onValueChange={v => { setStatusFilter(v); setActiveStatusFilter(""); }}>
-                    <SelectTrigger className="h-[30px] w-auto min-w-[120px] text-xs rounded-[4px] bg-muted border-border">
+                    <SelectTrigger className="h-[30px] w-auto min-w-[120px] text-xs rounded-lg bg-muted border-border">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-[4px] text-xs">
+                    <SelectContent className="rounded-lg text-xs">
                       <SelectItem value="all" className="text-xs">Todos</SelectItem>
                       <SelectItem value="agendado" className="text-xs">Agendada</SelectItem>
                       <SelectItem value="compareceu" className="text-xs">Compareceu</SelectItem>
@@ -629,10 +629,10 @@ const Reunioes = () => {
                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Período e equipe</p>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Select value={dateFilter} onValueChange={setDateFilter}>
-                    <SelectTrigger className="h-[30px] w-40 text-xs rounded-[4px] bg-muted border-border">
+                    <SelectTrigger className="h-[30px] w-40 text-xs rounded-lg bg-muted border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="rounded-[4px] text-xs">
+                    <SelectContent className="rounded-lg text-xs">
                       <SelectItem value="all" className="text-xs">Todas as datas</SelectItem>
                       <SelectItem value="today" className="text-xs">Hoje</SelectItem>
                       <SelectItem value="week" className="text-xs">Esta semana</SelectItem>
@@ -642,10 +642,10 @@ const Reunioes = () => {
 
                   {canChangeFilters && (
                     <Select value={equipeFilter} onValueChange={v => { setEquipeFilter(v); setConsultorFilter("all"); }}>
-                      <SelectTrigger className="h-[30px] w-36 text-xs rounded-[4px] bg-muted border-border">
+                      <SelectTrigger className="h-[30px] w-36 text-xs rounded-lg bg-muted border-border">
                         <SelectValue placeholder="Equipe" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-[4px]">
+                      <SelectContent className="rounded-lg">
                         <SelectItem value="all" className="text-xs">Todas as equipes</SelectItem>
                         {times.map(t => <SelectItem key={t.id} value={t.id} className="text-xs">{t.nome}</SelectItem>)}
                       </SelectContent>
@@ -654,10 +654,10 @@ const Reunioes = () => {
 
                   {canChangeFilters && (
                     <Select value={consultorFilter} onValueChange={setConsultorFilter}>
-                      <SelectTrigger className="h-[30px] w-36 text-xs rounded-[4px] bg-muted border-border">
+                      <SelectTrigger className="h-[30px] w-36 text-xs rounded-lg bg-muted border-border">
                         <SelectValue placeholder="Consultor" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-[4px]">
+                      <SelectContent className="rounded-lg">
                         <SelectItem value="all" className="text-xs">Todos</SelectItem>
                         {filteredUsuarios.map(u => <SelectItem key={u.id} value={u.id} className="text-xs">{u.nome}</SelectItem>)}
                       </SelectContent>
@@ -735,7 +735,7 @@ const Reunioes = () => {
         {viewMode === "list" && (
           <div className="h-full overflow-auto">
             {paginatedAgendamentos.length > 0 ? (
-              <div className="mx-5 mt-4 mb-6 rounded-[2px] border border-border bg-card overflow-hidden">
+              <div className="mx-5 mt-4 mb-6 rounded-md border border-border bg-card overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b border-border hover:bg-transparent">
@@ -782,7 +782,7 @@ const Reunioes = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1.5">
-                              <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium border", badgeCls)}>
+                              <span className={cn("inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium border", badgeCls)}>
                                 {a.status}
                               </span>
                               {isSyncFailed && (
@@ -796,7 +796,7 @@ const Reunioes = () => {
                                   >
                                     <RefreshCw className={cn("w-3 h-3 text-muted-foreground", retryingSync === a.id && "animate-spin")} />
                                   </button>
-                                  <span className="absolute left-0 top-full mt-1 z-50 hidden group-hover/sync:block bg-popover border border-border rounded-[4px] px-2 py-1.5 text-[10px] text-popover-foreground whitespace-nowrap">
+                                  <span className="absolute left-0 top-full mt-1 z-50 hidden group-hover/sync:block bg-popover border border-border rounded-lg px-2 py-1.5 text-[10px] text-popover-foreground whitespace-nowrap">
                                     {a.gcal_sync_error
                                       ? (GCAL_SYNC_ERROR_MSG[a.gcal_sync_error] || `Erro: ${a.gcal_sync_error}`)
                                       : 'Google Calendar não sincronizado'}
@@ -828,7 +828,7 @@ const Reunioes = () => {
                             </TableCell>
                           )}
                           <TableCell className="pr-3">
-                            <Button size="sm" variant="ghost" className="h-[30px] w-[30px] p-0 rounded-[4px] opacity-0 group-hover:opacity-100 hover:bg-muted" onClick={e => { e.stopPropagation(); handleAgendamentoClick(a); }}>
+                            <Button size="sm" variant="ghost" className="h-[30px] w-[30px] p-0 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-muted" onClick={e => { e.stopPropagation(); handleAgendamentoClick(a); }}>
                               <Edit className="w-3.5 h-3.5 text-muted-foreground" />
                             </Button>
                           </TableCell>
@@ -847,18 +847,18 @@ const Reunioes = () => {
                     <Pagination>
                       <PaginationContent className="gap-0.5">
                         <PaginationItem>
-                          <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} className={cn("h-[30px] text-xs rounded-[4px]", currentPage === 1 && "pointer-events-none opacity-40")} />
+                          <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} className={cn("h-[30px] text-xs rounded-lg", currentPage === 1 && "pointer-events-none opacity-40")} />
                         </PaginationItem>
                         {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                           const p = totalPages <= 5 ? i + 1 : currentPage <= 3 ? i + 1 : currentPage >= totalPages - 2 ? totalPages - 4 + i : currentPage - 2 + i;
                           return (
                             <PaginationItem key={p}>
-                              <Button variant={currentPage === p ? "outline" : "ghost"} size="sm" onClick={() => setCurrentPage(p)} className="h-[30px] w-[30px] p-0 text-xs rounded-[4px]">{p}</Button>
+                              <Button variant={currentPage === p ? "outline" : "ghost"} size="sm" onClick={() => setCurrentPage(p)} className="h-[30px] w-[30px] p-0 text-xs rounded-lg">{p}</Button>
                             </PaginationItem>
                           );
                         })}
                         <PaginationItem>
-                          <PaginationNext onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} className={cn("h-[30px] text-xs rounded-[4px]", currentPage === totalPages && "pointer-events-none opacity-40")} />
+                          <PaginationNext onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} className={cn("h-[30px] text-xs rounded-lg", currentPage === totalPages && "pointer-events-none opacity-40")} />
                         </PaginationItem>
                       </PaginationContent>
                     </Pagination>
@@ -877,11 +877,11 @@ const Reunioes = () => {
                     : "Crie a primeira reunião para começar a usar o Schedule PRO."}
                 </p>
                 {total > 0 ? (
-                  <Button variant="outline" size="sm" onClick={clearAllFilters} className="rounded-[4px] h-[30px] text-xs mt-1">
+                  <Button variant="outline" size="sm" onClick={clearAllFilters} className="rounded-lg h-[30px] text-xs mt-1">
                     <X className="w-3.5 h-3.5 mr-1.5" />Limpar filtros
                   </Button>
                 ) : (
-                  <Button size="sm" onClick={() => setIsModalOpen(true)} className="rounded-[4px] h-[30px] text-xs mt-1">
+                  <Button size="sm" onClick={() => setIsModalOpen(true)} className="rounded-lg h-[30px] text-xs mt-1">
                     <Plus className="w-3.5 h-3.5 mr-1.5" />Nova Reunião
                   </Button>
                 )}

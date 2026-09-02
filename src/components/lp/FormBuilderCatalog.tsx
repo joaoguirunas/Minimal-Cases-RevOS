@@ -73,7 +73,7 @@ export function CatalogSidebar({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar..."
-            className="h-[30px] pl-7 text-xs rounded-[4px] bg-background"
+            className="h-[30px] pl-7 text-xs rounded-lg bg-background"
           />
         </div>
       </div>
@@ -103,7 +103,7 @@ export function CatalogSidebar({
                       {group.label}
                     </span>
                     {!search && pending.length > 0 && (
-                      <span className="text-[9px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-[2px] font-mono shrink-0">
+                      <span className="text-[9px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-md font-mono shrink-0">
                         {pending.length}
                       </span>
                     )}
@@ -142,7 +142,7 @@ export function CatalogSidebar({
                               disabled={added}
                               onClick={() => onPick(cf)}
                               className={cn(
-                                "w-full flex items-start gap-2 px-2.5 py-2 rounded-[4px] text-left transition-all",
+                                "w-full flex items-start gap-2 px-2.5 py-2 rounded-lg text-left transition-all",
                                 added
                                   ? "opacity-35 cursor-not-allowed"
                                   : "hover:bg-primary/8 active:scale-[0.98] cursor-pointer group/item"
@@ -190,7 +190,7 @@ export function CatalogSidebar({
                 <div className="px-1.5 pb-1">
                   <button
                     onClick={onAddHidden}
-                    className="w-full flex items-start gap-2 px-2.5 py-2 rounded-[4px] text-left transition-all hover:bg-primary/8 active:scale-[0.98] cursor-pointer"
+                    className="w-full flex items-start gap-2 px-2.5 py-2 rounded-lg text-left transition-all hover:bg-primary/8 active:scale-[0.98] cursor-pointer"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">

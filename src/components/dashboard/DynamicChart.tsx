@@ -59,7 +59,7 @@ function useChartTheme() {
 function ChartTooltip({ active, payload, label, formatter }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-card border border-border rounded-[2px] px-3 py-2 text-[11px]">
+    <div className="bg-card border border-border rounded-md px-3 py-2 text-[11px]">
       <p className="font-medium text-foreground mb-1">{label}</p>
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((p: any, i: number) => (
@@ -82,7 +82,7 @@ export default function DynamicChart({ spec }: { spec: ChartSpec }) {
   if (!data?.length) return null;
 
   return (
-    <div className="my-3 p-3 rounded-[2px] border border-border bg-card">
+    <div className="my-3 p-3 rounded-md border border-border bg-card">
       {title && (
         <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">{title}</p>
       )}

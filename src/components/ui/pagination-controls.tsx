@@ -41,10 +41,10 @@ export const PaginationControls = ({
           value={perPage.toString()}
           onValueChange={(value) => onPerPageChange(Number(value))}
         >
-          <SelectTrigger className="h-8 w-[70px] rounded-[4px]">
+          <SelectTrigger className="h-8 w-[70px] rounded-lg">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent side="top" className="rounded-[4px]">
+          <SelectContent side="top" className="rounded-lg">
             {[10, 20, 30, 50, 100].map((pageSize) => (
               <SelectItem key={pageSize} value={pageSize.toString()}>
                 {pageSize}
@@ -64,7 +64,7 @@ export const PaginationControls = ({
             size="sm"
             onClick={() => onPageChange(1)}
             disabled={!canGoPrevious}
-            className="h-8 w-8 p-0 rounded-[4px]"
+            className="h-8 w-8 p-0 rounded-lg"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -73,7 +73,7 @@ export const PaginationControls = ({
             size="sm"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={!canGoPrevious}
-            className="h-8 w-8 p-0 rounded-[4px]"
+            className="h-8 w-8 p-0 rounded-lg"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -82,7 +82,7 @@ export const PaginationControls = ({
             size="sm"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={!canGoNext}
-            className="h-8 w-8 p-0 rounded-[4px]"
+            className="h-8 w-8 p-0 rounded-lg"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -91,7 +91,7 @@ export const PaginationControls = ({
             size="sm"
             onClick={() => onPageChange(totalPages)}
             disabled={!canGoNext}
-            className="h-8 w-8 p-0 rounded-[4px]"
+            className="h-8 w-8 p-0 rounded-lg"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

@@ -109,7 +109,7 @@ const StageDuplicationPopover = ({ stage, pipelines, stages }: StageDuplicationP
               const targetPipeline = pipelines.find(p => p.id === rule.target_pipeline_id);
               const targetStage = stages.find(s => s.id === rule.target_stage_id);
               return (
-                <div key={rule.id} className="flex items-center justify-between gap-2 bg-muted/50 rounded-[4px] px-2 py-1.5">
+                <div key={rule.id} className="flex items-center justify-between gap-2 bg-muted/50 rounded-lg px-2 py-1.5">
                   <div className="min-w-0">
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0">{targetPipeline?.nome || '—'}</Badge>
                     <p className="text-[10px] text-muted-foreground/50 mt-0.5 truncate">

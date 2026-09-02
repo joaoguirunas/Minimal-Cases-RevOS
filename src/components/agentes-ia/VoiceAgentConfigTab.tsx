@@ -103,7 +103,7 @@ const SectionCard = ({
   badge?: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+  <div className="border border-border rounded-lg bg-card overflow-hidden">
     <div className="px-4 py-2.5 border-b border-border bg-muted flex items-center gap-2">
       <Icon className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
       <span className="text-xs font-semibold text-foreground">{title}</span>
@@ -291,7 +291,7 @@ export const VoiceAgentConfigTab = ({
 
           {/* ── ElevenLabs not configured banner ── */}
           {!elConfigured && (
-            <div className="flex items-start gap-2.5 p-3 rounded-[4px] bg-amber-500/10 border border-amber-500/30">
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 mb-0.5">
@@ -313,7 +313,7 @@ export const VoiceAgentConfigTab = ({
 
           {/* ── Voice missing warning ── */}
           {elConfigured && !voicesLoading && !agente.voice_id && !defaultGlobalVoice && (
-            <div className="flex items-start gap-2.5 p-3 rounded-[4px] bg-amber-500/10 border border-amber-500/30">
+            <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 mb-0.5">
@@ -411,7 +411,7 @@ export const VoiceAgentConfigTab = ({
                 Carregando vozes da ElevenLabs...
               </div>
             ) : voices.length === 0 ? (
-              <div className="flex items-start gap-2.5 p-3 rounded-[4px] bg-muted border border-border">
+              <div className="flex items-start gap-2.5 p-3 rounded-lg bg-muted border border-border">
                 <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
                 <div className="text-[11px] text-muted-foreground leading-relaxed">
                   Nenhuma voz sincronizada. Vá em{' '}
@@ -529,7 +529,7 @@ export const VoiceAgentConfigTab = ({
                   </div>
 
                   {selectedVoice ? (
-                    <div className="flex items-start gap-2 px-2.5 py-2 rounded-[4px] bg-muted/40 border border-border/50">
+                    <div className="flex items-start gap-2 px-2.5 py-2 rounded-lg bg-muted/40 border border-border/50">
                       <Mic className="h-3 w-3 text-primary/60 shrink-0 mt-0.5" />
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] text-foreground font-medium leading-tight">
@@ -682,7 +682,7 @@ export const VoiceAgentConfigTab = ({
           {/* Sync card — destaque visual */}
           <div
             className={cn(
-              'border rounded-[4px] overflow-hidden transition-colors',
+              'border rounded-lg overflow-hidden transition-colors',
               syncStatusKey === 'error'
                 ? 'border-red-500/40 bg-red-500/5'
                 : syncStatusKey === 'pending'
@@ -700,7 +700,7 @@ export const VoiceAgentConfigTab = ({
               <div>
                 <span
                   className={cn(
-                    'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[4px] border text-[11px] font-medium',
+                    'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-[11px] font-medium',
                     syncStatus.cls,
                   )}
                 >
@@ -719,7 +719,7 @@ export const VoiceAgentConfigTab = ({
               </div>
 
               {syncStatusKey === 'error' && (
-                <div className="space-y-1.5 p-2 rounded-[4px] bg-red-500/10 border border-red-500/25">
+                <div className="space-y-1.5 p-2 rounded-lg bg-red-500/10 border border-red-500/25">
                   <div className="flex items-start gap-1.5">
                     <AlertTriangle className="h-3 w-3 text-red-500 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-red-700 dark:text-red-400 leading-relaxed font-medium">
@@ -784,7 +784,7 @@ export const VoiceAgentConfigTab = ({
                   size="sm"
                   onClick={onSync}
                   disabled={isSyncing || !elConfigured}
-                  className="w-full h-[28px] rounded-[4px] gap-1.5 text-xs"
+                  className="w-full h-[28px] rounded-lg gap-1.5 text-xs"
                 >
                   {isSyncing ? (
                     <>
@@ -806,7 +806,7 @@ export const VoiceAgentConfigTab = ({
                   size="sm"
                   onClick={onImport}
                   disabled={isImporting || isSyncing || !elConfigured || !elStringId}
-                  className="w-full h-[28px] rounded-[4px] gap-1.5 text-xs"
+                  className="w-full h-[28px] rounded-lg gap-1.5 text-xs"
                   title={
                     !elStringId
                       ? 'Sincronize ao menos uma vez antes de importar'

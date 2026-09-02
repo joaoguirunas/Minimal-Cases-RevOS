@@ -169,19 +169,19 @@ const NovoUsuarioModal = ({ open, onOpenChange, onCriar }: NovoUsuarioModalProps
               }))}
               className="grid grid-cols-2 gap-2"
             >
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="comercial" id="comercial" />
                 <Label htmlFor="comercial" className="cursor-pointer text-sm">Comercial</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="user" id="user" />
                 <Label htmlFor="user" className="cursor-pointer text-sm">User</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="manager" id="manager" />
                 <Label htmlFor="manager" className="cursor-pointer text-sm">Manager</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="admin" id="admin" />
                 <Label htmlFor="admin" className="cursor-pointer text-sm">Admin</Label>
               </div>
@@ -198,7 +198,7 @@ const NovoUsuarioModal = ({ open, onOpenChange, onCriar }: NovoUsuarioModalProps
           {times.length > 0 && (
             <div className="space-y-2">
               <Label>Teams</Label>
-              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-[4px] p-3">
+              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-lg p-3">
                 {times.map((time) => (
                   <div key={time.id} className="flex items-center space-x-2">
                     <Checkbox

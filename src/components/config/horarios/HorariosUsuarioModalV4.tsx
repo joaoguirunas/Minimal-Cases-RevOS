@@ -191,7 +191,7 @@ const HorariosUsuarioModalV4 = ({ open, onOpenChange, usuario }: HorariosUsuario
       <DialogContent className="sm:max-w-7xl h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0 pb-4 border-b">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-[2px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-md bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
               <Clock className="w-[30px] h-[30px] text-primary" />
             </div>
             <div>

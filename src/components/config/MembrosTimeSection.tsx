@@ -68,7 +68,7 @@ const MembrosTimeSection = ({ teamId, onMembersChange }: MembrosTimeSectionProps
   };
 
   return (
-    <div className="border border-border rounded-[4px] overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       {/* Section header */}
       <div className="px-5 py-3.5 border-b border-border flex items-center gap-2">
         <Users className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
@@ -206,7 +206,7 @@ const MembrosTimeSection = ({ teamId, onMembersChange }: MembrosTimeSectionProps
                   return (
                     <div
                       key={usuario.id}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-[4px] cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
                         isSelected
                           ? 'bg-primary/5 border border-primary/20'
                           : 'hover:bg-muted border border-transparent'

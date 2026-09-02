@@ -149,7 +149,7 @@ export const MobileConversaSingle = ({ pessoaId }: MobileConversaSingleProps) =>
                 >
                   <div
                     className={cn(
-                      "max-w-[80%] rounded-[2px] px-4 py-2",
+                      "max-w-[80%] rounded-md px-4 py-2",
                       isReceived 
                         ? "bg-muted text-foreground rounded-tl-none" 
                         : "bg-primary text-primary-foreground rounded-tr-none"

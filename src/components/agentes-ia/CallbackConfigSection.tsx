@@ -28,7 +28,7 @@ import { useWhatsappTemplates } from '@/hooks/useWhatsappTemplates';
 
 // RETORNO-04 — conteúdo do SectionCard "Agendar Retorno" da aba Configurações.
 // O SectionCard vive em ConfiguracaoTab.tsx (padrão visual de lá é reusado aqui:
-// Label text-xs, inputs h-[30px], helper text-[10px], chips rounded-[4px]).
+// Label text-xs, inputs h-[30px], helper text-[10px], chips rounded-lg).
 
 const DEFAULT_SCOPE = '__default__';
 const NO_TEMPLATE = '__none__';
@@ -126,7 +126,7 @@ const CallbackTemplatesEditor = ({
       )}
 
       {templates.map((tpl, index) => (
-        <div key={tpl.id} className="rounded-[4px] border border-border bg-muted/40 p-2.5 space-y-2">
+        <div key={tpl.id} className="rounded-lg border border-border bg-muted/40 p-2.5 space-y-2">
           <div className="flex items-center gap-2">
             <Input
               value={tpl.label}
@@ -184,7 +184,7 @@ const CallbackTemplatesEditor = ({
         onClick={() =>
           onChange([...templates, { id: newTemplateId(), label: '', body: '', whatsapp_template_name: null }])
         }
-        className="h-[28px] rounded-[4px] gap-1.5 text-xs px-3"
+        className="h-[28px] rounded-lg gap-1.5 text-xs px-3"
       >
         <Plus className="h-3 w-3" />
         Adicionar template
@@ -411,7 +411,7 @@ const CallbackConfigForm = ({
 
       {/* Erros de validação */}
       {showErrors && errors.length > 0 && (
-        <div className="flex items-start gap-2.5 p-3 rounded-[4px] bg-amber-500/10 border border-amber-500/25">
+        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/25">
           <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 mb-0.5">
@@ -433,7 +433,7 @@ const CallbackConfigForm = ({
           size="sm"
           onClick={handleSave}
           disabled={upsert.isPending}
-          className="h-[28px] rounded-[4px] gap-1.5 text-xs px-3"
+          className="h-[28px] rounded-lg gap-1.5 text-xs px-3"
         >
           <Save className="h-3 w-3" />
           {upsert.isPending ? 'Salvando...' : 'Salvar retorno'}
@@ -478,7 +478,7 @@ export const CallbackConfigSection = ({ agentId, usaEtapas }: CallbackConfigSect
 
   if (isError) {
     return (
-      <div className="flex items-start gap-2 p-2 rounded-[4px] bg-red-500/10 border border-red-500/25">
+      <div className="flex items-start gap-2 p-2 rounded-lg bg-red-500/10 border border-red-500/25">
         <AlertTriangle className="h-3 w-3 text-red-500 shrink-0 mt-0.5" />
         <p className="text-[10px] text-red-600 dark:text-red-400">
           Não foi possível carregar a configuração de retorno: {error?.message}
@@ -510,7 +510,7 @@ export const CallbackConfigSection = ({ agentId, usaEtapas }: CallbackConfigSect
                   key={item.id}
                   onClick={() => setScope(item.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs border transition-colors',
+                    'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-colors',
                     isActive
                       ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                       : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',

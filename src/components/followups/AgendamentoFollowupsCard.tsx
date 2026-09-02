@@ -62,7 +62,7 @@ const AgendamentoFollowupsCard = ({ status, followups }: AgendamentoFollowupsCar
 
   return (
     <>
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
 
         {/* Toolbar */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border bg-card">
@@ -74,7 +74,7 @@ const AgendamentoFollowupsCard = ({ status, followups }: AgendamentoFollowupsCar
               </p>
             )}
           </div>
-          <Button size="sm" onClick={openCreate} className="h-[30px] text-xs rounded-[4px] gap-1.5">
+          <Button size="sm" onClick={openCreate} className="h-[30px] text-xs rounded-lg gap-1.5">
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             Adicionar
           </Button>

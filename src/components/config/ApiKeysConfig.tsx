@@ -87,7 +87,7 @@ function GenerateModal({ open, onClose }: { open: boolean; onClose: () => void }
                 Copie sua API Key agora. Ela <span className="font-semibold text-foreground">não será exibida novamente</span>.
               </p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-[11px] font-mono bg-muted border border-border rounded-[4px] px-3 py-2 break-all">
+                <code className="flex-1 text-[11px] font-mono bg-muted border border-border rounded-lg px-3 py-2 break-all">
                   {generatedKey}
                 </code>
                 <Button size="icon" variant="outline" className="h-8 w-8 flex-shrink-0" onClick={handleCopy}>
@@ -238,7 +238,7 @@ const ApiKeysConfig = () => {
       ) : (
         <>
           {/* Active keys */}
-          <div className="border border-border rounded-[2px] overflow-hidden">
+          <div className="border border-border rounded-md overflow-hidden">
             <SectionHeader title="KEYS ATIVAS" />
             {activeKeys.length === 0 ? (
               <div className="px-5 py-8 text-center">
@@ -253,7 +253,7 @@ const ApiKeysConfig = () => {
 
           {/* Revoked keys (last 30 days, shown for audit) */}
           {revokedKeys.length > 0 && (
-            <div className="border border-border rounded-[2px] overflow-hidden">
+            <div className="border border-border rounded-md overflow-hidden">
               <SectionHeader title="REVOGADAS (30 DIAS)" />
               {revokedKeys.map((k, i) => (
                 <ApiKeyRow key={k.id} apiKey={k} last={i === revokedKeys.length - 1} />

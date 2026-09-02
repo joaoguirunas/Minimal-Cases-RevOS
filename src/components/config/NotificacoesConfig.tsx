@@ -63,7 +63,7 @@ function SnoozeBanner({ snoozedUntil }: { snoozedUntil: string | null }) {
     new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <SectionHeader title="PAUSAR NOTIFICAÇÕES" />
       <div className="px-5 py-4">
         {isActive ? (
@@ -157,7 +157,7 @@ function PreferencesMatrix() {
     <div className="space-y-4">
       <SnoozeBanner snoozedUntil={snoozedUntil} />
 
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="PREFERÊNCIAS POR EVENTO E CANAL" />
 
         {/* Column headers */}

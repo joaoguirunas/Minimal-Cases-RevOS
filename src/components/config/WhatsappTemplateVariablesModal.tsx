@@ -240,7 +240,7 @@ export const WhatsappTemplateVariablesModal: React.FC<WhatsappTemplateVariablesM
             </div>
 
             {positions.length === 0 ? (
-              <div className="border border-border rounded-[2px] p-4 text-center">
+              <div className="border border-border rounded-md p-4 text-center">
                 <p className="text-[12px] text-muted-foreground/70">
                   Este template não possui variáveis <code className="font-mono">{'{{N}}'}</code> no corpo.
                 </p>
@@ -322,7 +322,7 @@ export const WhatsappTemplateVariablesModal: React.FC<WhatsappTemplateVariablesM
                 ))}
               </div>
             </div>
-            <div className="border border-border rounded-[2px] bg-muted/40 p-3 min-h-[160px]">
+            <div className="border border-border rounded-md bg-muted/40 p-3 min-h-[160px]">
               <p className="text-[13px] whitespace-pre-wrap leading-relaxed text-foreground/90">
                 {previewBody || (
                   <span className="text-muted-foreground/50">Sem corpo de mensagem.</span>

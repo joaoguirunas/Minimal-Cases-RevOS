@@ -107,7 +107,7 @@ export default function LeadTypesConfig() {
     return (
       <div className="space-y-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-14 bg-muted animate-pulse rounded-[2px]" />
+          <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
         ))}
       </div>
     );
@@ -127,7 +127,7 @@ export default function LeadTypesConfig() {
       </div>
 
       {/* Add form */}
-      <div className="border border-border rounded-[2px] p-4 space-y-3">
+      <div className="border border-border rounded-md p-4 space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           Novo tipo
         </p>
@@ -178,7 +178,7 @@ export default function LeadTypesConfig() {
           size="sm"
           onClick={handleAdd}
           disabled={!form.name.trim() || isMutating}
-          className="h-[30px] text-xs gap-1.5 rounded-[4px]"
+          className="h-[30px] text-xs gap-1.5 rounded-lg"
         >
           <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
           Adicionar tipo
@@ -187,11 +187,11 @@ export default function LeadTypesConfig() {
 
       {/* List */}
       {leadTypes.length === 0 ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <p className="text-[13px] text-muted-foreground/50">Nenhum tipo cadastrado</p>
         </div>
       ) : (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           {leadTypes.map((tipo, index) => (
             <div
               key={tipo.id}

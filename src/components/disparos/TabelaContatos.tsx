@@ -110,7 +110,7 @@ export default function TabelaContatos({ sendId, sendStatus = 'draft', channel =
 
   if (isLoading) {
     return (
-      <Card className="rounded-[4px]">
+      <Card className="rounded-lg">
         <CardContent className="p-12">
           <LoadingSpinner size="large" message="Carregando contatos..." />
         </CardContent>
@@ -121,7 +121,7 @@ export default function TabelaContatos({ sendId, sendStatus = 'draft', channel =
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <Card className="p-4 border border-border bg-card rounded-[2px]">
+      <Card className="p-4 border border-border bg-card rounded-md">
         <div className="flex gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -150,7 +150,7 @@ export default function TabelaContatos({ sendId, sendStatus = 'draft', channel =
       </Card>
 
       {/* Table */}
-      <Card className="border border-border bg-card rounded-[2px] overflow-hidden">
+      <Card className="border border-border bg-card rounded-md overflow-hidden">
         {!contacts || contacts.length === 0 ? (
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">

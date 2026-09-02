@@ -51,7 +51,7 @@ export default function SimplifiedFiltersTab({ onFilterResult, onNext, onBack }:
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <h3 className="text-lg font-semibold mb-6">Filtros para Seleção de Pessoas</h3>
 
         <div className="space-y-4">
@@ -97,7 +97,7 @@ export default function SimplifiedFiltersTab({ onFilterResult, onNext, onBack }:
 
       {/* Resultado */}
       {filterResult && (
-        <Card className="p-6 border border-border bg-card rounded-[2px]">
+        <Card className="p-6 border border-border bg-card rounded-md">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Pessoas encontradas</p>
@@ -114,7 +114,7 @@ export default function SimplifiedFiltersTab({ onFilterResult, onNext, onBack }:
           variant="outline"
           onClick={onBack}
           disabled={!onBack}
-          className="h-[30px] rounded-[4px] text-xs"
+          className="h-[30px] rounded-lg text-xs"
         >
           <ChevronLeft className="w-4 h-4 mr-2" />
           Voltar
@@ -123,7 +123,7 @@ export default function SimplifiedFiltersTab({ onFilterResult, onNext, onBack }:
         <Button
           onClick={handleSearch}
           disabled={isPending || !filters.pipeline_id}
-          className="h-[30px] rounded-[4px] text-xs gap-2"
+          className="h-[30px] rounded-lg text-xs gap-2"
         >
           <Search className="w-4 h-4" />
           {isPending ? 'Buscando...' : 'Buscar Pessoas'}
@@ -138,7 +138,7 @@ export default function SimplifiedFiltersTab({ onFilterResult, onNext, onBack }:
             onNext?.();
           }}
           disabled={!filterResult || filterResult.total === 0}
-          className="h-[30px] rounded-[4px] text-xs"
+          className="h-[30px] rounded-lg text-xs"
         >
           Próximo
           <ChevronRight className="w-4 h-4 ml-2" />

@@ -466,7 +466,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nome do formulário"
-          className="h-[30px] text-sm font-medium rounded-[4px] flex-1 max-w-xs"
+          className="h-[30px] text-sm font-medium rounded-lg flex-1 max-w-xs"
         />
 
         {/* Stats */}
@@ -491,7 +491,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
               variant="ghost"
               onClick={handleUndo}
               title="Desfazer (Ctrl+Z)"
-              className="h-[30px] gap-1.5 text-muted-foreground rounded-[4px]"
+              className="h-[30px] gap-1.5 text-muted-foreground rounded-lg"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="text-xs">{history.length}</span>
@@ -505,7 +505,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                 variant="ghost"
                 onClick={() => { void navigator.clipboard.writeText(`${window.location.origin}/f/${savedFormId}`); toast.success("URL copiada!"); }}
                 title="Copiar URL do formulário"
-                className="h-[30px] gap-1.5 text-muted-foreground rounded-[4px] text-xs"
+                className="h-[30px] gap-1.5 text-muted-foreground rounded-lg text-xs"
               >
                 <Copy className="w-3.5 h-3.5" />
                 Copiar URL
@@ -514,7 +514,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                 size="sm"
                 variant="outline"
                 asChild
-                className="h-[30px] gap-1.5 rounded-[4px] text-xs"
+                className="h-[30px] gap-1.5 rounded-lg text-xs"
               >
                 <a href={`${window.location.origin}/f/${savedFormId}`} target="_blank" rel="noreferrer">
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -528,7 +528,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
             size="sm"
             onClick={handleSave}
             disabled={isSaving}
-            className={cn("h-[30px] gap-2 shrink-0 transition-colors rounded-[4px] text-xs", savedOk && "border-green-500/60 text-green-600")}
+            className={cn("h-[30px] gap-2 shrink-0 transition-colors rounded-lg text-xs", savedOk && "border-green-500/60 text-green-600")}
             variant={savedOk ? "outline" : "default"}
           >
             {isSaving ? (
@@ -589,7 +589,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider shrink-0">
                   Modo
                 </span>
-                <div className="flex items-center gap-0.5 bg-muted rounded-[4px] p-0.5">
+                <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
                   {(
                     [
                       { key: "classic" as const, icon: <AlignLeft className="w-3.5 h-3.5" />, label: "Padrão" },
@@ -601,7 +601,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                       key={key}
                       onClick={() => handleModeChange(key)}
                       className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-[3px] transition-all",
+                        "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all",
                         formMode === key
                           ? "bg-card text-foreground"
                           : "text-muted-foreground hover:text-foreground"
@@ -663,7 +663,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
 
                     <button
                       onClick={addStep}
-                      className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-border rounded-[4px] text-xs text-muted-foreground/60 hover:text-foreground hover:border-primary/50 transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-border rounded-lg text-xs text-muted-foreground/60 hover:text-foreground hover:border-primary/50 transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" /> Adicionar passo
                     </button>
@@ -730,7 +730,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                     {fields.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full gap-6 text-center pt-12">
                         <div>
-                          <div className="w-12 h-12 rounded-[2px] bg-muted flex items-center justify-center mx-auto mb-3">
+                          <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center mx-auto mb-3">
                             <ClipboardList className="w-5 h-5 text-muted-foreground" />
                           </div>
                           <p className="text-sm font-semibold text-foreground">Nenhum campo ainda</p>
@@ -747,7 +747,7 @@ export function LpFormBuilder({ form, onBack }: LpFormBuilderProps) {
                               <button
                                 key={tmpl.label}
                                 onClick={() => setFields(tmpl.fields())}
-                                className="text-xs border border-border rounded-[4px] px-3 py-2.5 text-muted-foreground hover:border-primary hover:text-foreground hover:bg-primary/5 transition-all text-left font-medium"
+                                className="text-xs border border-border rounded-lg px-3 py-2.5 text-muted-foreground hover:border-primary hover:text-foreground hover:bg-primary/5 transition-all text-left font-medium"
                               >
                                 {tmpl.label}
                               </button>

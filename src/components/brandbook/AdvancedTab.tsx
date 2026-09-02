@@ -14,7 +14,7 @@ export default function AdvancedTab() {
       <section>
         <SectionHeader num="01" title="Tabs" subtitle="Project overview with key metrics and tab navigation" />
         <GlowCard glow="#FF4400">
-          <div className="rounded-[2px] border border-white/[0.06] overflow-hidden">
+          <div className="rounded-md border border-white/[0.06] overflow-hidden">
             <div className="border-b border-white/[0.06] flex">
               {['Overview', 'Metrics', 'Activity', 'Settings'].map((tab, i) => (
                 <button key={tab} onClick={() => setActiveAdvTab(i)} className={`flex-1 py-2.5 text-[10px] font-mono transition-all border-b-2 ${activeAdvTab === i ? 'text-[#FF4400] border-[#FF4400]' : 'text-white/25 border-transparent hover:text-white/40'}`}>
@@ -30,7 +30,7 @@ export default function AdvancedTab() {
                     { label: 'Win Rate', value: '72%', color: '#00D26A' },
                     { label: 'Avg Cycle', value: '28d', color: '#3B82F6' },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="p-3 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+                    <div key={label} className="p-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
                       <p className="text-[9px] font-mono text-white/20 uppercase tracking-wider">{label}</p>
                       <p className="text-[20px] font-['Outfit'] font-black mt-1" style={{ color }}>{value}</p>
                     </div>

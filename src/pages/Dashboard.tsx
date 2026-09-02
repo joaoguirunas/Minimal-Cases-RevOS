@@ -171,7 +171,7 @@ const Dashboard = () => {
               size="sm"
               onClick={handleMetaSync}
               disabled={isSyncing}
-              className="h-[30px] rounded-[4px] text-xs text-muted-foreground hover:text-foreground"
+              className="h-[30px] rounded-lg text-xs text-muted-foreground hover:text-foreground"
               title="Sincronizar Meta Ads"
             >
               {isSyncing ? (
@@ -186,7 +186,7 @@ const Dashboard = () => {
               size="icon"
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="h-[30px] w-[30px] rounded-[4px] text-muted-foreground hover:text-foreground"
+              className="h-[30px] w-[30px] rounded-lg text-muted-foreground hover:text-foreground"
               title="Atualizar dados"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />

@@ -246,7 +246,7 @@ const SortablePipelineRow = ({
           </div>
 
           {expandedPipelines.has(pipeline.id) && (
-            <div className="mt-2 p-3 bg-muted border border-border rounded-[4px] ml-6">
+            <div className="mt-2 p-3 bg-muted border border-border rounded-lg ml-6">
               <PipelineVisualization pipeline={pipeline} />
             </div>
           )}
@@ -412,7 +412,7 @@ const PipelinesConfig = ({ selectedTenantId: _selectedTenantId }: PipelinesConfi
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-14 bg-muted animate-pulse rounded-[2px]" />
+          <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
         ))}
       </div>
     );
@@ -439,7 +439,7 @@ const PipelinesConfig = ({ selectedTenantId: _selectedTenantId }: PipelinesConfi
 
       {/* New pipeline form */}
       {showNewForm && (
-        <div className="border border-border rounded-[2px] p-4 space-y-4">
+        <div className="border border-border rounded-md p-4 space-y-4">
           <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Novo Pipeline
           </h3>
@@ -490,7 +490,7 @@ const PipelinesConfig = ({ selectedTenantId: _selectedTenantId }: PipelinesConfi
 
       {/* Pipeline list */}
       {orderedPipelines.length === 0 ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <p className="text-[13px] text-muted-foreground/60 mb-3">Nenhum pipeline cadastrado.</p>
           <Button size="sm" onClick={() => setShowNewForm(true)} className="gap-1.5 h-[30px] text-[13px]">
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -498,7 +498,7 @@ const PipelinesConfig = ({ selectedTenantId: _selectedTenantId }: PipelinesConfi
           </Button>
         </div>
       ) : (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={orderedPipelines.map(p => p.id)} strategy={verticalListSortingStrategy}>
               {orderedPipelines.map((pipeline) => (

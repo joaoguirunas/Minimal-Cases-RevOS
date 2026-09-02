@@ -10,7 +10,7 @@ interface UnreadBadgeProps {
 }
 
 const CHIP_BASE =
-  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none';
+  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none';
 
 /** Compact elapsed time since the oldest unread arrived: "12m", "3h", "2d". */
 function waitingLabel(since: string): string | null {

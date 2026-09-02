@@ -100,7 +100,7 @@ const MfaVerify = () => {
           </p>
         </div>
 
-        <div className="border border-border rounded-[4px] bg-card">
+        <div className="border border-border rounded-lg bg-card">
           {/* TOTP step */}
           {step === 'totp' && (
             <div className="p-6 space-y-5">
@@ -136,7 +136,7 @@ const MfaVerify = () => {
                 <p
                   role="alert"
                   aria-live="assertive"
-                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-[4px] px-3 py-2 text-center"
+                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2 text-center"
                 >
                   {error}
                 </p>
@@ -182,7 +182,7 @@ const MfaVerify = () => {
                 autoFocus
                 autoComplete="off"
                 spellCheck={false}
-                className="w-full h-10 px-3 text-[13px] font-mono tracking-wider border border-border rounded-[4px] bg-background text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full h-10 px-3 text-[13px] font-mono tracking-wider border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary"
                 onKeyDown={(e) => e.key === 'Enter' && handleRecovery()}
               />
 
@@ -190,7 +190,7 @@ const MfaVerify = () => {
                 <p
                   role="alert"
                   aria-live="assertive"
-                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-[4px] px-3 py-2"
+                  className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2"
                 >
                   {error}
                 </p>

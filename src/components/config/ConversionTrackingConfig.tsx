@@ -380,7 +380,7 @@ function RuleEditorDialog({
 
           {/* Trigger Config: stage_enter */}
           {form.trigger_type === "stage_enter" && (
-            <div className="space-y-2 rounded-[2px] border border-border bg-muted p-3">
+            <div className="space-y-2 rounded-md border border-border bg-muted p-3">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                 Pipeline e Etapa
               </p>
@@ -436,7 +436,7 @@ function RuleEditorDialog({
 
           {/* Trigger Config: booking_status */}
           {form.trigger_type === "booking_status" && (
-            <div className="space-y-1.5 rounded-[2px] border border-border bg-muted p-3">
+            <div className="space-y-1.5 rounded-md border border-border bg-muted p-3">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                 Status do agendamento
               </p>
@@ -457,7 +457,7 @@ function RuleEditorDialog({
           )}
 
           {/* ── Meta CAPI ────────────────────────────────────────────────── */}
-          <div className="space-y-3 rounded-[2px] border border-border p-3">
+          <div className="space-y-3 rounded-md border border-border p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
@@ -470,7 +470,7 @@ function RuleEditorDialog({
               <div className="space-y-3 pt-1 border-t border-border">
                 {/* Meta API errors */}
                 {metaErrors && metaErrors.length > 0 && (
-                  <div className="flex items-start gap-2 rounded-[4px] border border-red-200/30 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
+                  <div className="flex items-start gap-2 rounded-lg border border-red-200/30 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" strokeWidth={1.5} />
                     <div>
                       <p className="font-medium">Erro ao buscar pixels Meta:</p>
@@ -488,12 +488,12 @@ function RuleEditorDialog({
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Pixel</Label>
                   {metaAccounts.length === 0 ? (
-                    <div className="flex items-center gap-2 rounded-[4px] border border-amber-200/30 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
+                    <div className="flex items-center gap-2 rounded-lg border border-amber-200/30 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
                       <AlertTriangle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
                       Conecte uma conta Meta em Integrações primeiro
                     </div>
                   ) : loadingPixels ? (
-                    <div className="h-[30px] bg-muted animate-pulse rounded-[4px]" />
+                    <div className="h-[30px] bg-muted animate-pulse rounded-lg" />
                   ) : manualPixel ? (
                     <div className="flex items-center gap-2">
                       <Input
@@ -605,7 +605,7 @@ function RuleEditorDialog({
           </div>
 
           {/* ── Google Ads ───────────────────────────────────────────────── */}
-          <div className="space-y-3 rounded-[2px] border border-border p-3">
+          <div className="space-y-3 rounded-md border border-border p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
@@ -618,7 +618,7 @@ function RuleEditorDialog({
               <div className="space-y-3 pt-1 border-t border-border">
                 {/* Google API errors */}
                 {googleErrors && googleErrors.length > 0 && (
-                  <div className="flex items-start gap-2 rounded-[4px] border border-red-200/30 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
+                  <div className="flex items-start gap-2 rounded-lg border border-red-200/30 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-400">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" strokeWidth={1.5} />
                     <div>
                       <p className="font-medium">Erro ao buscar ações de conversão Google:</p>
@@ -636,7 +636,7 @@ function RuleEditorDialog({
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Conta</Label>
                   {googleAccounts.length === 0 ? (
-                    <div className="flex items-center gap-2 rounded-[4px] border border-amber-200/30 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
+                    <div className="flex items-center gap-2 rounded-lg border border-amber-200/30 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400">
                       <AlertTriangle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
                       Conecte uma conta Google Ads em Integrações primeiro
                     </div>
@@ -660,7 +660,7 @@ function RuleEditorDialog({
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Ação de conversão</Label>
                   {loadingActions ? (
-                    <div className="h-[30px] bg-muted animate-pulse rounded-[4px]" />
+                    <div className="h-[30px] bg-muted animate-pulse rounded-lg" />
                   ) : manualGoogleAction ? (
                     <div className="flex items-center gap-2">
                       <Input
@@ -759,7 +759,7 @@ function ConversionEventsLog() {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-10 bg-muted animate-pulse rounded-[2px]" />
+          <div key={i} className="h-10 bg-muted animate-pulse rounded-md" />
         ))}
       </div>
     );
@@ -767,7 +767,7 @@ function ConversionEventsLog() {
 
   if (!events?.length) {
     return (
-      <div className="border border-border rounded-[2px] p-8 text-center">
+      <div className="border border-border rounded-md p-8 text-center">
         <BarChart3 className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" strokeWidth={1.5} />
         <p className="text-[13px] text-muted-foreground">Nenhum evento registrado ainda</p>
         <p className="text-[11px] text-muted-foreground/60 mt-1">
@@ -799,7 +799,7 @@ function ConversionEventsLog() {
           <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} />
         </Button>
       </div>
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <div className="max-h-96 overflow-y-auto divide-y divide-border/40">
           {events.map((evt: Record<string, unknown>) => {
             const lead = evt.lead as Record<string, unknown> | null;
@@ -868,7 +868,7 @@ function ConversionEventsLog() {
                   </div>
                 </div>
                 {isExpanded && (
-                  <pre className="mt-2 p-3 bg-muted border border-border rounded-[4px] max-h-48 overflow-auto text-[11px] text-muted-foreground">
+                  <pre className="mt-2 p-3 bg-muted border border-border rounded-lg max-h-48 overflow-auto text-[11px] text-muted-foreground">
                     {JSON.stringify(
                       {
                         event_data: evt.event_data,
@@ -976,11 +976,11 @@ export default function ConversionTrackingConfig() {
       {loadingRules ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-14 bg-muted animate-pulse rounded-[2px]" />
+            <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
           ))}
         </div>
       ) : !rules?.length ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <Zap className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" strokeWidth={1.5} />
           <p className="text-[13px] text-muted-foreground">Nenhuma regra configurada</p>
           <p className="text-[11px] text-muted-foreground/60 mt-1 max-w-sm mx-auto">
@@ -999,7 +999,7 @@ export default function ConversionTrackingConfig() {
               Ativas ({activeRules.length})
             </p>
           )}
-          <div className="border border-border rounded-[2px] overflow-hidden">
+          <div className="border border-border rounded-md overflow-hidden">
             {activeRules.map((rule) => (
               <RuleCard
                 key={rule.id}
@@ -1018,7 +1018,7 @@ export default function ConversionTrackingConfig() {
               <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mt-4 mb-1">
                 Inativas ({inactiveRules.length})
               </p>
-              <div className="border border-border rounded-[2px] overflow-hidden">
+              <div className="border border-border rounded-md overflow-hidden">
                 {inactiveRules.map((rule) => (
                   <RuleCard
                     key={rule.id}

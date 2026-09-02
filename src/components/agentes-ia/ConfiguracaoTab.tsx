@@ -167,7 +167,7 @@ const SectionCard = ({
   badge?: string | number;
   children: React.ReactNode;
 }) => (
-  <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+  <div className="border border-border rounded-lg bg-card overflow-hidden">
     <div className="px-4 py-2.5 border-b border-border bg-muted flex items-center gap-2">
       <Icon className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
       <span className="text-xs font-semibold text-foreground flex-1">{title}</span>
@@ -418,7 +418,7 @@ export const ConfiguracaoTab = ({
                     key={value}
                     onClick={() => toggleChannel(value)}
                     className={cn(
-                      'flex items-center gap-2.5 px-3 py-2.5 rounded-[4px] border text-sm transition-all text-left',
+                      'flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm transition-all text-left',
                       isActive
                         ? activeClass
                         : cn('bg-muted border-border text-muted-foreground', idleClass),
@@ -464,7 +464,7 @@ export const ConfiguracaoTab = ({
                           key={p.id}
                           onClick={() => togglePipeline(p.id)}
                           className={cn(
-                            'flex items-center gap-1.5 px-2.5 py-1.5 rounded-[4px] text-xs border transition-colors',
+                            'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border transition-colors',
                             isActive
                               ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                               : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',
@@ -508,7 +508,7 @@ export const ConfiguracaoTab = ({
                                   key={s.id}
                                   onClick={() => toggleStage(s.id)}
                                   className={cn(
-                                    'flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs border transition-colors',
+                                    'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-colors',
                                     isActive
                                       ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                                       : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',
@@ -542,7 +542,7 @@ export const ConfiguracaoTab = ({
 
               {/* Conflict warning */}
               {conflicts.length > 0 && (
-                <div className="flex items-start gap-2.5 p-3 rounded-[4px] bg-amber-500/10 border border-amber-500/25 mt-1">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/25 mt-1">
                   <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300 mb-0.5">
@@ -593,7 +593,7 @@ export const ConfiguracaoTab = ({
                       }
                     }}
                     className={cn(
-                      'flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs border transition-colors',
+                      'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-colors',
                       isActive
                         ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                         : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',
@@ -626,7 +626,7 @@ export const ConfiguracaoTab = ({
                 <button
                   onClick={toggleEmptyScore}
                   className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs border transition-colors',
+                    'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-colors',
                     includesEmptyScore
                       ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                       : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',
@@ -645,7 +645,7 @@ export const ConfiguracaoTab = ({
                       key={matrix.id}
                       onClick={() => toggleMatrix(matrix.id)}
                       className={cn(
-                        'flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-xs border transition-colors',
+                        'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-colors',
                         isActive
                           ? 'bg-primary/10 border-primary/40 text-primary font-medium'
                           : 'bg-muted border-border text-muted-foreground hover:border-border hover:text-foreground',
@@ -1321,14 +1321,14 @@ export const ConfiguracaoTab = ({
                   size="sm"
                   onClick={onSync}
                   disabled={isSyncing}
-                  className="h-[28px] rounded-[4px] gap-1.5 text-xs px-3"
+                  className="h-[28px] rounded-lg gap-1.5 text-xs px-3"
                 >
                   <RefreshCw className={cn('h-3 w-3', isSyncing && 'animate-spin')} />
                   {isSyncing ? 'Sincronizando...' : 'Sincronizar agora'}
                 </Button>
               )}
               {agente.el_sync_status === 'error' && (
-                <div className="flex items-start gap-2 p-2 rounded-[4px] bg-red-500/10 border border-red-500/25">
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-red-500/10 border border-red-500/25">
                   <AlertTriangle className="h-3 w-3 text-red-500 shrink-0 mt-0.5" />
                   <p className="text-[10px] text-red-600 dark:text-red-400">
                     Último sync falhou. Salve novamente para tentar sincronizar.
@@ -1345,7 +1345,7 @@ export const ConfiguracaoTab = ({
         <div className="w-52 shrink-0 space-y-3.5 pt-0">
 
           {/* Status card */}
-          <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+          <div className="border border-border rounded-lg bg-card overflow-hidden">
             <div className="px-4 py-2.5 border-b border-border bg-muted">
               <span className="text-xs font-semibold text-foreground">Resumo</span>
             </div>
@@ -1415,7 +1415,7 @@ export const ConfiguracaoTab = ({
           </div>
 
           {/* Timestamps */}
-          <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+          <div className="border border-border rounded-lg bg-card overflow-hidden">
             <div className="divide-y divide-border/20 px-4">
               <MetaRow
                 icon={CalendarDays}

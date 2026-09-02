@@ -69,7 +69,7 @@ const SortableEtapa = ({ etapa, canRemove, onRemove, onUpdate, onInsert, editorR
     <div
       ref={setNodeRef}
       style={style}
-      className={cn('border border-white/[0.06] rounded-[4px] overflow-hidden', isDragging && 'z-10')}
+      className={cn('border border-white/[0.06] rounded-lg overflow-hidden', isDragging && 'z-10')}
     >
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 bg-card border-b border-white/[0.06]">
@@ -103,7 +103,7 @@ const SortableEtapa = ({ etapa, canRemove, onRemove, onUpdate, onInsert, editorR
           size="sm"
           onClick={onRemove}
           disabled={!canRemove}
-          className="h-[30px] w-[30px] p-0 ml-auto text-muted-foreground/50 hover:text-destructive shrink-0 rounded-[4px] transition-colors duration-300"
+          className="h-[30px] w-[30px] p-0 ml-auto text-muted-foreground/50 hover:text-destructive shrink-0 rounded-lg transition-colors duration-300"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
@@ -199,7 +199,7 @@ export const PromptEtapaEditor = ({ etapas, onChange }: PromptEtapaEditorProps) 
           <Button
             onClick={handleAddEtapa}
             variant="outline"
-            className="w-full gap-2 h-[30px] text-xs border-dashed rounded-[4px] transition-colors duration-300"
+            className="w-full gap-2 h-[30px] text-xs border-dashed rounded-lg transition-colors duration-300"
           >
             <Plus className="h-3.5 w-3.5" />
             Adicionar Controle

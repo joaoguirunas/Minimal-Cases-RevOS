@@ -99,7 +99,7 @@ export default function AuthEventsLogViewer() {
   };
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 bg-muted/50 border-b border-border">
         <div className="flex items-center gap-2">

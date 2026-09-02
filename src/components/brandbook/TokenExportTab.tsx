@@ -68,14 +68,14 @@ export default function TokenExportTab() {
               { step: '02', title: 'Copy CSS', desc: 'Click "Copy CSS" to copy all tokens to clipboard.' },
               { step: '03', title: 'Paste', desc: 'Paste into index.css or globals.css inside @layer base.' },
             ].map(({ step, title, desc }) => (
-              <div key={step} className="p-4 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+              <div key={step} className="p-4 rounded-md bg-white/[0.02] border border-white/[0.04]">
                 <span className="text-[24px] font-['Outfit'] font-black text-[#FF4400]/20">{step}</span>
                 <h4 className="text-[12px] font-semibold text-white/60 mt-2 mb-1">{title}</h4>
                 <p className="text-[10px] text-white/30">{desc}</p>
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+          <div className="mt-4 p-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
             <p className="text-[10px] text-white/25">Works with: Tailwind v3 + v4, shadcn/ui, Lovable, Vite, Next.js</p>
           </div>
         </GlowCard>
@@ -104,7 +104,7 @@ export default function TokenExportTab() {
             </div>
             <button
               onClick={handleCopy}
-              className="h-[30px] px-4 rounded-[2px] text-[11px] font-mono font-medium border transition-all flex items-center gap-2"
+              className="h-[30px] px-4 rounded-md text-[11px] font-mono font-medium border transition-all flex items-center gap-2"
               style={{
                 backgroundColor: copied ? 'rgba(0,210,106,0.1)' : 'rgba(255,68,0,0.1)',
                 borderColor: copied ? 'rgba(0,210,106,0.3)' : 'rgba(255,68,0,0.3)',
@@ -114,7 +114,7 @@ export default function TokenExportTab() {
               {copied ? <><Check className="w-3 h-3" /> Copied!</> : 'Copy CSS'}
             </button>
           </div>
-          <div className="relative rounded-[2px] bg-[#050505] border border-white/[0.06] overflow-hidden">
+          <div className="relative rounded-md bg-[#050505] border border-white/[0.06] overflow-hidden">
             <div className="absolute top-2 left-3 flex gap-1.5">
               <div className="w-2 h-2 rounded-full bg-white/10" />
               <div className="w-2 h-2 rounded-full bg-white/10" />

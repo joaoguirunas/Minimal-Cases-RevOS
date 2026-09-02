@@ -25,7 +25,7 @@ function TikTokLogo({ size = 16 }: { size?: number }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-border rounded-[4px] p-4 space-y-3">
+    <div className="border border-border rounded-lg p-4 space-y-3">
       <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">{title}</p>
       {children}
     </div>
@@ -141,7 +141,7 @@ export default function TikTokAdsConfig() {
     }
   };
 
-  if (isLoading) return <Skeleton className="h-40 w-full rounded-[4px]" />;
+  if (isLoading) return <Skeleton className="h-40 w-full rounded-lg" />;
 
   const oauthStatus: StatusType = isConnected ? 'ok' : 'idle';
 
@@ -149,7 +149,7 @@ export default function TikTokAdsConfig() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-[4px] bg-muted flex items-center justify-center text-foreground">
+        <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-foreground">
           <TikTokLogo size={18} />
         </div>
         <div className="flex-1">
@@ -219,7 +219,7 @@ export default function TikTokAdsConfig() {
       {/* Section 2 — OAuth connection */}
       <Section title="Conexão OAuth">
         {isConnected && advertiserId && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] border border-emerald-500/20 bg-emerald-500/5">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" strokeWidth={1.5} />
             <p className="text-[11px] text-emerald-700 dark:text-emerald-400 flex-1">
               Conta conectada — Advertiser ID: <code className="font-mono">{advertiserId}</code>
@@ -254,7 +254,7 @@ export default function TikTokAdsConfig() {
             {adAccounts.map((acc) => (
               <div
                 key={acc.advertiser_id}
-                className="flex items-center justify-between px-3 py-2 rounded-[4px] border border-border"
+                className="flex items-center justify-between px-3 py-2 rounded-lg border border-border"
               >
                 <div>
                   <p className="text-[12px] font-medium text-foreground">{acc.advertiser_name}</p>

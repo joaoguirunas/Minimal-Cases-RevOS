@@ -60,7 +60,7 @@ export default function FileUploadZone({
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           className={cn(
-            'relative flex items-center justify-center gap-2 rounded-[4px] border-2 border-dashed px-3 py-3 cursor-pointer transition-colors',
+            'relative flex items-center justify-center gap-2 rounded-lg border-2 border-dashed px-3 py-3 cursor-pointer transition-colors',
             dragging
               ? 'border-primary/60 bg-primary/5'
               : 'border-border hover:border-primary/30 hover:bg-muted/40',
@@ -97,7 +97,7 @@ export default function FileUploadZone({
           )}
         </div>
         {error && (
-          <div className="flex items-start gap-1.5 px-2 py-1.5 rounded-[4px] bg-destructive/10 border border-destructive/20 text-[11px] text-destructive">
+          <div className="flex items-start gap-1.5 px-2 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-[11px] text-destructive">
             <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" strokeWidth={1.5} />
             {error}
           </div>
@@ -117,7 +117,7 @@ export default function FileUploadZone({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={cn(
-          'relative flex flex-col items-center justify-center gap-3 rounded-[4px] border-2 border-dashed px-6 py-10 cursor-pointer transition-colors',
+          'relative flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed px-6 py-10 cursor-pointer transition-colors',
           dragging
             ? 'border-primary/60 bg-primary/5'
             : 'border-border hover:border-primary/30 hover:bg-muted/40',
@@ -174,7 +174,7 @@ export default function FileUploadZone({
 
       {/* Preview — 3 first lines */}
       {result && result.headers.length > 0 && (
-        <div className="rounded-[4px] border border-border overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           <div className="bg-muted/50 px-3 py-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
             Prévia — 3 primeiras linhas
           </div>
@@ -206,7 +206,7 @@ export default function FileUploadZone({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 px-3 py-2 rounded-[4px] bg-destructive/10 border border-destructive/20 text-[12px] text-destructive">
+        <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20 text-[12px] text-destructive">
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" strokeWidth={1.5} />
           {error}
         </div>

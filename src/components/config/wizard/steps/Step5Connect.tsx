@@ -38,7 +38,7 @@ export default function Step5Connect({ isFocused, connections, onFinish, onSkip 
       <Button
         size="sm"
         variant="outline"
-        className="w-full rounded-[4px] h-9 gap-2"
+        className="w-full rounded-lg h-9 gap-2"
         onClick={handleConnect}
       >
         <CalendarCheck className="w-4 h-4" aria-hidden="true" />
@@ -47,7 +47,7 @@ export default function Step5Connect({ isFocused, connections, onFinish, onSkip 
 
       {/* Lista de conexões */}
       {connections.length > 0 && (
-        <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+        <div className="border border-border rounded-lg bg-card overflow-hidden">
           <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 border-b border-border">
             Conexões ativas
           </p>
@@ -62,15 +62,15 @@ export default function Step5Connect({ isFocused, connections, onFinish, onSkip 
                   <p className="text-[10px] text-muted-foreground truncate">{c.google_email}</p>
                 </div>
                 {c.status === 'healthy' ? (
-                  <Badge variant="outline" className="gap-1 rounded-[3px] text-[10px] text-emerald-600 border-emerald-500/30 bg-emerald-500/5 shrink-0">
+                  <Badge variant="outline" className="gap-1 rounded-md text-[10px] text-emerald-600 border-emerald-500/30 bg-emerald-500/5 shrink-0">
                     <CheckCircle2 className="w-3 h-3" aria-hidden="true" /> Conectado
                   </Badge>
                 ) : c.status === 'expired' ? (
-                  <Badge variant="outline" className="gap-1 rounded-[3px] text-[10px] text-red-600 border-red-500/30 bg-red-500/5 shrink-0">
+                  <Badge variant="outline" className="gap-1 rounded-md text-[10px] text-red-600 border-red-500/30 bg-red-500/5 shrink-0">
                     <XCircle className="w-3 h-3" aria-hidden="true" /> Token expirado
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="gap-1 rounded-[3px] text-[10px] text-muted-foreground border-border shrink-0">
+                  <Badge variant="outline" className="gap-1 rounded-md text-[10px] text-muted-foreground border-border shrink-0">
                     <AlertCircle className="w-3 h-3" aria-hidden="true" /> Desconhecido
                   </Badge>
                 )}
@@ -81,7 +81,7 @@ export default function Step5Connect({ isFocused, connections, onFinish, onSkip 
       )}
 
       {/* Callout Testing mode */}
-      <div className="flex items-start gap-2.5 p-3 rounded-[4px] border border-blue-500/20 bg-blue-500/5">
+      <div className="flex items-start gap-2.5 p-3 rounded-lg border border-blue-500/20 bg-blue-500/5">
         <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
         <div className="space-y-1">
           <p className="text-xs font-medium text-blue-700 dark:text-blue-400">App em modo Testing</p>

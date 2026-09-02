@@ -31,7 +31,7 @@ export default function MultiSelectFilter({
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <ScrollArea className="h-[120px] w-full border rounded-[2px] p-3">
+      <ScrollArea className="h-[120px] w-full border rounded-md p-3">
         <div className="space-y-2">
           {options.map((option) => (
             <div key={option.value} className="flex items-center gap-2">

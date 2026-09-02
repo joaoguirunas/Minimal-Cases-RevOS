@@ -79,7 +79,7 @@ export default function SettingsAuditLog() {
       {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <Select value={section} onValueChange={handleFilterChange(setSection)}>
-          <SelectTrigger className="h-[30px] text-[12px] w-44 rounded-[4px]">
+          <SelectTrigger className="h-[30px] text-[12px] w-44 rounded-lg">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -90,7 +90,7 @@ export default function SettingsAuditLog() {
         </Select>
 
         <Select value={userId} onValueChange={handleFilterChange(setUserId)}>
-          <SelectTrigger className="h-[30px] text-[12px] w-44 rounded-[4px]">
+          <SelectTrigger className="h-[30px] text-[12px] w-44 rounded-lg">
             <SelectValue placeholder="Todos os usuários" />
           </SelectTrigger>
           <SelectContent>
@@ -105,7 +105,7 @@ export default function SettingsAuditLog() {
       </div>
 
       {/* Table */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         {/* Header */}
         <div className="grid grid-cols-[140px_1fr_120px_140px_140px] gap-0 border-b border-border bg-muted px-4 py-2">
           {["Data/Hora", "Campo", "Seção", "Valor anterior", "Novo valor"].map(h => (
@@ -177,7 +177,7 @@ export default function SettingsAuditLog() {
           <Button
             variant="outline"
             size="sm"
-            className="h-[28px] px-2 rounded-[4px]"
+            className="h-[28px] px-2 rounded-lg"
             disabled={page === 0}
             onClick={() => setPage(p => Math.max(0, p - 1))}
           >
@@ -186,7 +186,7 @@ export default function SettingsAuditLog() {
           <Button
             variant="outline"
             size="sm"
-            className="h-[28px] px-2 rounded-[4px]"
+            className="h-[28px] px-2 rounded-lg"
             disabled={entries.length < 20}
             onClick={() => setPage(p => p + 1)}
           >

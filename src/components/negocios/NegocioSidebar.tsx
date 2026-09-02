@@ -251,7 +251,7 @@ const NegocioSidebar = ({
                             return (
                               <div
                                 key={tag.id}
-                                className="flex items-center gap-2 px-1.5 py-1 rounded-[2px] hover:bg-muted cursor-pointer"
+                                className="flex items-center gap-2 px-1.5 py-1 rounded-md hover:bg-muted cursor-pointer"
                                 onClick={() =>
                                   toggleLeadTag.mutate({ leadId: negocio.id, tagId: tag.id, assign: !checked })
                                 }
@@ -307,7 +307,7 @@ const NegocioSidebar = ({
               {/* Dados Pessoais */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Dados Pessoais</p>
-                <div className="border border-border rounded-[2px] overflow-hidden divide-y divide-border">
+                <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
                   <div className="px-4 py-2.5">
                     <EditableField
                       label="Nome"
@@ -352,7 +352,7 @@ const NegocioSidebar = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-[30px] px-2 text-xs text-muted-foreground/60 hover:text-foreground gap-1 rounded-[4px] transition-all duration-300"
+                      className="h-[30px] px-2 text-xs text-muted-foreground/60 hover:text-foreground gap-1 rounded-lg transition-all duration-300"
                       onClick={() => { setNotesContent(negocio.pessoa?.notes || ""); setIsEditingNotes(true); }}
                     >
                       <Edit2 className="w-3 h-3" strokeWidth={1.5} />
@@ -360,7 +360,7 @@ const NegocioSidebar = ({
                     </Button>
                   )}
                 </div>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   {isEditingNotes ? (
                     <div className="p-3 space-y-2">
                       <RichTextEditor
@@ -370,10 +370,10 @@ const NegocioSidebar = ({
                         minHeight="120px"
                       />
                       <div className="flex gap-1.5 justify-end pt-1">
-                        <Button variant="ghost" size="sm" className="h-[30px] px-2.5 text-xs rounded-[4px]" onClick={() => setIsEditingNotes(false)}>
+                        <Button variant="ghost" size="sm" className="h-[30px] px-2.5 text-xs rounded-lg" onClick={() => setIsEditingNotes(false)}>
                           Cancelar
                         </Button>
-                        <Button size="sm" className="h-[30px] px-2.5 text-xs gap-1 rounded-[4px]" onClick={handleSaveNotes} disabled={isPendingPessoa}>
+                        <Button size="sm" className="h-[30px] px-2.5 text-xs gap-1 rounded-lg" onClick={handleSaveNotes} disabled={isPendingPessoa}>
                           <Check className="w-3 h-3" strokeWidth={1.5} />
                           Salvar
                         </Button>
@@ -381,7 +381,7 @@ const NegocioSidebar = ({
                     </div>
                   ) : (
                     <div
-                      className="px-4 py-3 min-h-[56px] cursor-pointer hover:bg-white/[0.035] transition-all duration-300 rounded-[2px]"
+                      className="px-4 py-3 min-h-[56px] cursor-pointer hover:bg-white/[0.035] transition-all duration-300 rounded-md"
                       onClick={() => { setNotesContent(negocio.pessoa?.notes || ""); setIsEditingNotes(true); }}
                     >
                       {negocio.pessoa?.notes ? (
@@ -401,10 +401,10 @@ const NegocioSidebar = ({
               {negocio.pessoa?.disc_profile && (
                 <div className="space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Perfil DISC</p>
-                  <div className="border border-border rounded-[2px] overflow-hidden">
+                  <div className="border border-border rounded-md overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                       <span className="text-[13px] text-muted-foreground/70">Perfil</span>
-                      <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
+                      <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
                         {negocio.pessoa.disc_profile}
                       </span>
                     </div>
@@ -429,7 +429,7 @@ const NegocioSidebar = ({
               {/* Qualificação IA */}
               {fieldDefs.filter(d => d.agent_managed).length > 0 && (
                 <div className="space-y-2">
-                  <div className="border border-border rounded-[2px] overflow-hidden">
+                  <div className="border border-border rounded-md overflow-hidden">
                     <button
                       onClick={() => setShowQualif(v => !v)}
                       className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.035] transition-all duration-300"
@@ -484,7 +484,7 @@ const NegocioSidebar = ({
               {/* Negócio */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Negócio</p>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   {/* Valor */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <span className="text-[13px] text-muted-foreground/70">Valor</span>
@@ -498,10 +498,10 @@ const NegocioSidebar = ({
                           className="h-7 w-28 text-[13px]"
                           autoFocus
                         />
-                        <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-[4px]" onClick={handleValueSave}>
+                        <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-lg" onClick={handleValueSave}>
                           <Check className="w-3.5 h-3.5" strokeWidth={1.5} />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-[4px]" onClick={() => setIsEditingValue(false)}>
+                        <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-lg" onClick={() => setIsEditingValue(false)}>
                           <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                         </Button>
                       </div>
@@ -519,7 +519,7 @@ const NegocioSidebar = ({
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <span className="text-[13px] text-muted-foreground/70">Status</span>
                     <span className={cn(
-                      "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                      "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none",
                       getStatusChip()
                     )}>
                       {getStatusLabel()}
@@ -626,7 +626,7 @@ const NegocioSidebar = ({
               {/* Pipeline & Etapa */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Pipeline & Etapa</p>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <span className="text-[13px] text-muted-foreground/70">Pipeline</span>
                     <Select value={pipelineId || ''} onValueChange={handlePipelineChange}>
@@ -683,7 +683,7 @@ const NegocioSidebar = ({
               {/* Empresa */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Empresa</p>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   <div className="px-4 py-3 border-b border-border">
                     <Popover open={companyPopoverOpen} onOpenChange={setCompanyPopoverOpen}>
                       <PopoverTrigger asChild>
@@ -786,7 +786,7 @@ const NegocioSidebar = ({
               {/* Controle */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Controle</p>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   <div className="px-4 py-2.5">
                     <EditableField
                       label=""
@@ -804,7 +804,7 @@ const NegocioSidebar = ({
               {/* Indicação / Evento */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Indicação / Evento</p>
-                <div className="border border-border rounded-[2px] overflow-hidden divide-y divide-border">
+                <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
                   <div className="px-4 py-2.5">
                     <EditableField
                       label="Recomendante"
@@ -861,7 +861,7 @@ const NegocioSidebar = ({
               {/* Datas */}
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Datas</p>
-                <div className="border border-border rounded-[2px] overflow-hidden">
+                <div className="border border-border rounded-md overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                     <span className="text-[13px] text-muted-foreground/70">Criado em</span>
                     <span className="text-[12px] font-medium text-foreground/80">{formatDate(negocio.created_at)}</span>

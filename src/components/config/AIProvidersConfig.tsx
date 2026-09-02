@@ -237,7 +237,7 @@ const AIProvidersConfig = () => {
           <span className="text-sm">Carregando...</span>
         </div>
       ) : providers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-[4px]">
+        <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-lg">
           <Key className="h-8 w-8 text-muted-foreground/30 mb-3" />
           <p className="text-sm font-medium text-muted-foreground mb-1">Nenhum provedor configurado</p>
           <p className="text-xs text-muted-foreground/60 mb-4 max-w-sm">
@@ -249,7 +249,7 @@ const AIProvidersConfig = () => {
           </Button>
         </div>
       ) : (
-        <div className="border border-border rounded-[4px] overflow-hidden divide-y divide-border/30">
+        <div className="border border-border rounded-lg overflow-hidden divide-y divide-border/30">
           {providers.map((provider) => {
             const provColor = PROVIDER_COLORS[provider.provider] ?? PROVIDER_COLORS.openai;
             const provLabel = PROVIDER_OPTIONS.find(p => p.value === provider.provider)?.label ?? provider.provider;
@@ -321,7 +321,7 @@ const AIProvidersConfig = () => {
       )}
 
       {/* Info box */}
-      <div className="rounded-[4px] border border-border bg-muted px-4 py-3 text-xs text-muted-foreground space-y-1">
+      <div className="rounded-lg border border-border bg-muted px-4 py-3 text-xs text-muted-foreground space-y-1">
         <p className="font-medium text-foreground">Como funciona</p>
         <ul className="space-y-1 list-disc list-inside leading-relaxed">
           <li>Cada agente pode usar uma chave específica via campo "Chave de API" nas configurações do agente</li>

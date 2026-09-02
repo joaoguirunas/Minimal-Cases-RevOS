@@ -8,7 +8,7 @@ export default function SectionsTab() {
       <section>
         <SectionHeader num="01" title="Hero Section" subtitle="Full-bleed hero with headline, CTA, video preview" />
         <GlowCard glow="#FF4400">
-          <div className="rounded-[2px] border border-white/[0.06] overflow-hidden relative min-h-[240px] flex flex-col justify-end p-6">
+          <div className="rounded-md border border-white/[0.06] overflow-hidden relative min-h-[240px] flex flex-col justify-end p-6">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-[100px] font-['Outfit'] font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
             </div>
@@ -19,13 +19,13 @@ export default function SectionsTab() {
                 </h2>
                 <p className="text-[10px] text-white/30 mb-4">AI-powered CRM that closes deals while you sleep</p>
                 <div className="flex gap-2">
-                  <button className="h-[30px] px-4 rounded-[2px] bg-[#FF4400] text-white text-[10px] font-bold uppercase tracking-wider">See how it works</button>
-                  <button className="h-[30px] px-3 rounded-[2px] border border-white/[0.08] text-white/40 text-[10px] flex items-center gap-1">
+                  <button className="h-[30px] px-4 rounded-md bg-[#FF4400] text-white text-[10px] font-bold uppercase tracking-wider">See how it works</button>
+                  <button className="h-[30px] px-3 rounded-md border border-white/[0.08] text-white/40 text-[10px] flex items-center gap-1">
                     <Play className="w-3 h-3" /> 90 SEC
                   </button>
                 </div>
               </div>
-              <div className="rounded-[2px] border border-white/[0.06] bg-white/[0.02] aspect-[16/10] flex items-center justify-center">
+              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] aspect-[16/10] flex items-center justify-center">
                 <div className="w-8 h-8 rounded-full bg-[#FF4400]/10 border border-[#FF4400]/30 flex items-center justify-center">
                   <Play className="w-3 h-3 text-[#FF4400]" fill="rgba(255,68,0,0.2)" />
                 </div>
@@ -87,7 +87,7 @@ export default function SectionsTab() {
                 <span className="text-[10px] text-white/30">{desc}</span>
                 <div className="flex flex-wrap gap-1.5">
                   {tags.map((t) => (
-                    <span key={t} className="px-2 py-0.5 rounded-[2px] text-[8px] font-mono text-white/25 border border-white/[0.06]">{t}</span>
+                    <span key={t} className="px-2 py-0.5 rounded-md text-[8px] font-mono text-white/25 border border-white/[0.06]">{t}</span>
                   ))}
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function SectionsTab() {
       {/* 06 Testimonials */}
       <section>
         <SectionHeader num="06" title="Testimonials Grid" subtitle="Star ratings, highlight card, gap-px pattern" />
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-white/[0.06] rounded-[2px] overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-white/[0.06] rounded-md overflow-hidden">
           {[
             { name: 'Ana Costa', text: 'Revenue up 40% in 3 months', highlight: false },
             { name: 'Pedro Lima', text: 'Best CRM we ever used', highlight: true },
@@ -156,7 +156,7 @@ export default function SectionsTab() {
               'What support is included?',
             ].map((q, i) => (
               <div key={q} className="py-3 flex items-center gap-3">
-                <span className="w-6 h-6 rounded-[2px] bg-[#FF4400]/10 flex items-center justify-center text-[8px] font-mono text-[#FF4400]/60 font-bold shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                <span className="w-6 h-6 rounded-md bg-[#FF4400]/10 flex items-center justify-center text-[8px] font-mono text-[#FF4400]/60 font-bold shrink-0">{String(i + 1).padStart(2, '0')}</span>
                 <span className="text-[11px] text-white/50 flex-1">{q}</span>
                 <span className="text-[10px] text-white/15">+</span>
               </div>

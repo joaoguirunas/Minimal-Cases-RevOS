@@ -138,7 +138,7 @@ export const NegocioScoreSection = ({
         )}
       </div>
 
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
 
         {/* ── Edit mode ── */}
         {isEditing ? (
@@ -178,7 +178,7 @@ export const NegocioScoreSection = ({
             {/* Matrix preview */}
             {editHasAllFields && (
               <div className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-[4px] border text-[12px]',
+                'flex items-center gap-2 px-3 py-2 rounded-lg border text-[12px]',
                 previewMatrix
                   ? cn('border-border bg-card', getScoreStyle(previewMatrix.score_number).chip)
                   : 'border-[#F59E0B]/20 bg-[#F59E0B]/10 text-[#F59E0B]',

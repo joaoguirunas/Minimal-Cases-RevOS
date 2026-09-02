@@ -136,7 +136,7 @@ const MessageList: React.FC<MessageListProps> = ({
               const typeIcon  = isStoryReply ? '📖' : '📢';
               return (
                 <div key={conversa.id} className="flex flex-col items-start gap-0.5 max-w-[300px] lg:max-w-[360px]">
-                  <div className={`w-full rounded-[2px] border px-3.5 py-2.5 ${accentCls}`}>
+                  <div className={`w-full rounded-md border px-3.5 py-2.5 ${accentCls}`}>
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <Instagram className={`w-3 h-3 ${accentHeaderCls}`} />
                       <span className={`text-[10px] font-semibold ${accentHeaderCls}`}>{typeIcon} {typeLabel}</span>
@@ -159,10 +159,10 @@ const MessageList: React.FC<MessageListProps> = ({
               const previewImg     = postImageUrl || postThumbnail;
               return (
                 <div key={conversa.id} className="flex flex-col items-start gap-1.5 max-w-[300px] lg:max-w-[340px] mt-3">
-                  <div className="w-full rounded-[2px] border border-border bg-card overflow-hidden">
+                  <div className="w-full rounded-md border border-border bg-card overflow-hidden">
                     <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-[4px] bg-gradient-to-br from-pink-500 via-red-400 to-yellow-400 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-pink-500 via-red-400 to-yellow-400 flex items-center justify-center">
                           <Instagram className="w-3 h-3 text-white" />
                         </div>
                         <span className="text-[11px] font-semibold text-foreground/80">instagram</span>
@@ -205,11 +205,11 @@ const MessageList: React.FC<MessageListProps> = ({
                   <div className="flex items-center gap-1 ml-0.5">
                     <button
                       onClick={() => { onReplyToComment({ igCommentId: commentId, preview: (conversa.message || '').slice(0, 60) }); onSetCanalAtivo('instagram'); textareaRef.current?.focus(); }}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-[4px] text-[10px] font-medium bg-violet-400/10 text-violet-400 hover:bg-violet-400/20 border border-violet-400/25 transition-all duration-300"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-violet-400/10 text-violet-400 hover:bg-violet-400/20 border border-violet-400/25 transition-all duration-300"
                     >↩ Responder</button>
                     <button
                       onClick={() => { onReplyToComment(null as any); onSetCanalAtivo('instagram'); textareaRef.current?.focus(); }}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-[4px] text-[10px] font-medium bg-muted text-muted-foreground hover:bg-white/[0.035] border border-border transition-all duration-300"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium bg-muted text-muted-foreground hover:bg-white/[0.035] border border-border transition-all duration-300"
                     >💬 DM</button>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const MessageList: React.FC<MessageListProps> = ({
             if (conversa.tipo_mensagem === 'reply_comentario') {
               return (
                 <div key={conversa.id} className="flex justify-end">
-                  <div className="max-w-[340px] lg:max-w-[420px] rounded-[2px] border bg-violet-500/80 border-violet-400/40 px-3.5 py-2.5">
+                  <div className="max-w-[340px] lg:max-w-[420px] rounded-md border bg-violet-500/80 border-violet-400/40 px-3.5 py-2.5">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <Instagram className="w-3 h-3 text-violet-200" />
                       <span className="text-[10px] font-semibold text-violet-200">↩ Respondeu no post</span>
@@ -234,8 +234,8 @@ const MessageList: React.FC<MessageListProps> = ({
 
             /* Standard message bubble */
             const isOutgoing = !isFromClient;
-            const shapeOut   = 'rounded-[2px] rounded-br-[5px]';
-            const shapeIn    = 'rounded-[2px] rounded-bl-[5px]';
+            const shapeOut   = 'rounded-md rounded-br-[5px]';
+            const shapeIn    = 'rounded-md rounded-bl-[5px]';
             let bubbleCls = '';
             if (isFromClient)   bubbleCls = `bg-card text-foreground ${shapeIn}`;
             else if (isOptimistic) bubbleCls = `bg-muted text-foreground ${shapeOut} opacity-55`;
@@ -370,7 +370,7 @@ const MessageList: React.FC<MessageListProps> = ({
           {/* AI typing bubble */}
           {aiEnabled && aiIsProcessing && (
             <div className="flex justify-end">
-              <div className="bg-card border-l-[3px] border-l-violet-400 rounded-[2px] rounded-br-[5px] px-3.5 py-2.5 flex items-center gap-2">
+              <div className="bg-card border-l-[3px] border-l-violet-400 rounded-md rounded-br-[5px] px-3.5 py-2.5 flex items-center gap-2">
                 <Bot className="w-2.5 h-2.5 text-violet-400 animate-pulse" />
                 <span className="text-[9px] font-semibold tracking-widest uppercase text-violet-400 mr-0.5">IA</span>
                 {aiPhase === 'pensando' ? (

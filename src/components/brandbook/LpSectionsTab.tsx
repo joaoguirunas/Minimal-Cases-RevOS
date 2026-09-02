@@ -10,7 +10,7 @@ export default function LpSectionsTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <GlowCard glow="#FF4400">
             <h3 className="text-[10px] font-mono text-white/30 mb-3 uppercase tracking-[0.08em]">Dark Variant</h3>
-            <div className="rounded-[2px] bg-[#050505] border border-white/[0.06] p-6">
+            <div className="rounded-md bg-[#050505] border border-white/[0.06] p-6">
               <span className="text-[9px] font-mono text-[#FF4400]/40 tracking-[0.15em] uppercase">01 · Section Name</span>
               <p className="text-[14px] font-semibold text-white/60 mt-3">Section content area</p>
               <p className="text-[10px] text-white/25 mt-1">py-24 md:py-32 · max-w-[1400px]</p>
@@ -18,7 +18,7 @@ export default function LpSectionsTab() {
           </GlowCard>
           <GlowCard glow="#F59E0B">
             <h3 className="text-[10px] font-mono text-white/30 mb-3 uppercase tracking-[0.08em]">Light Variant</h3>
-            <div className="rounded-[2px] bg-[#F5F4E7] border border-black/[0.06] p-6">
+            <div className="rounded-md bg-[#F5F4E7] border border-black/[0.06] p-6">
               <span className="text-[9px] font-mono text-black/30 tracking-[0.15em] uppercase">02 · Section Name</span>
               <p className="text-[14px] font-semibold text-black/70 mt-3">Section content area</p>
               <p className="text-[10px] text-black/30 mt-1">py-24 md:py-32 · max-w-[1400px]</p>
@@ -47,13 +47,13 @@ export default function LpSectionsTab() {
         <SectionHeader num="03" title="Accent Button" subtitle="3 variants — primary, dark, ghost — with arrow glyph" />
         <GlowCard glow="#FF4400">
           <div className="flex flex-wrap gap-4">
-            <button className="h-[42px] px-5 min-w-[200px] rounded-[2px] bg-[#FF4400] text-white text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-[#FF4400]/90 transition-all">
+            <button className="h-[42px] px-5 min-w-[200px] rounded-md bg-[#FF4400] text-white text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-[#FF4400]/90 transition-all">
               Start Now <span>↗</span>
             </button>
-            <button className="h-[42px] px-5 min-w-[200px] rounded-[2px] bg-[#0a0a0a] text-white border border-white/[0.1] text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-white/[0.05] transition-all">
+            <button className="h-[42px] px-5 min-w-[200px] rounded-md bg-[#0a0a0a] text-white border border-white/[0.1] text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-white/[0.05] transition-all">
               Learn More <span>↗</span>
             </button>
-            <button className="h-[42px] px-5 min-w-[200px] rounded-[2px] bg-transparent text-white/50 text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:text-white transition-all">
+            <button className="h-[42px] px-5 min-w-[200px] rounded-md bg-transparent text-white/50 text-[11px] font-bold uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:text-white transition-all">
               Watch Demo <span>↗</span>
             </button>
           </div>
@@ -81,7 +81,7 @@ export default function LpSectionsTab() {
       <section>
         <SectionHeader num="05" title="Quote Block" subtitle="Testimonial component with avatar, quote mark, attribution" />
         <GlowCard glow="#6C16F8">
-          <div className="relative p-6 rounded-[2px] bg-white/[0.01] border border-white/[0.04]">
+          <div className="relative p-6 rounded-md bg-white/[0.01] border border-white/[0.04]">
             <span className="absolute top-2 left-4 text-[48px] font-black text-white/[0.06] select-none leading-none">"</span>
             <p className="text-[14px] text-white/60 leading-relaxed mt-6 mb-6">REVOS transformed our sales pipeline. The AI automation saved us 40+ hours per week and increased our close rate by 35%.</p>
             <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ export default function LpSectionsTab() {
       <section>
         <SectionHeader num="06" title="Hero Section" subtitle="Full-bleed hero with headline, watermark, video preview, ticker" />
         <GlowCard glow="#FF4400">
-          <div className="rounded-[2px] border border-white/[0.06] overflow-hidden relative">
+          <div className="rounded-md border border-white/[0.06] overflow-hidden relative">
             {/* Watermark */}
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
               <span className="text-[120px] font-['Outfit'] font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
@@ -113,9 +113,9 @@ export default function LpSectionsTab() {
                   <h2 className="text-[28px] font-['Outfit'] font-black text-white/90 leading-[0.95] mb-4">
                     Eliminate your <span className="text-[#FF4400]">bottleneck</span>
                   </h2>
-                  <button className="h-[36px] px-5 rounded-[2px] bg-[#FF4400] text-white text-[10px] font-bold uppercase tracking-wider">See how it works ↗</button>
+                  <button className="h-[36px] px-5 rounded-md bg-[#FF4400] text-white text-[10px] font-bold uppercase tracking-wider">See how it works ↗</button>
                 </div>
-                <div className="rounded-[2px] border border-white/[0.06] bg-white/[0.02] aspect-[16/10] flex items-center justify-center">
+                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] aspect-[16/10] flex items-center justify-center">
                   <div className="w-10 h-10 rounded-full bg-[#FF4400]/10 border border-[#FF4400]/30 flex items-center justify-center">
                     <Play className="w-4 h-4 text-[#FF4400]" fill="rgba(255,68,0,0.3)" />
                   </div>
@@ -139,7 +139,7 @@ export default function LpSectionsTab() {
       <section>
         <SectionHeader num="07" title="Pricing Table" subtitle="3-tier pricing grid with toggle (monthly/annual)" />
         <GlowCard glow="#00D26A">
-          <div className="grid grid-cols-3 gap-px bg-white/[0.06] rounded-[2px] overflow-hidden">
+          <div className="grid grid-cols-3 gap-px bg-white/[0.06] rounded-md overflow-hidden">
             {[
               { tier: 'Starter', price: 'R$ 97', features: ['5 users', '1 pipeline', 'Basic analytics', 'Email support'], popular: false },
               { tier: 'Growth', price: 'R$ 297', features: ['25 users', '5 pipelines', 'Advanced analytics', 'AI automation', 'Priority support'], popular: true },
@@ -159,7 +159,7 @@ export default function LpSectionsTab() {
                     </div>
                   ))}
                 </div>
-                <button className={`w-full h-[30px] rounded-[2px] text-[10px] font-mono font-medium uppercase tracking-wider flex items-center justify-center gap-1 ${popular ? 'bg-[#FF4400] text-white' : 'bg-white/[0.04] text-white/40 border border-white/[0.06]'}`}>
+                <button className={`w-full h-[30px] rounded-md text-[10px] font-mono font-medium uppercase tracking-wider flex items-center justify-center gap-1 ${popular ? 'bg-[#FF4400] text-white' : 'bg-white/[0.04] text-white/40 border border-white/[0.06]'}`}>
                   Get started <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -181,7 +181,7 @@ export default function LpSectionsTab() {
             ].map(({ q, a }, i) => (
               <div key={q} className="py-4">
                 <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-[2px] bg-[#FF4400]/10 flex items-center justify-center text-[9px] font-mono text-[#FF4400]/60 font-bold shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="w-6 h-6 rounded-md bg-[#FF4400]/10 flex items-center justify-center text-[9px] font-mono text-[#FF4400]/60 font-bold shrink-0">{String(i + 1).padStart(2, '0')}</span>
                   <span className="text-[12px] font-medium text-white/60">{q}</span>
                 </div>
                 <p className="text-[10px] text-white/30 ml-9 mt-2 leading-relaxed">{a}</p>
@@ -194,7 +194,7 @@ export default function LpSectionsTab() {
       {/* 09 Testimonials Grid */}
       <section>
         <SectionHeader num="09" title="Testimonials" subtitle="Review grid with star ratings and highlight card" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06] rounded-[2px] overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06] rounded-md overflow-hidden">
           {[
             { name: 'Ana Costa', role: 'Head of Sales', text: 'Revenue increased 40% in 3 months.', highlight: false },
             { name: 'Pedro Lima', role: 'CEO', text: 'Best CRM we ever used. Period.', highlight: true },

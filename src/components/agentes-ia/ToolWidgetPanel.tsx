@@ -62,7 +62,7 @@ const SnippetPreview = ({ text }: { text: string }) => {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <div className="mt-2.5 rounded-[4px] bg-card border border-white/[0.06] overflow-hidden">
+    <div className="mt-2.5 rounded-lg bg-card border border-white/[0.06] overflow-hidden">
       <pre className="px-2.5 py-2 text-[10px] font-mono text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
         {text}
       </pre>
@@ -70,7 +70,7 @@ const SnippetPreview = ({ text }: { text: string }) => {
         <button
           onClick={handle}
           className={cn(
-            'flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] text-[9px] border transition-all',
+            'flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] border transition-all',
             copied
               ? 'border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400'
               : 'border-white/[0.06] bg-background text-muted-foreground/60 hover:text-foreground hover:border-border',
@@ -529,7 +529,7 @@ export const ToolWidgetPanel = (props: ToolWidgetPanelProps) => {
   const toggleTool = (name: string)  => setOpenTools(p => ({ ...p, [name]: !p[name] }));
 
   return (
-    <div className="border border-white/[0.06] rounded-[4px] overflow-hidden">
+    <div className="border border-white/[0.06] rounded-lg overflow-hidden">
       {/* Panel header */}
       <button
         onClick={() => setPanelOpen(v => !v)}
@@ -571,7 +571,7 @@ export const ToolWidgetPanel = (props: ToolWidgetPanelProps) => {
                         <div
                           key={tool.name}
                           className={cn(
-                            'mx-2 mb-1 rounded-[4px] border overflow-hidden',
+                            'mx-2 mb-1 rounded-lg border overflow-hidden',
                             cat.bgColor,
                             cat.borderColor,
                           )}

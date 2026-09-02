@@ -31,7 +31,7 @@ export default function DisparoCard({
     : 0;
 
   return (
-    <Card className="p-6 border border-border bg-card rounded-[2px] transition-all duration-300 hover:border-white/[0.10]">
+    <Card className="p-6 border border-border bg-card rounded-md transition-all duration-300 hover:border-white/[0.10]">
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -114,7 +114,7 @@ export default function DisparoCard({
         <Button 
           onClick={() => onVerDetalhes(send.id)}
           variant="outline"
-          className="w-full h-[30px] rounded-[4px] text-xs"
+          className="w-full h-[30px] rounded-lg text-xs"
         >
           Ver Detalhes
         </Button>

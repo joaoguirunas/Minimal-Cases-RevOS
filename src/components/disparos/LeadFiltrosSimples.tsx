@@ -27,7 +27,7 @@ export default function LeadFiltrosSimples({ filters, onFilterChange }: LeadFilt
   return (
     <div className="space-y-6">
       {/* Pipeline - Obrigatório */}
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <Label className="font-semibold mb-3 block">Pipeline *</Label>
         <Select
           value={filters.pipeline_id || ''}
@@ -53,7 +53,7 @@ export default function LeadFiltrosSimples({ filters, onFilterChange }: LeadFilt
 
       {/* Etapa - Simples Select */}
       {filters.pipeline_id && (
-        <Card className="p-6 border border-border bg-card rounded-[2px]">
+        <Card className="p-6 border border-border bg-card rounded-md">
           <Label className="font-semibold mb-3 block">Etapa (Opcional)</Label>
           <Select
             value={filters.stage_ids?.[0] || ''}
@@ -75,7 +75,7 @@ export default function LeadFiltrosSimples({ filters, onFilterChange }: LeadFilt
       )}
 
       {/* Score - Matrizes do Sistema */}
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <Label className="font-semibold mb-4 block">Scores (Opcional)</Label>
         <div className="space-y-3">
           <div>
@@ -119,7 +119,7 @@ export default function LeadFiltrosSimples({ filters, onFilterChange }: LeadFilt
       </Card>
 
       {/* Status */}
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <Label className="font-semibold mb-4 block">Status (Opcional)</Label>
         <div className="space-y-3">
           {leadStatuses.map((status) => (
@@ -144,7 +144,7 @@ export default function LeadFiltrosSimples({ filters, onFilterChange }: LeadFilt
       </Card>
 
       {/* Responsáveis */}
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <Label className="font-semibold mb-4 block">Responsáveis (Opcional)</Label>
         <div className="space-y-3">
           {usuarios?.map((user) => (

@@ -65,7 +65,7 @@ function ColorField({
         type="color"
         value={isValid ? raw : "#6366f1"}
         onChange={(e) => { setRaw(e.target.value); onChange(e.target.value); }}
-        className="w-8 h-8 rounded-[3px] border border-border cursor-pointer p-0.5 bg-transparent"
+        className="w-8 h-8 rounded-md border border-border cursor-pointer p-0.5 bg-transparent"
         title={label}
       />
       <Input
@@ -135,7 +135,7 @@ function DomainSection({
 
       {verifyResult && (
         <div className={cn(
-          "rounded-[4px] border px-3 py-2.5 text-[12px] space-y-1.5",
+          "rounded-lg border px-3 py-2.5 text-[12px] space-y-1.5",
           verifyResult.verified
             ? "border-green-500/30 bg-green-500/5 text-green-700"
             : "border-amber-500/30 bg-amber-500/5 text-amber-700"
@@ -148,7 +148,7 @@ function DomainSection({
           {!verifyResult.verified && (
             <div className="text-[11px] text-muted-foreground space-y-0.5">
               <p>Configure um registro CNAME no seu provedor DNS:</p>
-              <code className="block bg-muted px-2 py-1 rounded-[3px] text-foreground">
+              <code className="block bg-muted px-2 py-1 rounded-md text-foreground">
                 {value} → {verifyResult.expected_cname}
               </code>
               <p className="text-muted-foreground/60 mt-1">Propagação pode levar até 48h após configurar.</p>
@@ -273,7 +273,7 @@ const WhiteLabelConfig = () => {
       </div>
 
       {/* Identity */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="IDENTIDADE" />
         <FieldRow label="Nome do produto" hint="Substitui 'GrowthSales' no header e emails">
           <Input
@@ -286,7 +286,7 @@ const WhiteLabelConfig = () => {
         <FieldRow label="Logo" hint="PNG, SVG ou JPG — máximo 2MB" last>
           <div className="flex items-center gap-2">
             {config?.logo_url && (
-              <img src={config.logo_url} alt="Logo" className="h-7 w-auto max-w-[80px] object-contain rounded-[2px]" />
+              <img src={config.logo_url} alt="Logo" className="h-7 w-auto max-w-[80px] object-contain rounded-md" />
             )}
             <input ref={fileInputRef} type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={handleLogoChange} />
             <Button
@@ -314,7 +314,7 @@ const WhiteLabelConfig = () => {
       </div>
 
       {/* Brand colors */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="CORES DA MARCA" />
         <FieldRow label="Cor primária" hint="Botões, links, elementos de destaque">
           <ColorField
@@ -333,7 +333,7 @@ const WhiteLabelConfig = () => {
       </div>
 
       {/* Custom domain */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="DOMÍNIO CUSTOMIZADO" />
         <div className="px-5 py-4">
           <p className="text-[12px] text-muted-foreground/70 mb-3 leading-relaxed">

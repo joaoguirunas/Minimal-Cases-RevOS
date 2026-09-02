@@ -186,7 +186,7 @@ function WebhookUrlField({ token }: { token: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      <code className="flex-1 min-w-0 truncate text-[11px] font-mono bg-muted border border-border rounded-[4px] px-3 py-1.5">
+      <code className="flex-1 min-w-0 truncate text-[11px] font-mono bg-muted border border-border rounded-lg px-3 py-1.5">
         {url}
       </code>
       <Button
@@ -246,14 +246,14 @@ function FieldMappingEditor({
       </div>
 
       {value.length === 0 ? (
-        <div className="border border-dashed border-border rounded-[4px] px-4 py-6 text-center">
+        <div className="border border-dashed border-border rounded-lg px-4 py-6 text-center">
           <p className="text-[12px] text-muted-foreground/60">
             Nenhum campo mapeado. Adicione ao menos um para que os dados sejam
             ingeridos no CRM.
           </p>
         </div>
       ) : (
-        <div className="border border-border rounded-[4px] overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <div className="grid grid-cols-[1fr,auto,1fr,auto] gap-2 px-3 py-2 bg-muted border-b border-border">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
               Chave no payload
@@ -407,7 +407,7 @@ function WebhookPayloadPreview({
           </Button>
         </div>
       </div>
-      <pre className="bg-muted border border-border rounded-[4px] px-3 py-2 overflow-x-auto max-h-[110px] overflow-y-auto">
+      <pre className="bg-muted border border-border rounded-lg px-3 py-2 overflow-x-auto max-h-[110px] overflow-y-auto">
         <code className="text-[11px] font-mono whitespace-pre">{jsonText}</code>
       </pre>
     </div>
@@ -476,7 +476,7 @@ function WebhookTriggerConfigPanel({
       </div>
 
       {enabled && (
-        <div className="space-y-3 border border-border rounded-[4px] px-3 py-3">
+        <div className="space-y-3 border border-border rounded-lg px-3 py-3">
           <div className="space-y-1.5">
             <Label className="text-[11px] text-muted-foreground/70">Canal</Label>
             <Select value="whatsapp" disabled>
@@ -556,7 +556,7 @@ function WebhookTriggerConfigPanel({
           )}
 
           {selectedTemplate && (
-            <div className="border border-border rounded-[4px] px-3 py-2 bg-muted/30 space-y-1">
+            <div className="border border-border rounded-lg px-3 py-2 bg-muted/30 space-y-1">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                 Preview · {selectedTemplate.nome}
               </p>
@@ -1109,7 +1109,7 @@ const WebhookInboundConfig = () => {
           <Loader2 className="w-5 h-5 animate-spin text-muted-foreground/50" />
         </div>
       ) : webhooks.length === 0 ? (
-        <div className="border border-dashed border-border rounded-[4px] px-6 py-12 text-center space-y-3">
+        <div className="border border-dashed border-border rounded-lg px-6 py-12 text-center space-y-3">
           <WebhookIcon className="w-7 h-7 mx-auto text-muted-foreground/30" />
           <div>
             <p className="text-[13px] text-foreground">
@@ -1131,7 +1131,7 @@ const WebhookInboundConfig = () => {
         </div>
       ) : (
         <>
-          <div className="border border-border rounded-[2px] overflow-hidden">
+          <div className="border border-border rounded-md overflow-hidden">
             <SectionHeader title="WEBHOOKS ATIVOS" />
             {activeWebhooks.length === 0 ? (
               <div className="px-5 py-8 text-center">
@@ -1153,7 +1153,7 @@ const WebhookInboundConfig = () => {
           </div>
 
           {inactiveWebhooks.length > 0 && (
-            <div className="border border-border rounded-[2px] overflow-hidden">
+            <div className="border border-border rounded-md overflow-hidden">
               <SectionHeader title="INATIVOS" />
               {inactiveWebhooks.map((w, i) => (
                 <WebhookRow

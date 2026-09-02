@@ -68,8 +68,8 @@ function StatCard({
   accent?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 border border-border bg-card rounded-[2px] px-4 py-3">
-      <div className={cn("w-8 h-8 rounded-[4px] flex items-center justify-center shrink-0", accent ?? "bg-primary/10")}>
+    <div className="flex items-center gap-3 border border-border bg-card rounded-md px-4 py-3">
+      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", accent ?? "bg-primary/10")}>
         <Icon className={cn("w-4 h-4", accent ? "text-foreground/70" : "text-primary")} strokeWidth={1.5} />
       </div>
       <div className="min-w-0">
@@ -201,7 +201,7 @@ const LpPro = () => {
                 {label}
                 {count > 0 && tab === "forms" && (
                   <span className={cn(
-                    "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] leading-none",
+                    "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md leading-none",
                     activeTab === tab ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   )}>
                     {count}
@@ -217,13 +217,13 @@ const LpPro = () => {
                 <button
                   onClick={handleSync}
                   disabled={syncing}
-                  className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
                 >
                   <RefreshCw className={cn("w-3.5 h-3.5", syncing && "animate-spin")} strokeWidth={1.5} />
                   {syncing ? "Sincronizando..." : "Sincronizar Meta"}
                 </button>
               )}
-              <Button size="sm" className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]" onClick={() => setShowTypeChooser(true)}>
+              <Button size="sm" className="h-[30px] px-3 text-xs gap-1.5 rounded-lg" onClick={() => setShowTypeChooser(true)}>
                 <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
                 {t("lpPro.form.new")}
               </Button>
@@ -331,7 +331,7 @@ function FormMiniPreview({ form }: { form: LpForm }) {
   return (
     <div className="space-y-1.5 p-3">
       {visible.map((f) => (
-        <div key={f.id} className={cn("rounded-[2px] border px-2 py-1", fieldColor(f.type))}>
+        <div key={f.id} className={cn("rounded-md border px-2 py-1", fieldColor(f.type))}>
           <p className="text-[9px] font-semibold text-foreground/60 leading-none mb-0.5 truncate">{f.label}</p>
           <div className="h-[3px] w-2/3 rounded-full bg-foreground/10" />
         </div>
@@ -347,13 +347,13 @@ function FormMiniPreview({ form }: { form: LpForm }) {
 function TypeBadge({ type }: { type: "site" | "meta" }) {
   if (type === "meta") {
     return (
-      <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-[#1877F2]/10 text-[#1877F2]">
+      <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[#1877F2]/10 text-[#1877F2]">
         📘 Meta
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
       🌐 Site
     </span>
   );
@@ -380,7 +380,7 @@ function MetaFormMiniPreview({ form }: { form: MetaLeadForm }) {
   return (
     <div className="space-y-1.5 p-3">
       {fields.map((f, i) => (
-        <div key={i} className={cn("rounded-[2px] border px-2 py-1", fieldColor(f.meta_type))}>
+        <div key={i} className={cn("rounded-md border px-2 py-1", fieldColor(f.meta_type))}>
           <p className="text-[9px] font-semibold text-foreground/60 leading-none mb-0.5 truncate">{f.label}</p>
           <div className="h-[3px] w-2/3 rounded-full bg-foreground/10" />
         </div>
@@ -413,7 +413,7 @@ function MetaFormCard({
   return (
     <div
       onClick={() => onEdit(form)}
-      className="group border border-border bg-card rounded-[2px] hover:border-[#1877F2]/30 transition-all cursor-pointer flex flex-col overflow-hidden"
+      className="group border border-border bg-card rounded-md hover:border-[#1877F2]/30 transition-all cursor-pointer flex flex-col overflow-hidden"
     >
       {/* Mini preview area */}
       <div className="bg-muted border-b border-border h-[120px] overflow-hidden relative">
@@ -423,7 +423,7 @@ function MetaFormCard({
         >
           <button
             onClick={() => onEdit(form)}
-            className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] bg-[#1877F2] text-white text-[11px] font-semibold hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg bg-[#1877F2] text-white text-[11px] font-semibold hover:opacity-90 transition-opacity"
           >
             <SlidersHorizontal className="w-3 h-3" strokeWidth={1.5} />
             Configurar
@@ -433,7 +433,7 @@ function MetaFormCard({
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] bg-card border border-border text-foreground text-[11px] font-semibold hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg bg-card border border-border text-foreground text-[11px] font-semibold hover:bg-muted transition-colors"
           >
             <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
             Meta Ads
@@ -449,15 +449,15 @@ function MetaFormCard({
         <div className="flex items-center gap-1.5 flex-wrap">
           <TypeBadge type="meta" />
           {form.status === "unmapped" || (form.field_mapping ?? []).length === 0 ? (
-            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
               ⚠️ Configurar
             </span>
           ) : form.status === "archived" ? (
-            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-[2px] bg-muted text-muted-foreground">
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground">
               Arquivado
             </span>
           ) : (
-            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-[2px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
               ✅ Ativo
             </span>
           )}
@@ -489,7 +489,7 @@ function MetaFormCard({
             target="_blank"
             rel="noreferrer"
             title="Abrir no Meta Ads Manager"
-            className="w-6 h-6 rounded-[4px] flex items-center justify-center text-muted-foreground hover:text-[#1877F2] hover:bg-[#1877F2]/10 transition-colors"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-[#1877F2] hover:bg-[#1877F2]/10 transition-colors"
           >
             <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
           </a>
@@ -497,7 +497,7 @@ function MetaFormCard({
             onClick={(e) => onArchive(form.id, e)}
             disabled={archiveIsPending || form.status === "archived"}
             title={form.status === "archived" ? "Já arquivado" : "Arquivar"}
-            className="w-6 h-6 rounded-[4px] flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-muted disabled:opacity-50 transition-colors"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <Trash2 className="w-3 h-3" strokeWidth={1.5} />
           </button>
@@ -540,7 +540,7 @@ function FormCard({
   return (
     <div
       onClick={() => onEdit(form)}
-      className="group border border-border bg-card rounded-[2px] hover:border-primary/30 transition-all cursor-pointer flex flex-col overflow-hidden"
+      className="group border border-border bg-card rounded-md hover:border-primary/30 transition-all cursor-pointer flex flex-col overflow-hidden"
     >
       {/* Mini preview area */}
       <div className="bg-muted border-b border-border h-[120px] overflow-hidden relative">
@@ -551,7 +551,7 @@ function FormCard({
         >
           <button
             onClick={() => onEdit(form)}
-            className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] bg-primary text-primary-foreground text-[11px] font-semibold hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold hover:opacity-90 transition-opacity"
           >
             <Pencil className="w-3 h-3" strokeWidth={1.5} />
             Editar
@@ -561,7 +561,7 @@ function FormCard({
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] bg-card border border-border text-foreground text-[11px] font-semibold hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg bg-card border border-border text-foreground text-[11px] font-semibold hover:bg-muted transition-colors"
           >
             <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
             Abrir
@@ -574,11 +574,11 @@ function FormCard({
         <p className="text-sm font-semibold text-foreground truncate leading-tight mb-1">{form.name}</p>
         <div className="flex items-center gap-1.5 flex-wrap">
           <TypeBadge type="site" />
-          <span className={cn("inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-[2px]", mode.color)}>
+          <span className={cn("inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md", mode.color)}>
             <ModeIcon className="w-2.5 h-2.5" strokeWidth={1.5} />
             {mode.label}
           </span>
-          <span className={cn("inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-[2px]", display.color)}>
+          <span className={cn("inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded-md", display.color)}>
             <DisplayIcon className="w-2.5 h-2.5" strokeWidth={1.5} />
             {display.label}
           </span>
@@ -612,7 +612,7 @@ function FormCard({
           <button
             onClick={copyLink}
             title="Copiar link público"
-            className="w-6 h-6 rounded-[4px] flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
           >
             <Link2 className="w-3 h-3" strokeWidth={1.5} />
           </button>
@@ -620,7 +620,7 @@ function FormCard({
             onClick={(e) => onClone(form, e)}
             disabled={cloneIsPending}
             title="Duplicar"
-            className="w-6 h-6 rounded-[4px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <Copy className="w-3 h-3" strokeWidth={1.5} />
           </button>
@@ -628,7 +628,7 @@ function FormCard({
             onClick={(e) => onDelete(form.id, e)}
             disabled={deleteIsPending}
             title="Excluir"
-            className="w-6 h-6 rounded-[4px] flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-muted disabled:opacity-50 transition-colors"
+            className="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <Trash2 className="w-3 h-3" strokeWidth={1.5} />
           </button>
@@ -695,14 +695,14 @@ const FormsTab = ({ t, forms, metaForms, onNew, onEdit, onEditMeta }: FormsTabPr
 
   if (unifiedForms.length === 0) {
     return (
-      <div className="border border-border bg-card rounded-[2px]">
+      <div className="border border-border bg-card rounded-md">
         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-          <div className="w-12 h-12 rounded-[2px] bg-muted flex items-center justify-center mb-4">
+          <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center mb-4">
             <FileText className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
           </div>
           <p className="text-sm font-semibold text-foreground mb-1">{t("lpPro.form.emptyTitle")}</p>
           <p className="text-xs text-muted-foreground max-w-xs mb-5">{t("lpPro.form.emptyDescription")}</p>
-          <Button size="sm" className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]" onClick={onNew}>
+          <Button size="sm" className="h-[30px] px-3 text-xs gap-1.5 rounded-lg" onClick={onNew}>
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             {t("lpPro.form.new")}
           </Button>
@@ -741,9 +741,9 @@ const FormsTab = ({ t, forms, metaForms, onNew, onEdit, onEditMeta }: FormsTabPr
         {/* Add new card */}
         <button
           onClick={onNew}
-          className="border-2 border-dashed border-border rounded-[2px] h-full min-h-[200px] flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-muted/50 transition-all"
+          className="border-2 border-dashed border-border rounded-md h-full min-h-[200px] flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-muted/50 transition-all"
         >
-          <div className="w-9 h-9 rounded-[2px] border-2 border-dashed border-current flex items-center justify-center">
+          <div className="w-9 h-9 rounded-md border-2 border-dashed border-current flex items-center justify-center">
             <Plus className="w-4 h-4" strokeWidth={1.5} />
           </div>
           <span className="text-[12px] font-medium">{t("lpPro.form.new")}</span>
@@ -912,7 +912,7 @@ function ScoreBadge({ score, name }: { score: number | null; name?: string | nul
     ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
     : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
   return (
-    <span className={`inline-block text-[11px] font-bold px-1.5 py-0.5 rounded-[4px] ${color}`}>
+    <span className={`inline-block text-[11px] font-bold px-1.5 py-0.5 rounded-lg ${color}`}>
       {name || score}
     </span>
   );
@@ -1075,22 +1075,22 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center gap-3 flex-wrap border border-border bg-card rounded-[2px] px-4 py-2.5">
+      <div className="flex items-center gap-3 flex-wrap border border-border bg-card rounded-md px-4 py-2.5">
         <Send className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
         <span className="text-sm font-semibold text-foreground">Leads Recebidos</span>
         {allStats.length > 0 && convRate > 0 && (
-          <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-[2px]">
+          <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
             {convRate}% para lead
           </span>
         )}
         {/* Date range pills */}
-        <div className="flex items-center gap-0.5 border border-border rounded-[2px] bg-muted p-0.5">
+        <div className="flex items-center gap-0.5 border border-border rounded-md bg-muted p-0.5">
           {(["all", "today", "7d", "30d", "90d"] as DateRange[]).map((r) => (
             <button
               key={r}
               onClick={() => handleDateRange(r)}
               className={cn(
-                "h-6 px-2 text-[11px] font-semibold rounded-[2px] transition-colors",
+                "h-6 px-2 text-[11px] font-semibold rounded-md transition-colors",
                 dateRange === r
                   ? "bg-card text-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -1108,13 +1108,13 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Buscar pessoa..."
-            className="pl-8 pr-3 h-[30px] w-44 border border-border rounded-[4px] bg-background text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
+            className="pl-8 pr-3 h-[30px] w-44 border border-border rounded-lg bg-background text-[13px] placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
           />
         </div>
         <select
           value={sourceFilter}
           onChange={(e) => handleSourceFilter(e.target.value as SourceFilter)}
-          className="rounded-[4px] border border-border bg-background px-3 py-1.5 text-[13px] focus:outline-none"
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] focus:outline-none"
         >
           <option value="all">Todas as fontes</option>
           <option value="site">🌐 Site</option>
@@ -1123,7 +1123,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
         <select
           value={selectedFormId}
           onChange={(e) => handleFormFilter(e.target.value)}
-          className="rounded-[4px] border border-border bg-background px-3 py-1.5 text-[13px] max-w-[220px] focus:outline-none"
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-[13px] max-w-[220px] focus:outline-none"
         >
           <option value="">Todos os formulários</option>
           {forms.map((f) => <option key={f.id} value={f.id}>🌐 {f.name}</option>)}
@@ -1132,7 +1132,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
         {metaForms.length > 0 && (
           <button
             onClick={openImportModal}
-            className="flex items-center gap-1.5 h-[30px] px-2.5 rounded-[4px] border border-[#1877F2]/30 text-xs text-[#1877F2] hover:bg-[#1877F2]/10 transition-colors font-medium"
+            className="flex items-center gap-1.5 h-[30px] px-2.5 rounded-lg border border-[#1877F2]/30 text-xs text-[#1877F2] hover:bg-[#1877F2]/10 transition-colors font-medium"
           >
             <Upload className="w-3.5 h-3.5" strokeWidth={1.5} />
             Importar Meta
@@ -1141,27 +1141,27 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
         {submissions.length > 0 && (
           <button
             onClick={() => exportCsv(submissions)}
-            className="flex items-center gap-1.5 h-[30px] px-2.5 rounded-[4px] border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 h-[30px] px-2.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
             CSV
           </button>
         )}
-        <button onClick={() => refetch()} className="p-1.5 rounded-[4px] border border-border text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={() => refetch()} className="p-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors">
           <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {pageError ? (
-        <div className="border border-destructive/30 bg-destructive/5 rounded-[2px] px-4 py-3 text-sm text-destructive">
+        <div className="border border-destructive/30 bg-destructive/5 rounded-md px-4 py-3 text-sm text-destructive">
           Erro ao carregar envios: {(pageError as Error).message}
         </div>
       ) : isLoading ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">Carregando...</div>
       ) : submissions.length === 0 ? (
-        <div className="border border-border bg-card rounded-[2px]">
+        <div className="border border-border bg-card rounded-md">
           <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-            <div className="w-10 h-10 rounded-[2px] bg-muted flex items-center justify-center mb-3">
+            <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center mb-3">
               <Send className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
             </div>
             <p className="text-sm font-medium text-foreground mb-1">Nenhum envio ainda</p>
@@ -1169,7 +1169,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
           </div>
         </div>
       ) : (
-        <div className="border border-border bg-card rounded-[2px] overflow-hidden">
+        <div className="border border-border bg-card rounded-md overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted">
@@ -1249,12 +1249,12 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                         {sub.lead_id ? (
                           <button
                             onClick={() => navigate(`/crm/list/${sub.lead_id}`)}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-[2px] hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-md hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                           >
                             <CheckCircle className="w-3 h-3" /> Abrir lead
                           </button>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-[2px]">
+                          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
                             <XCircle className="w-3 h-3" /> Não criado
                           </span>
                         )}
@@ -1323,7 +1323,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="h-[30px] px-2.5 rounded-[4px] border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="h-[30px] px-2.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   ← Anterior
                 </button>
@@ -1333,7 +1333,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page >= totalPages - 1}
-                  className="h-[30px] px-2.5 rounded-[4px] border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="h-[30px] px-2.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   Próximo →
                 </button>
@@ -1346,7 +1346,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
       {/* ── Import Meta Leads Modal ── */}
       {showImportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => !importing && setShowImportModal(false)}>
-          <div className="bg-card border border-border rounded-[2px] w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card border border-border rounded-md w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="px-5 py-4 border-b border-border">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Upload className="w-4 h-4 text-[#1877F2]" />
@@ -1364,7 +1364,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                 <select
                   value={importFormId}
                   onChange={(e) => setImportFormId(e.target.value)}
-                  className="w-full h-[30px] rounded-[4px] border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="w-full h-[30px] rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
                   disabled={importing}
                 >
                   <option value="">Selecione um formulario...</option>
@@ -1380,7 +1380,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                 <select
                   value={importPipelineId}
                   onChange={(e) => { setImportPipelineId(e.target.value); setImportStageId(""); }}
-                  className="w-full h-[30px] rounded-[4px] border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="w-full h-[30px] rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
                   disabled={importing}
                 >
                   <option value="">Usar pipeline do formulario</option>
@@ -1397,7 +1397,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                   <select
                     value={importStageId}
                     onChange={(e) => setImportStageId(e.target.value)}
-                    className="w-full h-[30px] rounded-[4px] border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
+                    className="w-full h-[30px] rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/30"
                     disabled={importing}
                   >
                     <option value="">Primeira etapa (padrao)</option>
@@ -1409,7 +1409,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
               )}
 
               {/* Send message toggle */}
-              <div className="flex items-center justify-between py-2 px-3 border border-border rounded-[2px] bg-muted">
+              <div className="flex items-center justify-between py-2 px-3 border border-border rounded-md bg-muted">
                 <div>
                   <p className="text-xs font-medium text-foreground">Enviar mensagem automatica</p>
                   <p className="text-[10px] text-muted-foreground">Dispara as acoes pos-envio configuradas no formulario</p>
@@ -1428,7 +1428,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
 
               {/* Import result */}
               {importResult && (
-                <div className="border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 rounded-[2px] px-4 py-3 space-y-1">
+                <div className="border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 rounded-md px-4 py-3 space-y-1">
                   <p className="text-xs font-semibold text-green-700 dark:text-green-300">Importacao concluida</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
@@ -1454,7 +1454,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                 size="sm"
                 onClick={() => setShowImportModal(false)}
                 disabled={importing}
-                className="h-[30px] text-xs rounded-[4px]"
+                className="h-[30px] text-xs rounded-lg"
               >
                 {importResult ? "Fechar" : "Cancelar"}
               </Button>
@@ -1463,7 +1463,7 @@ const DisparosTab = ({ forms, metaForms }: { forms: LpForm[]; metaForms: MetaLea
                   size="sm"
                   onClick={handleImport}
                   disabled={!importFormId || importing}
-                  className="h-[30px] text-xs rounded-[4px] gap-1.5"
+                  className="h-[30px] text-xs rounded-lg gap-1.5"
                 >
                   {importing ? (
                     <>

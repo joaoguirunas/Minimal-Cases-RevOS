@@ -93,7 +93,7 @@ const TimesConfigV3 = () => {
         </div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-muted animate-pulse rounded-[4px]" />
+            <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />
           ))}
         </div>
       </div>
@@ -120,7 +120,7 @@ const TimesConfigV3 = () => {
 
       {/* Empty state */}
       {sortedTimes.length === 0 ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <Users className="h-8 w-8 mx-auto text-muted-foreground/25 mb-3" strokeWidth={1} />
           <p className="text-[13px] font-medium text-foreground mb-1">Nenhuma equipe criada</p>
           <p className="text-[13px] text-muted-foreground/60 mb-4">Crie a primeira equipe para organizar os seus membros.</p>
@@ -143,7 +143,7 @@ const TimesConfigV3 = () => {
             return (
               <div
                 key={time.id}
-                className="border border-border bg-card rounded-[4px] p-4 hover:border-border transition-all cursor-pointer"
+                className="border border-border bg-card rounded-lg p-4 hover:border-border transition-all cursor-pointer"
                 onClick={() => setSelectedTime(time)}
               >
                 <div className="flex items-start justify-between mb-3">

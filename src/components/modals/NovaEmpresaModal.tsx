@@ -127,7 +127,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-[2px]">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
@@ -149,7 +149,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
                 value={formData.trade_name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, trade_name: e.target.value }))}
                 placeholder="Nome fantasia da empresa"
-                className="mt-2 rounded-[4px]"
+                className="mt-2 rounded-lg"
               />
             </div>
 
@@ -162,7 +162,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
                 value={formData.legal_name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, legal_name: e.target.value }))}
                 placeholder="Razão social"
-                className="mt-2 rounded-[4px]"
+                className="mt-2 rounded-lg"
               />
             </div>
           </div>
@@ -176,7 +176,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
               value={formData.tax_id}
               onChange={(e) => setFormData((prev) => ({ ...prev, tax_id: e.target.value }))}
               placeholder="00.000.000/0000-00"
-              className="mt-2 rounded-[4px]"
+              className="mt-2 rounded-lg"
             />
           </div>
 
@@ -191,7 +191,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 placeholder="contato@empresa.com"
-                className="mt-2 rounded-[4px]"
+                className="mt-2 rounded-lg"
               />
             </div>
 
@@ -204,7 +204,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
                 value={formData.phone}
                 onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                 placeholder="(11) 99999-9999"
-                className="mt-2 rounded-[4px]"
+                className="mt-2 rounded-lg"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
               value={formData.website}
               onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))}
               placeholder="https://www.empresa.com"
-              className="mt-2 rounded-[4px]"
+              className="mt-2 rounded-lg"
             />
           </div>
 
@@ -232,7 +232,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
               onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
               placeholder="Endereço completo"
               rows={2}
-              className="mt-2 rounded-[4px]"
+              className="mt-2 rounded-lg"
             />
           </div>
 
@@ -243,7 +243,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
               Pessoas Vinculadas
             </Label>
             <Select onValueChange={handleAddPerson} value="">
-              <SelectTrigger className="rounded-[4px]">
+              <SelectTrigger className="rounded-lg">
                 <SelectValue placeholder="Selecione pessoas para vincular..." />
               </SelectTrigger>
               <SelectContent>
@@ -276,7 +276,7 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
               Leads Vinculados
             </Label>
             <Select onValueChange={handleAddLead} value="">
-              <SelectTrigger className="rounded-[4px]">
+              <SelectTrigger className="rounded-lg">
                 <SelectValue placeholder="Selecione leads para vincular..." />
               </SelectTrigger>
               <SelectContent>
@@ -304,13 +304,13 @@ const NovaEmpresaModal = ({ open, onOpenChange, onSuccess }: NovaEmpresaModalPro
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={handleClose} className="rounded-[4px]">
+          <Button variant="outline" onClick={handleClose} className="rounded-lg">
             Cancelar
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={createCompany.isPending || !formData.trade_name.trim()}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
           >
             {createCompany.isPending ? "Criando..." : "Criar Empresa"}
           </Button>

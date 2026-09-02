@@ -45,8 +45,8 @@ const getProgress = (send: Send) => {
 // ─── Compact KPI card ─────────────────────────────────────────────────────────
 function KpiCard({ label, value, icon: Icon }: { label: string; value: number; icon: React.ElementType }) {
   return (
-    <Card className="flex items-center gap-4 px-5 py-4 border border-border bg-card rounded-[2px]">
-      <div className="w-9 h-9 rounded-[4px] bg-primary/10 flex items-center justify-center shrink-0">
+    <Card className="flex items-center gap-4 px-5 py-4 border border-border bg-card rounded-md">
+      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4 text-primary" />
       </div>
       <div>
@@ -134,7 +134,7 @@ export default function Disparos() {
   if (isLoading) return <StandardPageLoader message="Carregando disparos..." />;
   if (isError) return (
     <div className="max-w-7xl mx-auto p-6">
-      <Card className="p-10 text-center border border-destructive/30 bg-card rounded-[2px]">
+      <Card className="p-10 text-center border border-destructive/30 bg-card rounded-md">
         <p className="text-sm font-medium text-destructive mb-1">Erro ao carregar disparos</p>
         <p className="text-xs text-muted-foreground font-mono">{(error as Error)?.message}</p>
       </Card>
@@ -147,7 +147,7 @@ export default function Disparos() {
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-end">
-          <Button size="sm" className="h-[30px] rounded-[4px] text-xs gap-2" onClick={() => navigate('/send/novo')}>
+          <Button size="sm" className="h-[30px] rounded-lg text-xs gap-2" onClick={() => navigate('/send/novo')}>
             <Plus className="w-4 h-4" />
             Novo Disparo
           </Button>
@@ -164,7 +164,7 @@ export default function Disparos() {
         )}
 
         {/* ── Filters ────────────────────────────────────────────────────── */}
-        <Card className="p-3 border border-border bg-card rounded-[2px]">
+        <Card className="p-3 border border-border bg-card rounded-md">
           <div className="flex gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -194,9 +194,9 @@ export default function Disparos() {
 
         {/* ── Empty state ────────────────────────────────────────────────── */}
         {!sends?.length ? (
-          <Card className="p-14 text-center border border-border bg-card rounded-[2px]">
+          <Card className="p-14 text-center border border-border bg-card rounded-md">
             <div className="max-w-xs mx-auto">
-              <div className="w-12 h-12 bg-primary/10 rounded-[4px] flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <SendIcon className="w-5 h-5 text-primary" />
               </div>
               <h3 className="text-base font-semibold mb-1.5">Nenhum disparo encontrado</h3>
@@ -206,7 +206,7 @@ export default function Disparos() {
                   : 'Crie sua primeira campanha multicanal'}
               </p>
               {!search && statusFilter === 'all' && (
-                <Button size="sm" className="h-[30px] rounded-[4px] text-xs gap-2" onClick={() => navigate('/send/novo')}>
+                <Button size="sm" className="h-[30px] rounded-lg text-xs gap-2" onClick={() => navigate('/send/novo')}>
                   <Plus className="w-4 h-4" />
                   Criar Disparo
                 </Button>
@@ -214,7 +214,7 @@ export default function Disparos() {
             </div>
           </Card>
         ) : (
-          <Card className="border border-border bg-card rounded-[2px] overflow-hidden">
+          <Card className="border border-border bg-card rounded-md overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-border">
@@ -250,7 +250,7 @@ export default function Disparos() {
 
                       {/* Status */}
                       <TableCell>
-                        <Badge variant="outline" className={`rounded-[4px] text-xs font-medium ${statusInfo.color}`}>
+                        <Badge variant="outline" className={`rounded-lg text-xs font-medium ${statusInfo.color}`}>
                           {statusInfo.label}
                         </Badge>
                       </TableCell>
@@ -282,7 +282,7 @@ export default function Disparos() {
 
                       {/* Channel */}
                       <TableCell>
-                        <Badge variant="outline" className="capitalize text-xs rounded-[4px] font-medium">
+                        <Badge variant="outline" className="capitalize text-xs rounded-lg font-medium">
                           {send.channel || 'whatsapp'}
                         </Badge>
                       </TableCell>
@@ -306,7 +306,7 @@ export default function Disparos() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-[30px] rounded-[4px] px-2.5 gap-1.5 text-xs font-medium"
+                              className="h-[30px] rounded-lg px-2.5 gap-1.5 text-xs font-medium"
                               disabled={isUpdating}
                               onClick={() => handleAtivar(send)}
                             >
@@ -320,7 +320,7 @@ export default function Disparos() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-[30px] rounded-[4px] px-2.5 gap-1.5 text-xs font-medium"
+                                className="h-[30px] rounded-lg px-2.5 gap-1.5 text-xs font-medium"
                                 disabled={isUpdating}
                                 onClick={() => handlePausar(send)}
                               >
@@ -345,7 +345,7 @@ export default function Disparos() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-[30px] rounded-[4px] px-2.5 gap-1.5 text-xs font-medium"
+                                className="h-[30px] rounded-lg px-2.5 gap-1.5 text-xs font-medium"
                                 disabled={isUpdating}
                                 onClick={() => handleRetomar(send)}
                               >
@@ -369,7 +369,7 @@ export default function Disparos() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-[30px] rounded-[4px] px-2.5 gap-1.5 text-xs font-medium"
+                              className="h-[30px] rounded-lg px-2.5 gap-1.5 text-xs font-medium"
                               disabled={isUpdating}
                               onClick={() => updateSend(
                                 { id: send.id, data: { status: 'draft', completed_at: null } },

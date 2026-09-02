@@ -70,7 +70,7 @@ export function DisparoHeroSection({
               <h1 className="text-[32px] font-bold font-['Outfit'] tracking-[-0.025em] text-foreground">
                 {name}
               </h1>
-              <Badge className={`${statusInfo.color} border rounded-[2px] px-3 py-1 ${
+              <Badge className={`${statusInfo.color} border rounded-md px-3 py-1 ${
                 status === 'running' ? 'animate-pulse' : ''
               }`}>
                 {statusInfo.label}

@@ -131,11 +131,11 @@ const PessoaSidebar = ({ pessoa, tenantId }: PessoaSidebarProps) => {
       <Card className="p-4 mb-4">
         <h4 className="font-medium text-sm mb-3">Estatísticas</h4>
         <div className="grid grid-cols-2 gap-4 text-center">
-          <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-[2px]">
+          <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-md">
             <div className="text-lg font-semibold text-primary">{pessoa.total_mensagens}</div>
             <div className="text-xs text-primary/80">Mensagens</div>
           </div>
-          <div className="p-3 bg-green-500/10 dark:bg-green-500/20 rounded-[2px]">
+          <div className="p-3 bg-green-500/10 dark:bg-green-500/20 rounded-md">
             <div className="text-lg font-semibold text-green-600 dark:text-green-400">{pessoa.negocios.length}</div>
             <div className="text-xs text-green-600 dark:text-green-400">Negócios</div>
           </div>
@@ -162,7 +162,7 @@ const PessoaSidebar = ({ pessoa, tenantId }: PessoaSidebarProps) => {
 
         {/* Formulário Novo Negócio */}
         {showNovoNegocio && (
-          <div className="mb-4 p-3 bg-card rounded-[2px] space-y-3">
+          <div className="mb-4 p-3 bg-card rounded-md space-y-3">
             <Select value={pipelineId} onValueChange={(value) => {
               setPipelineId(value);
               setStageId(""); // Reset stage quando mudar pipeline
@@ -231,7 +231,7 @@ const PessoaSidebar = ({ pessoa, tenantId }: PessoaSidebarProps) => {
             pessoa.negocios.map((negocio) => (
               <div 
                 key={negocio.id} 
-                className="p-3 border rounded-[2px] bg-card hover:bg-accent/50 cursor-pointer transition-colors"
+                className="p-3 border rounded-md bg-card hover:bg-accent/50 cursor-pointer transition-colors"
                 onClick={() => handleNegocioClick(negocio.id)}
               >
                 <div className="flex items-center justify-between mb-2">

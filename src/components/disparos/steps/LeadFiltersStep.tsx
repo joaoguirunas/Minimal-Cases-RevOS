@@ -51,10 +51,10 @@ export default function LeadFiltersStep({
       </div>
       
       {/* Responsabilidade */}
-      <Card className="border border-border bg-card rounded-[2px]">
+      <Card className="border border-border bg-card rounded-md">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 rounded-[4px] bg-blue-500/10">
+            <div className="p-2 rounded-lg bg-blue-500/10">
               <UserCircle className="w-4 h-4 text-blue-600" />
             </div>
             <h4 className="font-['Outfit'] font-semibold">Responsabilidade</h4>
@@ -91,10 +91,10 @@ export default function LeadFiltersStep({
       </Card>
       
       {/* Status e Valor */}
-      <Card className="border border-border bg-card rounded-[2px]">
+      <Card className="border border-border bg-card rounded-md">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 rounded-[4px] bg-green-500/10">
+            <div className="p-2 rounded-lg bg-green-500/10">
               <DollarSign className="w-4 h-4 text-green-600" />
             </div>
             <h4 className="font-['Outfit'] font-semibold">Status e Valor</h4>
@@ -130,10 +130,10 @@ export default function LeadFiltersStep({
       </Card>
       
       {/* UTM e Rastreamento */}
-      <Card className="border border-border bg-card rounded-[2px]">
+      <Card className="border border-border bg-card rounded-md">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 rounded-[4px] bg-purple-500/10">
+            <div className="p-2 rounded-lg bg-purple-500/10">
               <Hash className="w-4 h-4 text-purple-600" />
             </div>
             <h4 className="font-['Outfit'] font-semibold">UTM e Rastreamento</h4>
@@ -184,10 +184,10 @@ export default function LeadFiltersStep({
       </Card>
       
       {/* Datas */}
-      <Card className="border border-border bg-card rounded-[2px]">
+      <Card className="border border-border bg-card rounded-md">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-2 rounded-[4px] bg-orange-500/10">
+            <div className="p-2 rounded-lg bg-orange-500/10">
               <Calendar className="w-4 h-4 text-orange-600" />
             </div>
             <h4 className="font-['Outfit'] font-semibold">Período</h4>

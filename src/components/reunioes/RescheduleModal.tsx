@@ -75,7 +75,7 @@ export const RescheduleModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md rounded-[4px]">
+      <DialogContent className="max-w-md rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-primary" />
@@ -94,7 +94,7 @@ export const RescheduleModal = ({
               value={selectedDate}
               min={getTodayStr()}
               onChange={e => { setSelectedDate(e.target.value); setSelectedSlot(null); }}
-              className="h-[30px] text-sm rounded-[4px]"
+              className="h-[30px] text-sm rounded-lg"
             />
           </div>
 
@@ -111,7 +111,7 @@ export const RescheduleModal = ({
               )}
 
               {!loadingSlots && availableSlots.length === 0 && (
-                <div className="flex items-center gap-2 p-3 rounded-[2px] bg-muted border border-border">
+                <div className="flex items-center gap-2 p-3 rounded-md bg-muted border border-border">
                   <AlertCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                   <p className="text-xs text-muted-foreground">
                     Nenhum horário disponível para esta data.
@@ -126,7 +126,7 @@ export const RescheduleModal = ({
                       key={i}
                       onClick={() => setSelectedSlot({ start: slot.start, end: slot.end })}
                       className={cn(
-                        'h-[30px] rounded-[4px] text-xs font-medium border transition-colors',
+                        'h-[30px] rounded-lg text-xs font-medium border transition-colors',
                         selectedSlot?.start === slot.start
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'bg-muted border-border text-foreground hover:bg-muted hover:border-border'
@@ -142,7 +142,7 @@ export const RescheduleModal = ({
 
           {/* Summary */}
           {selectedDate && selectedSlot && (
-            <div className="rounded-[2px] bg-primary/5 border border-primary/20 p-3">
+            <div className="rounded-md bg-primary/5 border border-primary/20 p-3">
               <p className="text-xs font-medium text-primary">
                 Novo agendamento: {new Date(selectedDate + 'T12:00:00').toLocaleDateString('pt-BR')} — {formatSlot(selectedSlot.start)} às {formatSlot(selectedSlot.end)}
               </p>
@@ -151,14 +151,14 @@ export const RescheduleModal = ({
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          <Button variant="ghost" size="sm" onClick={handleClose} className="h-[30px] px-3 text-xs rounded-[4px]">
+          <Button variant="ghost" size="sm" onClick={handleClose} className="h-[30px] px-3 text-xs rounded-lg">
             Cancelar
           </Button>
           <Button
             size="sm"
             onClick={handleConfirm}
             disabled={!selectedDate || !selectedSlot || updateMutation.isPending}
-            className="h-[30px] px-4 text-xs rounded-[4px]"
+            className="h-[30px] px-4 text-xs rounded-lg"
           >
             {updateMutation.isPending ? 'Confirmando...' : 'Confirmar re-agendamento'}
           </Button>

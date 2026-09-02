@@ -131,7 +131,7 @@ export const MobileNegociosToolbar = ({
             key={opt.value}
             onClick={() => onStatusChange(opt.value)}
             className={cn(
-              'flex-1 text-xs font-medium px-2 py-2 min-h-[44px] rounded-[4px] border transition-colors',
+              'flex-1 text-xs font-medium px-2 py-2 min-h-[44px] rounded-lg border transition-colors',
               status === opt.value
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'bg-card text-muted-foreground border-border hover:bg-muted/50',

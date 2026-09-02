@@ -18,7 +18,7 @@ export default function Step2EnableApi({ isFocused, onNext }: Step2EnableApiProp
       onCta={onNext}
       isFocused={isFocused}
     >
-      <div className="flex items-start gap-2.5 p-3 rounded-[4px] border border-amber-500/30 bg-amber-500/5">
+      <div className="flex items-start gap-2.5 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
         <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
         <div className="space-y-1">
           <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Após abrir o link:</p>

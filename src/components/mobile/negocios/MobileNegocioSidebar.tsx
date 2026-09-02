@@ -106,7 +106,7 @@ export const MobileNegocioSidebar = ({
             ) : (
               <button
                 onClick={() => startEdit('value', String(negocio.value || 0))}
-                className="w-full flex items-center justify-between p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm"
               >
                 <span className="font-medium">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(negocio.value || 0)}
@@ -162,7 +162,7 @@ export const MobileNegocioSidebar = ({
             <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <User className="h-3.5 w-3.5" /> Responsável
             </label>
-            <div className="p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm flex items-center">
+            <div className="p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm flex items-center">
               {typeof negocio.responsavel === 'string'
                 ? negocio.responsavel
                 : negocio.responsavel?.nome || negocio.responsavel?.name || 'Não atribuído'}
@@ -174,7 +174,7 @@ export const MobileNegocioSidebar = ({
             <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <Building2 className="h-3.5 w-3.5" /> Empresa
             </label>
-            <div className="p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm flex items-center">
+            <div className="p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm flex items-center">
               {negocio.empresa?.trade_name || negocio.empresa?.nome || 'Sem empresa'}
             </div>
           </div>
@@ -184,7 +184,7 @@ export const MobileNegocioSidebar = ({
             <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
               <User className="h-3.5 w-3.5" /> Contacto
             </label>
-            <div className="p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm space-y-1">
+            <div className="p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm space-y-1">
               <div className="font-medium">
                 {negocio.pessoa?.nome || negocio.pessoa?.name || 'Sem contacto'}
               </div>

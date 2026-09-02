@@ -74,7 +74,7 @@ const AgentesIAContent = () => {
           {activeTab === 'agentes' && (
             <div className="flex items-center gap-1.5 shrink-0">
               {/* Type filter */}
-              <div className="flex items-center rounded-[4px] border border-border overflow-hidden h-[30px]">
+              <div className="flex items-center rounded-lg border border-border overflow-hidden h-[30px]">
                 {([
                   { value: 'all', label: 'Todos' },
                   { value: 'text', label: 'Texto', icon: MessageCircle },
@@ -96,7 +96,7 @@ const AgentesIAContent = () => {
                   </Button>
                 ))}
               </div>
-              <Button onClick={() => setShowModal(true)} size="sm" className="gap-1.5 h-[30px] rounded-[4px] text-xs">
+              <Button onClick={() => setShowModal(true)} size="sm" className="gap-1.5 h-[30px] rounded-lg text-xs">
                 <Plus className="h-3.5 w-3.5" />
                 Novo Agente
               </Button>
@@ -110,8 +110,8 @@ const AgentesIAContent = () => {
             {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-4 px-4 py-3 border border-white/[0.06] rounded-[2px]">
-                    <Skeleton className="h-8 w-8 rounded-[2px] shrink-0" />
+                  <div key={i} className="flex items-center gap-4 px-4 py-3 border border-white/[0.06] rounded-md">
+                    <Skeleton className="h-8 w-8 rounded-md shrink-0" />
                     <div className="flex-1 space-y-1.5">
                       <Skeleton className="h-4 w-52" />
                       <Skeleton className="h-3 w-36" />
@@ -125,7 +125,7 @@ const AgentesIAContent = () => {
               <>
                 {/* Table */}
                 {sortedAgentes.length > 0 ? (
-                  <div className="border border-white/[0.06] rounded-[2px] overflow-hidden">
+                  <div className="border border-white/[0.06] rounded-md overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-card hover:bg-card border-border">
@@ -149,7 +149,7 @@ const AgentesIAContent = () => {
                             >
                               <TableCell className="pl-4 py-3">
                                 <div className="flex items-center gap-3">
-                                  <div className={`p-1.5 rounded-[2px] shrink-0 ${agente.agent_type === 'voice' ? 'bg-purple-500/10' : 'bg-primary/10'}`}>
+                                  <div className={`p-1.5 rounded-md shrink-0 ${agente.agent_type === 'voice' ? 'bg-purple-500/10' : 'bg-primary/10'}`}>
                                     {agente.agent_type === 'voice'
                                       ? <Mic className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                                       : <Bot className="h-4 w-4 text-primary" />
@@ -260,8 +260,8 @@ const AgentesIAContent = () => {
                     </Table>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-20 border border-white/[0.06] rounded-[2px] bg-card">
-                    <div className="w-12 h-12 bg-muted rounded-[2px] flex items-center justify-center mb-4">
+                  <div className="flex flex-col items-center justify-center py-20 border border-white/[0.06] rounded-md bg-card">
+                    <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center mb-4">
                       <Bot className="h-6 w-6 text-muted-foreground" />
                     </div>
                     <h3 className="text-[14px] font-semibold text-foreground mb-1">Nenhum agente criado</h3>

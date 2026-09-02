@@ -158,7 +158,7 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {step !== 'type' && (
-              <Button type="button" variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 mr-1 rounded-[4px]" onClick={handleBack}>
+              <Button type="button" variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 mr-1 rounded-lg" onClick={handleBack}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
@@ -173,9 +173,9 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
             <button
               type="button"
               onClick={() => setStep('choice')}
-              className="flex flex-col items-center gap-3 p-6 rounded-[4px] border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
+              className="flex flex-col items-center gap-3 p-6 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
             >
-              <div className="p-3 rounded-[4px] bg-blue-500/10 group-hover:bg-blue-500/15 transition-all duration-300">
+              <div className="p-3 rounded-lg bg-blue-500/10 group-hover:bg-blue-500/15 transition-all duration-300">
                 <MessageCircle className="h-6 w-6 text-blue-500" />
               </div>
               <div>
@@ -193,13 +193,13 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
               type="button"
               onClick={() => elAvailable && setStep('voice-form')}
               disabled={!elAvailable}
-              className={`flex flex-col items-center gap-3 p-6 rounded-[4px] border transition-all duration-300 text-center group relative ${
+              className={`flex flex-col items-center gap-3 p-6 rounded-lg border transition-all duration-300 text-center group relative ${
                 elAvailable
                   ? 'border-border bg-card hover:border-violet-500/40 hover:bg-violet-500/5'
                   : 'border-border bg-card opacity-60 cursor-not-allowed'
               }`}
             >
-              <div className={`p-3 rounded-[4px] transition-all duration-300 ${elAvailable ? 'bg-violet-500/10 group-hover:bg-violet-500/15' : 'bg-card'}`}>
+              <div className={`p-3 rounded-lg transition-all duration-300 ${elAvailable ? 'bg-violet-500/10 group-hover:bg-violet-500/15' : 'bg-card'}`}>
                 <Mic className={`h-6 w-6 ${elAvailable ? 'text-violet-500' : 'text-muted-foreground/50'}`} />
               </div>
               <div>
@@ -229,9 +229,9 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
             <button
               type="button"
               onClick={() => setStep('categories')}
-              className="flex flex-col items-center gap-3 p-6 rounded-[4px] border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
+              className="flex flex-col items-center gap-3 p-6 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
             >
-              <div className="p-3 rounded-[4px] bg-amber-500/10 group-hover:bg-amber-500/15 transition-all duration-300">
+              <div className="p-3 rounded-lg bg-amber-500/10 group-hover:bg-amber-500/15 transition-all duration-300">
                 <Sparkles className="h-6 w-6 text-amber-500" />
               </div>
               <div>
@@ -245,9 +245,9 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
             <button
               type="button"
               onClick={() => setStep('form')}
-              className="flex flex-col items-center gap-3 p-6 rounded-[4px] border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
+              className="flex flex-col items-center gap-3 p-6 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 text-center group"
             >
-              <div className="p-3 rounded-[4px] bg-primary/10 group-hover:bg-primary/15 transition-all duration-300">
+              <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-all duration-300">
                 <Plus className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -272,9 +272,9 @@ export const NovoAgenteModal = ({ open, onClose, onSuccess }: NovoAgenteModalPro
                   key={key}
                   type="button"
                   onClick={() => { setSelectedCategory(key); setStep('templates'); }}
-                  className="flex items-center gap-2.5 p-3 rounded-[4px] border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
+                  className="flex items-center gap-2.5 p-3 rounded-lg border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all text-left"
                 >
-                  <div className={`p-1.5 rounded-[4px] shrink-0 ${meta.bg}`}>
+                  <div className={`p-1.5 rounded-lg shrink-0 ${meta.bg}`}>
                     <Icon className={`h-4 w-4 ${meta.color}`} />
                   </div>
                   <div className="min-w-0">

@@ -108,7 +108,7 @@ export default function OmniDedupHealthConfig() {
         variant="outline"
         onClick={() => refetch()}
         disabled={isLoading}
-        className="h-8 text-sm rounded-[4px] gap-2"
+        className="h-8 text-sm rounded-lg gap-2"
       >
         <Search className="w-3.5 h-3.5" />
         Verificar duplicatas
@@ -121,7 +121,7 @@ export default function OmniDedupHealthConfig() {
       )}
 
       {!isLoading && duplicates.length === 0 && (
-        <div className="text-center py-12 border border-dashed border-border rounded-[4px]">
+        <div className="text-center py-12 border border-dashed border-border rounded-lg">
           <CheckCircle2 className="w-8 h-8 text-green-500/40 mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">Nenhuma duplicata encontrada.</p>
           <p className="text-xs text-muted-foreground/60 mt-1">
@@ -145,7 +145,7 @@ export default function OmniDedupHealthConfig() {
               return (
                 <div
                   key={pairKey}
-                  className="border border-border rounded-[4px] bg-card px-4 py-3 flex items-center gap-4"
+                  className="border border-border rounded-lg bg-card px-4 py-3 flex items-center gap-4"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 text-sm">
@@ -169,7 +169,7 @@ export default function OmniDedupHealthConfig() {
                       });
                     }}
                     disabled={mergeMutation.isPending && mergingPair === pairKey}
-                    className="h-7 text-xs rounded-[4px] gap-1.5 shrink-0"
+                    className="h-7 text-xs rounded-lg gap-1.5 shrink-0"
                   >
                     {mergeMutation.isPending && mergingPair === pairKey ? (
                       <Loader2 className="w-3 h-3 animate-spin" />

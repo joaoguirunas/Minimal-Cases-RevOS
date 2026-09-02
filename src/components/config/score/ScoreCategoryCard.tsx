@@ -104,7 +104,7 @@ export const ScoreCategoryCard = ({
                   value={nameValue}
                   onChange={(e) => setNameValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="h-[30px] text-[13px] rounded-[4px] max-w-xs"
+                  className="h-[30px] text-[13px] rounded-lg max-w-xs"
                 />
                 <Button
                   variant="ghost"

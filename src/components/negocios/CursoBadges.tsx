@@ -13,7 +13,7 @@ interface CursoBadgesProps {
 
 // Base chip shape shared by every product color — only the color classes vary.
 const CHIP_BASE =
-  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none';
+  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none';
 
 // Fixed palette, one entry per product (deterministic by product_id hash so the
 // same product always gets the same color across kanban/detail/config screens).

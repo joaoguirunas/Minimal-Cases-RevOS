@@ -76,7 +76,7 @@ function HighlightedText({
         regex.test(part) ? (
           <mark
             key={i}
-            className="bg-amber-400/30 text-foreground rounded-[2px] px-0.5"
+            className="bg-amber-400/30 text-foreground rounded-md px-0.5"
           >
             {part}
           </mark>
@@ -166,7 +166,7 @@ export function MeetingTranscriptViewer({
                 type="button"
                 onClick={() => toggleSpeaker(speaker)}
                 className={cn(
-                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] text-[11px] font-medium border transition-opacity',
+                  'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-opacity',
                   colour,
                   !active && activeSpeakers.size > 0 && 'opacity-40',
                 )}

@@ -52,7 +52,7 @@ export const DateRangePicker = ({
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal rounded-[4px] px-3 py-2",
+              "w-full justify-start text-left font-normal rounded-lg px-3 py-2",
               !dateRange.from && "text-muted-foreground"
             )}
           >

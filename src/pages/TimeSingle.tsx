@@ -83,8 +83,8 @@ const TimeSingle = () => {
           <div className="h-7 w-20 bg-muted animate-pulse rounded" />
           <div className="h-5 w-48 bg-muted animate-pulse rounded" />
         </div>
-        <div className="h-56 bg-muted animate-pulse rounded-[4px]" />
-        <div className="h-40 bg-muted animate-pulse rounded-[4px]" />
+        <div className="h-56 bg-muted animate-pulse rounded-lg" />
+        <div className="h-40 bg-muted animate-pulse rounded-lg" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ const TimeSingle = () => {
       </div>
 
       {/* Team info form */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-5 py-3.5 border-b border-border">
           <h2 className="text-[13px] font-medium text-foreground">Informações da Equipe</h2>
         </div>

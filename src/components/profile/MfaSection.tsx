@@ -13,7 +13,7 @@ export function MfaSection() {
 
   if (isLoadingFactors) {
     return (
-      <div className="border border-border rounded-[4px] bg-card">
+      <div className="border border-border rounded-lg bg-card">
         <div className="px-5 py-4">
           <p className="text-sm font-semibold text-foreground">Autenticação em dois fatores</p>
           <div className="h-4 w-32 bg-muted animate-pulse rounded mt-2" />
@@ -23,7 +23,7 @@ export function MfaSection() {
   }
 
   return (
-    <div className="border border-border rounded-[4px] bg-card divide-y divide-border">
+    <div className="border border-border rounded-lg bg-card divide-y divide-border">
       <div className="px-5 py-4">
         <p className="text-sm font-semibold text-foreground">Autenticação em dois fatores</p>
         <p className="text-xs text-muted-foreground mt-0.5">
@@ -37,7 +37,7 @@ export function MfaSection() {
           {isActive ? (
             <Badge
               variant="outline"
-              className="gap-1 text-emerald-600 border-emerald-500/30 bg-emerald-500/5 rounded-[3px] text-[11px]"
+              className="gap-1 text-emerald-600 border-emerald-500/30 bg-emerald-500/5 rounded-md text-[11px]"
             >
               <CheckCircle2 className="w-3 h-3" />
               Ativo — TOTP
@@ -45,7 +45,7 @@ export function MfaSection() {
           ) : (
             <Badge
               variant="outline"
-              className="gap-1 text-muted-foreground border-border rounded-[3px] text-[11px]"
+              className="gap-1 text-muted-foreground border-border rounded-md text-[11px]"
             >
               <AlertCircle className="w-3 h-3" />
               Não configurado
@@ -53,7 +53,7 @@ export function MfaSection() {
           )}
         </div>
         {!isActive && (
-          <Button size="sm" variant="outline" className="rounded-[4px] h-[30px] text-xs" asChild>
+          <Button size="sm" variant="outline" className="rounded-lg h-[30px] text-xs" asChild>
             <a href="/settings/mfa-setup">Ativar MFA</a>
           </Button>
         )}
@@ -66,7 +66,7 @@ export function MfaSection() {
               <p className="text-xs font-medium text-foreground">Códigos de recuperação</p>
               <p className="text-[11px] text-muted-foreground">Regenere se perdeu os originais.</p>
             </div>
-            <Button size="sm" variant="outline" className="rounded-[4px] h-[30px] text-xs shrink-0" asChild>
+            <Button size="sm" variant="outline" className="rounded-lg h-[30px] text-xs shrink-0" asChild>
               <a href="/settings/mfa-recovery-regenerate">Regenerar</a>
             </Button>
           </div>
@@ -82,7 +82,7 @@ export function MfaSection() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-[4px] h-[30px] text-xs"
+                    className="rounded-lg h-[30px] text-xs"
                     disabled
                     aria-disabled="true"
                   >

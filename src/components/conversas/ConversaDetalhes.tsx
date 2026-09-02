@@ -140,7 +140,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
       {/* Sidebar esquerda - lista de conversas (mantém a mesma estrutura da página principal) */}
       <div className="w-[220px] border-r bg-card">
         <div className="p-4 border-b">
-          <Button variant="ghost" size="sm" onClick={onVoltar} className="mb-2 h-[30px] rounded-[4px] text-xs">
+          <Button variant="ghost" size="sm" onClick={onVoltar} className="mb-2 h-[30px] rounded-lg text-xs">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
@@ -148,7 +148,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
         </div>
         
         <div className="p-4">
-          <div className="flex items-center gap-3 p-3 bg-primary/10 dark:bg-primary/20 rounded-[2px] border border-primary/20">
+          <div className="flex items-center gap-3 p-3 bg-primary/10 dark:bg-primary/20 rounded-md border border-primary/20">
             <Avatar className="w-10 h-10">
               <AvatarFallback className="bg-primary/20 dark:bg-primary/30 text-primary text-sm font-medium">
                 {getInitials(pessoaNome)}
@@ -179,7 +179,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-[4px]">
+              <Button variant="ghost" size="sm" className="h-[30px] w-[30px] p-0 rounded-lg">
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </div>
@@ -211,7 +211,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
               <p className="text-muted-foreground mb-4">
                 {error instanceof Error ? error.message : 'Falha de conexão ou permissão.'}
               </p>
-              <Button onClick={() => refetch()} variant="outline" size="sm" className="h-[30px] rounded-[4px] text-xs">
+              <Button onClick={() => refetch()} variant="outline" size="sm" className="h-[30px] rounded-lg text-xs">
                 Tentar novamente
               </Button>
             </div>
@@ -271,7 +271,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
             <Button
               onClick={() => setTemplateModalOpen(true)}
               variant="outline"
-              className="w-full h-[30px] rounded-[4px] text-xs"
+              className="w-full h-[30px] rounded-lg text-xs"
             >
               Enviar Template WhatsApp
             </Button>
@@ -293,7 +293,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
             <Button
               onClick={handleEnviarMensagem}
               disabled={!novaMensagem.trim() || !canSendData?.canSend || enviarMensagem.isPending}
-              className="h-[30px] w-[30px] p-0 rounded-[4px]"
+              className="h-[30px] w-[30px] p-0 rounded-lg"
             >
               {enviarMensagem.isPending ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -346,7 +346,7 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
                   <p className="text-sm">João Guirunas</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-2 h-[30px] rounded-[4px] text-xs">
+              <Button variant="outline" size="sm" className="w-full mt-2 h-[30px] rounded-lg text-xs">
                 <User className="w-4 h-4 mr-2" />
                 Atribuir Vendedor
               </Button>

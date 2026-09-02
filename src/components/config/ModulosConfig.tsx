@@ -66,7 +66,7 @@ const ModulosConfig = () => {
       </div>
 
       {/* Module list */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         {configurableModules.map((module, index) => {
           const Icon = module.icon ? iconMap[module.icon] : null;
           const isLast = index === configurableModules.length - 1;

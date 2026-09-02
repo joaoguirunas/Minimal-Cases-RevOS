@@ -80,7 +80,7 @@ export const IdentidadeSelector = ({
                 setShowEditor(false);
               }}
               className={cn(
-                'flex items-center gap-1.5 px-2 py-1.5 rounded-[4px] text-left text-xs border transition-all',
+                'flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left text-xs border transition-all',
                 isSelected
                   ? 'bg-primary/10 border-primary/50 text-primary font-medium'
                   : 'border-white/[0.06] text-muted-foreground hover:border-border hover:text-foreground hover:bg-card'
@@ -97,7 +97,7 @@ export const IdentidadeSelector = ({
       {/* Text preview (read mode) — fills remaining height */}
       {value && !showEditor && (
         <div className="relative group flex-1 min-h-0">
-          <div className="w-full h-full resize-none text-xs font-mono leading-relaxed bg-transparent border border-border rounded-[4px] px-3 py-2.5 text-foreground overflow-y-auto whitespace-pre-wrap">
+          <div className="w-full h-full resize-none text-xs font-mono leading-relaxed bg-transparent border border-border rounded-lg px-3 py-2.5 text-foreground overflow-y-auto whitespace-pre-wrap">
             {value}
           </div>
           <Button
@@ -121,7 +121,7 @@ export const IdentidadeSelector = ({
             autoFocus
             className={cn(
               'flex-1 w-full resize-none text-xs font-mono leading-relaxed',
-              'bg-transparent border border-border rounded-[4px] px-3 py-2.5',
+              'bg-transparent border border-border rounded-lg px-3 py-2.5',
               'text-foreground placeholder:text-muted-foreground/50',
               'focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20',
               'transition-all duration-300'

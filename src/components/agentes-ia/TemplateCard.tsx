@@ -76,9 +76,9 @@ export const TemplateCard = ({ template, onCloned }: TemplateCardProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-[4px] border border-border bg-card hover:border-border transition-all duration-300">
+    <div className="flex flex-col gap-3 p-4 rounded-lg border border-border bg-card hover:border-border transition-all duration-300">
       <div className="flex items-start gap-3">
-        <div className={`p-2 rounded-[4px] shrink-0 ${meta?.bg ?? 'bg-muted'}`}>
+        <div className={`p-2 rounded-lg shrink-0 ${meta?.bg ?? 'bg-muted'}`}>
           <Icon className={`h-5 w-5 ${meta?.color ?? 'text-muted-foreground'}`} />
         </div>
         <div className="min-w-0 flex-1">
@@ -87,7 +87,7 @@ export const TemplateCard = ({ template, onCloned }: TemplateCardProps) => {
               {template.nome}
             </span>
             {meta && (
-              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] ${meta.bg} ${meta.color}`}>
+              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${meta.bg} ${meta.color}`}>
                 {meta.badge}
               </span>
             )}
@@ -106,7 +106,7 @@ export const TemplateCard = ({ template, onCloned }: TemplateCardProps) => {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/70 bg-card px-1.5 py-0.5 rounded-[2px]"
+              className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/70 bg-card px-1.5 py-0.5 rounded-md"
             >
               {tag === template.llm_model ? (
                 <Cpu className="h-2.5 w-2.5" />

@@ -155,13 +155,13 @@ const PermissoesConfig = () => {
 
       {/* New role form */}
       {showNewForm && (
-        <div className="border border-border rounded-[4px] overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <NewRoleForm onClose={() => setShowNewForm(false)} />
         </div>
       )}
 
       {/* Permissions matrix */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <SectionHeader title="Matriz de Permissões" />
 
         {/* Column headers = roles */}

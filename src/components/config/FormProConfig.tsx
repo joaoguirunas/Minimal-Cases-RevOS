@@ -46,7 +46,7 @@ function FormMappingSummary({
         </div>
       ) : (
         <>
-          <div className="border border-border rounded-[4px] overflow-hidden">
+          <div className="border border-border rounded-lg overflow-hidden">
             <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2 px-3 py-1.5 bg-muted border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
               <span>Campo Meta</span>
               <span />
@@ -234,7 +234,7 @@ export default function FormProConfig() {
               <button
                 onClick={handleSync}
                 disabled={syncing}
-                className="flex items-center gap-1.5 h-[30px] px-3 rounded-[4px] border border-border text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-background disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 h-[30px] px-3 rounded-lg border border-border text-[12px] font-medium text-muted-foreground hover:text-foreground hover:bg-background disabled:opacity-50 transition-colors"
               >
                 <RefreshCw className={cn("w-3.5 h-3.5", syncing && "animate-spin")} strokeWidth={1.5} />
                 {syncing ? "Sincronizando..." : "Sincronizar formulários"}
@@ -312,7 +312,7 @@ export default function FormProConfig() {
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           )}
                         </div>
-                        <div className="w-8 h-8 rounded-[4px] bg-[#1877F2]/10 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#1877F2]/10 flex items-center justify-center shrink-0">
                           <FileText className="w-4 h-4 text-[#1877F2]" />
                         </div>
                         <div className="min-w-0">
@@ -355,7 +355,7 @@ export default function FormProConfig() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center justify-center h-[30px] w-[30px] rounded-[4px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                          className="inline-flex items-center justify-center h-[30px] w-[30px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                           title="Abrir no Meta"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />

@@ -403,7 +403,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                   }))
                 }
                 className={cn(
-                  'w-full text-left px-3 py-2.5 rounded-[4px] border transition-colors',
+                  'w-full text-left px-3 py-2.5 rounded-lg border transition-colors',
                   isSelected
                     ? 'border-primary bg-primary/5'
                     : 'border-border bg-card hover:bg-muted',
@@ -475,7 +475,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                 }))
               }
               className={cn(
-                'p-4 rounded-[4px] border text-left transition-colors',
+                'p-4 rounded-lg border text-left transition-colors',
                 state.assignmentMode === key
                   ? 'border-primary bg-primary/5'
                   : 'border-border bg-card hover:bg-muted',
@@ -514,7 +514,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                       }))
                     }
                     className={cn(
-                      'w-full text-left px-3 py-2.5 rounded-[4px] border flex items-center gap-3 transition-colors',
+                      'w-full text-left px-3 py-2.5 rounded-lg border flex items-center gap-3 transition-colors',
                       isSelected
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:bg-muted',
@@ -539,7 +539,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
 
         {/* Auto: confirmation chip */}
         {state.assignmentMode === 'auto' && (
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-[4px] border border-primary/30 bg-primary/5 text-xs text-primary">
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-primary/30 bg-primary/5 text-xs text-primary">
             <Shuffle className="w-3.5 h-3.5 shrink-0" />
             <span>O consultor será atribuído automaticamente na confirmação</span>
           </div>
@@ -593,7 +593,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                     }))
                   }
                   className={cn(
-                    'px-3 py-1.5 text-xs rounded-[4px] border font-medium transition-colors',
+                    'px-3 py-1.5 text-xs rounded-lg border font-medium transition-colors',
                     state.selectedDuration === opt.value
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-card border-border hover:bg-muted text-foreground',
@@ -623,7 +623,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                 : 'Selecionar data'}
             </Button>
             {calendarOpen && (
-              <div className="absolute top-full left-0 z-50 mt-1 rounded-[4px] border bg-popover shadow-md">
+              <div className="absolute top-full left-0 z-50 mt-1 rounded-lg border bg-popover shadow-md">
                 <Calendar
                   mode="single"
                   selected={state.selectedDate}
@@ -646,7 +646,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                 <p className="text-sm text-muted-foreground">Carregando horários disponíveis...</p>
               </div>
             ) : slotsForSelectedDate.length === 0 ? (
-              <div className="space-y-2 p-3 bg-muted rounded-[4px] border border-border">
+              <div className="space-y-2 p-3 bg-muted rounded-lg border border-border">
                 {!isUserType && (
                   <p className="text-xs text-muted-foreground text-center">Sem horários na agenda — insira manualmente:</p>
                 )}
@@ -655,7 +655,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                     <Label className="text-[10px] text-muted-foreground">{isUserType ? 'Horário de início' : 'Início'}</Label>
                     <input
                       type="time"
-                      className="w-full h-8 text-xs border border-border rounded-[4px] bg-background px-2 mt-0.5"
+                      className="w-full h-8 text-xs border border-border rounded-lg bg-background px-2 mt-0.5"
                       onChange={(e) => {
                         const start = e.target.value;
                         if (!start) return;
@@ -673,7 +673,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                     <Label className="text-[10px] text-muted-foreground">{isUserType ? 'Horário de fim' : 'Fim'}</Label>
                     <input
                       type="time"
-                      className="w-full h-8 text-xs border border-border rounded-[4px] bg-background px-2 mt-0.5"
+                      className="w-full h-8 text-xs border border-border rounded-lg bg-background px-2 mt-0.5"
                       onChange={(e) => {
                         const end = e.target.value;
                         if (!end) return;
@@ -707,7 +707,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
                             setState((prev) => ({ ...prev, selectedTimeSlot: slot }))
                           }
                           className={cn(
-                            'py-2 text-xs rounded-[4px] border font-medium text-center transition-colors',
+                            'py-2 text-xs rounded-lg border font-medium text-center transition-colors',
                             state.selectedTimeSlot?.start === slot.start
                               ? 'bg-primary text-primary-foreground border-primary'
                               : 'bg-card border-border hover:bg-muted text-foreground',
@@ -725,7 +725,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
         )}
 
         {!state.selectedDate && (
-          <div className="text-center py-8 bg-muted rounded-[4px] border border-border border-dashed">
+          <div className="text-center py-8 bg-muted rounded-lg border border-border border-dashed">
             <CalendarIcon className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">
               Selecione uma data para ver os horários disponíveis
@@ -740,10 +740,10 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
             value={state.meetingType}
             onValueChange={(v) => setState((prev) => ({ ...prev, meetingType: v as MeetingType }))}
           >
-            <SelectTrigger className="h-8 text-xs rounded-[4px]">
+            <SelectTrigger className="h-8 text-xs rounded-lg">
               <SelectValue placeholder="Selecionar tipo..." />
             </SelectTrigger>
-            <SelectContent className="rounded-[4px]">
+            <SelectContent className="rounded-lg">
               {MEETING_TYPE_OPTIONS.map(opt => (
                 <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
               ))}
@@ -752,7 +752,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
         </div>
 
         {/* Optional details (collapsible) */}
-        <div className="rounded-[4px] border border-border overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           <button
             type="button"
             onClick={() => setShowDetails((v) => !v)}
@@ -811,7 +811,7 @@ const NovaReuniaoWizardModal = ({ open, onOpenChange, initialLead }: Props) => {
 
         {/* Compact context bar */}
         {(state.selectedLead || state.selectedConsultor) && (
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground bg-muted border border-border rounded-[4px] px-3 py-2 mt-1">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground bg-muted border border-border rounded-lg px-3 py-2 mt-1">
             {state.selectedLead && (
               <span>
                 <strong className="text-foreground font-medium">Cliente:</strong>{' '}

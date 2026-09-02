@@ -179,7 +179,7 @@ const Clientes = () => {
         <div className="flex items-center gap-2 px-4 py-2">
 
           {/* View toggle: Kanban | Lista | Pessoas */}
-          <div className="flex border border-border rounded-[2px] overflow-hidden h-[30px] flex-shrink-0">
+          <div className="flex border border-border rounded-md overflow-hidden h-[30px] flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
@@ -240,7 +240,7 @@ const Clientes = () => {
               variant={showArquivados ? "default" : "outline"}
               size="sm"
               onClick={() => { setShowArquivados(!showArquivados); setCurrentPagePessoas(1); }}
-              className="h-[30px] px-3 text-xs gap-1.5 border-border flex-shrink-0 rounded-[4px]"
+              className="h-[30px] px-3 text-xs gap-1.5 border-border flex-shrink-0 rounded-lg"
             >
               <Archive className="w-3.5 h-3.5" strokeWidth={1.5} />
               {showArquivados ? "Ver ativos" : "Arquivados"}
@@ -249,7 +249,7 @@ const Clientes = () => {
 
           {/* Filter chips — Status */}
           {activeTab === "pessoas" && (
-            <div className="flex items-center gap-1 border border-border rounded-[2px] overflow-hidden h-[30px] flex-shrink-0">
+            <div className="flex items-center gap-1 border border-border rounded-md overflow-hidden h-[30px] flex-shrink-0">
               {([
                 { label: "Todos", value: undefined },
                 { label: "Ativo", value: "active" },
@@ -276,7 +276,7 @@ const Clientes = () => {
 
           {/* Filter chips — Negócios */}
           {activeTab === "pessoas" && (
-            <div className="flex items-center gap-1 border border-border rounded-[2px] overflow-hidden h-[30px] flex-shrink-0">
+            <div className="flex items-center gap-1 border border-border rounded-md overflow-hidden h-[30px] flex-shrink-0">
               {([
                 { label: "Todos", value: undefined },
                 { label: "Com negócio", value: true },
@@ -307,7 +307,7 @@ const Clientes = () => {
             size="sm"
             onClick={() => activeTab === "pessoas" ? refetchPessoas() : refetchEmpresas()}
             disabled={activeTab === "pessoas" ? isLoadingPessoas : isLoadingEmpresas}
-            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-[4px]"
+            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-lg"
             title="Atualizar"
           >
             <RefreshCw className={cn("w-3.5 h-3.5", (activeTab === "pessoas" ? isLoadingPessoas : isLoadingEmpresas) && "animate-spin")} strokeWidth={1.5} />
@@ -320,7 +320,7 @@ const Clientes = () => {
             <Button
               size="sm"
               onClick={() => setModalNovaPessoa(true)}
-              className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-[4px]"
+              className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-lg"
             >
               <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
               Nova Pessoa
@@ -330,7 +330,7 @@ const Clientes = () => {
             <Button
               size="sm"
               onClick={() => setModalNovaEmpresa(true)}
-              className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-[4px]"
+              className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-lg"
             >
               <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
               Nova Empresa
@@ -356,7 +356,7 @@ const Clientes = () => {
               {tab.label}
               {tab.count > 0 && (
                 <span className={cn(
-                  "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] leading-none",
+                  "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md leading-none",
                   activeTab === tab.value
                     ? "bg-primary/10 text-primary"
                     : "bg-muted text-muted-foreground"
@@ -391,7 +391,7 @@ const Clientes = () => {
                   {showArquivados ? "Pessoas arquivadas aparecerão aqui." : "Comece adicionando sua primeira pessoa."}
                 </p>
                 {!showArquivados && canCreateClient && (
-                  <Button size="sm" onClick={() => setModalNovaPessoa(true)} className="h-[30px] px-3 text-xs gap-1.5 mt-1 rounded-[4px]">
+                  <Button size="sm" onClick={() => setModalNovaPessoa(true)} className="h-[30px] px-3 text-xs gap-1.5 mt-1 rounded-lg">
                     <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
                     Nova Pessoa
                   </Button>
@@ -462,7 +462,7 @@ const Clientes = () => {
                           </TableCell>
                           <TableCell className="py-2.5">
                             <span className={cn(
-                              "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                              "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none",
                               pessoa.status === "active"
                                 ? "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400"
                                 : "bg-muted text-muted-foreground border-border"
@@ -477,7 +477,7 @@ const Clientes = () => {
                             {(() => {
                               const n = leadCounts[pessoa.id] ?? 0;
                               return n > 0 ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border border-white/[0.06] bg-muted text-muted-foreground leading-none">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-white/[0.06] bg-muted text-muted-foreground leading-none">
                                   <Briefcase className="w-2.5 h-2.5" strokeWidth={1.5} />
                                   {n} {n === 1 ? "negócio" : "negócios"}
                                 </span>
@@ -489,7 +489,7 @@ const Clientes = () => {
                           <TableCell className="py-2.5">
                             {score != null ? (
                               <span className={cn(
-                                "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-[2px] border leading-none",
+                                "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-md border leading-none",
                                 score >= 8
                                   ? "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400"
                                   : score >= 5
@@ -580,7 +580,7 @@ const Clientes = () => {
                 <p className="text-[13px] font-medium text-foreground">Nenhuma empresa cadastrada</p>
                 <p className="text-[12px] text-muted-foreground/60">Comece adicionando sua primeira empresa.</p>
                 {canCreateClient && (
-                  <Button size="sm" onClick={() => setModalNovaEmpresa(true)} className="h-[30px] px-3 text-xs gap-1.5 mt-1 rounded-[4px]">
+                  <Button size="sm" onClick={() => setModalNovaEmpresa(true)} className="h-[30px] px-3 text-xs gap-1.5 mt-1 rounded-lg">
                     <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
                     Nova Empresa
                   </Button>
@@ -626,7 +626,7 @@ const Clientes = () => {
                           </TableCell>
                           <TableCell className="py-2.5">
                             {leadsCount > 0 ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border border-white/[0.06] bg-muted text-muted-foreground leading-none">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-white/[0.06] bg-muted text-muted-foreground leading-none">
                                 <Target className="w-2.5 h-2.5" strokeWidth={1.5} />
                                 {leadsCount} {leadsCount === 1 ? "negócio" : "negócios"}
                               </span>

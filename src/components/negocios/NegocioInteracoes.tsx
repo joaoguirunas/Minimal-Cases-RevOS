@@ -43,7 +43,7 @@ const NegocioInteracoes = ({ negocioId, tenantId }: NegocioInteracoesProps) => {
   };
 
   return (
-    <Card className="p-6 rounded-[2px]">
+    <Card className="p-6 rounded-md">
       <h3 className="font-semibold mb-4">Histórico de Interações</h3>
       
       {interacoes.length === 0 ? (
@@ -56,7 +56,7 @@ const NegocioInteracoes = ({ negocioId, tenantId }: NegocioInteracoesProps) => {
           {interacoes.map((interacao) => (
             <div
               key={interacao.id}
-              className="flex gap-4 p-4 border border-border rounded-[2px] hover:bg-white/[0.035] transition-all duration-300"
+              className="flex gap-4 p-4 border border-border rounded-md hover:bg-white/[0.035] transition-all duration-300"
             >
               <div className="flex-shrink-0 mt-1">
                 {getIcon(interacao.tipo)}

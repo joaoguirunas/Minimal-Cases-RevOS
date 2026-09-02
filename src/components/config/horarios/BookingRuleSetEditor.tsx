@@ -215,7 +215,7 @@ const BookingRuleSetEditor = ({ open, onClose, existing }: Props) => {
                   URL de exemplo
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-[10px] bg-muted px-2 py-1.5 rounded-[4px] truncate text-muted-foreground">
+                  <code className="flex-1 text-[10px] bg-muted px-2 py-1.5 rounded-lg truncate text-muted-foreground">
                     {exampleUrl}
                   </code>
                   <Button variant="outline" size="icon" className="w-7 h-7 shrink-0" onClick={copyUrl}>

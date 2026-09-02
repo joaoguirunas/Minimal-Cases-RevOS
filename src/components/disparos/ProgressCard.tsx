@@ -28,7 +28,7 @@ export function ProgressCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <h3 className="text-[18px] font-['Outfit'] font-semibold mb-6 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           Progresso do Disparo
@@ -58,19 +58,19 @@ export function ProgressCard({
 
           {/* Status Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="flex flex-col items-center justify-center p-4 rounded-[2px] bg-[#00D26A]/10 border border-[#00D26A]/20">
+            <div className="flex flex-col items-center justify-center p-4 rounded-md bg-[#00D26A]/10 border border-[#00D26A]/20">
               <CheckCircle2 className="w-5 h-5 text-[#00D26A] mb-2" />
               <span className="text-2xl font-bold text-[#00D26A]">{sentCount}</span>
               <span className="text-xs text-[#00D26A]">Enviados</span>
             </div>
 
-            <div className="flex flex-col items-center justify-center p-4 rounded-[2px] bg-[#EF4444]/10 border border-[#EF4444]/20">
+            <div className="flex flex-col items-center justify-center p-4 rounded-md bg-[#EF4444]/10 border border-[#EF4444]/20">
               <XCircle className="w-5 h-5 text-[#EF4444] mb-2" />
               <span className="text-2xl font-bold text-[#EF4444]">{failedCount}</span>
               <span className="text-xs text-[#EF4444]">Falhas</span>
             </div>
 
-            <div className="flex flex-col items-center justify-center p-4 rounded-[2px] bg-[#3B82F6]/10 border border-[#3B82F6]/20">
+            <div className="flex flex-col items-center justify-center p-4 rounded-md bg-[#3B82F6]/10 border border-[#3B82F6]/20">
               <Clock className="w-5 h-5 text-[#3B82F6] mb-2" />
               <span className="text-2xl font-bold text-[#3B82F6]">{pendingCount}</span>
               <span className="text-xs text-[#3B82F6]">Pendentes</span>
@@ -78,9 +78,9 @@ export function ProgressCard({
           </div>
 
           {/* Success Rate */}
-          <div className="flex items-center justify-between p-4 rounded-[2px] bg-card border border-border">
+          <div className="flex items-center justify-between p-4 rounded-md bg-card border border-border">
             <span className="text-sm font-medium text-muted-foreground">Taxa de Sucesso</span>
-            <Badge className={`text-base font-bold px-3 py-1 rounded-[2px] ${
+            <Badge className={`text-base font-bold px-3 py-1 rounded-md ${
               successRate >= 90
                 ? 'bg-[#00D26A]/10 text-[#00D26A] border-[#00D26A]/20'
                 : successRate >= 70

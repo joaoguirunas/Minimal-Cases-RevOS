@@ -35,7 +35,7 @@ export default function TablesTab() {
                   <TableCell className="text-[11px] text-white/60 font-medium">{name}</TableCell>
                   <TableCell className="text-[10px] text-white/35">{role}</TableCell>
                   <TableCell>
-                    <span className="px-2 py-0.5 rounded-[2px] text-[9px] font-mono" style={{ backgroundColor: `${statusColor}10`, color: statusColor, border: `1px solid ${statusColor}20` }}>
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-mono" style={{ backgroundColor: `${statusColor}10`, color: statusColor, border: `1px solid ${statusColor}20` }}>
                       {status}
                     </span>
                   </TableCell>
@@ -53,7 +53,7 @@ export default function TablesTab() {
         <GlowCard glow="#3B82F6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[10px] font-mono text-white/30 uppercase tracking-[0.08em]">Performance Metrics</h3>
-            <Button variant="outline" size="sm" className="h-[26px] rounded-[2px] text-[9px] gap-1">
+            <Button variant="outline" size="sm" className="h-[26px] rounded-md text-[9px] gap-1">
               <Download className="w-3 h-3" /> Export
             </Button>
           </div>
@@ -90,7 +90,7 @@ export default function TablesTab() {
           <div className="flex items-center gap-3 mb-4">
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
-              <Input placeholder="Search metrics..." className="h-[30px] pl-8 rounded-[2px] text-[10px] bg-white/[0.02] border-white/[0.06]" />
+              <Input placeholder="Search metrics..." className="h-[30px] pl-8 rounded-md text-[10px] bg-white/[0.02] border-white/[0.06]" />
             </div>
           </div>
           <Table>
@@ -144,15 +144,15 @@ export default function TablesTab() {
             </TableBody>
           </Table>
           <div className="flex items-center justify-center gap-1 mt-4">
-            <button className="w-7 h-7 rounded-[2px] border border-white/[0.06] flex items-center justify-center text-white/25 hover:text-white/50">
+            <button className="w-7 h-7 rounded-md border border-white/[0.06] flex items-center justify-center text-white/25 hover:text-white/50">
               <ChevronLeft className="w-3 h-3" />
             </button>
             {[1, 2, 3].map((p) => (
-              <button key={p} className={`w-7 h-7 rounded-[2px] text-[10px] font-mono flex items-center justify-center ${p === 1 ? 'bg-[#FF4400] text-white' : 'border border-white/[0.06] text-white/30'}`}>
+              <button key={p} className={`w-7 h-7 rounded-md text-[10px] font-mono flex items-center justify-center ${p === 1 ? 'bg-[#FF4400] text-white' : 'border border-white/[0.06] text-white/30'}`}>
                 {p}
               </button>
             ))}
-            <button className="w-7 h-7 rounded-[2px] border border-white/[0.06] flex items-center justify-center text-white/25 hover:text-white/50">
+            <button className="w-7 h-7 rounded-md border border-white/[0.06] flex items-center justify-center text-white/25 hover:text-white/50">
               <ChevronRight className="w-3 h-3" />
             </button>
           </div>

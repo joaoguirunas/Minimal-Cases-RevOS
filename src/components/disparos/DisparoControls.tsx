@@ -98,7 +98,7 @@ export default function DisparoControls({ send }: DisparoControlsProps) {
 
   return (
     <>
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -115,35 +115,35 @@ export default function DisparoControls({ send }: DisparoControlsProps) {
 
           <div className="flex flex-wrap gap-2">
             {canStart && (
-              <Button onClick={handleStart} disabled={isProcessing} className="h-[30px] rounded-[4px] text-xs gap-2">
+              <Button onClick={handleStart} disabled={isProcessing} className="h-[30px] rounded-lg text-xs gap-2">
                 <Play className="w-4 h-4" />
                 Iniciar Disparo
               </Button>
             )}
 
             {canResume && (
-              <Button onClick={handleStart} disabled={isProcessing} className="h-[30px] rounded-[4px] text-xs gap-2">
+              <Button onClick={handleStart} disabled={isProcessing} className="h-[30px] rounded-lg text-xs gap-2">
                 <Play className="w-4 h-4" />
                 Retomar Disparo
               </Button>
             )}
 
             {canPause && (
-              <Button onClick={handleStop} disabled={isProcessing} variant="outline" className="h-[30px] rounded-[4px] text-xs gap-2">
+              <Button onClick={handleStop} disabled={isProcessing} variant="outline" className="h-[30px] rounded-lg text-xs gap-2">
                 <Square className="w-4 h-4" />
                 Pausar
               </Button>
             )}
 
             {canStop && (
-              <Button onClick={handleComplete} disabled={isProcessing} variant="destructive" className="h-[30px] rounded-[4px] text-xs gap-2">
+              <Button onClick={handleComplete} disabled={isProcessing} variant="destructive" className="h-[30px] rounded-lg text-xs gap-2">
                 <Square className="w-4 h-4" />
                 Parar Disparo
               </Button>
             )}
 
             {canReopen && (
-              <Button onClick={handleReopen} disabled={isProcessing} variant="outline" className="h-[30px] rounded-[4px] text-xs gap-2">
+              <Button onClick={handleReopen} disabled={isProcessing} variant="outline" className="h-[30px] rounded-lg text-xs gap-2">
                 <RotateCcw className="w-4 h-4" />
                 Reabrir
               </Button>
@@ -154,7 +154,7 @@ export default function DisparoControls({ send }: DisparoControlsProps) {
                 onClick={() => setShowResetModal(true)}
                 disabled={isProcessing}
                 variant="outline"
-                className="h-[30px] rounded-[4px] text-xs gap-2 ml-auto text-[#F59E0B] border-[#F59E0B]/20 hover:bg-[#F59E0B]/10"
+                className="h-[30px] rounded-lg text-xs gap-2 ml-auto text-[#F59E0B] border-[#F59E0B]/20 hover:bg-[#F59E0B]/10"
               >
                 <Trash2 className="w-4 h-4" />
                 Resetar Estatísticas

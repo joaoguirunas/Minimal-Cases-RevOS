@@ -61,12 +61,12 @@ export const CannedResponsesModal = ({ open, onClose }: Props) => {
             <p className="text-[13px] text-muted-foreground/60 text-center py-6">Nenhuma resposta cadastrada ainda.</p>
           )}
           {responses.map(r => (
-            <div key={r.id} className="group flex items-start gap-2 rounded-[2px] border border-border bg-card px-3 py-2.5 hover:bg-accent/50 transition-colors">
+            <div key={r.id} className="group flex items-start gap-2 rounded-md border border-border bg-card px-3 py-2.5 hover:bg-accent/50 transition-colors">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-[13px] font-medium truncate">{r.title}</span>
                   {r.shortcut && (
-                    <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] bg-card text-muted-foreground border border-border">
+                    <span className="shrink-0 text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-card text-muted-foreground border border-border">
                       /{r.shortcut}
                     </span>
                   )}

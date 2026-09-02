@@ -78,7 +78,7 @@ function ConfiguracoesShellContent({ sectionId }: { sectionId: string }) {
                       key={s.id}
                       onClick={() => navigate(canonicalPath, { replace: true })}
                       className={cn(
-                        'w-full flex items-center gap-2.5 rounded-[2px] text-[12px] tracking-[0.01em] transition-all duration-150 h-8 px-3',
+                        'w-full flex items-center gap-2.5 rounded-md text-[12px] tracking-[0.01em] transition-all duration-150 h-8 px-3',
                         isActive
                           ? 'bg-primary/10 text-primary font-medium'
                           : 'font-normal text-muted-foreground/70 hover:text-foreground hover:bg-primary/[0.06]'
@@ -87,7 +87,7 @@ function ConfiguracoesShellContent({ sectionId }: { sectionId: string }) {
                       <s.icon className="w-[15px] h-[15px] flex-shrink-0" strokeWidth={1.5} />
                       <span className="flex-1 text-left truncate">{s.title}</span>
                       {s.badge && (
-                        <span className="text-[9px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded-[2px] leading-none">
+                        <span className="text-[9px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded-md leading-none">
                           {s.badge}
                         </span>
                       )}

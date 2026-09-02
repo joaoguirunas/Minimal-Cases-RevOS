@@ -62,7 +62,7 @@ function FollowupCard({ fup, leadId, templateMap, isSending, onSend }: FollowupC
   const hasPreview = !!previewText;
 
   return (
-    <div className="border border-border rounded-[4px] bg-card overflow-hidden">
+    <div className="border border-border rounded-lg bg-card overflow-hidden">
       {/* Header row */}
       <div className="flex items-center justify-between gap-2 px-2.5 pt-2.5 pb-1.5">
         <span className="text-[12px] font-medium text-foreground truncate">
@@ -90,7 +90,7 @@ function FollowupCard({ fup, leadId, templateMap, isSending, onSend }: FollowupC
       {/* Template name badge */}
       {template && (
         <div className="px-2.5 pb-1">
-          <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-[2px] bg-violet-500/10 text-violet-600 dark:text-violet-400 font-mono truncate max-w-full">
+          <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 font-mono truncate max-w-full">
             {template.nome || template.meta_template_name || 'template'}
           </span>
         </div>
@@ -98,7 +98,7 @@ function FollowupCard({ fup, leadId, templateMap, isSending, onSend }: FollowupC
 
       {/* Preview expandido */}
       {hasPreview && expanded && (
-        <div className="mx-2.5 mb-2 rounded-[3px] bg-muted/60 border border-border p-2">
+        <div className="mx-2.5 mb-2 rounded-md bg-muted/60 border border-border p-2">
           <p className="text-[11px] text-foreground/80 whitespace-pre-wrap leading-relaxed">
             {previewText}
           </p>

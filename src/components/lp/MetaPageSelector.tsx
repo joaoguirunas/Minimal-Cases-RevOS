@@ -66,7 +66,7 @@ export function MetaPageSelector({ userAccessToken, onConnected }: MetaPageSelec
 
   if (!fetched) {
     return (
-      <div className="border border-border rounded-[2px] p-6 bg-card">
+      <div className="border border-border rounded-md p-6 bg-card">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 flex items-center justify-center">
             <Link2 className="w-5 h-5 text-[#1877F2]" />
@@ -97,7 +97,7 @@ export function MetaPageSelector({ userAccessToken, onConnected }: MetaPageSelec
 
   if (pages.length === 0) {
     return (
-      <div className="border border-border rounded-[2px] p-6 bg-card text-center">
+      <div className="border border-border rounded-md p-6 bg-card text-center">
         <p className="text-sm text-muted-foreground">
           Nenhuma Facebook Page encontrada. Verifique se você é administrador de pelo menos uma Page.
         </p>
@@ -110,10 +110,10 @@ export function MetaPageSelector({ userAccessToken, onConnected }: MetaPageSelec
   }
 
   return (
-    <div className="border border-border rounded-[2px] bg-card overflow-hidden">
+    <div className="border border-border rounded-md bg-card overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
         <p className="text-xs font-medium text-foreground">Suas Facebook Pages</p>
-        <Button size="sm" variant="ghost" onClick={fetchPages} disabled={loading} className="h-[30px] px-2 text-xs gap-1 rounded-[4px]">
+        <Button size="sm" variant="ghost" onClick={fetchPages} disabled={loading} className="h-[30px] px-2 text-xs gap-1 rounded-lg">
           <RefreshCw className={cn("w-3 h-3", loading && "animate-spin")} />
           Atualizar
         </Button>
@@ -142,7 +142,7 @@ export function MetaPageSelector({ userAccessToken, onConnected }: MetaPageSelec
               </div>
             </div>
             {page.subscribed ? (
-              <span className="text-[10px] font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-[2px]">
+              <span className="text-[10px] font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-md">
                 Conectada
               </span>
             ) : (
@@ -151,7 +151,7 @@ export function MetaPageSelector({ userAccessToken, onConnected }: MetaPageSelec
                 variant="outline"
                 onClick={() => subscribePage(page.page_id)}
                 disabled={subscribing === page.page_id}
-                className="h-[30px] px-3 text-xs gap-1 rounded-[4px]"
+                className="h-[30px] px-3 text-xs gap-1 rounded-lg"
               >
                 {subscribing === page.page_id ? (
                   <Loader2 className="w-3 h-3 animate-spin" />

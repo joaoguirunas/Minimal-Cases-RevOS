@@ -58,7 +58,7 @@ function ExportSection() {
     new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <SectionHeader title="EXPORT DE DADOS" />
       <div className="px-5 py-4 border-b border-border">
         <p className="text-[12px] text-muted-foreground/70 leading-relaxed mb-3">
@@ -162,7 +162,7 @@ function AnonymizeSection() {
   };
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <SectionHeader title="DIREITO AO ESQUECIMENTO" />
       <div className="px-5 py-4 space-y-4">
         <p className="text-[12px] text-muted-foreground/70 leading-relaxed">
@@ -195,7 +195,7 @@ function AnonymizeSection() {
         )}
 
         {foundPerson && (
-          <div className="border border-border rounded-[4px] px-4 py-3 space-y-2 bg-muted/30">
+          <div className="border border-border rounded-lg px-4 py-3 space-y-2 bg-muted/30">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[13px] font-medium text-foreground">{foundPerson.name}</p>

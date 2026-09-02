@@ -10,7 +10,7 @@ export default function ImportProgressCard({ sessionId }: ImportProgressCardProp
 
   if (isError) {
     return (
-      <div className="flex items-center gap-2 px-4 py-3 rounded-[4px] bg-destructive/10 border border-destructive/20 text-[13px] text-destructive">
+      <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-[13px] text-destructive">
         <AlertCircle className="w-4 h-4 shrink-0" strokeWidth={1.5} />
         Erro ao consultar progresso da importação.
       </div>
@@ -25,7 +25,7 @@ export default function ImportProgressCard({ sessionId }: ImportProgressCardProp
   const pct       = total > 0 ? Math.round((processed / total) * 100) : 0;
 
   return (
-    <div className="rounded-[4px] border border-border p-5 space-y-4">
+    <div className="rounded-lg border border-border p-5 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Loader2 className="w-4 h-4 text-primary animate-spin" strokeWidth={1.5} />

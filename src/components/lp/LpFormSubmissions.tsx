@@ -69,7 +69,7 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
   if (submissions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-48 gap-3 text-center">
-        <div className="w-12 h-12 rounded-[2px] bg-muted flex items-center justify-center">
+        <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
           <Inbox className="w-5 h-5 text-muted-foreground" />
         </div>
         <div>
@@ -92,7 +92,7 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
       </div>
 
       {/* Table */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         {/* Header row */}
         <div className="grid grid-cols-[1fr_1.2fr_1fr_auto] gap-2 px-4 py-2 bg-muted border-b border-border text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>Nome / Dados</span>
@@ -116,7 +116,7 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
                   <span className="text-xs text-muted-foreground">
                     {formatDate(sub.submitted_at)}
                     {sub.utm_source && (
-                      <span className="ml-1.5 px-1.5 py-0.5 bg-muted rounded-[2px] text-[10px]">{sub.utm_source}</span>
+                      <span className="ml-1.5 px-1.5 py-0.5 bg-muted rounded-md text-[10px]">{sub.utm_source}</span>
                     )}
                   </span>
                   <div className="flex items-center gap-1 w-16">
@@ -156,11 +156,11 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
                       <div className="mt-3 pt-2 border-t border-border">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">UTMs</p>
                         <div className="flex flex-wrap gap-1.5">
-                          {sub.utm_source && <span className="px-2 py-0.5 rounded-[2px] bg-muted text-[10px]">source: {sub.utm_source}</span>}
-                          {sub.utm_medium && <span className="px-2 py-0.5 rounded-[2px] bg-muted text-[10px]">medium: {sub.utm_medium}</span>}
-                          {sub.utm_campaign && <span className="px-2 py-0.5 rounded-[2px] bg-muted text-[10px]">campaign: {sub.utm_campaign}</span>}
-                          {sub.utm_content && <span className="px-2 py-0.5 rounded-[2px] bg-muted text-[10px]">content: {sub.utm_content}</span>}
-                          {sub.utm_term && <span className="px-2 py-0.5 rounded-[2px] bg-muted text-[10px]">term: {sub.utm_term}</span>}
+                          {sub.utm_source && <span className="px-2 py-0.5 rounded-md bg-muted text-[10px]">source: {sub.utm_source}</span>}
+                          {sub.utm_medium && <span className="px-2 py-0.5 rounded-md bg-muted text-[10px]">medium: {sub.utm_medium}</span>}
+                          {sub.utm_campaign && <span className="px-2 py-0.5 rounded-md bg-muted text-[10px]">campaign: {sub.utm_campaign}</span>}
+                          {sub.utm_content && <span className="px-2 py-0.5 rounded-md bg-muted text-[10px]">content: {sub.utm_content}</span>}
+                          {sub.utm_term && <span className="px-2 py-0.5 rounded-md bg-muted text-[10px]">term: {sub.utm_term}</span>}
                         </div>
                       </div>
                     )}
@@ -179,7 +179,7 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
             variant="outline" size="sm"
             disabled={page === 0}
             onClick={() => setPage((p) => p - 1)}
-            className="h-[30px] text-xs rounded-[4px]"
+            className="h-[30px] text-xs rounded-lg"
           >
             Anterior
           </Button>
@@ -190,7 +190,7 @@ export function LpFormSubmissions({ formId }: LpFormSubmissionsProps) {
             variant="outline" size="sm"
             disabled={page >= pageCount - 1}
             onClick={() => setPage((p) => p + 1)}
-            className="h-[30px] text-xs rounded-[4px]"
+            className="h-[30px] text-xs rounded-lg"
           >
             Próxima
           </Button>

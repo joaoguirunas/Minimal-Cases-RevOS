@@ -57,7 +57,7 @@ export function SearchableSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            'h-8 justify-between text-sm font-normal rounded-[4px] border-border',
+            'h-8 justify-between text-sm font-normal rounded-lg border-border',
             !value && 'text-muted-foreground',
             className
           )}

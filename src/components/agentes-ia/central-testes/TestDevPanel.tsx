@@ -187,7 +187,7 @@ const ExecutionItem = ({ exec }: { exec: TestExecutionLog }) => {
 
       <AccordionContent className="px-3 pb-3 pt-0 space-y-3">
         {exec.execution_status === 'error' && exec.error_message && (
-          <div className="rounded-[4px] border border-rose-500/20 bg-rose-500/5 px-2.5 py-2">
+          <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-2.5 py-2">
             <p className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 mb-0.5">Erro</p>
             <p className="text-[11px] text-rose-600/80 dark:text-rose-400/80 font-mono break-all">{exec.error_message}</p>
           </div>
@@ -202,7 +202,7 @@ const ExecutionItem = ({ exec }: { exec: TestExecutionLog }) => {
             </p>
             <CopyButton text={exec.prompt_rendered} />
           </div>
-          <pre className="text-[11px] font-mono whitespace-pre-wrap break-words bg-muted/40 border border-border rounded-[4px] p-2.5 max-h-[280px] overflow-y-auto scrollbar-thin-modal text-foreground/80">
+          <pre className="text-[11px] font-mono whitespace-pre-wrap break-words bg-muted/40 border border-border rounded-lg p-2.5 max-h-[280px] overflow-y-auto scrollbar-thin-modal text-foreground/80">
             {exec.prompt_rendered || '(vazio)'}
           </pre>
         </div>
@@ -216,7 +216,7 @@ const ExecutionItem = ({ exec }: { exec: TestExecutionLog }) => {
             </p>
             <div className="space-y-1.5">
               {exec.tool_call_details.map((t, i) => (
-                <div key={i} className="rounded-[4px] border border-border bg-muted/20 p-2 space-y-1">
+                <div key={i} className="rounded-lg border border-border bg-muted/20 p-2 space-y-1">
                   <p className="text-[11px] font-mono font-semibold text-primary">{t.name}</p>
                   <div>
                     <p className="text-[9px] uppercase tracking-wide text-muted-foreground/50 mb-0.5">Args</p>
@@ -243,7 +243,7 @@ const ExecutionItem = ({ exec }: { exec: TestExecutionLog }) => {
               <MessageSquareText className="w-3 h-3 text-muted-foreground/60" />
               Resposta final
             </p>
-            <p className="text-[11px] whitespace-pre-wrap bg-muted/20 border border-border rounded-[4px] p-2.5 text-foreground/80">
+            <p className="text-[11px] whitespace-pre-wrap bg-muted/20 border border-border rounded-lg p-2.5 text-foreground/80">
               {exec.response_text}
             </p>
           </div>

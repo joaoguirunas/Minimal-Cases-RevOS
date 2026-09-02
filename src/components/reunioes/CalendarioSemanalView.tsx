@@ -136,12 +136,12 @@ const CalendarioSemanalView = ({
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={goToToday}
-          className="h-[30px] px-3 text-xs border border-border rounded-[4px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-medium"
+          className="h-[30px] px-3 text-xs border border-border rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-medium"
         >
           Hoje
         </button>
         <div className="w-px h-4 bg-border mx-0.5" />
-        <button onClick={previousWeek} className="w-7 h-7 flex items-center justify-center rounded-[4px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+        <button onClick={previousWeek} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-4 h-4" />
         </button>
         <span className="text-sm font-semibold text-foreground capitalize w-52 text-center">
@@ -149,14 +149,14 @@ const CalendarioSemanalView = ({
           {" – "}
           {format(weekEnd, "dd MMM yyyy", { locale: ptBR })}
         </span>
-        <button onClick={nextWeek} className="w-7 h-7 flex items-center justify-center rounded-[4px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+        <button onClick={nextWeek} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
 
       {/* Grid */}
       <div className="flex-1 overflow-auto min-h-0">
-        <div className="overflow-hidden min-w-[640px] rounded-[2px] border border-border bg-card">
+        <div className="overflow-hidden min-w-[640px] rounded-md border border-border bg-card">
 
           {/* Column headers */}
           <div className="grid grid-cols-8 border-b border-border">
@@ -200,7 +200,7 @@ const CalendarioSemanalView = ({
                         key={evt.id}
                         title={evt.title}
                         onClick={() => evt.html_link && window.open(evt.html_link, "_blank")}
-                        className="flex items-center gap-1 px-1 py-px rounded-[2px] bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
+                        className="flex items-center gap-1 px-1 py-px rounded-md bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
                       >
                         <div className="w-0.5 h-3 rounded-full shrink-0 bg-violet-400" />
                         <div className="text-[9px] text-white/55 leading-3 truncate">{evt.title}</div>
@@ -257,7 +257,7 @@ const CalendarioSemanalView = ({
                           key={agendamento.id}
                           onClick={() => onAgendamentoClick(agendamento)}
                           className={cn(
-                            "flex items-center gap-1 px-1 py-px rounded-[2px] cursor-pointer transition-colors overflow-hidden",
+                            "flex items-center gap-1 px-1 py-px rounded-md cursor-pointer transition-colors overflow-hidden",
                             statusBg(agendamento.status)
                           )}
                         >
@@ -292,7 +292,7 @@ const CalendarioSemanalView = ({
                           key={evt.id}
                           title={`${evt.title}${owner ? ` (${owner.nome})` : ""}`}
                           onClick={() => evt.html_link && window.open(evt.html_link, "_blank")}
-                          className="flex items-center gap-1 px-1 py-px rounded-[2px] bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
+                          className="flex items-center gap-1 px-1 py-px rounded-md bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
                         >
                           <div className="w-0.5 h-3 rounded-full shrink-0 bg-violet-400" />
                           <div className="min-w-0 flex-1">

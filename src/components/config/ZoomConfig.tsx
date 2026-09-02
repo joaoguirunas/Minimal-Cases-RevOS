@@ -58,7 +58,7 @@ export default function ZoomConfig() {
   const CopyBtn = ({ text, k }: { text: string; k: string }) => (
     <button
       onClick={() => handleCopy(text, k)}
-      className="shrink-0 p-1.5 rounded-[3px] hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+      className="shrink-0 p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
       title="Copiar"
     >
       {copied === k ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -97,22 +97,22 @@ export default function ZoomConfig() {
           </p>
         </div>
         {isFullyConfigured ? (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-emerald-600 border-emerald-500/40 bg-emerald-500/5">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-emerald-600 border-emerald-500/40 bg-emerald-500/5">
             <CheckCircle2 className="w-3 h-3" /> Configurado
           </Badge>
         ) : isClientIdSaved ? (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-amber-600 border-amber-500/40 bg-amber-500/5">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-amber-600 border-amber-500/40 bg-amber-500/5">
             <AlertCircle className="w-3 h-3" /> Secret pendente
           </Badge>
         ) : (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-muted-foreground border-border bg-muted">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-muted-foreground border-border bg-muted">
             <AlertCircle className="w-3 h-3" /> Não configurado
           </Badge>
         )}
       </div>
 
       {/* Steps */}
-      <div className="border border-border rounded-[4px] bg-card divide-y divide-border">
+      <div className="border border-border rounded-lg bg-card divide-y divide-border">
 
         {/* Step 1 — Create app */}
         <div className="p-4 flex gap-3">
@@ -126,7 +126,7 @@ export default function ZoomConfig() {
               <li>Em <strong>OAuth Information</strong>, adicione a Redirect URI abaixo</li>
             </ol>
             <div className="flex items-center gap-2">
-              <code className="text-[11px] bg-muted px-2 py-1 rounded-[3px] text-muted-foreground flex-1 truncate">
+              <code className="text-[11px] bg-muted px-2 py-1 rounded-md text-muted-foreground flex-1 truncate">
                 {redirectUri}
               </code>
               <CopyBtn text={redirectUri} k="uri" />
@@ -161,7 +161,7 @@ export default function ZoomConfig() {
           <StepNum n={3} />
           <div className="flex-1 space-y-2">
             <p className="text-sm font-medium text-foreground">Como funciona a integração</p>
-            <div className="flex items-start gap-2 p-2 rounded-[4px] bg-blue-500/5 border border-blue-500/20">
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/20">
               <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
               <p className="text-xs text-blue-700 dark:text-blue-400">
                 Cada consultor conecta a sua própria conta Zoom (OAuth User-Level). Ao criar uma reunião com Zoom como provider, o link é gerado automaticamente e salvo no campo "Link da Reunião".
@@ -194,7 +194,7 @@ export default function ZoomConfig() {
                 />
                 <Button
                   size="sm"
-                  className="h-[30px] px-3 rounded-[4px] shrink-0"
+                  className="h-[30px] px-3 rounded-lg shrink-0"
                   onClick={handleSaveAccountId}
                   disabled={isLoading || saveSettings.isPending || !accountId.trim() || !isAccountIdDirty}
                 >
@@ -230,7 +230,7 @@ export default function ZoomConfig() {
                 />
                 <Button
                   size="sm"
-                  className="h-[30px] px-3 rounded-[4px] shrink-0"
+                  className="h-[30px] px-3 rounded-lg shrink-0"
                   onClick={handleSaveClientId}
                   disabled={isLoading || saveSettings.isPending || !clientId.trim() || !isClientIdDirty}
                 >
@@ -277,7 +277,7 @@ export default function ZoomConfig() {
                 </div>
                 <Button
                   size="sm"
-                  className="h-[30px] px-3 rounded-[4px] shrink-0"
+                  className="h-[30px] px-3 rounded-lg shrink-0"
                   onClick={handleSaveSecret}
                   disabled={isLoading || saveSettings.isPending || !isSecretDirty}
                 >
@@ -293,7 +293,7 @@ export default function ZoomConfig() {
 
       {/* Status banner */}
       {isFullyConfigured && !isClientIdDirty && !isSecretDirty ? (
-        <div className="flex items-center gap-3 p-3 rounded-[4px] border border-emerald-500/25 bg-emerald-500/5">
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Zoom configurado</p>
@@ -306,7 +306,7 @@ export default function ZoomConfig() {
           </a>
         </div>
       ) : isClientIdSaved && !isSecretSaved ? (
-        <div className="flex items-center gap-3 p-3 rounded-[4px] border border-amber-500/25 bg-amber-500/5">
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-amber-500/25 bg-amber-500/5">
           <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
           <p className="text-sm text-amber-700 dark:text-amber-400">
             Client ID salvo. Preencha o <strong>Client Secret</strong> (Passo 6) para concluir.

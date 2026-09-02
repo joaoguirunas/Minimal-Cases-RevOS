@@ -257,7 +257,7 @@ export default function CriarDisparo() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/send')}
-                className="h-[30px] rounded-[4px] text-xs text-muted-foreground hover:text-foreground"
+                className="h-[30px] rounded-lg text-xs text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="w-4 h-4 mr-1.5" />
                 Disparos
@@ -277,7 +277,7 @@ export default function CriarDisparo() {
               onClick={handleCreate}
               disabled={isCreating || isImporting}
               size="sm"
-              className="h-[30px] rounded-[4px] text-xs gap-2 shrink-0"
+              className="h-[30px] rounded-lg text-xs gap-2 shrink-0"
             >
               <Send className="w-3.5 h-3.5" />
               {isImporting ? 'Importando...' : isCreating ? 'Criando...' : 'Criar Campanha'}
@@ -293,7 +293,7 @@ export default function CriarDisparo() {
         <div className="flex-1 min-w-0 space-y-4">
 
           {/* ── Canal ── */}
-          <Card className="p-5 border border-border bg-card rounded-[2px]">
+          <Card className="p-5 border border-border bg-card rounded-md">
             <p className="text-sm font-semibold text-foreground mb-4">Canal de envio</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {SEND_CHANNELS.map(ch => {
@@ -309,7 +309,7 @@ export default function CriarDisparo() {
                       setMessageContent('');
                     }}
                     className={cn(
-                      'relative flex flex-col items-start gap-2 p-4 rounded-[4px] border text-left transition-all duration-150 cursor-pointer',
+                      'relative flex flex-col items-start gap-2 p-4 rounded-lg border text-left transition-all duration-150 cursor-pointer',
                       selected
                         ? 'border-primary bg-primary/5'
                         : 'border-border bg-card hover:border-primary/40 hover:bg-white/[0.035]'
@@ -321,7 +321,7 @@ export default function CriarDisparo() {
                       </span>
                     )}
                     <div className={cn(
-                      'w-8 h-8 rounded-[4px] flex items-center justify-center transition-colors',
+                      'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
                       selected ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
                     )}>
                       <Icon className="w-4 h-4" />
@@ -344,13 +344,13 @@ export default function CriarDisparo() {
           </Card>
 
           {/* ── Mode toggle ── */}
-          <Card className="p-4 border border-border bg-card rounded-[2px]">
+          <Card className="p-4 border border-border bg-card rounded-md">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setImportMode('filtered')}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-[4px] border text-sm font-medium transition-all cursor-pointer',
+                  'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer',
                   importMode === 'filtered'
                     ? 'border-primary bg-primary/5 text-foreground'
                     : 'border-border bg-background text-muted-foreground hover:border-primary/40',
@@ -363,7 +363,7 @@ export default function CriarDisparo() {
                 type="button"
                 onClick={() => setImportMode('imported')}
                 className={cn(
-                  'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-[4px] border text-sm font-medium transition-all cursor-pointer',
+                  'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-sm font-medium transition-all cursor-pointer',
                   importMode === 'imported'
                     ? 'border-primary bg-primary/5 text-foreground'
                     : 'border-border bg-background text-muted-foreground hover:border-primary/40',
@@ -376,7 +376,7 @@ export default function CriarDisparo() {
           </Card>
 
           {/* ── Filtros / Import ── */}
-          <Card className="p-5 border border-border bg-card rounded-[2px]">
+          <Card className="p-5 border border-border bg-card rounded-md">
             <p className="text-sm font-semibold text-foreground mb-4">Selecionar contatos</p>
             {importMode === 'filtered'
               ? <FiltroContatosVisual filters={filters} onFilterChange={handleFilterChange} />
@@ -409,7 +409,7 @@ export default function CriarDisparo() {
           />
 
           {/* ── Configuração ── */}
-          <Card className="border border-border bg-card rounded-[2px] overflow-hidden">
+          <Card className="border border-border bg-card rounded-md overflow-hidden">
 
             {/* WhatsApp channel selector — hidden for user type (default auto-selected) */}
             {channel === 'whatsapp' && !isUser && (
@@ -437,7 +437,7 @@ export default function CriarDisparo() {
                         type="button"
                         onClick={() => setWaChannelId(ch.id)}
                         className={cn(
-                          'flex items-center gap-2.5 px-3 py-2 rounded-[4px] border text-left text-xs transition-all cursor-pointer',
+                          'flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left text-xs transition-all cursor-pointer',
                           waChannelId === ch.id
                             ? 'border-primary bg-primary/5 text-foreground'
                             : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-white/[0.035]'
@@ -503,7 +503,7 @@ export default function CriarDisparo() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-[30px] rounded-[4px] px-2 text-xs text-muted-foreground"
+                        className="h-[30px] rounded-lg px-2 text-xs text-muted-foreground"
                         onClick={() => setShowTemplateModal(true)}
                       >
                         <Eye className="w-3 h-3 mr-1" />

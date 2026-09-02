@@ -17,7 +17,7 @@ export default function FoundationsTab() {
         <SectionHeader num="01" title="Design Foundations" subtitle="Index of all foundation tokens and primitives — João Guirunas Design System v1.0" />
 
         {/* Banner */}
-        <div className="mb-12 p-4 rounded-[2px] border border-[#FF4400]/20 bg-[#FF4400]/[0.03]">
+        <div className="mb-12 p-4 rounded-md border border-[#FF4400]/20 bg-[#FF4400]/[0.03]">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono text-[#FF4400]/60 tracking-[0.15em] uppercase">REVOS Design Foundations v1.0 // Dark Cockpit Edition</span>
             <div className="flex items-center gap-4">
@@ -34,7 +34,7 @@ export default function FoundationsTab() {
             <GlowCard key={num} glow={color} className="group cursor-pointer">
               <div className="flex items-start justify-between mb-6">
                 <span className="text-[32px] font-['Outfit'] font-black text-white/[0.06]">{num}</span>
-                <div className="w-10 h-10 rounded-[2px] flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
+                <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
                   <Icon className="w-5 h-5" style={{ color }} strokeWidth={1.5} />
                 </div>
               </div>
@@ -55,7 +55,7 @@ export default function FoundationsTab() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             { title: 'Dark Cockpit', desc: 'Dark-first design. #0a0a0a canvas, white/opacity text hierarchy, glowing accents.', color: '#FF4400' },
-            { title: 'Brutalist Corners', desc: 'rounded-[2px] everywhere. Sharp, intentional, engineered.', color: '#3B82F6' },
+            { title: 'Brutalist Corners', desc: 'rounded-md everywhere. Sharp, intentional, engineered.', color: '#3B82F6' },
             { title: 'Mono Labels', desc: 'font-mono, 10px, uppercase, tracking-[0.08em+]. Technical, precise.', color: '#00D26A' },
             { title: 'Token-Driven', desc: 'Zero hardcoded values. All styling from CSS custom properties.', color: '#6C16F8' },
           ].map(({ title, desc, color }) => (
@@ -86,7 +86,7 @@ export default function FoundationsTab() {
                 <p className="text-[10px] text-white/30 mb-4">{desc}</p>
                 <div className="space-y-1.5">
                   {examples.map((ex) => (
-                    <div key={ex} className="px-2.5 py-1 rounded-[2px] bg-white/[0.03] border border-white/[0.04]">
+                    <div key={ex} className="px-2.5 py-1 rounded-md bg-white/[0.03] border border-white/[0.04]">
                       <code className="text-[9px] font-mono" style={{ color: `${color}90` }}>{ex}</code>
                     </div>
                   ))}

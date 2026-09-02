@@ -254,7 +254,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
     const error = errors[field.id];
     const val = values[field.id] ?? "";
     const baseInput = cn(
-      "w-full border rounded-[4px] px-3 py-2 text-sm transition-colors bg-background",
+      "w-full border rounded-lg px-3 py-2 text-sm transition-colors bg-background",
       error ? "border-red-500 focus:ring-red-500" : "border-border focus:ring-primary",
       isTypeform ? "text-base py-3" : "text-sm",
     );
@@ -280,7 +280,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
                 <button key={opt.id} type="button"
                   onClick={() => setValue(field.id, opt.id)}
                   className={cn(
-                    "border rounded-[4px] px-3 py-2.5 text-sm text-left transition-all",
+                    "border rounded-lg px-3 py-2.5 text-sm text-left transition-all",
                     val === opt.id
                       ? "border-primary bg-primary/10 text-foreground font-medium"
                       : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:bg-muted/50",
@@ -328,7 +328,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
           <div className="space-y-1.5">
             {(field.options ?? []).map((o, i) => (
               <label key={i} className={cn(
-                "flex items-center gap-2.5 border rounded-[4px] px-3 py-2 cursor-pointer transition-all",
+                "flex items-center gap-2.5 border rounded-lg px-3 py-2 cursor-pointer transition-all",
                 val === o.value
                   ? "border-primary bg-primary/5 text-foreground"
                   : "border-border text-muted-foreground hover:border-primary/40",
@@ -432,7 +432,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
             </p>
           )}
         </div>
-        <p className="text-xs text-muted-foreground bg-muted rounded-[4px] px-3 py-1.5 border border-border">
+        <p className="text-xs text-muted-foreground bg-muted rounded-lg px-3 py-1.5 border border-border">
           Simulação — nenhum dado foi enviado
         </p>
         <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5 mt-2">
@@ -449,7 +449,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
       <div className="space-y-4">
         {visibleFields.map((f) => renderField(f))}
         <button type="button" onClick={handleSubmit}
-          className="w-full py-2.5 rounded-[4px] text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors">
+          className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors">
           {settings.submit_text || "Enviar"}
         </button>
       </div>
@@ -583,17 +583,17 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
           Teste interativo
         </div>
 
-        <div className="flex items-center rounded-[4px] bg-muted p-0.5 gap-0.5 ml-2">
+        <div className="flex items-center rounded-lg bg-muted p-0.5 gap-0.5 ml-2">
           <button onClick={() => setViewMode("desktop")}
             className={cn(
-              "flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-[3px] transition-colors",
+              "flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md transition-colors",
               viewMode === "desktop" ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground",
             )}>
             <Monitor className="w-3 h-3" /> Desktop
           </button>
           <button onClick={() => setViewMode("mobile")}
             className={cn(
-              "flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-[3px] transition-colors",
+              "flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md transition-colors",
               viewMode === "mobile" ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground",
             )}>
             <Smartphone className="w-3 h-3" /> Mobile
@@ -601,10 +601,10 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-1.5 h-[30px] text-xs rounded-[4px]">
+          <Button variant="outline" size="sm" onClick={handleAutoFill} className="gap-1.5 h-[30px] text-xs rounded-lg">
             <Sparkles className="w-3 h-3" /> Preencher teste
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleReset} className="gap-1.5 h-[30px] text-xs rounded-[4px]">
+          <Button variant="ghost" size="sm" onClick={handleReset} className="gap-1.5 h-[30px] text-xs rounded-lg">
             <RotateCcw className="w-3 h-3" /> Limpar
           </Button>
         </div>
@@ -616,7 +616,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
           Modo:
         </span>
         <span className={cn(
-          "text-[10px] font-semibold px-2 py-0.5 rounded-[2px]",
+          "text-[10px] font-semibold px-2 py-0.5 rounded-md",
           formMode === "standard" ? "bg-blue-500/10 text-blue-600" :
           formMode === "paginated" ? "bg-amber-500/10 text-amber-600" :
           "bg-purple-500/10 text-purple-600",
@@ -631,7 +631,7 @@ export function LpFormTest({ fields, settings }: LpFormTestProps) {
       {/* Form container */}
       <div className="flex-1 flex items-start justify-center overflow-y-auto pb-4">
         <div className={cn(
-          "bg-card border border-border rounded-[4px] transition-all duration-300",
+          "bg-card border border-border rounded-lg transition-all duration-300",
           viewMode === "desktop"
             ? "w-full max-w-xl p-6"
             : "w-[375px] p-5 rounded-[20px] border-[3px] border-foreground/10",

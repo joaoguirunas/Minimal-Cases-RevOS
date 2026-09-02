@@ -73,7 +73,7 @@ class PageErrorBoundary extends Component<Props, State> {
             </div>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-[4px] text-left">
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
                 <p className="text-sm font-mono text-red-800 break-all">
                   {this.state.error.message}
                 </p>

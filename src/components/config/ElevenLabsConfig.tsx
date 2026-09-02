@@ -120,7 +120,7 @@ const ElevenLabsConfig = () => {
       </div>
 
       {/* API Key */}
-      <div className="space-y-4 border border-border rounded-[4px] p-4">
+      <div className="space-y-4 border border-border rounded-lg p-4">
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">
             API Key
@@ -165,7 +165,7 @@ const ElevenLabsConfig = () => {
       </div>
 
       {/* Model + Voice + Format */}
-      <div className="space-y-4 border border-border rounded-[4px] p-4">
+      <div className="space-y-4 border border-border rounded-lg p-4">
         <p className="text-xs font-medium text-foreground">Padrões de TTS</p>
 
         {/* Model */}
@@ -248,7 +248,7 @@ const ElevenLabsConfig = () => {
 
       {/* Usage */}
       {isConfigured && config && (
-        <div className="space-y-2 border border-border rounded-[4px] p-4">
+        <div className="space-y-2 border border-border rounded-lg p-4">
           <p className="text-xs font-medium text-foreground">Uso mensal</p>
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
@@ -310,7 +310,7 @@ const ElevenLabsConfig = () => {
       </div>
 
       {/* Info box */}
-      <div className="rounded-[4px] border border-border bg-muted px-4 py-3 text-xs text-muted-foreground space-y-1">
+      <div className="rounded-lg border border-border bg-muted px-4 py-3 text-xs text-muted-foreground space-y-1">
         <p className="font-medium text-foreground">Como funciona</p>
         <ul className="space-y-1 list-disc list-inside leading-relaxed">
           <li>A API key da ElevenLabs é usada para gerar áudio via Text-to-Speech (TTS)</li>

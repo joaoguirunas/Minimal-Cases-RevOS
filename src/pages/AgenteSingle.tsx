@@ -526,7 +526,7 @@ const AgenteSingleContent = () => {
                 disabled={isSyncing}
                 size="sm"
                 variant="default"
-                className="h-[30px] rounded-[4px] gap-1.5 text-xs px-3 bg-purple-600 hover:bg-purple-500 text-white"
+                className="h-[30px] rounded-lg gap-1.5 text-xs px-3 bg-purple-600 hover:bg-purple-500 text-white"
               >
                 <RefreshCw className={cn('h-3.5 w-3.5', isSyncing && 'animate-spin')} />
                 {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
@@ -535,7 +535,7 @@ const AgenteSingleContent = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowExcluir(true)}
-                className="h-[30px] rounded-[4px] gap-1.5 text-xs text-muted-foreground hover:text-destructive px-2"
+                className="h-[30px] rounded-lg gap-1.5 text-xs text-muted-foreground hover:text-destructive px-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Excluir
@@ -546,7 +546,7 @@ const AgenteSingleContent = () => {
                 size="sm"
                 variant={savedRecently && !isDirty ? 'outline' : 'default'}
                 className={[
-                  'h-[30px] rounded-[4px] gap-1.5 text-xs px-3 transition-all duration-200',
+                  'h-[30px] rounded-lg gap-1.5 text-xs px-3 transition-all duration-200',
                   savedRecently && !isDirty && !salvarMutation.isPending
                     ? 'border-green-500/40 text-green-600 dark:text-green-400 bg-green-500/5 hover:bg-green-500/10'
                     : '',
@@ -644,7 +644,7 @@ const AgenteSingleContent = () => {
               variant="ghost"
               size="sm"
               onClick={handleCopyContext}
-              className="h-[30px] rounded-[4px] gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
+              className="h-[30px] rounded-lg gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
             >
               <Copy className="h-3.5 w-3.5" />
               Copiar
@@ -655,7 +655,7 @@ const AgenteSingleContent = () => {
                 size="sm"
                 onClick={handleSync}
                 disabled={isSyncing}
-                className="h-[30px] rounded-[4px] gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
+                className="h-[30px] rounded-lg gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
               >
                 <RefreshCw className={cn('h-3.5 w-3.5', isSyncing && 'animate-spin')} />
                 {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
@@ -665,7 +665,7 @@ const AgenteSingleContent = () => {
               variant="ghost"
               size="sm"
               onClick={() => setShowExcluir(true)}
-              className="h-[30px] rounded-[4px] gap-1.5 text-xs text-muted-foreground hover:text-destructive px-2"
+              className="h-[30px] rounded-lg gap-1.5 text-xs text-muted-foreground hover:text-destructive px-2"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Excluir
@@ -676,7 +676,7 @@ const AgenteSingleContent = () => {
               size="sm"
               variant={savedRecently && !isDirty ? 'outline' : 'default'}
               className={[
-                'h-[30px] rounded-[4px] gap-1.5 text-xs px-3 transition-all duration-200',
+                'h-[30px] rounded-lg gap-1.5 text-xs px-3 transition-all duration-200',
                 savedRecently && !isDirty && !salvarMutation.isPending
                   ? 'border-green-500/40 text-green-600 dark:text-green-400 bg-green-500/5 hover:bg-green-500/10'
                   : '',

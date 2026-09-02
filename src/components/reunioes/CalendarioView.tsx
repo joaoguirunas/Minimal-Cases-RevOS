@@ -85,18 +85,18 @@ const CalendarioView = ({ agendamentos, usuarios, onAgendamentoClick, externalEv
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={() => setCurrentDate(new Date())}
-          className="h-[30px] px-3 text-xs border border-border rounded-[4px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-medium"
+          className="h-[30px] px-3 text-xs border border-border rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-medium"
         >
           Hoje
         </button>
         <div className="w-px h-4 bg-border mx-0.5" />
-        <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-[4px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+        <button onClick={prevMonth} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
           <ChevronLeft className="w-4 h-4" />
         </button>
         <span className="text-sm font-semibold text-foreground capitalize w-40 text-center">
           {format(currentDate, "MMMM yyyy", { locale: ptBR })}
         </span>
-        <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-[4px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+        <button onClick={nextMonth} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
           <ChevronRight className="w-4 h-4" />
         </button>
         <div className="flex-1" />
@@ -119,7 +119,7 @@ const CalendarioView = ({ agendamentos, usuarios, onAgendamentoClick, externalEv
 
       {/* Grid */}
       <div className="flex-1 overflow-auto min-h-0">
-        <div className="rounded-[2px] border border-border overflow-hidden bg-card min-w-[540px]">
+        <div className="rounded-md border border-border overflow-hidden bg-card min-w-[540px]">
 
           {/* Header row */}
           <div className="grid grid-cols-7 border-b border-border">
@@ -172,7 +172,7 @@ const CalendarioView = ({ agendamentos, usuarios, onAgendamentoClick, externalEv
                           key={a.id}
                           onClick={() => onAgendamentoClick(a)}
                           className={cn(
-                            "flex items-center gap-1 px-1.5 py-px rounded-[2px] cursor-pointer transition-colors overflow-hidden",
+                            "flex items-center gap-1 px-1.5 py-px rounded-md cursor-pointer transition-colors overflow-hidden",
                             statusBg(a.status)
                           )}
                         >
@@ -199,7 +199,7 @@ const CalendarioView = ({ agendamentos, usuarios, onAgendamentoClick, externalEv
                           key={evt.id}
                           title={`${evt.title}${owner ? ` (${owner.nome})` : ""}`}
                           onClick={() => evt.html_link && window.open(evt.html_link, "_blank")}
-                          className="flex items-center gap-1 px-1.5 py-px rounded-[2px] bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
+                          className="flex items-center gap-1 px-1.5 py-px rounded-md bg-violet-500/8 hover:bg-violet-500/15 cursor-pointer transition-colors overflow-hidden"
                         >
                           <div className="w-0.5 h-3 rounded-full shrink-0 bg-violet-400" />
                           {initials && (

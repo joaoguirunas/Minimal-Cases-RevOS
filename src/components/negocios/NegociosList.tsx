@@ -257,7 +257,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
                 size="sm"
                 onClick={() => setConfirmDelete(true)}
                 disabled={bulkDelete.isPending}
-                className="h-[30px] px-2.5 text-xs gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 flex-shrink-0 rounded-[4px]"
+                className="h-[30px] px-2.5 text-xs gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 flex-shrink-0 rounded-lg"
               >
                 <Trash2 className="w-3 h-3" strokeWidth={1.5} />
                 Deletar
@@ -347,7 +347,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={9} className="text-center py-16">
                   <div className="flex flex-col items-center gap-3 text-center px-6">
-                    <div className="w-10 h-10 rounded-[4px] bg-muted flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
                       <Layers className="w-5 h-5 text-muted-foreground/50" strokeWidth={1.5} />
                     </div>
                     <p className="text-[13px] font-medium text-foreground">Nenhum negócio encontrado</p>
@@ -442,7 +442,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
                     {/* Status */}
                     <TableCell className="py-2.5">
                       <span className={cn(
-                        "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none whitespace-nowrap",
+                        "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none whitespace-nowrap",
                         getStatusStyle(negocio.status)
                       )}>
                         {getStatusLabel(negocio.status)}
@@ -453,7 +453,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
                     <TableCell className="py-2.5">
                       {negocio.pessoa?.score_matrix?.name && scoreStyle ? (
                         <span className={cn(
-                          "inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                          "inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none",
                           scoreStyle
                         )}>
                           <Star className="w-2.5 h-2.5" strokeWidth={1.5} />
@@ -473,7 +473,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="w-6 h-6 rounded-[4px] bg-[#00D26A]/10 text-[#00D26A] hover:bg-[#00D26A]/20 flex items-center justify-center transition-all duration-300"
+                            className="w-6 h-6 rounded-lg bg-[#00D26A]/10 text-[#00D26A] hover:bg-[#00D26A]/20 flex items-center justify-center transition-all duration-300"
                             title={negocio.pessoa.whatsapp}
                           >
                             <MessageSquare className="w-3 h-3" strokeWidth={1.5} />
@@ -483,7 +483,7 @@ const NegociosList = ({ negocios, stages, pipelines }: NegociosListProps) => {
                           <a
                             href={`mailto:${negocio.pessoa.email}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-6 h-6 rounded-[4px] bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6]/20 flex items-center justify-center transition-all duration-300"
+                            className="w-6 h-6 rounded-lg bg-[#3B82F6]/10 text-[#3B82F6] hover:bg-[#3B82F6]/20 flex items-center justify-center transition-all duration-300"
                             title={negocio.pessoa.email}
                           >
                             <Mail className="w-3 h-3" strokeWidth={1.5} />

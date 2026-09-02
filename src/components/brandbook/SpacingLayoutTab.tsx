@@ -17,7 +17,7 @@ export default function SpacingLayoutTab() {
             ].map(({ name, value, units, color }) => (
               <div key={name} className="flex items-center gap-4">
                 <code className="text-[10px] font-mono text-white/40 w-24">--spacing-{name}</code>
-                <div className="h-6 rounded-[2px] transition-all" style={{ width: value, backgroundColor: `${color}30`, border: `1px solid ${color}40` }} />
+                <div className="h-6 rounded-md transition-all" style={{ width: value, backgroundColor: `${color}30`, border: `1px solid ${color}40` }} />
                 <span className="text-[10px] font-mono text-white/25">{value}</span>
                 <span className="text-[9px] font-mono text-white/15">{units}</span>
               </div>
@@ -90,7 +90,7 @@ export default function SpacingLayoutTab() {
               ].map(({ name, z, color, y }) => (
                 <div
                   key={name}
-                  className="absolute left-0 right-0 h-10 rounded-[2px] flex items-center justify-between px-4 border"
+                  className="absolute left-0 right-0 h-10 rounded-md flex items-center justify-between px-4 border"
                   style={{ top: `${y}px`, backgroundColor: `${color}10`, borderColor: `${color}30`, zIndex: z }}
                 >
                   <span className="text-[10px] font-mono text-white/50">{name}</span>
@@ -113,8 +113,8 @@ export default function SpacingLayoutTab() {
                     <span className="text-[11px] font-medium text-white/50">{name}</span>
                     <code className="text-[9px] font-mono text-white/20">{bp}</code>
                   </div>
-                  <div className="h-3 rounded-[2px] bg-white/[0.03] overflow-hidden">
-                    <div className="h-full rounded-[2px]" style={{ width: w, backgroundColor: `${color}30` }} />
+                  <div className="h-3 rounded-md bg-white/[0.03] overflow-hidden">
+                    <div className="h-full rounded-md" style={{ width: w, backgroundColor: `${color}30` }} />
                   </div>
                   <code className="text-[8px] font-mono text-[#FF4400]/30 mt-1 block">{token}</code>
                 </div>
@@ -138,7 +138,7 @@ export default function SpacingLayoutTab() {
               <span className="text-[9px] font-mono text-white/20 mb-2 block">{label}</span>
               <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
                 {Array.from({ length: cols }).map((_, i) => (
-                  <div key={i} className="h-10 rounded-[2px] bg-[#FF4400]/[0.06] border border-[#FF4400]/10 flex items-center justify-center">
+                  <div key={i} className="h-10 rounded-md bg-[#FF4400]/[0.06] border border-[#FF4400]/10 flex items-center justify-center">
                     <span className="text-[9px] font-mono text-[#FF4400]/30">{i + 1}</span>
                   </div>
                 ))}

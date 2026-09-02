@@ -93,7 +93,7 @@ const MultiSelectSearchable = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between rounded-[4px] border-border bg-card hover:bg-muted"
+            className="w-full justify-between rounded-lg border-border bg-card hover:bg-muted"
             disabled={disabled}
           >
             <span className="text-left truncate">
@@ -105,7 +105,7 @@ const MultiSelectSearchable = ({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 rounded-[4px] border-border" align="start">
+        <PopoverContent className="w-full p-0 rounded-lg border-border" align="start">
           <Command>
             <CommandInput 
               placeholder="Buscar pessoas..."
@@ -123,7 +123,7 @@ const MultiSelectSearchable = ({
                     key={option.id}
                     value={option.id}
                     onSelect={() => handleSelect(option.id)}
-                    className="rounded-[4px] hover:bg-muted"
+                    className="rounded-lg hover:bg-muted"
                   >
                     <Check
                       className={cn(
@@ -153,7 +153,7 @@ const MultiSelectSearchable = ({
             <Badge 
               key={item.id} 
               variant="secondary" 
-              className="rounded-[4px] bg-muted text-foreground hover:bg-muted/50"
+              className="rounded-lg bg-muted text-foreground hover:bg-muted/50"
             >
               <item.icon className="w-3 h-3 mr-1" />
               <span className="font-medium">{item.label}</span>

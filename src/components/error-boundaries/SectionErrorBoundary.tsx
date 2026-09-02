@@ -94,7 +94,7 @@ class SectionErrorBoundary extends Component<Props, State> {
           </div>
 
           {process.env.NODE_ENV === 'development' && this.state.error && (
-            <div className="mb-4 p-3 bg-red-100 rounded-[4px] border border-red-200">
+            <div className="mb-4 p-3 bg-red-100 rounded-lg border border-red-200">
               <p className="text-xs text-red-800 font-mono break-all">
                 {this.state.error.message}
               </p>

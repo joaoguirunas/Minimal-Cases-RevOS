@@ -14,7 +14,7 @@ export default function ImportResultCard({
   onConfirm,
 }: ImportResultCardProps) {
   return (
-    <div className="rounded-[4px] border border-border p-5 space-y-5">
+    <div className="rounded-lg border border-border p-5 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">

@@ -210,7 +210,7 @@ const ReuniaoSingle = () => {
         <CalendarCheck className="w-12 h-12 text-muted-foreground/30" />
         <h3 className="text-lg font-semibold text-foreground">Reunião não encontrada</h3>
         <p className="text-sm text-muted-foreground">Esta reunião não existe ou você não tem acesso.</p>
-        <Button variant="outline" size="sm" onClick={() => navigate('/schedule')} className="rounded-[2px]">
+        <Button variant="outline" size="sm" onClick={() => navigate('/schedule')} className="rounded-md">
           <CalendarCheck className="w-3.5 h-3.5 mr-1.5" />
           Voltar às Reuniões
         </Button>
@@ -237,12 +237,12 @@ const ReuniaoSingle = () => {
           {/* Status dropdown — uses optimistic displayStatus so it updates immediately */}
           <Select value={displayStatus} onValueChange={handleStatusChange}>
             <SelectTrigger className={cn(
-              'h-[30px] w-auto min-w-[130px] text-xs rounded-[2px] border font-medium',
+              'h-[30px] w-auto min-w-[130px] text-xs rounded-md border font-medium',
               STATUS_BADGE[displayStatus] || 'text-muted-foreground bg-muted border-border'
             )}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-[2px] text-xs">
+            <SelectContent className="rounded-md text-xs">
               {STATUS_OPTIONS.map(opt => (
                 <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
               ))}
@@ -257,7 +257,7 @@ const ReuniaoSingle = () => {
               variant="outline"
               size="sm"
               onClick={() => setShowReschedule(true)}
-              className="h-[30px] px-2.5 text-xs rounded-[2px] gap-1.5"
+              className="h-[30px] px-2.5 text-xs rounded-md gap-1.5"
             >
               <RefreshCcw className="w-3.5 h-3.5" />
               Re-agendar
@@ -270,7 +270,7 @@ const ReuniaoSingle = () => {
               variant="ghost"
               size="sm"
               asChild
-              className="h-[30px] w-[30px] p-0 rounded-[2px] text-muted-foreground"
+              className="h-[30px] w-[30px] p-0 rounded-md text-muted-foreground"
             >
               <a
                 href={GOOGLE_CAL_URL(meeting.google_event_id)}
@@ -289,7 +289,7 @@ const ReuniaoSingle = () => {
               variant="ghost"
               size="sm"
               asChild
-              className="h-[30px] px-2 rounded-[2px] text-[11px] text-blue-600 hover:text-blue-700 hover:bg-blue-500/8 gap-1"
+              className="h-[30px] px-2 rounded-md text-[11px] text-blue-600 hover:text-blue-700 hover:bg-blue-500/8 gap-1"
             >
               <a
                 href={meeting.meeting_link}
@@ -308,7 +308,7 @@ const ReuniaoSingle = () => {
             variant="ghost"
             size="sm"
             onClick={() => setShowDelete(true)}
-            className="h-[30px] w-[30px] p-0 rounded-[2px] text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+            className="h-[30px] w-[30px] p-0 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/5"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
@@ -404,17 +404,17 @@ const ReuniaoSingle = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-foreground">Informações da reunião</h2>
             {!isEditing ? (
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="h-[30px] px-2.5 text-xs rounded-[2px] gap-1.5">
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="h-[30px] px-2.5 text-xs rounded-md gap-1.5">
                 <Edit3 className="w-3.5 h-3.5" />
                 Editar
               </Button>
             ) : (
               <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-[30px] px-2.5 text-xs rounded-[2px]">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-[30px] px-2.5 text-xs rounded-md">
                   <X className="w-3.5 h-3.5 mr-1" />
                   Cancelar
                 </Button>
-                <Button size="sm" onClick={handleSaveEdits} disabled={updateMutation.isPending} className="h-[30px] px-3 text-xs rounded-[2px]">
+                <Button size="sm" onClick={handleSaveEdits} disabled={updateMutation.isPending} className="h-[30px] px-3 text-xs rounded-md">
                   <Check className="w-3.5 h-3.5 mr-1" />
                   {updateMutation.isPending ? 'Salvando...' : 'Salvar'}
                 </Button>
@@ -423,7 +423,7 @@ const ReuniaoSingle = () => {
           </div>
 
           {isEditing && (
-            <div className="mb-4 px-3 py-2 bg-primary/5 border border-primary/20 rounded-[2px] flex items-center gap-2">
+            <div className="mb-4 px-3 py-2 bg-primary/5 border border-primary/20 rounded-md flex items-center gap-2">
               <Edit3 className="w-3.5 h-3.5 text-primary shrink-0" />
               <span className="text-xs text-primary font-medium">Modo de edição ativo — salve para confirmar as alterações</span>
             </div>
@@ -437,7 +437,7 @@ const ReuniaoSingle = () => {
               <div className="space-y-1.5">
                 <Label className="text-[11px] text-muted-foreground">Data da Reunião</Label>
                 {isEditing ? (
-                  <Input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="h-[30px] text-xs rounded-[2px]" />
+                  <Input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="h-[30px] text-xs rounded-md" />
                 ) : (
                   <p className="text-sm text-foreground">{startDt.date}</p>
                 )}
@@ -447,7 +447,7 @@ const ReuniaoSingle = () => {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] text-muted-foreground">Início</Label>
                   {isEditing ? (
-                    <Input type="time" value={editStartTime} onChange={e => setEditStartTime(e.target.value)} className="h-[30px] text-xs rounded-[2px]" />
+                    <Input type="time" value={editStartTime} onChange={e => setEditStartTime(e.target.value)} className="h-[30px] text-xs rounded-md" />
                   ) : (
                     <p className="text-sm text-foreground font-mono">{formatDateTime(meeting.start_time).time}</p>
                   )}
@@ -455,7 +455,7 @@ const ReuniaoSingle = () => {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] text-muted-foreground">Fim</Label>
                   {isEditing ? (
-                    <Input type="time" value={editEndTime} onChange={e => setEditEndTime(e.target.value)} className="h-[30px] text-xs rounded-[2px]" />
+                    <Input type="time" value={editEndTime} onChange={e => setEditEndTime(e.target.value)} className="h-[30px] text-xs rounded-md" />
                   ) : (
                     <p className="text-sm text-foreground font-mono">{formatDateTime(meeting.end_time).time}</p>
                   )}
@@ -465,7 +465,7 @@ const ReuniaoSingle = () => {
               <div className="space-y-1.5">
                 <Label className="text-[11px] text-muted-foreground">Local</Label>
                 {isEditing ? (
-                  <Input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="Endereço ou local" className="h-[30px] text-xs rounded-[2px]" />
+                  <Input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="Endereço ou local" className="h-[30px] text-xs rounded-md" />
                 ) : (
                   <p className="text-sm text-foreground">{meeting.location || <span className="text-muted-foreground">—</span>}</p>
                 )}
@@ -474,7 +474,7 @@ const ReuniaoSingle = () => {
               <div className="space-y-1.5">
                 <Label className="text-[11px] text-muted-foreground">Link Google Meet</Label>
                 {isEditing ? (
-                  <Input value={editMeetLink} onChange={e => setEditMeetLink(e.target.value)} placeholder="https://meet.google.com/..." className="h-[30px] text-xs rounded-[2px]" />
+                  <Input value={editMeetLink} onChange={e => setEditMeetLink(e.target.value)} placeholder="https://meet.google.com/..." className="h-[30px] text-xs rounded-md" />
                 ) : meeting.meeting_link ? (
                   <a
                     href={meeting.meeting_link}
@@ -494,8 +494,8 @@ const ReuniaoSingle = () => {
                 <Label className="text-[11px] text-muted-foreground">Resultado</Label>
                 {isEditing ? (
                   <Select value={editOutcome} onValueChange={setEditOutcome}>
-                    <SelectTrigger className="h-[30px] text-xs rounded-[2px]"><SelectValue placeholder="Selecionar resultado..." /></SelectTrigger>
-                    <SelectContent className="rounded-[2px] text-xs">
+                    <SelectTrigger className="h-[30px] text-xs rounded-md"><SelectValue placeholder="Selecionar resultado..." /></SelectTrigger>
+                    <SelectContent className="rounded-md text-xs">
                       {OUTCOME_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -518,13 +518,13 @@ const ReuniaoSingle = () => {
                 <Label className="text-[11px] text-muted-foreground">Status</Label>
                 {isEditing ? (
                   <Select value={editStatus} onValueChange={setEditStatus}>
-                    <SelectTrigger className="h-[30px] text-xs rounded-[2px]"><SelectValue /></SelectTrigger>
-                    <SelectContent className="rounded-[2px] text-xs">
+                    <SelectTrigger className="h-[30px] text-xs rounded-md"><SelectValue /></SelectTrigger>
+                    <SelectContent className="rounded-md text-xs">
                       {STATUS_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 ) : (
-                  <span className={cn('inline-flex items-center px-2 py-0.5 rounded-[2px] text-[11px] font-medium border', STATUS_BADGE[displayStatus] || 'text-muted-foreground bg-muted border-border')}>
+                  <span className={cn('inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border', STATUS_BADGE[displayStatus] || 'text-muted-foreground bg-muted border-border')}>
                     {displayStatus}
                   </span>
                 )}
@@ -544,7 +544,7 @@ const ReuniaoSingle = () => {
                     value={editNotes}
                     onChange={e => setEditNotes(e.target.value)}
                     placeholder="Observações sobre a reunião..."
-                    className="min-h-[100px] text-sm rounded-[2px] resize-none"
+                    className="min-h-[100px] text-sm rounded-md resize-none"
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
@@ -564,7 +564,7 @@ const ReuniaoSingle = () => {
               Registros da reunião
               {records.length > 0 && <span className="ml-2 text-xs font-normal text-muted-foreground">({records.length})</span>}
             </h2>
-            <Button size="sm" onClick={() => setShowAddRecord(true)} className="h-[30px] px-2.5 text-xs rounded-[2px] gap-1.5">
+            <Button size="sm" onClick={() => setShowAddRecord(true)} className="h-[30px] px-2.5 text-xs rounded-md gap-1.5">
               <Plus className="w-3.5 h-3.5" />
               Adicionar Registro
             </Button>
@@ -572,8 +572,8 @@ const ReuniaoSingle = () => {
 
           {loadingRecords ? (
             <div className="space-y-3">
-              <Skeleton className="h-32 w-full rounded-[2px]" />
-              <Skeleton className="h-32 w-full rounded-[2px]" />
+              <Skeleton className="h-32 w-full rounded-md" />
+              <Skeleton className="h-32 w-full rounded-md" />
             </div>
           ) : records.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
@@ -582,7 +582,7 @@ const ReuniaoSingle = () => {
               <p className="text-xs text-muted-foreground max-w-xs">
                 Adicione gravações, transcrições, resumos ou análises de IA desta reunião.
               </p>
-              <Button variant="outline" size="sm" onClick={() => setShowAddRecord(true)} className="rounded-[2px] h-[30px] text-xs mt-1 gap-1.5">
+              <Button variant="outline" size="sm" onClick={() => setShowAddRecord(true)} className="rounded-md h-[30px] text-xs mt-1 gap-1.5">
                 <Plus className="w-3.5 h-3.5" />
                 Adicionar primeiro registro
               </Button>
@@ -610,7 +610,7 @@ const ReuniaoSingle = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate(`/crm/kanban/${lead.id}`)}
-                      className="h-[30px] px-2 text-xs rounded-[2px] gap-1 text-muted-foreground hover:text-foreground shrink-0"
+                      className="h-[30px] px-2 text-xs rounded-md gap-1 text-muted-foreground hover:text-foreground shrink-0"
                     >
                       <ExternalLink className="w-3 h-3" />
                       Ver
@@ -624,7 +624,7 @@ const ReuniaoSingle = () => {
                     </p>
                   )}
                   {lead.status && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-[2px] text-[11px] font-medium bg-muted text-muted-foreground">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted text-muted-foreground">
                       {lead.status}
                     </span>
                   )}

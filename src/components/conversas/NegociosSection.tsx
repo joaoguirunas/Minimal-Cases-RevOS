@@ -410,7 +410,7 @@ const NegociosSection = ({ negocios, tenantId }: NegociosSectionProps) => {
           };
           
           return (
-            <div key={negocio.id} className={`border-2 p-3 rounded-[2px] relative transition-all duration-300 ${getStatusStyles()} ${isCurrentNegocioUpdating ? 'opacity-60 pointer-events-none animate-pulse' : ''}`}>
+            <div key={negocio.id} className={`border-2 p-3 rounded-md relative transition-all duration-300 ${getStatusStyles()} ${isCurrentNegocioUpdating ? 'opacity-60 pointer-events-none animate-pulse' : ''}`}>
               {isCurrentNegocioUpdating && (
                 <div className="absolute inset-0 flex items-center justify-center bg-card/70 backdrop-blur-sm z-10 rounded">
                   <div className="flex items-center gap-2">
@@ -456,7 +456,7 @@ const NegociosSection = ({ negocios, tenantId }: NegociosSectionProps) => {
               </div>
 
               {/* Temperature & Probability — editable */}
-              <div className="rounded-[2px] bg-card divide-y divide-border/40 mb-2">
+              <div className="rounded-md bg-card divide-y divide-border/40 mb-2">
                 <div className="flex items-center justify-between px-2.5 py-1.5">
                   <span className="text-[11px] text-muted-foreground/60">Temperatura</span>
                   <div className="flex items-center gap-0.5">

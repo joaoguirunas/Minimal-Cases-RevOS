@@ -66,12 +66,12 @@ export default function TikTokIntegrationConfig() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-[2px] p-1 flex-wrap">
+        <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-md p-1 flex-wrap">
           {TAB_DEFS.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-[3px]"
+              className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-md"
             >
               {tab.label}
             </TabsTrigger>

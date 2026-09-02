@@ -42,7 +42,7 @@ export default function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
   };
 
   return (
-    <Badge className={`inline-flex items-center ${sizeClasses[size]} ${config.className} px-2 rounded-[2px] font-medium border`}>
+    <Badge className={`inline-flex items-center ${sizeClasses[size]} ${config.className} px-2 rounded-md font-medium border`}>
       <Icon className={iconSizes[size]} />
       {config.label}
     </Badge>

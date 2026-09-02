@@ -58,7 +58,7 @@ class LazyComponentLoader extends Component<LazyComponentLoaderProps, LazyLoader
   render() {
     if (this.state.hasError) {
       return this.props.errorFallback || (
-        <div className="flex items-center justify-center p-8 text-red-600 bg-red-50 rounded-[4px] border border-red-200">
+        <div className="flex items-center justify-center p-8 text-red-600 bg-red-50 rounded-lg border border-red-200">
           <div className="text-center">
             <p className="font-medium">Erro ao carregar componente</p>
             <p className="text-sm text-red-500 mt-1">

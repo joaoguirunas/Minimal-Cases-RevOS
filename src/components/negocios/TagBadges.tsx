@@ -13,7 +13,7 @@ interface TagBadgesProps {
 }
 
 const CHIP_BASE =
-  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none';
+  'inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none';
 
 // Cor da tag é definida pelo usuário (hex dinâmico) — não dá pra usar classe
 // Tailwind literal como o CursoBadges faz (paleta fixa em build-time), então

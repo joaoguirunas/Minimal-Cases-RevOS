@@ -60,12 +60,12 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
 
   if (isLoading) {
     return (
-      <Card className="p-6 rounded-[2px]">
+      <Card className="p-6 rounded-md">
         <div className="animate-pulse">
-          <div className="h-4 bg-muted rounded-[2px] w-1/4 mb-4"></div>
+          <div className="h-4 bg-muted rounded-md w-1/4 mb-4"></div>
           <div className="space-y-2">
-            <div className="h-12 bg-muted rounded-[2px]"></div>
-            <div className="h-12 bg-muted rounded-[2px]"></div>
+            <div className="h-12 bg-muted rounded-md"></div>
+            <div className="h-12 bg-muted rounded-md"></div>
           </div>
         </div>
       </Card>
@@ -73,10 +73,10 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
   }
 
   return (
-    <Card className="p-6 rounded-[2px]">
+    <Card className="p-6 rounded-md">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Documentos e Arquivos</h3>
-        <Button onClick={handleFileSelect} disabled={uploadArquivo.isPending} className="h-[30px] text-xs rounded-[4px] gap-1.5">
+        <Button onClick={handleFileSelect} disabled={uploadArquivo.isPending} className="h-[30px] text-xs rounded-lg gap-1.5">
           <Upload className="w-3.5 h-3.5" />
           {uploadArquivo.isPending ? 'Enviando...' : 'Adicionar Arquivo'}
         </Button>
@@ -91,10 +91,10 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
       />
 
       {arquivos.length === 0 ? (
-        <div className="border-2 border-dashed border-border rounded-[2px] p-8 text-center">
+        <div className="border-2 border-dashed border-border rounded-md p-8 text-center">
           <FileText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
           <p className="text-muted-foreground">No files uploaded</p>
-          <Button variant="outline" onClick={handleFileSelect} className="mt-4 h-[30px] text-xs rounded-[4px]">
+          <Button variant="outline" onClick={handleFileSelect} className="mt-4 h-[30px] text-xs rounded-lg">
             Selecionar Arquivos
           </Button>
         </div>
@@ -103,7 +103,7 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
           {arquivos.map((arquivo) => (
             <div
               key={arquivo.id}
-              className="flex items-center justify-between p-4 border border-border rounded-[2px] hover:bg-white/[0.035] transition-all duration-300"
+              className="flex items-center justify-between p-4 border border-border rounded-md hover:bg-white/[0.035] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
                 <FileText className="w-8 h-8 text-[#3B82F6]" />
@@ -120,7 +120,7 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
                   variant="outline"
                   size="sm"
                   onClick={() => handleDownload(arquivo)}
-                  className="h-[30px] w-[30px] p-0 rounded-[4px]"
+                  className="h-[30px] w-[30px] p-0 rounded-lg"
                 >
                   <Download className="w-3.5 h-3.5" />
                 </Button>
@@ -129,7 +129,7 @@ const NegocioArquivos = ({ negocioId }: NegocioArquivosProps) => {
                   size="sm"
                   onClick={() => handleDelete(arquivo)}
                   disabled={deletarArquivo.isPending}
-                  className="h-[30px] w-[30px] p-0 rounded-[4px]"
+                  className="h-[30px] w-[30px] p-0 rounded-lg"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>

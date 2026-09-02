@@ -43,7 +43,7 @@ export const ConfirmarExclusaoModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
-      <DialogContent className="max-w-md rounded-[4px]">
+      <DialogContent className="max-w-md rounded-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="w-5 h-5" />
@@ -54,7 +54,7 @@ export const ConfirmarExclusaoModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Alert variant="destructive" className="rounded-[4px]">
+        <Alert variant="destructive" className="rounded-lg">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>Atenção:</strong> Esta ação não pode ser desfeita.
@@ -66,7 +66,7 @@ export const ConfirmarExclusaoModal = ({
             variant="outline" 
             onClick={handleCancel}
             disabled={isLoading}
-            className="rounded-[4px]"
+            className="rounded-lg"
           >
             <X className="w-4 h-4 mr-2" />
             {cancelText}
@@ -75,7 +75,7 @@ export const ConfirmarExclusaoModal = ({
             variant="destructive"
             onClick={handleConfirm}
             disabled={isLoading}
-            className="rounded-[4px]"
+            className="rounded-lg"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />

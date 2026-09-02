@@ -134,7 +134,7 @@ export function ConversaDemoEduardo({ onVoltar, isFullScreen = false }: Conversa
                 )}
 
                 <div
-                  className={`max-w-xs px-4 py-2 rounded-[2px] ${
+                  className={`max-w-xs px-4 py-2 rounded-md ${
                     msg.from_contact === 'humano'
                       ? 'bg-primary text-white'
                       : 'bg-card border border-border text-foreground'

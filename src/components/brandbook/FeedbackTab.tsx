@@ -21,7 +21,7 @@ export default function FeedbackTab() {
             { variant: 'default' as const, icon: AlertTriangle, title: 'Warning', desc: 'Please review before continuing.', color: '#F59E0B' },
             { variant: 'destructive' as const, icon: XCircle, title: 'Error', desc: 'Something went wrong. Please try again.', color: '#EF4444' },
           ].map(({ variant, icon: Icon, title, desc, color }) => (
-            <Alert key={title} variant={variant} className="rounded-[2px] bg-white/[0.02] border-white/[0.06]" style={{ borderLeftColor: color, borderLeftWidth: 3 }}>
+            <Alert key={title} variant={variant} className="rounded-md bg-white/[0.02] border-white/[0.06]" style={{ borderLeftColor: color, borderLeftWidth: 3 }}>
               <Icon className="h-4 w-4" style={{ color }} />
               <AlertTitle className="text-[12px] text-white/60">{title}</AlertTitle>
               <AlertDescription className="text-[10px] text-white/35">{desc}</AlertDescription>
@@ -40,7 +40,7 @@ export default function FeedbackTab() {
             { msg: 'Storage 92% full', type: 'warning', color: '#F59E0B', icon: AlertTriangle },
             { msg: 'Update available', type: 'info', color: '#3B82F6', icon: Info },
           ].map(({ msg, type, color, icon: Icon }, i) => toasts[i] && (
-            <div key={msg} className="flex items-center justify-between p-3 rounded-[2px] border bg-white/[0.02]" style={{ borderColor: `${color}30` }}>
+            <div key={msg} className="flex items-center justify-between p-3 rounded-md border bg-white/[0.02]" style={{ borderColor: `${color}30` }}>
               <div className="flex items-center gap-3">
                 <Icon className="w-4 h-4" style={{ color }} />
                 <span className="text-[11px] text-white/60">{msg}</span>
@@ -68,7 +68,7 @@ export default function FeedbackTab() {
                 <span className="text-[32px] mb-3 block">{icon}</span>
                 <p className="text-[12px] font-medium text-white/50 mb-1">{title}</p>
                 <p className="text-[10px] text-white/25 mb-4">{desc}</p>
-                <button className="h-[26px] px-3 rounded-[2px] text-[9px] font-mono text-white/40 border border-white/[0.08] hover:border-white/[0.15] transition-all">
+                <button className="h-[26px] px-3 rounded-md text-[9px] font-mono text-white/40 border border-white/[0.08] hover:border-white/[0.15] transition-all">
                   {action}
                 </button>
               </div>
@@ -94,7 +94,7 @@ export default function FeedbackTab() {
           </GlowCard>
           <GlowCard glow="#3B82F6">
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Overlay</h3>
-            <div className="relative h-40 rounded-[2px] bg-white/[0.02] border border-white/[0.04] overflow-hidden">
+            <div className="relative h-40 rounded-md bg-white/[0.02] border border-white/[0.04] overflow-hidden">
               <div className="p-4">
                 <div className="h-3 w-3/4 rounded bg-white/[0.04] mb-2" />
                 <div className="h-3 w-1/2 rounded bg-white/[0.04] mb-2" />
@@ -109,7 +109,7 @@ export default function FeedbackTab() {
             <Button
               variant="outline"
               size="sm"
-              className="h-[26px] mt-3 rounded-[2px] text-[9px]"
+              className="h-[26px] mt-3 rounded-md text-[9px]"
               onClick={() => { setShowOverlay(true); setTimeout(() => setShowOverlay(false), 3000); }}
             >
               Trigger 3s overlay
@@ -142,12 +142,12 @@ export default function FeedbackTab() {
             { title: 'Processing...', desc: 'Please wait while we save.', action: 'Saving...', variant: 'loading', color: '#F59E0B' },
           ].map(({ title, desc, action, variant, color }) => (
             <GlowCard key={variant} glow={color}>
-              <div className="p-4 rounded-[2px] bg-white/[0.02] border border-white/[0.06]">
+              <div className="p-4 rounded-md bg-white/[0.02] border border-white/[0.06]">
                 <h4 className="text-[12px] font-semibold text-white/60 mb-1">{title}</h4>
                 <p className="text-[10px] text-white/30 mb-4">{desc}</p>
                 <div className="flex gap-2">
-                  <button className="h-[26px] px-3 rounded-[2px] text-[9px] text-white/30 border border-white/[0.06]">Cancel</button>
-                  <button className="h-[26px] px-3 rounded-[2px] text-[9px] text-white font-medium flex items-center gap-1" style={{ backgroundColor: color }}>
+                  <button className="h-[26px] px-3 rounded-md text-[9px] text-white/30 border border-white/[0.06]">Cancel</button>
+                  <button className="h-[26px] px-3 rounded-md text-[9px] text-white font-medium flex items-center gap-1" style={{ backgroundColor: color }}>
                     {variant === 'loading' && <Loader2 className="w-3 h-3 animate-spin" />}
                     {action}
                   </button>

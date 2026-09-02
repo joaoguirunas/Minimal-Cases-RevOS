@@ -84,7 +84,7 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
     return (
       <div className="space-y-2">
         {[1, 2].map(i => (
-          <div key={i} className="border border-border rounded-[2px] overflow-hidden animate-pulse">
+          <div key={i} className="border border-border rounded-md overflow-hidden animate-pulse">
             <div className="px-4 py-3 space-y-2">
               <div className="h-3 bg-muted rounded w-1/3" />
               <div className="h-3 bg-muted rounded w-2/3" />
@@ -107,7 +107,7 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
           <Button
             onClick={() => setIsCreating(true)}
             variant="outline"
-            className="h-[30px] px-2.5 text-xs gap-1 border-border rounded-[4px]"
+            className="h-[30px] px-2.5 text-xs gap-1 border-border rounded-lg"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             Nova nota
@@ -117,7 +117,7 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
 
       {/* Create form */}
       {isCreating && (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <div className="px-4 py-3 space-y-3 bg-background">
             <div className="space-y-1">
               <label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Título</label>
@@ -141,11 +141,11 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
               />
             </div>
             <div className="flex gap-1.5 justify-end">
-              <Button variant="ghost" className="h-[30px] px-2.5 text-xs rounded-[4px]" onClick={cancelCreate}>
+              <Button variant="ghost" className="h-[30px] px-2.5 text-xs rounded-lg" onClick={cancelCreate}>
                 Cancelar
               </Button>
               <Button
-                className="h-[30px] px-2.5 text-xs gap-1 rounded-[4px]"
+                className="h-[30px] px-2.5 text-xs gap-1 rounded-lg"
                 onClick={handleCreate}
                 disabled={criarNota.isPending || !newTitulo.trim()}
               >
@@ -159,7 +159,7 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
 
       {/* Empty state */}
       {notas.length === 0 && !isCreating && (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
             <StickyNote className="w-7 h-7 text-muted-foreground/20 mb-2" strokeWidth={1} />
             <p className="text-[13px] font-medium text-foreground/50">Nenhuma nota</p>
@@ -170,7 +170,7 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
 
       {/* Notes list */}
       {notas.length > 0 && (
-        <div className="border border-border rounded-[2px] overflow-hidden divide-y divide-white/[0.04]">
+        <div className="border border-border rounded-md overflow-hidden divide-y divide-white/[0.04]">
           {notas.map((nota: any) => (
             <div key={nota.id} className={cn("bg-card", editingId === nota.id && "bg-background")}>
 
@@ -196,11 +196,11 @@ const NegocioNotas = ({ negocioId }: NegocioNotasProps) => {
                     />
                   </div>
                   <div className="flex gap-1.5 justify-end">
-                    <Button variant="ghost" className="h-[30px] px-2.5 text-xs rounded-[4px]" onClick={cancelEdit}>
+                    <Button variant="ghost" className="h-[30px] px-2.5 text-xs rounded-lg" onClick={cancelEdit}>
                       Cancelar
                     </Button>
                     <Button
-                      className="h-[30px] px-2.5 text-xs gap-1 rounded-[4px]"
+                      className="h-[30px] px-2.5 text-xs gap-1 rounded-lg"
                       onClick={handleUpdate}
                       disabled={atualizarNota.isPending || !editTitulo.trim()}
                     >

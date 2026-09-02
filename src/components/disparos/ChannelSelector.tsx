@@ -37,13 +37,13 @@ export default function ChannelSelector({ value, onChange }: ChannelSelectorProp
             type="button"
             onClick={() => onChange(ch.id)}
             className={cn(
-              'flex items-center gap-2.5 px-3.5 py-3 rounded-[4px] border text-left transition-all',
+              'flex items-center gap-2.5 px-3.5 py-3 rounded-lg border text-left transition-all',
               isSelected
                 ? style.active
                 : 'border-border bg-card hover:border-primary/30 hover:bg-white/[0.035]'
             )}
           >
-            <div className={cn('w-8 h-8 rounded-[4px] flex items-center justify-center shrink-0', style.icon)}>
+            <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center shrink-0', style.icon)}>
               <Icon className="w-4 h-4" />
             </div>
             <div className="min-w-0">

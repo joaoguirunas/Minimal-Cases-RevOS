@@ -27,7 +27,7 @@ const MobilePerfil = () => {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* User card */}
-        <div className="bg-card border border-border rounded-[2px] p-6 flex flex-col items-center gap-3">
+        <div className="bg-card border border-border rounded-md p-6 flex flex-col items-center gap-3">
           <Avatar className="h-20 w-20">
             <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
               {(user?.profile?.nome || user?.email || 'U').charAt(0).toUpperCase()}
@@ -40,7 +40,7 @@ const MobilePerfil = () => {
         </div>
 
         {/* Menu items */}
-        <div className="bg-card border border-border rounded-[2px] overflow-hidden divide-y divide-border">
+        <div className="bg-card border border-border rounded-md overflow-hidden divide-y divide-border">
           <button
             onClick={() => setShowDesktopHint(h => !h)}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-muted transition-colors min-h-[44px]"

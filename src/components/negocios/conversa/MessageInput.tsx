@@ -36,7 +36,7 @@ const EmailRichEditor = ({
   };
   const btnCls = 'h-6 min-w-[24px] px-1 rounded flex items-center justify-center hover:bg-muted transition-colors text-foreground/70 hover:text-foreground disabled:opacity-40';
   return (
-    <div className={`rounded-[4px] border border-border overflow-hidden bg-background transition-colors focus-within:border-[#3B82F6]/60 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div className={`rounded-lg border border-border overflow-hidden bg-background transition-colors focus-within:border-[#3B82F6]/60 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border bg-muted flex-wrap">
         <button type="button" onClick={() => exec('bold')}      className={`${btnCls} text-[12px] font-bold`}>B</button>
         <button type="button" onClick={() => exec('italic')}    className={`${btnCls} text-[12px] italic`}>I</button>
@@ -143,30 +143,30 @@ const MessageInput: React.FC<MessageInputProps> = ({
     <div className="p-4 border-t bg-card space-y-2.5 flex-none" role="region" aria-label="Área de envio de mensagem">
 
       {/* Channel pills */}
-      <div className="flex items-center gap-1 flex-wrap rounded-[2px] bg-muted px-2 py-1.5">
+      <div className="flex items-center gap-1 flex-wrap rounded-md bg-muted px-2 py-1.5">
         {pessoaAtual?.whatsapp && (
           <button onClick={() => setCanalAtivo('whatsapp')} aria-label="Canal WhatsApp" aria-pressed={canalAtivo === 'whatsapp'}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-[11px] font-medium border transition-all ${canalAtivo === 'whatsapp' ? 'bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${canalAtivo === 'whatsapp' ? 'bg-[#00D26A]/10 border-[#00D26A]/30 text-[#00D26A]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
             <WhatsAppSvg />WhatsApp
           </button>
         )}
         <button onClick={() => setCanalAtivo('instagram')} aria-label="Canal Instagram" aria-pressed={canalAtivo === 'instagram'}
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-[11px] font-medium border transition-all ${canalAtivo === 'instagram' ? 'bg-violet-400/10 border-violet-400/30 text-violet-400' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${canalAtivo === 'instagram' ? 'bg-violet-400/10 border-violet-400/30 text-violet-400' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
           <Instagram className="w-3 h-3" />{canalAtivo === 'instagram' && replyingToComment ? '↩ Post' : 'Instagram DM'}
         </button>
         <button onClick={() => setCanalAtivo('email')} aria-label="Canal E-mail" aria-pressed={canalAtivo === 'email'}
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-[11px] font-medium border transition-all ${canalAtivo === 'email' ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${canalAtivo === 'email' ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
           <Mail className="w-3 h-3" />E-mail
         </button>
         {pessoaAtual?.whatsapp && (
           <button onClick={() => setCanalAtivo('sms')} aria-label="Canal SMS" aria-pressed={canalAtivo === 'sms'}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-[11px] font-medium border transition-all ${canalAtivo === 'sms' ? 'bg-[#8B5CF6]/10 border-[#8B5CF6]/30 text-[#8B5CF6]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${canalAtivo === 'sms' ? 'bg-[#8B5CF6]/10 border-[#8B5CF6]/30 text-[#8B5CF6]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
             <MessageCircle className="w-3 h-3" />SMS
           </button>
         )}
         {pessoaAtual?.whatsapp && (
           <button onClick={() => setCanalAtivo('telefone')} aria-label="Canal Telefone" aria-pressed={canalAtivo === 'telefone'}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-[11px] font-medium border transition-all ${canalAtivo === 'telefone' ? 'bg-[#F59E0B]/10 border-[#F59E0B]/30 text-[#F59E0B]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${canalAtivo === 'telefone' ? 'bg-[#F59E0B]/10 border-[#F59E0B]/30 text-[#F59E0B]' : 'border-transparent text-muted-foreground/50 hover:text-muted-foreground/80'}`}>
             <Phone className="w-3 h-3" />Ligar
           </button>
         )}
@@ -188,7 +188,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       ) : !canSendData?.canSend && canSendData?.reason && (canalAtivo === 'whatsapp' || canalAtivo === 'instagram') ? (
         <div className="space-y-3">
           <div className="flex gap-2 opacity-50">
-            <input value="" disabled placeholder="Envio bloqueado" className="flex-1 h-9 text-[13px] rounded-[4px] border border-input bg-background px-3 cursor-not-allowed" aria-label="Envio bloqueado" />
+            <input value="" disabled placeholder="Envio bloqueado" className="flex-1 h-9 text-[13px] rounded-lg border border-input bg-background px-3 cursor-not-allowed" aria-label="Envio bloqueado" />
             <Button disabled aria-label="Enviar"><Send className="w-4 h-4" /></Button>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -220,7 +220,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
             };
             if (!missingId) return null;
             return (
-              <div className="flex items-center gap-2.5 rounded-[2px] border border-[#F59E0B]/20 bg-[#F59E0B]/10 px-3 py-2.5">
+              <div className="flex items-center gap-2.5 rounded-md border border-[#F59E0B]/20 bg-[#F59E0B]/10 px-3 py-2.5">
                 <span className="text-amber-500 shrink-0">⚠</span>
                 <p className="text-[12px] text-[#F59E0B] leading-snug">
                   Este contato não tem <strong>{label[canalAtivo]}</strong> cadastrado.
@@ -232,7 +232,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           {/* Phone call */}
           {canalAtivo === 'telefone' ? (
             <div className="space-y-1.5">
-              <Button onClick={onStartCall} disabled={isSendPending || isSending || !pessoaAtual?.whatsapp} className="w-full gap-2 h-[30px] bg-[#F59E0B] hover:bg-[#F59E0B]/90 text-white rounded-[4px] font-medium text-xs">
+              <Button onClick={onStartCall} disabled={isSendPending || isSending || !pessoaAtual?.whatsapp} className="w-full gap-2 h-[30px] bg-[#F59E0B] hover:bg-[#F59E0B]/90 text-white rounded-lg font-medium text-xs">
                 {isSendPending || isSending
                   ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   : <PhoneCall className="w-4 h-4" />}
@@ -243,19 +243,19 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
           ) : canalAtivo === 'email' ? (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 rounded-[4px] border border-border bg-muted px-2.5 py-1.5 focus-within:border-[#3B82F6]/60 transition-all duration-300">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-2.5 py-1.5 focus-within:border-[#3B82F6]/60 transition-all duration-300">
                 <Mail className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
                 <span className="text-[11px] text-muted-foreground/60 shrink-0">Para:</span>
                 <input value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="destinatario@email.com" className="flex-1 bg-transparent text-[13px] placeholder:text-muted-foreground/40 focus:outline-none" aria-label="Destinatário do e-mail" />
               </div>
-              <div className="flex items-center gap-2 rounded-[4px] border border-border bg-muted px-2.5 py-1.5 focus-within:border-[#3B82F6]/60 transition-all duration-300">
+              <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-2.5 py-1.5 focus-within:border-[#3B82F6]/60 transition-all duration-300">
                 <span className="text-[11px] text-muted-foreground/60 shrink-0">Assunto:</span>
                 <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Assunto do e-mail" className="flex-1 bg-transparent text-[13px] placeholder:text-muted-foreground/40 focus:outline-none" aria-label="Assunto do e-mail" />
               </div>
               <EmailRichEditor bodyRef={emailBodyRef} onInput={() => setEmailHtml(emailBodyRef.current?.innerHTML || '')} disabled={isSendPending || isSending} />
               <div className="flex items-center justify-between pt-0.5">
                 <span className="text-[10px] text-muted-foreground/40">Ctrl+B · I · U para formatar</span>
-                <Button onClick={onSendEmail} disabled={!emailHtml || !emailTo.trim() || isSendPending || isSending} className="gap-1.5 h-[30px] px-4 text-[12px] rounded-[4px] bg-primary hover:bg-primary-hover text-primary-foreground">
+                <Button onClick={onSendEmail} disabled={!emailHtml || !emailTo.trim() || isSendPending || isSending} className="gap-1.5 h-[30px] px-4 text-[12px] rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground">
                   {isSendPending || isSending
                     ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     : <Send className="w-3.5 h-3.5" />}
@@ -271,7 +271,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
               {/* Reply-to-message banner (quote reply, WhatsApp) */}
               {replyingToMessage && canalAtivo === 'whatsapp' && (
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-primary/8 border border-primary/25">
+                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-primary/8 border border-primary/25">
                   <ReplyIcon className="w-3 h-3 text-primary shrink-0" />
                   <span className="text-[11px] flex-1 truncate">
                     ↩ Respondendo <span className="font-medium">{replyingToMessage.senderLabel}</span>: <em className="text-muted-foreground">"{replyingToMessage.preview}{replyingToMessage.preview.length >= 60 ? '…' : ''}"</em>
@@ -284,7 +284,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
               {/* Reply-to-comment banner */}
               {replyingToComment && canalAtivo === 'instagram' && (
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-violet-400/8 border border-violet-400/30">
+                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-violet-400/8 border border-violet-400/30">
                   <Instagram className="w-3 h-3 text-pink-500 shrink-0" />
                   <span className="text-[11px] text-violet-400 flex-1 truncate">
                     ↩ Respondendo no post: <em>"{replyingToComment.preview}{replyingToComment.preview.length >= 60 ? '…' : ''}"</em>
@@ -304,7 +304,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 );
                 if (!filtered.length) return null;
                 return (
-                  <div className="rounded-[2px] border border-border bg-card overflow-hidden" role="listbox" aria-label="Respostas padrão">
+                  <div className="rounded-md border border-border bg-card overflow-hidden" role="listbox" aria-label="Respostas padrão">
                     <div className="px-3 py-1.5 border-b border-border bg-muted flex items-center justify-between">
                       <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 flex items-center gap-1">
                         <Zap className="w-3 h-3 text-yellow-500" />Respostas padrão
@@ -317,7 +317,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                         className="w-full text-left px-3 py-2.5 hover:bg-white/[0.035] transition-colors border-b border-white/[0.04] last:border-0">
                         <div className="flex items-center gap-2">
                           <span className="text-[13px] font-medium truncate">{r.title}</span>
-                          {r.shortcut && <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] bg-card text-muted-foreground border border-border shrink-0">/{r.shortcut}</span>}
+                          {r.shortcut && <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-card text-muted-foreground border border-border shrink-0">/{r.shortcut}</span>}
                         </div>
                         <p className="text-[12px] text-muted-foreground/60 truncate mt-0.5">{r.content}</p>
                       </button>
@@ -328,7 +328,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
               {/* Media preview */}
               {mediaFile && !isRecording && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-[2px] border border-border">
+                <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-md border border-border">
                   {mediaType === 'imagem' && mediaPreviewUrl && <img src={mediaPreviewUrl} alt="preview" className="w-10 h-10 rounded object-cover shrink-0" />}
                   {mediaType === 'audio' && mediaPreviewUrl && <audio src={mediaPreviewUrl} controls className="h-7 flex-1 min-w-0" />}
                   {mediaType === 'video' && mediaPreviewUrl && <video src={mediaPreviewUrl} className="w-16 h-10 rounded object-cover shrink-0" muted />}
@@ -356,7 +356,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
               {/* Recording UI */}
               {isRecording && (
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-[2px] bg-[#EF4444]/10 border border-[#EF4444]/20">
+                <div className="flex items-center gap-2.5 px-3 py-2 rounded-md bg-[#EF4444]/10 border border-[#EF4444]/20">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" aria-hidden="true" />
                   <span className="text-[12px] font-mono text-red-500 tabular-nums">{formatDuracao(recordingSeconds)}</span>
                   <span className="text-[12px] text-muted-foreground flex-1">Gravando áudio...</span>
@@ -367,7 +367,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               )}
 
               {/* Unified text input */}
-              <div className={`flex items-end gap-1.5 rounded-[2px] border bg-muted px-2 py-1.5 transition-all duration-300 focus-within:border-ring/50 ${isRecording ? 'border-[#EF4444]/40' : 'border-border'}`}>
+              <div className={`flex items-end gap-1.5 rounded-md border bg-muted px-2 py-1.5 transition-all duration-300 focus-within:border-ring/50 ${isRecording ? 'border-[#EF4444]/40' : 'border-border'}`}>
                 {/* Attachment */}
                 {!isRecording && (
                   <DropdownMenu>
@@ -454,7 +454,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
                   onClick={() => { onSendMessage(); if (textareaRef.current) textareaRef.current.style.height = 'auto'; }}
                   disabled={(!novaMensagem.trim() && !mediaFile) || isRecording || isUploading || isSendPending || isSending}
                   size="icon"
-                  className="h-7 w-7 shrink-0 rounded-[4px]"
+                  className="h-7 w-7 shrink-0 rounded-lg"
                   aria-label="Enviar mensagem"
                 >
                   {isUploading || isSendPending || isSending

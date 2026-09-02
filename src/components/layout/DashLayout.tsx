@@ -178,7 +178,7 @@ const RefreshNegociosButton = () => {
       variant="outline"
       size="sm"
       onClick={() => window.location.reload()}
-      className="h-[30px] px-3 text-xs border-border hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground rounded-[4px] transition-all duration-300"
+      className="h-[30px] px-3 text-xs border-border hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground rounded-lg transition-all duration-300"
       title="Refresh page"
     >
       <RefreshCw className="w-4 h-4 mr-1" />
@@ -364,7 +364,7 @@ const DashLayout = () => {
         <div className="flex items-center justify-center">
           <div className="flex items-center justify-center w-[144px] h-[64px]">
             {!logoLoaded && (
-              <div className="w-full h-full bg-muted animate-pulse rounded-[2px]" />
+              <div className="w-full h-full bg-muted animate-pulse rounded-md" />
             )}
             <img 
               src={tenantLogo}
@@ -468,7 +468,7 @@ const DashLayout = () => {
                 onClick={() => { if (!isComingSoon) { clearNavigationState(); navigate(item.path); } }}
                 disabled={isComingSoon}
                 className={cn(
-                  "w-full flex items-center gap-3 rounded-[2px] text-[13px] tracking-[0.01em] transition-all duration-300",
+                  "w-full flex items-center gap-3 rounded-md text-[13px] tracking-[0.01em] transition-all duration-300",
                   isSidebarCollapsed ? "h-9 w-9 justify-center p-0 mx-auto" : "h-9",
                   isComingSoon && "opacity-40 cursor-not-allowed",
                   !isComingSoon && isActive
@@ -481,7 +481,7 @@ const DashLayout = () => {
                   <>
                     <span className="flex-1 text-left truncate">{item.title}</span>
                     {isComingSoon && (
-                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider bg-[#F59E0B]/10 text-[#F59E0B] px-1.5 py-0.5 rounded-[2px] leading-none">
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider bg-[#F59E0B]/10 text-[#F59E0B] px-1.5 py-0.5 rounded-md leading-none">
                         SOON
                       </span>
                     )}
@@ -499,7 +499,7 @@ const DashLayout = () => {
                     <TooltipContent side="right" className="z-[9999] flex items-center gap-2">
                       {item.title}
                       {isComingSoon && (
-                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider bg-[#F59E0B]/10 text-[#F59E0B] px-1.5 py-0.5 rounded-[2px] leading-none">
+                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider bg-[#F59E0B]/10 text-[#F59E0B] px-1.5 py-0.5 rounded-md leading-none">
                           SOON
                         </span>
                       )}
@@ -521,7 +521,7 @@ const DashLayout = () => {
               {/* Expand chevron */}
               <button
                 onClick={() => setIsSidebarCollapsed(false)}
-                className="h-9 w-9 mx-auto flex items-center justify-center rounded-[2px] text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06] transition-all duration-300"
+                className="h-9 w-9 mx-auto flex items-center justify-center rounded-md text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06] transition-all duration-300"
               >
                 <ChevronRight className="w-3.5 h-3.5" strokeWidth={1.5} />
               </button>
@@ -532,7 +532,7 @@ const DashLayout = () => {
                     <button
                       onClick={() => { clearNavigationState(); navigate('/settings'); }}
                       className={cn(
-                        "h-9 w-9 mx-auto flex items-center justify-center rounded-[2px] transition-all duration-300",
+                        "h-9 w-9 mx-auto flex items-center justify-center rounded-md transition-all duration-300",
                         location.pathname.startsWith('/settings')
                           ? "bg-muted dark:bg-white/[0.06] text-foreground dark:text-white/90"
                           : "text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06]"
@@ -552,7 +552,7 @@ const DashLayout = () => {
                 <button
                   onClick={() => { clearNavigationState(); navigate('/settings'); }}
                   className={cn(
-                    "flex-1 flex items-center gap-3 rounded-[2px] text-[13px] font-normal tracking-[0.01em] transition-all duration-300 h-9 px-3",
+                    "flex-1 flex items-center gap-3 rounded-md text-[13px] font-normal tracking-[0.01em] transition-all duration-300 h-9 px-3",
                     location.pathname.startsWith('/settings')
                       ? "bg-muted dark:bg-white/[0.06] text-foreground dark:text-white/90 font-medium"
                       : "text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06]"
@@ -564,7 +564,7 @@ const DashLayout = () => {
               )}
               <button
                 onClick={() => setIsSidebarCollapsed(true)}
-                className="h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-[2px] text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06] transition-all duration-300"
+                className="h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-md text-muted-foreground/70 dark:text-white/40 hover:text-foreground dark:hover:text-white/90 hover:bg-muted dark:hover:bg-white/[0.06] transition-all duration-300"
               >
                 <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
               </button>
@@ -589,7 +589,7 @@ const DashLayout = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => onBack ? onBack() : navigate(-1)}
-                className="flex items-center gap-1.5 h-[30px] px-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-[4px] transition-all duration-300"
+                className="flex items-center gap-1.5 h-[30px] px-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all duration-300"
               >
                 <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
                 <span className="text-[13px] font-medium">Voltar</span>
@@ -631,7 +631,7 @@ const DashLayout = () => {
             <NotificationsDropdown />
 
             {/* Theme Toggle */}
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-[30px] w-[30px] rounded-[4px] transition-all duration-300">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-[30px] w-[30px] rounded-lg transition-all duration-300">
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
 

@@ -194,7 +194,7 @@ export function SettingsPanel({
           <>
             {/* Chatbot bot config (only when mode=chatbot) */}
             {settings.mode === "chatbot" && (
-              <div className="border border-purple-400/30 rounded-[4px] bg-purple-500/5 overflow-hidden">
+              <div className="border border-purple-400/30 rounded-lg bg-purple-500/5 overflow-hidden">
                 <div className="px-3 py-2 border-b border-purple-400/20">
                   <label className="flex items-center gap-2 text-xs font-bold text-purple-400 uppercase tracking-wide">
                     <BotMessageSquare className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export function SettingsPanel({
                       value={settings.bot_name ?? ""}
                       onChange={(e) => setSettings((s) => ({ ...s, bot_name: e.target.value }))}
                       placeholder="Assistente"
-                      className="h-[30px] text-sm rounded-[4px]"
+                      className="h-[30px] text-sm rounded-lg"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -243,7 +243,7 @@ export function SettingsPanel({
             )}
 
             {/* Pipeline + Etapa */}
-            <div className="border border-border rounded-[4px] overflow-hidden">
+            <div className="border border-border rounded-lg overflow-hidden">
               <div className="px-3 py-2 border-b border-border bg-muted">
                 <label className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wide">
                   <Zap className="w-3.5 h-3.5 text-yellow-500" />
@@ -262,7 +262,7 @@ export function SettingsPanel({
                       setSettings((s) => ({ ...s, initial_stage_id: undefined }));
                     }}
                   >
-                    <SelectTrigger className="h-[30px] text-sm rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-sm rounded-lg">
                       <SelectValue placeholder="— sem pipeline —" />
                     </SelectTrigger>
                     <SelectContent>
@@ -288,7 +288,7 @@ export function SettingsPanel({
                         }))
                       }
                     >
-                      <SelectTrigger className="h-[30px] text-sm rounded-[4px]">
+                      <SelectTrigger className="h-[30px] text-sm rounded-lg">
                         <SelectValue placeholder="Primeira etapa (padrão)" />
                       </SelectTrigger>
                       <SelectContent>
@@ -311,7 +311,7 @@ export function SettingsPanel({
             </div>
 
             {/* UTMs */}
-            <div className="border border-border rounded-[4px] p-3 space-y-1.5 bg-muted">
+            <div className="border border-border rounded-lg p-3 space-y-1.5 bg-muted">
               <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                 <Link2 className="w-3.5 h-3.5 text-blue-500" />
                 UTMs automáticas
@@ -355,7 +355,7 @@ export function SettingsPanel({
                       submit_text: e.target.value,
                     }))
                   }
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                   placeholder="Enviar"
                 />
               </div>
@@ -408,13 +408,13 @@ export function SettingsPanel({
                     Defina diferentes páginas de sucesso por entrada da matriz score.
                   </p>
                 </div>
-                <Button size="sm" variant="outline" className="h-[30px] text-xs gap-1 rounded-[4px]" onClick={addRoute}>
+                <Button size="sm" variant="outline" className="h-[30px] text-xs gap-1 rounded-lg" onClick={addRoute}>
                   <Plus className="w-3 h-3" /> Rota
                 </Button>
               </div>
 
               {/* Default (fallback — no score or no matching route) */}
-              <div className="border border-border rounded-[4px] overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <div className="px-3 py-2 border-b border-border bg-muted">
                   <label className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wide">
                     <Target className="w-3.5 h-3.5 text-muted-foreground" />
@@ -430,7 +430,7 @@ export function SettingsPanel({
                     <Input
                       value={settings.success_title ?? ""}
                       onChange={(e) => setSettings((s) => ({ ...s, success_title: e.target.value }))}
-                      className="h-[30px] text-sm rounded-[4px]"
+                      className="h-[30px] text-sm rounded-lg"
                       placeholder="Enviado com sucesso!"
                     />
                   </div>
@@ -439,7 +439,7 @@ export function SettingsPanel({
                     <Textarea
                       value={settings.success_message}
                       onChange={(e) => setSettings((s) => ({ ...s, success_message: e.target.value }))}
-                      className="text-sm rounded-[4px] resize-none"
+                      className="text-sm rounded-lg resize-none"
                       rows={2}
                       placeholder="Obrigado! Entraremos em contato."
                     />
@@ -450,7 +450,7 @@ export function SettingsPanel({
                       value={settings.redirect_url ?? ""}
                       onChange={(e) => setSettings((s) => ({ ...s, redirect_url: e.target.value }))}
                       placeholder="https://..."
-                      className="h-[30px] text-sm rounded-[4px]"
+                      className="h-[30px] text-sm rounded-lg"
                     />
                   </div>
                 </div>
@@ -458,7 +458,7 @@ export function SettingsPanel({
 
               {/* Score-based routes */}
               {successRoutes.map((route) => (
-                <div key={route.id} className="border border-border rounded-[4px] overflow-hidden">
+                <div key={route.id} className="border border-border rounded-lg overflow-hidden">
                   <div className="px-3 py-2 border-b border-border bg-muted flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1.5">Matriz Score</p>
@@ -508,7 +508,7 @@ export function SettingsPanel({
                         value={route.action}
                         onValueChange={(v) => patchRoute(route.id, { action: v as LpFormSuccessRoute["action"] })}
                       >
-                        <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                        <SelectTrigger className="h-[30px] text-xs rounded-lg">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -528,7 +528,7 @@ export function SettingsPanel({
                             value={route.title ?? ""}
                             onChange={(e) => patchRoute(route.id, { title: e.target.value })}
                             placeholder="Parabéns! Você se qualificou."
-                            className="h-[30px] text-xs rounded-[4px]"
+                            className="h-[30px] text-xs rounded-lg"
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -538,7 +538,7 @@ export function SettingsPanel({
                             onChange={(e) => patchRoute(route.id, { message: e.target.value })}
                             placeholder="Entraremos em contato em breve..."
                             rows={2}
-                            className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                           />
                         </div>
                       </>
@@ -552,7 +552,7 @@ export function SettingsPanel({
                           value={route.redirect_url ?? ""}
                           onChange={(e) => patchRoute(route.id, { redirect_url: e.target.value })}
                           placeholder="https://..."
-                          className="h-[30px] text-xs rounded-[4px]"
+                          className="h-[30px] text-xs rounded-lg"
                         />
                       </div>
                     )}
@@ -571,7 +571,7 @@ export function SettingsPanel({
                                 patchRoute(route.id, { booking_rule_set_id: v === "__none__" ? undefined : v })
                               }
                             >
-                              <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                              <SelectTrigger className="h-[30px] text-xs rounded-lg">
                                 <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent>
@@ -584,7 +584,7 @@ export function SettingsPanel({
                               </SelectContent>
                             </Select>
                           ) : (
-                            <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-[4px] px-2 py-1.5">
+                            <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-lg px-2 py-1.5">
                               Nenhuma regra configurada. Acesse Schedule PRO para criar.
                             </p>
                           )}
@@ -595,7 +595,7 @@ export function SettingsPanel({
                             value={route.title ?? ""}
                             onChange={(e) => patchRoute(route.id, { title: e.target.value })}
                             placeholder="Agende sua conversa!"
-                            className="h-[30px] text-xs rounded-[4px]"
+                            className="h-[30px] text-xs rounded-lg"
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -605,7 +605,7 @@ export function SettingsPanel({
                             onChange={(e) => patchRoute(route.id, { message: e.target.value })}
                             placeholder="Escolha o melhor horário para conversarmos."
                             rows={2}
-                            className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                           />
                         </div>
                         <div className="space-y-1.5 pt-2 border-t border-border">
@@ -616,7 +616,7 @@ export function SettingsPanel({
                             value={route.wa_confirm_template ?? ""}
                             onChange={(e) => patchRoute(route.id, { wa_confirm_template: e.target.value || undefined })}
                             placeholder="confirmacao_reuniao"
-                            className="h-[30px] text-xs rounded-[4px]"
+                            className="h-[30px] text-xs rounded-lg"
                           />
                           <p className="text-[9px] text-muted-foreground leading-relaxed">
                             Nome do template Meta para enviar após o agendamento. Variáveis: {"{{1}}"} nome, {"{{2}}"} data, {"{{3}}"} hora, {"{{4}}"} link Meet.
@@ -652,7 +652,7 @@ export function SettingsPanel({
                 size="sm"
                 variant="outline"
                 onClick={addPostSubmitAction}
-                className="h-[30px] text-xs rounded-[4px] gap-1"
+                className="h-[30px] text-xs rounded-lg gap-1"
               >
                 <Plus className="w-3 h-3" />
                 Ação
@@ -669,7 +669,7 @@ export function SettingsPanel({
             )}
 
             {postSubmitActions.map((action, idx) => (
-              <div key={action.id} className="border border-border rounded-[4px] bg-card overflow-hidden">
+              <div key={action.id} className="border border-border rounded-lg bg-card overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted">
                   <div className="flex items-center gap-2">
@@ -699,7 +699,7 @@ export function SettingsPanel({
                             })
                           }
                           className={cn(
-                            "flex items-center gap-0.5 px-2 py-0.5 rounded-[4px] border text-[10px] font-semibold transition-colors",
+                            "flex items-center gap-0.5 px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-colors",
                             action.channel === v
                               ? "border-primary bg-primary/10 text-primary"
                               : "border-border text-muted-foreground hover:border-primary/40"
@@ -734,7 +734,7 @@ export function SettingsPanel({
                       value={String(action.delay_minutes)}
                       onValueChange={(v) => patchPostSubmitAction(action.id, { delay_minutes: Number(v) })}
                     >
-                      <SelectTrigger className="h-6 text-[10px] rounded-[4px] flex-1">
+                      <SelectTrigger className="h-6 text-[10px] rounded-lg flex-1">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -756,7 +756,7 @@ export function SettingsPanel({
                         value={action.trigger_step !== undefined ? String(action.trigger_step) : 'last'}
                         onValueChange={(v) => patchPostSubmitAction(action.id, { trigger_step: v === 'last' ? 'last' : Number(v) })}
                       >
-                        <SelectTrigger className="h-6 text-[10px] rounded-[4px] flex-1">
+                        <SelectTrigger className="h-6 text-[10px] rounded-lg flex-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -786,7 +786,7 @@ export function SettingsPanel({
                             })
                           }
                         >
-                          <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                          <SelectTrigger className="h-[30px] text-xs rounded-lg">
                             <SelectValue placeholder="Selecione canal" />
                           </SelectTrigger>
                           <SelectContent>
@@ -819,7 +819,7 @@ export function SettingsPanel({
                                 })
                               }
                             >
-                              <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                              <SelectTrigger className="h-[30px] text-xs rounded-lg">
                                 <SelectValue placeholder="Selecione template" />
                               </SelectTrigger>
                               <SelectContent>
@@ -852,7 +852,7 @@ export function SettingsPanel({
                                 const fieldVal = spec.startsWith("field:") ? spec.slice(6) : "";
                                 return (
                                   <div key={varIdx} className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-[4px] shrink-0">{"{{"}{varIdx}{"}}"}</span>
+                                    <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-lg shrink-0">{"{{"}{varIdx}{"}}"}</span>
                                     <Select
                                       value={fieldVal ? `field:${fieldVal}` : (isFixed ? "__fixed__" : "__none__")}
                                       onValueChange={(v) => {
@@ -865,7 +865,7 @@ export function SettingsPanel({
                                         }
                                       }}
                                     >
-                                      <SelectTrigger className="h-6 text-[10px] rounded-[4px] flex-1">
+                                      <SelectTrigger className="h-6 text-[10px] rounded-lg flex-1">
                                         <SelectValue placeholder="— selecione —" />
                                       </SelectTrigger>
                                       <SelectContent>
@@ -888,7 +888,7 @@ export function SettingsPanel({
                                         value={fixedVal}
                                         onChange={(e) => patchPostSubmitAction(action.id, { wa_variable_map: { ...action.wa_variable_map, [varIdx]: `fixed:${e.target.value}` } })}
                                         placeholder="Texto fixo"
-                                        className="h-6 text-[10px] flex-1 border border-border rounded-[4px] px-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                                        className="h-6 text-[10px] flex-1 border border-border rounded-lg px-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
                                       />
                                     )}
                                   </div>
@@ -913,7 +913,7 @@ export function SettingsPanel({
                               patchPostSubmitAction(action.id, { webhook_id: v === "__none__" ? "" : v })
                             }
                           >
-                            <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                            <SelectTrigger className="h-[30px] text-xs rounded-lg">
                               <SelectValue placeholder="Selecione um webhook" />
                             </SelectTrigger>
                             <SelectContent>
@@ -928,7 +928,7 @@ export function SettingsPanel({
                             </SelectContent>
                           </Select>
                         ) : (
-                          <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-[4px] px-2 py-1.5">
+                          <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-lg px-2 py-1.5">
                             Nenhum webhook {action.channel === "email" ? "de email" : "de SMS"} configurado.{" "}
                             <span className="text-primary">Configurações → OMNI PRO → Webhooks.</span>
                           </p>
@@ -941,7 +941,7 @@ export function SettingsPanel({
                             value={action.subject ?? ""}
                             onChange={(e) => patchPostSubmitAction(action.id, { subject: e.target.value })}
                             placeholder="Assunto do e-mail"
-                            className="h-[30px] text-xs rounded-[4px]"
+                            className="h-[30px] text-xs rounded-lg"
                           />
                         </div>
                       )}
@@ -952,7 +952,7 @@ export function SettingsPanel({
                           onChange={(e) => patchPostSubmitAction(action.id, { message_template: e.target.value })}
                           placeholder="Use {{pessoa.nome}}, {{pessoa.email}} etc."
                           rows={3}
-                          className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                          className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
                     </>
@@ -973,7 +973,7 @@ export function SettingsPanel({
                           });
                         }}
                       >
-                        <SelectTrigger className="h-6 text-[10px] rounded-[4px] w-[130px]">
+                        <SelectTrigger className="h-6 text-[10px] rounded-lg w-[130px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1007,7 +1007,7 @@ export function SettingsPanel({
                                 });
                               }}
                               className={cn(
-                                "px-2 py-1 rounded-[4px] border text-[10px] font-semibold transition-all max-w-[160px] truncate",
+                                "px-2 py-1 rounded-lg border text-[10px] font-semibold transition-all max-w-[160px] truncate",
                                 selected ? color : "bg-muted text-muted-foreground border-border opacity-40 hover:opacity-70"
                               )}
                             >

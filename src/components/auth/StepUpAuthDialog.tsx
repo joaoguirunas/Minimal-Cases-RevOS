@@ -67,7 +67,7 @@ export function StepUpAuthDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onCancel(); }}>
-      <DialogContent className="sm:max-w-sm rounded-[4px]">
+      <DialogContent className="sm:max-w-sm rounded-lg">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
             <Shield className="w-4 h-4 text-primary" />
@@ -107,7 +107,7 @@ export function StepUpAuthDialog({
             <p
               role="alert"
               aria-live="assertive"
-              className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-[4px] px-3 py-2 text-center"
+              className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2 text-center"
             >
               {error}
             </p>
@@ -116,14 +116,14 @@ export function StepUpAuthDialog({
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="flex-1 rounded-[4px]"
+              className="flex-1 rounded-lg"
               onClick={onCancel}
               disabled={isPending}
             >
               Cancelar
             </Button>
             <Button
-              className="flex-1 rounded-[4px]"
+              className="flex-1 rounded-lg"
               onClick={handleVerify}
               disabled={code.length !== 6 || isPending || !factorId}
             >

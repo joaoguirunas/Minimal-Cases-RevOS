@@ -71,7 +71,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
     return (
       <div className="p-5 space-y-2">
         {[1, 2].map((i) => (
-          <div key={i} className="h-14 bg-muted animate-pulse rounded-[2px]" />
+          <div key={i} className="h-14 bg-muted animate-pulse rounded-md" />
         ))}
       </div>
     );
@@ -84,7 +84,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           Reuniões{meetings.length > 0 && ` (${meetings.length})`}
         </p>
-        <Button size="sm" onClick={() => setShowModal(true)} className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]">
+        <Button size="sm" onClick={() => setShowModal(true)} className="h-[30px] px-3 text-xs gap-1.5 rounded-lg">
           <Plus className="w-3.5 h-3.5" />
           Agendar reunião
         </Button>
@@ -92,7 +92,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
 
       {/* Empty state */}
       {meetings.length === 0 ? (
-        <div className="border border-dashed border-border rounded-[2px] py-10 text-center">
+        <div className="border border-dashed border-border rounded-md py-10 text-center">
           <Calendar className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-[13px] text-muted-foreground/60 mb-1">Nenhuma reunião agendada</p>
           <p className="text-[12px] text-muted-foreground/40">
@@ -102,7 +102,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
             size="sm"
             variant="outline"
             onClick={() => setShowModal(true)}
-            className="mt-4 h-[30px] px-3 text-xs gap-1.5 rounded-[4px]"
+            className="mt-4 h-[30px] px-3 text-xs gap-1.5 rounded-lg"
           >
             <Plus className="w-3.5 h-3.5" />
             Agendar reunião
@@ -124,7 +124,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
                 key={meeting.id}
                 type="button"
                 onClick={() => navigate(`/schedule/${meeting.id}`)}
-                className="w-full text-left border border-border rounded-[2px] bg-card hover:bg-white/[0.035] hover:border-white/[0.10] transition-all duration-300 px-4 py-3 flex items-center gap-4 group"
+                className="w-full text-left border border-border rounded-md bg-card hover:bg-white/[0.035] hover:border-white/[0.10] transition-all duration-300 px-4 py-3 flex items-center gap-4 group"
               >
                 {/* Date block */}
                 <div className="flex-shrink-0 w-9 text-center">
@@ -162,7 +162,7 @@ const NegocioReunioes = ({ negocioId, clientName, leadValue }: NegocioReunioesPr
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span
                     className={cn(
-                      "inline-flex items-center px-1.5 py-0.5 rounded-[2px] text-[10px] font-medium border leading-none",
+                      "inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium border leading-none",
                       badgeClass,
                     )}
                   >

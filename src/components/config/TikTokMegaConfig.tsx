@@ -227,7 +227,7 @@ export default function TikTokMegaConfig() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[4px] bg-muted flex items-center justify-center text-foreground">
+              <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-foreground">
                 <TikTokLogo size={18} />
               </div>
               <div>
@@ -251,7 +251,7 @@ export default function TikTokMegaConfig() {
 
           {/* Connection status */}
           {isConnected && displayHandle && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] border border-emerald-500/20 bg-emerald-500/5">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" strokeWidth={1.5} />
               <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium flex-1">
                 Conta conectada: <code className="font-mono">{displayHandle}</code>
@@ -269,7 +269,7 @@ export default function TikTokMegaConfig() {
           )}
 
           {/* ── Passo 1: Credenciais do App ── */}
-          <div className="border border-border rounded-[4px] p-4 space-y-3">
+          <div className="border border-border rounded-lg p-4 space-y-3">
             <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">
               Credenciais do App TikTok
             </p>
@@ -331,7 +331,7 @@ export default function TikTokMegaConfig() {
           </div>
 
           {/* ── Passo 2: Conectar conta ── */}
-          <div className="border border-border rounded-[4px] p-4 space-y-3">
+          <div className="border border-border rounded-lg p-4 space-y-3">
             <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">
               Conexão OAuth
             </p>
@@ -357,7 +357,7 @@ export default function TikTokMegaConfig() {
           </div>
 
           {/* ── Passo 3: Webhook ── */}
-          <div className="border border-border rounded-[4px] p-4 space-y-3">
+          <div className="border border-border rounded-lg p-4 space-y-3">
             <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">
               Webhook — Registrar no TikTok Developer App
             </p>
@@ -374,7 +374,7 @@ export default function TikTokMegaConfig() {
           </div>
 
           {/* ── Business Hours ── */}
-          <div className="border border-border rounded-[4px] p-4 space-y-3">
+          <div className="border border-border rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">
                 Horário comercial

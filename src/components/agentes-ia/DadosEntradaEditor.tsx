@@ -29,7 +29,7 @@ export const DadosEntradaEditor = ({
           Dados de Entrada
         </span>
         {value ? (
-          <div className="p-2.5 bg-card rounded-[4px] text-xs font-mono text-muted-foreground whitespace-pre-wrap max-h-28 overflow-y-auto leading-relaxed">
+          <div className="p-2.5 bg-card rounded-lg text-xs font-mono text-muted-foreground whitespace-pre-wrap max-h-28 overflow-y-auto leading-relaxed">
             {value}
           </div>
         ) : (
@@ -117,7 +117,7 @@ export const DadosEntradaEditor = ({
                   onChange(value + sep + secaoText);
                 }}
                 className={cn(
-                  'text-left text-[10px] px-2 py-1 rounded-[4px] transition-all duration-300',
+                  'text-left text-[10px] px-2 py-1 rounded-lg transition-all duration-300',
                   'text-muted-foreground hover:text-foreground hover:bg-card'
                 )}
               >

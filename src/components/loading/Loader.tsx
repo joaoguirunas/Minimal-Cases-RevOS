@@ -34,16 +34,16 @@ const Loader: React.FC<LoaderProps> = ({
       case 'skeleton':
         return (
           <div className="space-y-3 w-full max-w-sm">
-            <div className="h-4 bg-muted rounded-[4px] animate-pulse" />
-            <div className="h-4 bg-muted rounded-[4px] animate-pulse w-3/4" />
-            <div className="h-4 bg-muted rounded-[4px] animate-pulse w-1/2" />
+            <div className="h-4 bg-muted rounded-lg animate-pulse" />
+            <div className="h-4 bg-muted rounded-lg animate-pulse w-3/4" />
+            <div className="h-4 bg-muted rounded-lg animate-pulse w-1/2" />
           </div>
         );
 
       case 'pulse':
         return (
           <div className={cn(
-            'bg-primary rounded-[4px] animate-pulse',
+            'bg-primary rounded-lg animate-pulse',
             sizeClasses[size]
           )} />
         );

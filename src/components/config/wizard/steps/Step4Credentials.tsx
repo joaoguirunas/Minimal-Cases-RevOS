@@ -34,7 +34,7 @@ function UriRow({ label, uri, copied, onCopy }: UriRowProps) {
         type="button"
         onClick={() => onCopy(uri)}
         aria-label={`Copiar ${label}`}
-        className="shrink-0 p-1.5 rounded-[3px] hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
+        className="shrink-0 p-1.5 rounded-md hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
       >
         {copied === uri
           ? <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -106,14 +106,14 @@ export default function Step4Credentials({ isFocused, onNext }: Step4Credentials
       isFocused={isFocused}
     >
       {/* URIs em destaque */}
-      <div className="border border-primary/20 rounded-[4px] bg-muted/40 p-3 space-y-3">
+      <div className="border border-primary/20 rounded-lg bg-muted/40 p-3 space-y-3">
         <p className="text-[11px] font-semibold text-foreground uppercase tracking-wide">
           URIs que devem ser adicionadas nas credenciais
         </p>
 
         <div className="space-y-1">
           <p className="text-[10px] font-medium text-muted-foreground">JavaScript Origins</p>
-          <div className="space-y-1.5 border border-border rounded-[3px] bg-card divide-y divide-border">
+          <div className="space-y-1.5 border border-border rounded-md bg-card divide-y divide-border">
             {!IS_PROD_ORIGIN && (
               <div className="p-2">
                 <UriRow label="Origem atual (este acesso)" uri={CURRENT_ORIGIN} copied={copied} onCopy={handleCopy} />
@@ -127,7 +127,7 @@ export default function Step4Credentials({ isFocused, onNext }: Step4Credentials
 
         <div className="space-y-1">
           <p className="text-[10px] font-medium text-muted-foreground">Redirect URIs</p>
-          <div className="space-y-1.5 border border-border rounded-[3px] bg-card divide-y divide-border">
+          <div className="space-y-1.5 border border-border rounded-md bg-card divide-y divide-border">
             {!IS_PROD_ORIGIN && (
               <div className="p-2">
                 <UriRow
@@ -170,7 +170,7 @@ export default function Step4Credentials({ isFocused, onNext }: Step4Credentials
             value={clientId}
             onChange={e => setClientId(e.target.value)}
             placeholder="xxxxxxxxxx-xxxx.apps.googleusercontent.com"
-            className={`font-mono text-xs rounded-[4px] ${clientId && isIdValid ? "border-emerald-500/40 bg-emerald-500/5" : ""}`}
+            className={`font-mono text-xs rounded-lg ${clientId && isIdValid ? "border-emerald-500/40 bg-emerald-500/5" : ""}`}
           />
           {clientId && !isIdValid && (
             <p className="text-xs text-amber-600 flex items-center gap-1">
@@ -194,7 +194,7 @@ export default function Step4Credentials({ isFocused, onNext }: Step4Credentials
               placeholder={settings?.google_client_secret
                 ? "•••••• (salvo — cole para substituir)"
                 : "GOCSPX-..."}
-              className={`font-mono text-xs pr-9 rounded-[4px] ${settings?.google_client_secret && !clientSecret ? "border-emerald-500/40 bg-emerald-500/5" : ""}`}
+              className={`font-mono text-xs pr-9 rounded-lg ${settings?.google_client_secret && !clientSecret ? "border-emerald-500/40 bg-emerald-500/5" : ""}`}
             />
             <button
               type="button"

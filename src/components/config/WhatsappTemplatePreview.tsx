@@ -22,7 +22,7 @@ export const WhatsappTemplatePreview: React.FC<WhatsappTemplatePreviewProps> = (
   };
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       {/* Header */}
       <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
         <Eye className="w-4 h-4 text-white" />

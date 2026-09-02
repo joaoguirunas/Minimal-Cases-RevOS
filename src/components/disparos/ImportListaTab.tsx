@@ -230,7 +230,7 @@ export default function ImportListaTab({
                 type="button"
                 onClick={() => handleSelectTipo(tipo)}
                 className={cn(
-                  'flex flex-col items-center gap-2.5 rounded-[4px] border border-border p-4',
+                  'flex flex-col items-center gap-2.5 rounded-lg border border-border p-4',
                   'text-left cursor-pointer transition-all',
                   'hover:border-primary/50 hover:bg-primary/[0.03]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
@@ -269,7 +269,7 @@ export default function ImportListaTab({
         </div>
 
         {/* Tipo selecionado */}
-        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[4px] bg-muted/50 border border-border">
+        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 border border-border">
           <div className="w-7 h-7 rounded bg-background border border-border flex items-center justify-center shrink-0">
             <Icon className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
           </div>
@@ -322,13 +322,13 @@ export default function ImportListaTab({
     return (
       <div className="space-y-5">
         {/* Auto-map notice */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] bg-primary/5 border border-primary/20 text-[11px] text-primary">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-[11px] text-primary">
           <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
           Campos mapeados automaticamente — ajuste abaixo se necessário
         </div>
 
         {/* Lead creation options */}
-        <div className="rounded-[4px] border border-border p-4 space-y-4">
+        <div className="rounded-lg border border-border p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="create-leads-toggle" className="text-[13px] font-medium">
@@ -480,7 +480,7 @@ export default function ImportListaTab({
   if (state === 'confirmed') {
     return (
       <div className="space-y-3">
-        <div className="rounded-[4px] border border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
             <Check className="w-4 h-4 text-primary" strokeWidth={2} />
           </div>

@@ -40,7 +40,7 @@ class ConversaErrorBoundary extends React.Component<Props, State> {
               Ocorreu um erro inesperado. Tente recarregar.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={this.handleRetry} className="gap-1.5 h-[30px] rounded-[4px]">
+          <Button variant="outline" size="sm" onClick={this.handleRetry} className="gap-1.5 h-[30px] rounded-lg">
             <RefreshCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
             Tentar novamente
           </Button>

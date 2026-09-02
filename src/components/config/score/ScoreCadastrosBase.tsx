@@ -104,7 +104,7 @@ export const ScoreCadastrosBase = () => {
                 onChange={(e) => setNewCatName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCreateCategory()}
                 placeholder="Ex: Região, Tipo de Negócio..."
-                className="rounded-[4px] mt-1.5"
+                className="rounded-lg mt-1.5"
               />
             </div>
             <div className="flex justify-end gap-2">

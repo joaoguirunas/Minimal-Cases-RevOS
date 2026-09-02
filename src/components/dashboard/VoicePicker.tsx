@@ -43,7 +43,7 @@ function GenderChip({ gender }: { gender: string | null }) {
   const label = gender === 'female' ? 'F' : gender === 'male' ? 'M' : '-';
   return (
     <span className={cn(
-      "inline-flex items-center justify-center w-4 h-4 rounded-[2px] text-[9px] font-bold",
+      "inline-flex items-center justify-center w-4 h-4 rounded-md text-[9px] font-bold",
       label === 'F' ? "bg-pink-500/15 text-pink-400" :
       label === 'M' ? "bg-blue-500/15 text-blue-400" :
       "bg-muted text-muted-foreground/50"
@@ -154,14 +154,14 @@ export function VoicePicker({ selectedVoiceId, onChange, onClose }: VoicePickerP
 
   return (
     <div
-      className="w-64 bg-popover border border-border rounded-[2px] shadow-lg flex flex-col"
+      className="w-64 bg-popover border border-border rounded-md shadow-lg flex flex-col"
       onKeyDown={handleKeyDown}
       role="dialog"
       aria-label="Selecionar voz"
     >
       {/* Search */}
       <div className="px-2 pt-2 pb-1 border-b border-border">
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-[4px]">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-lg">
           <Search className="w-3 h-3 text-muted-foreground/50 shrink-0" />
           <input
             ref={searchRef}
@@ -178,7 +178,7 @@ export function VoicePicker({ selectedVoiceId, onChange, onClose }: VoicePickerP
         <button
           onClick={() => { stopPreview(); onChange(null); onClose(); }}
           className={cn(
-            "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-[2px] transition-colors hover:bg-muted",
+            "w-full flex items-center gap-2 px-2 py-1.5 text-[11px] rounded-md transition-colors hover:bg-muted",
             !selectedVoiceId && "bg-primary/5 text-foreground font-medium"
           )}
         >
@@ -222,7 +222,7 @@ export function VoicePicker({ selectedVoiceId, onChange, onClose }: VoicePickerP
                     role="option"
                     aria-selected={isSelected}
                     className={cn(
-                      "flex items-center gap-1.5 px-2 py-1.5 rounded-[2px] transition-colors cursor-pointer group",
+                      "flex items-center gap-1.5 px-2 py-1.5 rounded-md transition-colors cursor-pointer group",
                       isSelected ? "bg-primary/5" : isFocused ? "bg-muted" : "hover:bg-muted"
                     )}
                     onClick={() => { stopPreview(); onChange(voice.voice_id); onClose(); }}
@@ -258,7 +258,7 @@ export function VoicePicker({ selectedVoiceId, onChange, onClose }: VoicePickerP
                         onClick={e => { e.stopPropagation(); togglePreview(voice); }}
                         aria-label={isPreviewing ? `Parar preview de ${voice.name}` : `Preview de ${voice.name}`}
                         className={cn(
-                          "p-0.5 rounded-[2px] transition-colors focus-visible:outline-2 focus-visible:outline-primary",
+                          "p-0.5 rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-primary",
                           isPreviewing
                             ? "text-violet-500"
                             : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 hover:text-foreground"

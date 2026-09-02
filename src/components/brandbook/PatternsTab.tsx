@@ -18,7 +18,7 @@ export default function PatternsTab() {
             { name: 'Plus Grid', desc: '32px tile', bg: 'linear-gradient(rgba(255,68,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,68,0,0.06) 1px, transparent 1px), radial-gradient(circle, rgba(255,68,0,0.1) 1px, transparent 1px)', size: '32px 32px' },
           ].map(({ name, desc, bg, size }) => (
             <GlowCard key={name} glow="#FF4400">
-              <div className="h-28 rounded-[2px] border border-white/[0.04] mb-3" style={{ backgroundImage: bg, backgroundSize: size }} />
+              <div className="h-28 rounded-md border border-white/[0.04] mb-3" style={{ backgroundImage: bg, backgroundSize: size }} />
               <p className="text-[10px] font-medium text-white/50">{name}</p>
               <p className="text-[9px] font-mono text-white/20">{desc}</p>
             </GlowCard>
@@ -40,7 +40,7 @@ export default function PatternsTab() {
             { name: 'Notch BL', desc: 'Bottom-left 16px' },
             { name: 'Notch Both', desc: 'Diagonal notches' },
           ].map(({ name, desc }) => (
-            <div key={name} className="relative p-5 rounded-[2px] border border-white/[0.06] bg-white/[0.02]">
+            <div key={name} className="relative p-5 rounded-md border border-white/[0.06] bg-white/[0.02]">
               {/* Corner bracket decorations */}
               <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#FF4400]/30" />
               <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#FF4400]/30" />
@@ -62,16 +62,16 @@ export default function PatternsTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <GlowCard glow="#F59E0B">
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Hazard Stripes</h3>
-            <div className="h-8 rounded-[2px] mb-4" style={{ background: 'repeating-linear-gradient(45deg, #FF4400, #FF4400 10px, #0a0a0a 10px, #0a0a0a 20px)' }} />
-            <div className="h-6 rounded-[2px] mb-4" style={{ background: 'repeating-linear-gradient(45deg, rgba(255,68,0,0.3), rgba(255,68,0,0.3) 5px, transparent 5px, transparent 10px)' }} />
-            <div className="h-6 rounded-[2px]" style={{ background: 'repeating-linear-gradient(45deg, rgba(255,68,0,0.15), rgba(255,68,0,0.15) 5px, transparent 5px, transparent 10px)' }} />
+            <div className="h-8 rounded-md mb-4" style={{ background: 'repeating-linear-gradient(45deg, #FF4400, #FF4400 10px, #0a0a0a 10px, #0a0a0a 20px)' }} />
+            <div className="h-6 rounded-md mb-4" style={{ background: 'repeating-linear-gradient(45deg, rgba(255,68,0,0.3), rgba(255,68,0,0.3) 5px, transparent 5px, transparent 10px)' }} />
+            <div className="h-6 rounded-md" style={{ background: 'repeating-linear-gradient(45deg, rgba(255,68,0,0.15), rgba(255,68,0,0.15) 5px, transparent 5px, transparent 10px)' }} />
           </GlowCard>
           <GlowCard glow="#EF4444">
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Warning Bar</h3>
-            <div className="h-10 rounded-[2px] bg-[#FF4400] flex items-center px-4 gap-2 mb-4">
+            <div className="h-10 rounded-md bg-[#FF4400] flex items-center px-4 gap-2 mb-4">
               <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider">Warning: System Alert</span>
             </div>
-            <div className="h-8 rounded-[2px] bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center px-3">
+            <div className="h-8 rounded-md bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center px-3">
               <span className="text-[9px] font-mono text-[#F59E0B]/70">⚠ Caution zone active</span>
             </div>
           </GlowCard>
@@ -89,8 +89,8 @@ export default function PatternsTab() {
             { name: 'Data Rain', bg: 'repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,68,0,0.04) 39px, rgba(255,68,0,0.04) 40px)' },
             { name: 'Industrial', bg: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%)' },
           ].map(({ name, bg }) => (
-            <div key={name} className="p-3 rounded-[2px] border border-white/[0.04]">
-              <div className="h-20 rounded-[2px] bg-white/[0.02] mb-2" style={{ backgroundImage: bg }} />
+            <div key={name} className="p-3 rounded-md border border-white/[0.04]">
+              <div className="h-20 rounded-md bg-white/[0.02] mb-2" style={{ backgroundImage: bg }} />
               <p className="text-[9px] font-mono text-white/30">{name}</p>
             </div>
           ))}
@@ -132,7 +132,7 @@ export default function PatternsTab() {
       <section>
         <SectionHeader num="06" title="Circuit Traces" subtitle="PCB-inspired decorative patterns" />
         <GlowCard glow="#06B6D4">
-          <div className="h-24 rounded-[2px] bg-white/[0.01] border border-white/[0.04] relative overflow-hidden flex items-center justify-center">
+          <div className="h-24 rounded-md bg-white/[0.01] border border-white/[0.04] relative overflow-hidden flex items-center justify-center">
             <svg width="100%" height="100%" viewBox="0 0 400 80" className="absolute inset-0">
               <line x1="0" y1="40" x2="120" y2="40" stroke="rgba(255,68,0,0.15)" strokeWidth="1" />
               <circle cx="120" cy="40" r="3" fill="rgba(255,68,0,0.3)" />

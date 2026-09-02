@@ -109,7 +109,7 @@ export function OmniAutomacoesLogContent() {
             <Button
               variant="outline"
               size="sm"
-              className={cn('h-[30px] text-[12px] gap-1.5 rounded-[4px]', statusFilter && 'border-foreground text-foreground')}
+              className={cn('h-[30px] text-[12px] gap-1.5 rounded-lg', statusFilter && 'border-foreground text-foreground')}
             >
               {STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Todos os status'}
               <ChevronDown size={11} />
@@ -137,7 +137,7 @@ export function OmniAutomacoesLogContent() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-[30px] w-[30px] p-0 shrink-0 rounded-[4px]"
+          className="h-[30px] w-[30px] p-0 shrink-0 rounded-lg"
           onClick={() => refetch()}
           title="Atualizar"
         >
@@ -351,7 +351,7 @@ function CardCover({
       {/* Media type badge — bottom left */}
       {post && (isReel || isCarousel) && (
         <div className="absolute bottom-2 left-2">
-          <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-[3px] bg-black/60 text-white/90 backdrop-blur-sm uppercase tracking-wide">
+          <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-black/60 text-white/90 backdrop-blur-sm uppercase tracking-wide">
             {isReel ? (
               <><Image className="w-2.5 h-2.5" />Reels</>
             ) : (
@@ -405,7 +405,7 @@ function AutomationCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 rounded-[4px] bg-black/50 hover:bg-black/70 text-white border-0"
+                className="h-6 w-6 rounded-lg bg-black/50 hover:bg-black/70 text-white border-0"
               >
                 <MoreVertical className="w-3.5 h-3.5" />
               </Button>
@@ -446,7 +446,7 @@ function AutomationCard({
         {/* Status badge */}
         <div>
           <span className={cn(
-            'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-[3px] border',
+            'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border',
             automation.is_active
               ? 'bg-orange-500/10 text-orange-500 border-orange-500/20 dark:text-orange-400'
               : 'bg-muted text-muted-foreground border-border',
@@ -582,8 +582,8 @@ function AutomacoesListView({ onNew, onEdit }: { onNew: () => void; onEdit: (id:
           <div key={i} className="rounded-[6px] overflow-hidden border border-border">
             <div className="aspect-[4/3] bg-muted animate-pulse" />
             <div className="p-3 space-y-2">
-              <div className="h-3 w-3/4 bg-muted animate-pulse rounded-[3px]" />
-              <div className="h-2 w-1/2 bg-muted animate-pulse rounded-[3px]" />
+              <div className="h-3 w-3/4 bg-muted animate-pulse rounded-md" />
+              <div className="h-2 w-1/2 bg-muted animate-pulse rounded-md" />
             </div>
           </div>
         ))}

@@ -69,7 +69,7 @@ function MessageBubble({ msg }: { msg: TestMessage }) {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-8">
-      <div className="w-12 h-12 bg-muted rounded-[2px] flex items-center justify-center mb-3">
+      <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center mb-3">
         <Bot className="h-6 w-6 text-muted-foreground/40" />
       </div>
       <p className="text-[13px] font-medium text-foreground mb-1">Selecione uma pessoa</p>
@@ -358,12 +358,12 @@ export function TestChatPanel({
 
         {/* Media preview */}
         {mediaFile && !isRecording && (
-          <div className="mb-2 flex items-center gap-2 bg-muted rounded-[4px] px-3 py-2 border border-border">
+          <div className="mb-2 flex items-center gap-2 bg-muted rounded-lg px-3 py-2 border border-border">
             {mediaType === 'imagem' && mediaPreviewUrl && (
               <img
                 src={mediaPreviewUrl}
                 alt="preview"
-                className="h-10 w-10 object-cover rounded-[4px] shrink-0"
+                className="h-10 w-10 object-cover rounded-lg shrink-0"
               />
             )}
             {mediaType === 'video' && (
@@ -406,7 +406,7 @@ export function TestChatPanel({
 
           {/* Text area or recording indicator */}
           {isRecording ? (
-            <div className="flex items-center gap-3 flex-1 bg-muted rounded-[4px] px-3 py-2">
+            <div className="flex items-center gap-3 flex-1 bg-muted rounded-lg px-3 py-2">
               <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" />
               <span className="text-[12px] font-mono text-red-500">{formatSeconds(recordingSeconds)}</span>
               <span className="text-[12px] text-muted-foreground">Gravando áudio...</span>

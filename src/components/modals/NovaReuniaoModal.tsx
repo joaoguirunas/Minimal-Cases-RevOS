@@ -95,7 +95,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
                   variant="outline"
                   role="combobox"
                   aria-expanded={openLeadCombobox}
-                  className="w-full justify-between border-border h-10 mt-2 rounded-[4px]"
+                  className="w-full justify-between border-border h-10 mt-2 rounded-lg"
                   disabled={isLoading || !!leadId}
                 >
                   {selectedLead
@@ -104,7 +104,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 rounded-[4px]">
+              <PopoverContent className="w-full p-0 rounded-lg">
                 <Command>
                   <CommandInput placeholder="Search lead..." className="h-9" />
                   <CommandList>
@@ -150,7 +150,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
                 value={formData.date}
                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                 disabled={isLoading}
-                className="border-border h-10 mt-2 rounded-[4px]"
+                className="border-border h-10 mt-2 rounded-lg"
               />
             </div>
             <div>
@@ -161,7 +161,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
                 value={formData.start_time}
                 onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
                 disabled={isLoading}
-                className="border-border h-10 mt-2 rounded-[4px]"
+                className="border-border h-10 mt-2 rounded-lg"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
                 value={formData.end_time}
                 onChange={(e) => setFormData(prev => ({ ...prev, end_time: e.target.value }))}
                 disabled={isLoading}
-                className="border-border h-10 mt-2 rounded-[4px]"
+                className="border-border h-10 mt-2 rounded-lg"
               />
             </div>
           </div>
@@ -185,7 +185,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
               onValueChange={(value) => setFormData(prev => ({ ...prev, user_id: value }))}
               disabled={isLoading}
             >
-              <SelectTrigger className="border-border h-10 mt-2 rounded-[4px]">
+              <SelectTrigger className="border-border h-10 mt-2 rounded-lg">
                 <SelectValue placeholder="Select consultant" />
               </SelectTrigger>
               <SelectContent>
@@ -208,7 +208,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
               onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
               placeholder="Meeting location or link"
               disabled={isLoading}
-              className="border-border h-10 mt-2 rounded-[4px]"
+              className="border-border h-10 mt-2 rounded-lg"
             />
           </div>
 
@@ -222,7 +222,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
               onChange={(e) => setFormData(prev => ({ ...prev, google_meet_link: e.target.value }))}
               placeholder="https://meet.google.com/xxx-xxxx-xxx"
               disabled={isLoading}
-              className="border-border h-10 mt-2 rounded-[4px]"
+              className="border-border h-10 mt-2 rounded-lg"
             />
           </div>
 
@@ -234,7 +234,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
               onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
               disabled={isLoading}
             >
-              <SelectTrigger className="border-border h-10 mt-2 rounded-[4px]">
+              <SelectTrigger className="border-border h-10 mt-2 rounded-lg">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -258,7 +258,7 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
               placeholder="Meeting notes..."
               rows={3}
               disabled={isLoading}
-              className="border-border mt-2 rounded-[4px]"
+              className="border-border mt-2 rounded-lg"
             />
           </div>
 
@@ -283,14 +283,14 @@ export const NovaReuniaoModal = ({ open, onOpenChange, onClose, leadId }: NovaRe
             variant="outline" 
             onClick={handleClose} 
             disabled={isLoading}
-            className="rounded-[4px]"
+            className="rounded-lg"
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={isLoading || !formData.lead_id || !formData.date || !formData.start_time || !formData.end_time}
-            className="bg-primary hover:bg-primary-hover text-primary-foreground rounded-[4px]"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground rounded-lg"
           >
             {isLoading ? "Scheduling..." : "Schedule Meeting"}
           </Button>

@@ -126,7 +126,7 @@ const Perfil = () => {
         <div className="space-y-6">
 
       {/* Personal Information */}
-      <Card className="p-6 rounded-[2px]">
+      <Card className="p-6 rounded-md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-[14px] font-semibold">Informações Pessoais</h3>
           <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ const Perfil = () => {
           </div>
 
           <div className="pt-4">
-            <Button type="submit" className="h-[30px] rounded-[4px] text-xs" disabled={isUpdatingProfile || isLoading}>
+            <Button type="submit" className="h-[30px] rounded-lg text-xs" disabled={isUpdatingProfile || isLoading}>
               <Save className="w-3.5 h-3.5 mr-1.5" />
               {isUpdatingProfile ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
@@ -240,7 +240,7 @@ const Perfil = () => {
       </Card>
 
       {/* Security */}
-      <Card className="p-6 rounded-[2px]">
+      <Card className="p-6 rounded-md">
         <h3 className="text-[14px] font-semibold mb-4">Segurança</h3>
         <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-4">
           <div>
@@ -277,7 +277,7 @@ const Perfil = () => {
           </div>
 
           <div className="pt-4">
-            <Button type="submit" variant="outline" className="h-[30px] rounded-[4px] text-xs" disabled={isUpdatingPassword || isLoading}>
+            <Button type="submit" variant="outline" className="h-[30px] rounded-lg text-xs" disabled={isUpdatingPassword || isLoading}>
               {isUpdatingPassword ? 'Alterando...' : 'Alterar Senha'}
             </Button>
           </div>
@@ -285,7 +285,7 @@ const Perfil = () => {
       </Card>
 
       {/* Preferences */}
-      <Card className="p-6 rounded-[2px]">
+      <Card className="p-6 rounded-md">
         <h3 className="text-[14px] font-semibold mb-4">Preferências</h3>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

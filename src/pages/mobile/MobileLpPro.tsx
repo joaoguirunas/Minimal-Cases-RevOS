@@ -165,7 +165,7 @@ function PagesListMobile({
         <button
           key={page.id}
           onClick={() => onEdit(page)}
-          className="w-full flex items-start gap-3 p-3 border border-border rounded-[4px] bg-card hover:bg-muted transition-colors text-left"
+          className="w-full flex items-start gap-3 p-3 border border-border rounded-lg bg-card hover:bg-muted transition-colors text-left"
         >
           {/* Thumbnail */}
           <div className="w-12 h-12 rounded bg-muted border border-border flex-shrink-0 overflow-hidden">
@@ -243,7 +243,7 @@ function FormsListMobile({
         <button
           key={form.id}
           onClick={() => onEdit(form)}
-          className="w-full text-left p-4 border border-border rounded-[4px] bg-card hover:bg-muted transition-colors"
+          className="w-full text-left p-4 border border-border rounded-lg bg-card hover:bg-muted transition-colors"
         >
           <h3 className="font-medium text-sm">{form.name}</h3>
           <p className="text-xs text-muted-foreground mt-1">

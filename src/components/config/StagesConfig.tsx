@@ -148,7 +148,7 @@ const StagesConfig = ({ pipeline, onBack }: StagesConfigProps) => {
 
   if (!pipeline) {
     return (
-      <div className="border border-border rounded-[2px] p-8 text-center">
+      <div className="border border-border rounded-md p-8 text-center">
         <p className="text-[13px] text-muted-foreground/60 mb-3">Pipeline não encontrado.</p>
         <Button size="sm" variant="outline" onClick={onBack} className="h-[30px] text-[13px] gap-1.5">
           <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -184,7 +184,7 @@ const StagesConfig = ({ pipeline, onBack }: StagesConfigProps) => {
 
       {/* New stage form */}
       {showNewForm && (
-        <div className="border border-border rounded-[2px] p-4 space-y-3">
+        <div className="border border-border rounded-md p-4 space-y-3">
           <h3 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Nova Etapa
           </h3>
@@ -237,7 +237,7 @@ const StagesConfig = ({ pipeline, onBack }: StagesConfigProps) => {
         <Droppable droppableId="stages-list">
           {(provided) => (
             <div
-              className="border border-border rounded-[2px] overflow-hidden"
+              className="border border-border rounded-md overflow-hidden"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >

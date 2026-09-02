@@ -167,7 +167,7 @@ export function CalendarSyncCard() {
   const list = connections ?? [];
 
   return (
-    <Card className="p-6 rounded-[2px]">
+    <Card className="p-6 rounded-md">
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-[14px] font-semibold">Calendário &amp; Videoconferência</h3>
@@ -179,7 +179,7 @@ export function CalendarSyncCard() {
         <Button
           variant="outline"
           size="sm"
-          className="rounded-[4px] h-[30px] text-xs shrink-0"
+          className="rounded-lg h-[30px] text-xs shrink-0"
           onClick={() => setAddOpen(true)}
         >
           <Plus className="w-3.5 h-3.5 mr-1.5" />
@@ -193,7 +193,7 @@ export function CalendarSyncCard() {
           Verificando conexões...
         </div>
       ) : list.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-8 px-4 rounded-[4px] border border-dashed border-border text-center">
+        <div className="flex flex-col items-center justify-center gap-3 py-8 px-4 rounded-lg border border-dashed border-border text-center">
           <CalendarX className="w-6 h-6 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium text-foreground">Nenhum calendário conectado</p>
@@ -204,7 +204,7 @@ export function CalendarSyncCard() {
           <Button
             variant="outline"
             size="sm"
-            className="rounded-[4px] h-[30px] text-xs"
+            className="rounded-lg h-[30px] text-xs"
             onClick={() => setAddOpen(true)}
           >
             <Plus className="w-3.5 h-3.5 mr-1.5" />
@@ -221,7 +221,7 @@ export function CalendarSyncCard() {
             return (
               <div
                 key={conn.id}
-                className={`p-3 rounded-[4px] border ${google ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-blue-500/30 bg-blue-500/5'}`}
+                className={`p-3 rounded-lg border ${google ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-blue-500/30 bg-blue-500/5'}`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
@@ -237,7 +237,7 @@ export function CalendarSyncCard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-[4px] h-[30px] text-xs text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10 shrink-0"
+                    className="rounded-lg h-[30px] text-xs text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10 shrink-0"
                     onClick={() => handleDisconnect(conn.id)}
                     disabled={disconnectPending}
                   >
@@ -279,7 +279,7 @@ export function CalendarSyncCard() {
       )}
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="rounded-[4px] sm:max-w-[420px]">
+        <DialogContent className="rounded-lg sm:max-w-[420px]">
           <DialogHeader>
             <DialogTitle className="text-[15px]">Adicionar calendário</DialogTitle>
             <DialogDescription>
@@ -290,7 +290,7 @@ export function CalendarSyncCard() {
             <button
               type="button"
               onClick={() => { setAddOpen(false); handleConnectGoogleCalendar(); }}
-              className="flex items-center gap-3 p-3 rounded-[4px] border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-left transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-left transition-colors"
             >
               <CalendarCheck className="w-5 h-5 text-emerald-500 shrink-0" />
               <div>
@@ -301,7 +301,7 @@ export function CalendarSyncCard() {
             <button
               type="button"
               onClick={() => { setAddOpen(false); handleConnectMSTeams(); }}
-              className="flex items-center gap-3 p-3 rounded-[4px] border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-left transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-left transition-colors"
             >
               <CalendarCheck className="w-5 h-5 text-blue-500 shrink-0" />
               <div>

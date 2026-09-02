@@ -61,7 +61,7 @@ export default function LiveCounterSidebar({
   };
 
   return (
-    <Card className="border border-border bg-card rounded-[4px] overflow-hidden">
+    <Card className="border border-border bg-card rounded-lg overflow-hidden">
 
       {/* ── Header ── */}
       <div className="bg-muted px-5 py-4 border-b border-border">
@@ -95,19 +95,19 @@ export default function LiveCounterSidebar({
         <div className="grid grid-cols-3 gap-2">
           {isLoading ? (
             [1, 2, 3].map(i => (
-              <Skeleton key={i} className="h-14 rounded-[4px]" />
+              <Skeleton key={i} className="h-14 rounded-lg" />
             ))
           ) : (
             <>
-              <div className="text-center p-2.5 rounded-[4px] bg-muted">
+              <div className="text-center p-2.5 rounded-lg bg-muted">
                 <div className="text-xl font-semibold text-foreground">{leadStatuses.active}</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">Ativos</div>
               </div>
-              <div className="text-center p-2.5 rounded-[4px] bg-muted">
+              <div className="text-center p-2.5 rounded-lg bg-muted">
                 <div className="text-xl font-semibold text-foreground">{leadStatuses.won}</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">Ganhos</div>
               </div>
-              <div className="text-center p-2.5 rounded-[4px] bg-muted">
+              <div className="text-center p-2.5 rounded-lg bg-muted">
                 <div className="text-xl font-semibold text-foreground">{leadStatuses.conversionRate}%</div>
                 <div className="text-[11px] text-muted-foreground mt-0.5">Conversão</div>
               </div>
@@ -126,7 +126,7 @@ export default function LiveCounterSidebar({
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <Skeleton key={i} className="h-11 rounded-[4px]" />
+              <Skeleton key={i} className="h-11 rounded-lg" />
             ))}
           </div>
         ) : contacts.length === 0 ? (
@@ -154,7 +154,7 @@ export default function LiveCounterSidebar({
               return (
                 <div
                   key={contact.id ?? idx}
-                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-[4px] border border-border bg-card hover:bg-accent transition-colors animate-in fade-in-50 slide-in-from-left-1 duration-200"
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-border bg-card hover:bg-accent transition-colors animate-in fade-in-50 slide-in-from-left-1 duration-200"
                   style={{ animationDelay: `${idx * 40}ms` }}
                 >
                   <div

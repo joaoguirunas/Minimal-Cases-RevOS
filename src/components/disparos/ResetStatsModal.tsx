@@ -28,7 +28,7 @@ export function ResetStatsModal({
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-[4px] bg-yellow-500/10">
+            <div className="p-2 rounded-lg bg-yellow-500/10">
               <AlertTriangle className="w-6 h-6 text-yellow-600" />
             </div>
             <AlertDialogTitle>Resetar Estatísticas</AlertDialogTitle>

@@ -80,7 +80,7 @@ export function SortableStepItem({
 
       {/* Step 1 warning */}
       {stepI === 0 && firstStepWarning && (
-        <div className="px-3 py-1.5 mx-2 mb-1 rounded-[4px] bg-amber-500/10 flex items-center gap-1.5">
+        <div className="px-3 py-1.5 mx-2 mb-1 rounded-lg bg-amber-500/10 flex items-center gap-1.5">
           <span className="text-[10px] text-amber-600 font-semibold">
             ⚠ Etapa 1 deve ter Nome + Telefone ou Nome + E-mail
           </span>
@@ -92,13 +92,13 @@ export function SortableStepItem({
       <div
         ref={setDropRef}
         className={cn(
-          "pl-4 pr-2 pb-2 space-y-0.5 min-h-[32px] rounded-[4px] transition-colors",
+          "pl-4 pr-2 pb-2 space-y-0.5 min-h-[32px] rounded-lg transition-colors",
           isFieldOver && "bg-primary/5 ring-1 ring-inset ring-primary/20"
         )}
       >
         {stepFields.length === 0 ? (
           <div className={cn(
-            "py-3 text-center border border-dashed rounded-[4px] mx-2 transition-colors",
+            "py-3 text-center border border-dashed rounded-lg mx-2 transition-colors",
             isFieldOver ? "border-primary/50 bg-primary/5" : "border-border"
           )}>
             <p className="text-[10px] text-muted-foreground/60">

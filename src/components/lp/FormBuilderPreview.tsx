@@ -33,12 +33,12 @@ export function FormFieldStatic({ field, isDark = false }: { field: LpFormField;
           disabled
           placeholder={field.placeholder || ""}
           rows={2}
-          className="w-full text-xs border border-border rounded-[4px] px-3 py-2 bg-muted resize-none"
+          className="w-full text-xs border border-border rounded-lg px-3 py-2 bg-muted resize-none"
           style={inputStyle}
         />
       ) : field.type === "select" ? (
         <div className="relative">
-          <select disabled className="w-full text-xs border border-border rounded-[4px] px-3 py-1.5 bg-muted h-[30px] appearance-none pr-6" style={inputStyle}>
+          <select disabled className="w-full text-xs border border-border rounded-lg px-3 py-1.5 bg-muted h-[30px] appearance-none pr-6" style={inputStyle}>
             <option>Selecione...</option>
           </select>
           <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
@@ -61,7 +61,7 @@ export function FormFieldStatic({ field, isDark = false }: { field: LpFormField;
           disabled
           type={field.type === "phone" ? "tel" : field.type}
           placeholder={field.placeholder || ""}
-          className="w-full text-xs border border-border rounded-[4px] px-3 py-1.5 bg-muted h-[30px]"
+          className="w-full text-xs border border-border rounded-lg px-3 py-1.5 bg-muted h-[30px]"
           style={inputStyle}
         />
       )}
@@ -86,11 +86,11 @@ export function FormPreview({
         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
           Estrutura do formulário
         </p>
-        <div className="flex items-center bg-muted rounded-[4px] p-0.5 gap-0.5">
+        <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
           <button
             onClick={() => setDevice("desktop")}
             className={cn(
-              "flex items-center gap-1 px-2 py-1 rounded-[3px] text-[10px] font-medium transition-colors",
+              "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors",
               device === "desktop" ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -99,7 +99,7 @@ export function FormPreview({
           <button
             onClick={() => setDevice("mobile")}
             className={cn(
-              "flex items-center gap-1 px-2 py-1 rounded-[3px] text-[10px] font-medium transition-colors",
+              "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors",
               device === "mobile" ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -127,13 +127,13 @@ export function FormPreview({
           </div>
         )}
         {device === "desktop" && (
-          <div className="bg-card rounded-[4px] border border-border overflow-hidden">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
             {/* Browser chrome */}
             <div className="flex items-center gap-1.5 px-3 py-2 bg-muted border-b border-border">
               <div className="w-2 h-2 rounded-full bg-red-400" />
               <div className="w-2 h-2 rounded-full bg-yellow-400" />
               <div className="w-2 h-2 rounded-full bg-green-400" />
-              <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-[3px] flex items-center px-2 gap-1">
+              <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-md flex items-center px-2 gap-1">
                 <Globe className="w-2.5 h-2.5 text-muted-foreground" />
                 <span className="text-[9px] text-muted-foreground">seusite.com</span>
               </div>
@@ -172,7 +172,7 @@ export function FormPreviewInner({
           ))}
           <button
             disabled
-            className="w-full py-2 rounded-[4px] text-sm font-semibold text-white bg-primary/80 cursor-default"
+            className="w-full py-2 rounded-lg text-sm font-semibold text-white bg-primary/80 cursor-default"
           >
             {settings.submit_text || "Enviar"}
           </button>
@@ -205,7 +205,7 @@ export function StepsPreview({
 
   return (
     <div
-      className="bg-card rounded-[4px] border border-border overflow-hidden max-w-sm mx-auto"
+      className="bg-card rounded-lg border border-border overflow-hidden max-w-sm mx-auto"
       style={isDark ? { backgroundColor: '#09090b', borderColor: '#27272a' } : undefined}
     >
       {/* Step progress */}
@@ -246,7 +246,7 @@ export function StepsPreview({
               <input
                 disabled
                 placeholder={field.placeholder || ""}
-                className="w-full text-xs border border-border rounded-[4px] px-3 py-1.5 bg-muted h-[30px]"
+                className="w-full text-xs border border-border rounded-lg px-3 py-1.5 bg-muted h-[30px]"
                 style={isDark ? { backgroundColor: '#18181b', borderColor: '#3f3f46', color: '#fafafa' } : undefined}
               />
             </div>
@@ -258,13 +258,13 @@ export function StepsPreview({
         <button
           onClick={() => setPreviewStep((s) => Math.max(0, s - 1))}
           disabled={previewStep === 0}
-          className="px-3 py-1.5 text-xs border border-border rounded-[4px] text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
+          className="px-3 py-1.5 text-xs border border-border rounded-lg text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
         >
           ← Voltar
         </button>
         <button
           onClick={() => setPreviewStep((s) => Math.min(steps.length - 1, s + 1))}
-          className="flex-1 py-1.5 text-xs rounded-[4px] bg-primary/80 text-white font-semibold hover:bg-primary/90 transition-colors"
+          className="flex-1 py-1.5 text-xs rounded-lg bg-primary/80 text-white font-semibold hover:bg-primary/90 transition-colors"
         >
           {previewStep < steps.length - 1 ? "Próximo →" : settings.submit_text || "Enviar"}
         </button>
@@ -403,7 +403,7 @@ export function EmbedPanel({
 
       <div className="flex-1 overflow-y-auto">
         {/* Description card */}
-        <div className="mx-4 mt-4 p-3 bg-muted border border-border rounded-[4px] flex items-start gap-2.5">
+        <div className="mx-4 mt-4 p-3 bg-muted border border-border rounded-lg flex items-start gap-2.5">
           <div className="mt-0.5 text-muted-foreground shrink-0">{subtabsMeta[sub].icon}</div>
           <div className="min-w-0">
             {subtabsMeta[sub].badge && (
@@ -429,7 +429,7 @@ export function EmbedPanel({
               </div>
               <CopyButton text={codes[sub]} />
             </div>
-            <div className="bg-[#1e1e2e] rounded-[4px] border border-border overflow-hidden">
+            <div className="bg-[#1e1e2e] rounded-lg border border-border overflow-hidden">
               {/* Fake header bar */}
               <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5">
                 <div className="w-2 h-2 rounded-full bg-red-500/60" />
@@ -453,7 +453,7 @@ export function EmbedPanel({
               </span>
               <CopyButton text={formUrl} />
             </div>
-            <div className="flex items-center gap-2 bg-muted border border-border rounded-[4px] px-2.5 py-2">
+            <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-2.5 py-2">
               <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
               <span className="text-[10px] font-mono text-muted-foreground break-all flex-1">{formUrl}</span>
               <a href={formUrl} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground shrink-0">
@@ -475,7 +475,7 @@ export function BrowserChrome() {
       <div className="w-2 h-2 rounded-full bg-red-400" />
       <div className="w-2 h-2 rounded-full bg-yellow-400" />
       <div className="w-2 h-2 rounded-full bg-green-400" />
-      <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-[3px] flex items-center px-2 gap-1">
+      <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-md flex items-center px-2 gap-1">
         <Globe className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[9px] text-muted-foreground">seusite.com/landing</span>
       </div>

@@ -39,7 +39,7 @@ const MobileAppHeader = () => {
           {tenantLogo && !logoError ? (
             <div className="flex items-center justify-center h-8">
               {!logoLoaded && (
-                <div className="w-24 h-8 bg-muted animate-pulse rounded-[2px]" />
+                <div className="w-24 h-8 bg-muted animate-pulse rounded-md" />
               )}
               <img
                 src={tenantLogo}

@@ -83,7 +83,7 @@ export function AgendamentoInlineTab({
         {linkedLeadId && (
           <p className="text-[11px] text-emerald-600 dark:text-emerald-400">Vinculado ao negócio selecionado</p>
         )}
-        <Button variant="outline" size="sm" onClick={() => { setDone(false); setDate(''); setStartTime(''); setEndTime(''); }} className="mt-1 h-[30px] text-xs rounded-[4px]">
+        <Button variant="outline" size="sm" onClick={() => { setDone(false); setDate(''); setStartTime(''); setEndTime(''); }} className="mt-1 h-[30px] text-xs rounded-lg">
           Criar outro agendamento
         </Button>
       </div>
@@ -102,7 +102,7 @@ export function AgendamentoInlineTab({
     <div className="p-4 space-y-3">
       {/* Context */}
       {(personName || linkedLeadId) && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] bg-muted border border-white/[0.06] text-[11px]">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-white/[0.06] text-[11px]">
           {personName && (
             <span className="text-muted-foreground">Para: <strong className="text-foreground">{personName}</strong></span>
           )}
@@ -138,7 +138,7 @@ export function AgendamentoInlineTab({
       <Button
         onClick={handleCreate}
         disabled={!canCreate || criarAgendamento.isPending}
-        className="w-full h-[30px] text-xs rounded-[4px] gap-1.5"
+        className="w-full h-[30px] text-xs rounded-lg gap-1.5"
       >
         {criarAgendamento.isPending
           ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -151,7 +151,7 @@ export function AgendamentoInlineTab({
         <Button
           variant="outline"
           onClick={handleSendLink}
-          className="w-full h-[30px] text-xs rounded-[4px] gap-1.5"
+          className="w-full h-[30px] text-xs rounded-lg gap-1.5"
         >
           {onSendLink ? (
             <><Link2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Enviar link de agendamento</>

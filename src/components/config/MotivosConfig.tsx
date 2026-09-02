@@ -66,7 +66,7 @@ const MotivosConfig = ({ selectedTenantId }: MotivosConfigProps) => {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-12 bg-muted animate-pulse rounded-[2px]" />
+          <div key={i} className="h-12 bg-muted animate-pulse rounded-md" />
         ))}
       </div>
     );
@@ -85,7 +85,7 @@ const MotivosConfig = ({ selectedTenantId }: MotivosConfigProps) => {
       </div>
 
       {/* Add new */}
-      <div className="border border-border rounded-[2px] p-4">
+      <div className="border border-border rounded-md p-4">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-3">
           {t('lossReasons.addNew')}
         </p>
@@ -101,7 +101,7 @@ const MotivosConfig = ({ selectedTenantId }: MotivosConfigProps) => {
             size="sm"
             onClick={handleAddMotivo}
             disabled={!novoMotivo.trim()}
-            className="h-[30px] text-xs gap-1.5 flex-shrink-0 rounded-[4px]"
+            className="h-[30px] text-xs gap-1.5 flex-shrink-0 rounded-lg"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             {t('lossReasons.add')}
@@ -111,11 +111,11 @@ const MotivosConfig = ({ selectedTenantId }: MotivosConfigProps) => {
 
       {/* List */}
       {motivos.length === 0 ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <p className="text-[13px] text-muted-foreground/50">{t('lossReasons.noReasons')}</p>
         </div>
       ) : (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           {motivos.map((motivo, index) => (
             <div
               key={motivo.id}

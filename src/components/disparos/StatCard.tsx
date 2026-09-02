@@ -31,13 +31,13 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Card className="p-6 border border-border bg-card transition-all duration-300 group rounded-[2px]">
+      <Card className="p-6 border border-border bg-card transition-all duration-300 group rounded-md">
         <div className="flex items-start justify-between mb-4">
-          <div className={`p-3 rounded-[4px] ${iconColor} transition-all duration-300`}>
+          <div className={`p-3 rounded-lg ${iconColor} transition-all duration-300`}>
             <Icon className="w-6 h-6" />
           </div>
           {trend && (
-            <div className={`text-xs font-medium px-2 py-1 rounded-[2px] ${
+            <div className={`text-xs font-medium px-2 py-1 rounded-md ${
               trend.isPositive 
                 ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
                 : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'

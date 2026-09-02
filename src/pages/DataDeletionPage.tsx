@@ -81,7 +81,7 @@ export default function DataDeletionPage() {
 
         {result ? (
           /* ── Success state ──────────────────────────────────────── */
-          <div className="border border-border rounded-[2px] bg-card p-6 space-y-4 text-center">
+          <div className="border border-border rounded-md bg-card p-6 space-y-4 text-center">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             </div>
@@ -91,7 +91,7 @@ export default function DataDeletionPage() {
                 Sua solicitação de exclusão foi registrada e será analisada pela nossa equipe em até 15 dias úteis, conforme a LGPD.
               </p>
             </div>
-            <div className="border border-white/[0.06] rounded-[2px] bg-white/[0.03] px-4 py-3">
+            <div className="border border-white/[0.06] rounded-md bg-white/[0.03] px-4 py-3">
               <p className="text-[11px] text-muted-foreground/50 uppercase tracking-widest mb-1">Protocolo</p>
               <p className="text-sm font-mono font-semibold text-foreground">{result.protocol}</p>
             </div>
@@ -101,7 +101,7 @@ export default function DataDeletionPage() {
           </div>
         ) : (
           /* ── Form ───────────────────────────────────────────────── */
-          <form onSubmit={handleSubmit} className="border border-border rounded-[2px] bg-card overflow-hidden">
+          <form onSubmit={handleSubmit} className="border border-border rounded-md bg-card overflow-hidden">
             <div className="p-5 space-y-4">
 
               <div className="space-y-1.5">
@@ -157,7 +157,7 @@ export default function DataDeletionPage() {
               </div>
 
               {error && (
-                <div className="rounded-[2px] bg-destructive/10 border border-destructive/20 px-3 py-2">
+                <div className="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2">
                   <p className="text-[12px] text-destructive">{error}</p>
                 </div>
               )}
@@ -167,7 +167,7 @@ export default function DataDeletionPage() {
               <Button
                 type="submit"
                 disabled={!canSubmit}
-                className="w-full h-[30px] text-xs rounded-[4px] gap-1.5"
+                className="w-full h-[30px] text-xs rounded-lg gap-1.5"
               >
                 {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 {submitting ? 'Processando...' : 'Enviar solicitação de exclusão'}

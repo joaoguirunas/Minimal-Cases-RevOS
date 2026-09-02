@@ -12,19 +12,19 @@ const NegocioBadges = ({ ultimoCanal, ultimaMensagemOrigem }: NegocioBadgesProps
   // Badge do último canal (se houver)
   if (ultimoCanal === 'whatsapp') {
     badges.push(
-      <div key="whatsapp" className="flex items-center justify-center w-4 h-4 bg-[#00D26A] rounded-[4px]" title="WhatsApp">
+      <div key="whatsapp" className="flex items-center justify-center w-4 h-4 bg-[#00D26A] rounded-lg" title="WhatsApp">
         <MessageCircle className="w-2 h-2 text-white" />
       </div>
     );
   } else if (ultimoCanal === 'email') {
     badges.push(
-      <div key="email" className="flex items-center justify-center w-4 h-4 bg-[#3B82F6] rounded-[4px]" title="Email">
+      <div key="email" className="flex items-center justify-center w-4 h-4 bg-[#3B82F6] rounded-lg" title="Email">
         <Mail className="w-2 h-2 text-white" />
       </div>
     );
   } else if (ultimoCanal === 'telefone') {
     badges.push(
-      <div key="telefone" className="flex items-center justify-center w-4 h-4 bg-[#EF4444] rounded-[4px]" title="Telefone">
+      <div key="telefone" className="flex items-center justify-center w-4 h-4 bg-[#EF4444] rounded-lg" title="Telefone">
         <Phone className="w-2 h-2 text-white" />
       </div>
     );
@@ -35,7 +35,7 @@ const NegocioBadges = ({ ultimoCanal, ultimaMensagemOrigem }: NegocioBadgesProps
     badges.push(
       <div 
         key="ia" 
-        className="flex items-center justify-center w-4 h-4 bg-[#8B5CF6] rounded-[4px]"
+        className="flex items-center justify-center w-4 h-4 bg-[#8B5CF6] rounded-lg"
         title="IA"
       >
         <Bot className="w-2 h-2 text-white" />
@@ -43,7 +43,7 @@ const NegocioBadges = ({ ultimoCanal, ultimaMensagemOrigem }: NegocioBadgesProps
     );
   } else if (ultimaMensagemOrigem === 'humano') {
     badges.push(
-      <div key="humano" className="flex items-center justify-center w-4 h-4 bg-muted-foreground/60 rounded-[4px]" title="Agente">
+      <div key="humano" className="flex items-center justify-center w-4 h-4 bg-muted-foreground/60 rounded-lg" title="Agente">
         <User className="w-2 h-2 text-white" />
       </div>
     );

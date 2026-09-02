@@ -105,7 +105,7 @@ export const AtribuirTimeResponsavel = ({ negocio, compact = false }: AtribuirTi
           onValueChange={handleTimeChange}
           disabled={loadingTimes || atualizarAtribuicao.isPending}
         >
-          <SelectTrigger className="h-9 rounded-[4px]">
+          <SelectTrigger className="h-9 rounded-lg">
             <SelectValue placeholder={t('assignment.selectTeam')} />
           </SelectTrigger>
           <SelectContent>
@@ -139,7 +139,7 @@ export const AtribuirTimeResponsavel = ({ negocio, compact = false }: AtribuirTi
         >
           <SelectTrigger
             className={cn(
-              "h-9 rounded-[4px]",
+              "h-9 rounded-lg",
               (selectedTimeId === 'none' || !selectedTimeId) && "opacity-50 cursor-not-allowed"
             )}
           >
@@ -176,7 +176,7 @@ export const AtribuirTimeResponsavel = ({ negocio, compact = false }: AtribuirTi
   }
 
   return (
-    <Card className="border border-border transition-all duration-300 rounded-[2px] border-l-4 border-l-blue-500">
+    <Card className="border border-border transition-all duration-300 rounded-md border-l-4 border-l-blue-500">
       <CardHeader className="pb-3 p-6">
         <CardTitle className="text-[18px] font-semibold flex items-center gap-2">
           <Users className="w-5 h-5" />

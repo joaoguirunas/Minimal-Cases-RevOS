@@ -33,7 +33,7 @@ export default function FlowDiagramTab() {
         <SectionHeader num="01" title="Flow Diagram" subtitle="Interactive data-driven canvas with SVG connectors" />
         <GlowCard glow="#FF4400">
           <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">SaaS Onboarding Flow</h3>
-          <div className="rounded-[2px] border border-white/[0.04] bg-white/[0.01] p-4">
+          <div className="rounded-md border border-white/[0.04] bg-white/[0.01] p-4">
             <svg viewBox="0 0 560 200" className="w-full h-auto">
               <defs>
                 <marker id="arrowFF" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
@@ -64,7 +64,7 @@ export default function FlowDiagramTab() {
         <SectionHeader num="02" title="Flow Map" subtitle="Grouped mindmap canvas — module relationships" />
         <GlowCard glow="#3B82F6">
           <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">CRM Architecture</h3>
-          <div className="rounded-[2px] border border-white/[0.04] bg-white/[0.01] p-4">
+          <div className="rounded-md border border-white/[0.04] bg-white/[0.01] p-4">
             <svg viewBox="0 0 500 280" className="w-full h-auto">
               {/* Center node */}
               <rect x="200" y="120" width="100" height="40" rx="2" fill="rgba(255,68,0,0.1)" stroke="#FF4400" strokeWidth="1.5" />
@@ -101,7 +101,7 @@ export default function FlowDiagramTab() {
               { name: 'Store', status: 'pending', color: '#FF4400' },
             ].map(({ name, status, color }, i) => (
               <div key={name} className="flex items-center gap-2 shrink-0">
-                <div className="p-3 rounded-[2px] border bg-white/[0.02] min-w-[80px]" style={{ borderColor: `${color}30` }}>
+                <div className="p-3 rounded-md border bg-white/[0.02] min-w-[80px]" style={{ borderColor: `${color}30` }}>
                   <p className="text-[10px] font-mono font-medium" style={{ color }}>{name}</p>
                   <p className="text-[8px] font-mono text-white/20 mt-0.5">{status}</p>
                 </div>
@@ -157,7 +157,7 @@ export default function FlowDiagramTab() {
               { type: 'Action', shape: 'rect', color: '#3B82F6' },
               { type: 'Decision', shape: 'diamond', color: '#F59E0B' },
             ].map(({ type, shape, color }) => (
-              <div key={type} className="flex flex-col items-center gap-3 p-4 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+              <div key={type} className="flex flex-col items-center gap-3 p-4 rounded-md bg-white/[0.02] border border-white/[0.04]">
                 <svg width="60" height="50" viewBox="0 0 60 50">
                   {shape === 'circle' && <circle cx="30" cy="25" r="18" fill={`${color}15`} stroke={color} strokeWidth="1.5" />}
                   {shape === 'rect' && <rect x="5" y="10" width="50" height="30" rx="2" fill={`${color}10`} stroke={color} strokeWidth="1" />}

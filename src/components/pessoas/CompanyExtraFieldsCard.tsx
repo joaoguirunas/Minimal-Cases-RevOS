@@ -163,7 +163,7 @@ export function CompanyExtraFieldsCard({ companyId }: CompanyExtraFieldsCardProp
   const categories = Array.from(new Set(fieldDefs.map((f) => f.category)));
 
   return (
-    <section className="border border-border rounded-[4px] bg-card">
+    <section className="border border-border rounded-lg bg-card">
       <div className="px-4 pt-4 pb-3 border-b border-white/[0.06] flex items-center justify-between">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           Campos Personalizados
@@ -208,7 +208,7 @@ export function CompanyExtraFieldsCard({ companyId }: CompanyExtraFieldsCardProp
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 bg-muted animate-pulse rounded-[4px]" />
+              <div key={i} className="h-8 bg-muted animate-pulse rounded-lg" />
             ))}
           </div>
         ) : (

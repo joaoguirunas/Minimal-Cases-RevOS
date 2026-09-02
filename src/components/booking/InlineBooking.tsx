@@ -319,9 +319,9 @@ export default function InlineBooking({
   if (loading) {
     return (
       <div className="space-y-4 w-full" style={{ fontFamily: t.font }}>
-        <div className="rounded-[2px] animate-pulse" style={{ height: 80, background: t.pillBg }} />
-        <div className="rounded-[2px] animate-pulse" style={{ height: 160, background: t.pillBg, opacity: 0.7 }} />
-        <div className="rounded-[2px] animate-pulse" style={{ height: 48, background: t.pillBg, opacity: 0.5 }} />
+        <div className="rounded-md animate-pulse" style={{ height: 80, background: t.pillBg }} />
+        <div className="rounded-md animate-pulse" style={{ height: 160, background: t.pillBg, opacity: 0.7 }} />
+        <div className="rounded-md animate-pulse" style={{ height: 48, background: t.pillBg, opacity: 0.5 }} />
       </div>
     );
   }
@@ -329,7 +329,7 @@ export default function InlineBooking({
   // ── Error ──
   if (error && !session) {
     return (
-      <div className="flex items-start gap-3 px-4 py-3 rounded-[2px] text-sm"
+      <div className="flex items-start gap-3 px-4 py-3 rounded-md text-sm"
         style={{
           background: t.errorBg,
           border: `1px solid ${t.errorBorder}`,
@@ -348,7 +348,7 @@ export default function InlineBooking({
       <div className="space-y-5 w-full" style={{ fontFamily: t.font }}>
         {/* Success hero card */}
         <div
-          className="rounded-[2px] px-6 py-8 text-center space-y-3"
+          className="rounded-md px-6 py-8 text-center space-y-3"
           style={{ background: t.card, border: `1px solid ${t.cardBorder}`, boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
         >
           <div className="flex justify-center">
@@ -371,7 +371,7 @@ export default function InlineBooking({
             confirmada, mas o convite no calendário não será enviado. */}
         {emailWarning && (
           <div
-            className="flex items-start gap-3 px-4 py-3 rounded-[2px] text-sm"
+            className="flex items-start gap-3 px-4 py-3 rounded-md text-sm"
             style={{
               background: isDark ? "rgba(245,158,11,0.1)" : "#fffbeb",
               border: `1px solid ${isDark ? "rgba(245,158,11,0.2)" : "#fde68a"}`,
@@ -385,7 +385,7 @@ export default function InlineBooking({
 
         {/* Meeting details card */}
         <div
-          className="rounded-[2px] overflow-hidden"
+          className="rounded-md overflow-hidden"
           style={{ background: t.card, border: `1px solid ${t.cardBorder}`, boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
         >
           {confirmedConsultor && (
@@ -405,7 +405,7 @@ export default function InlineBooking({
 
           <div className="px-5 py-4 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-[2px] flex items-center justify-center shrink-0" style={{ background: t.pillBg }}>
+              <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ background: t.pillBg }}>
                 <Calendar className="w-4 h-4" style={{ color: t.pillText }} />
               </div>
               <div>
@@ -416,7 +416,7 @@ export default function InlineBooking({
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-[2px] flex items-center justify-center shrink-0" style={{ background: t.pillBg }}>
+              <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ background: t.pillBg }}>
                 <Clock className="w-4 h-4" style={{ color: t.pillText }} />
               </div>
               <div>
@@ -450,7 +450,7 @@ export default function InlineBooking({
   return (
     <div className="space-y-5 w-full" style={{ textAlign: "left", fontFamily: t.font }}>
       {error && (
-        <div className="flex items-start gap-2 px-3 py-2 rounded-[2px] text-xs"
+        <div className="flex items-start gap-2 px-3 py-2 rounded-md text-xs"
           style={{ background: t.errorBg, border: `1px solid ${t.errorBorder}`, color: isDark ? "#fca5a5" : "#b91c1c" }}>
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           <span>{error}</span>
@@ -469,14 +469,14 @@ export default function InlineBooking({
 
       {/* Calendar card */}
       <div
-        className="rounded-[2px] overflow-hidden"
+        className="rounded-md overflow-hidden"
         style={{ background: t.card, border: `1px solid ${t.cardBorder}`, boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
       >
         {/* Month nav */}
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: `1px solid ${t.sepBorder}` }}>
           <button
             onClick={() => setCalWeekStart(addDays(calWeekStart, -7))}
-            className="w-8 h-8 flex items-center justify-center rounded-[2px] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
             style={{ color: t.muted }}
             onMouseEnter={(e) => { e.currentTarget.style.color = t.body; e.currentTarget.style.background = t.pillBg; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = t.muted; e.currentTarget.style.background = "transparent"; }}
@@ -493,7 +493,7 @@ export default function InlineBooking({
           </div>
           <button
             onClick={() => setCalWeekStart(addDays(calWeekStart, 7))}
-            className="w-8 h-8 flex items-center justify-center rounded-[2px] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-md transition-colors"
             style={{ color: t.muted }}
             onMouseEnter={(e) => { e.currentTarget.style.color = t.body; e.currentTarget.style.background = t.pillBg; }}
             onMouseLeave={(e) => { e.currentTarget.style.color = t.muted; e.currentTarget.style.background = "transparent"; }}
@@ -514,7 +514,7 @@ export default function InlineBooking({
                 key={dateKey}
                 disabled={!hasSlots}
                 onClick={() => { setSelectedDate(day); setSelectedSlot(null); }}
-                className="relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-[2px] transition-all duration-150"
+                className="relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-md transition-all duration-150"
                 style={{
                   background: isSelected ? accent : undefined,
                   boxShadow: isSelected ? "0 1px 3px rgba(0,0,0,0.12)" : undefined,
@@ -550,7 +550,7 @@ export default function InlineBooking({
       {/* Time slots card */}
       {selectedDate && (
         <div
-          className="rounded-[2px] overflow-hidden"
+          className="rounded-md overflow-hidden"
           style={{ background: t.card, border: `1px solid ${t.cardBorder}`, boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
         >
           <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: `1px solid ${t.sepBorder}` }}>
@@ -576,7 +576,7 @@ export default function InlineBooking({
                     <button
                       key={`${slot.date}-${slot.start_time}`}
                       onClick={() => setSelectedSlot(slot)}
-                      className="py-2.5 rounded-[2px] text-sm font-semibold transition-all duration-150"
+                      className="py-2.5 rounded-md text-sm font-semibold transition-all duration-150"
                       style={{
                         background: isSel ? accent : t.input,
                         color: isSel ? "#fff" : t.body,
@@ -607,7 +607,7 @@ export default function InlineBooking({
       {/* Selected summary + Confirm (matches AgendamentoPublico: always-visible button) */}
       <div className="space-y-3 pt-1">
         {selectedSlot && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-[2px]" style={{ background: accent + "0D", border: `1px solid ${accent}30` }}>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-md" style={{ background: accent + "0D", border: `1px solid ${accent}30` }}>
             <CalendarCheck className="w-4 h-4 shrink-0" style={{ color: accent }} />
             <p className="text-sm font-medium" style={{ color: accent }}>
               {selectedDate && format(selectedDate, "d MMM", { locale: ptBR })} às {selectedSlot.start_time} · {duration} min
@@ -630,7 +630,7 @@ export default function InlineBooking({
               value={email}
               onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
               placeholder="voce@exemplo.com"
-              className="w-full h-11 px-3 rounded-[2px] text-sm outline-none transition-colors"
+              className="w-full h-11 px-3 rounded-md text-sm outline-none transition-colors"
               style={{
                 background: t.input,
                 color: t.body,
@@ -648,7 +648,7 @@ export default function InlineBooking({
         <button
           disabled={!selectedSlot || confirming}
           onClick={confirm}
-          className="w-full h-12 rounded-[4px] text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full h-12 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2"
           style={{
             background: selectedSlot && !confirming ? accent : t.disabledBg,
             color: selectedSlot && !confirming ? "#fff" : t.muted,

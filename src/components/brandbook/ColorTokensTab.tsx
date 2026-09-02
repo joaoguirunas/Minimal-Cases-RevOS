@@ -39,8 +39,8 @@ export default function ColorTokensTab() {
               { name: 'Console', color: '#0E0E12', token: '--bb-surface-console', desc: 'Terminal zones' },
               { name: 'Overlay', color: 'rgba(15,15,17,0.92)', token: '--bb-surface-overlay', desc: 'Modals' },
             ].map(({ name, color, token, desc }) => (
-              <div key={name} className="flex flex-col items-center gap-2 p-4 rounded-[2px] border border-white/[0.04]">
-                <div className="w-full h-16 rounded-[2px] border border-white/[0.06]" style={{ backgroundColor: color }} />
+              <div key={name} className="flex flex-col items-center gap-2 p-4 rounded-md border border-white/[0.04]">
+                <div className="w-full h-16 rounded-md border border-white/[0.06]" style={{ backgroundColor: color }} />
                 <p className="text-[10px] font-medium text-white/50">{name}</p>
                 <code className="text-[9px] font-mono text-[#FF4400]/50">{token}</code>
                 <p className="text-[9px] text-white/20">{desc}</p>
@@ -93,7 +93,7 @@ export default function ColorTokensTab() {
               { name: 'Smoke', color: '#E5E5E5' },
             ].map(({ name, color }, i) => (
               <div key={name} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full rounded-[2px] border border-white/[0.04]" style={{ backgroundColor: color, height: `${40 + i * 8}px` }} />
+                <div className="w-full rounded-md border border-white/[0.04]" style={{ backgroundColor: color, height: `${40 + i * 8}px` }} />
                 <p className="text-[9px] font-mono text-white/25">{name}</p>
                 <p className="text-[8px] font-mono text-white/15">{color}</p>
               </div>
@@ -115,7 +115,7 @@ export default function ColorTokensTab() {
               { name: 'Input', token: '--bb-border-input', value: 'rgba(156,156,156,0.20)', desc: 'Form entry zones' },
             ].map(({ name, token, value, desc }) => (
               <div key={name} className="flex items-center gap-4 py-3 border-b last:border-0" style={{ borderColor: value }}>
-                <div className="w-24 h-12 rounded-[2px] bg-white/[0.02]" style={{ border: `2px solid ${value}` }} />
+                <div className="w-24 h-12 rounded-md bg-white/[0.02]" style={{ border: `2px solid ${value}` }} />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[11px] font-medium text-white/60">{name}</span>
@@ -137,7 +137,7 @@ export default function ColorTokensTab() {
           <div className="flex gap-2">
             {[0.02, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25, 0.40, 0.50, 0.75, 0.90].map((op) => (
               <div key={op} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full h-14 rounded-[2px]" style={{ backgroundColor: `rgba(255,68,0,${op})` }} />
+                <div className="w-full h-14 rounded-md" style={{ backgroundColor: `rgba(255,68,0,${op})` }} />
                 <span className="text-[8px] font-mono text-white/20">{(op * 100).toFixed(0)}%</span>
               </div>
             ))}
@@ -182,7 +182,7 @@ export default function ColorTokensTab() {
                     <td className="text-[10px] font-mono text-[#FF4400]/50 py-2.5 pr-4">{alias}</td>
                     <td className="text-[10px] font-mono text-white/25 py-2.5 pr-4">{value}</td>
                     <td className="py-2.5">
-                      <div className="w-6 h-6 rounded-[2px] border border-white/[0.06]" style={{ backgroundColor: value.startsWith('hsl') || value.startsWith('rgba') ? undefined : value }} />
+                      <div className="w-6 h-6 rounded-md border border-white/[0.06]" style={{ backgroundColor: value.startsWith('hsl') || value.startsWith('rgba') ? undefined : value }} />
                     </td>
                   </tr>
                 ))}

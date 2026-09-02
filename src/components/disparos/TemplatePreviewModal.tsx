@@ -36,7 +36,7 @@ export function TemplatePreviewModal({ open, onOpenChange, template }: TemplateP
             {template.id_template && (
               <div>
                 <span className="text-sm font-medium text-muted-foreground">ID do Template:</span>
-                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-[2px] inline-block ml-2">
+                <p className="text-sm font-mono bg-muted px-2 py-1 rounded-md inline-block ml-2">
                   {template.id_template}
                 </p>
               </div>

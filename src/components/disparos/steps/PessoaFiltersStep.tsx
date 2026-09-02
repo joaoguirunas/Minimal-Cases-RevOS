@@ -84,7 +84,7 @@ export default function PessoaFiltersStep({
         
         {/* Tab 1: Dados Básicos */}
         <TabsContent value="basic" className="space-y-4">
-          <Card className="border border-border bg-card rounded-[2px]">
+          <Card className="border border-border bg-card rounded-md">
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -178,7 +178,7 @@ export default function PessoaFiltersStep({
         
         {/* Tab 2: Score */}
         <TabsContent value="score" className="space-y-4">
-          <Card className="border border-border bg-card rounded-[2px]">
+          <Card className="border border-border bg-card rounded-md">
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -261,7 +261,7 @@ export default function PessoaFiltersStep({
         
         {/* Tab 3: Questionário */}
         <TabsContent value="questionnaire" className="space-y-4">
-          <Card className="border border-border bg-card rounded-[2px]">
+          <Card className="border border-border bg-card rounded-md">
             <CardContent className="p-6 space-y-4">
               <p className="text-sm text-muted-foreground">
                 Filtros do questionário não implementados nesta versão. Você pode adicionar campos conforme necessário.

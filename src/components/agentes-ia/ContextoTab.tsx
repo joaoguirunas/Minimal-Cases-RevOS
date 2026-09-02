@@ -109,7 +109,7 @@ export const ContextoTab = ({ agente, onAgentChange }: ContextoTabProps) => {
             <h3 className="text-xs font-semibold text-foreground">Dados de Entrada</h3>
             <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
               Contexto injetado no prompt — use{' '}
-              <code className="font-mono text-primary/80 bg-muted px-0.5 rounded-[2px] text-[9px]">
+              <code className="font-mono text-primary/80 bg-muted px-0.5 rounded-md text-[9px]">
                 {'{{variavel}}'}
               </code>{' '}
               para dados dinâmicos do lead
@@ -164,7 +164,7 @@ export const ContextoTab = ({ agente, onAgentChange }: ContextoTabProps) => {
               placeholder="Cole ou escreva o contexto que o agente deve receber em cada execução...&#10;&#10;Dica: use os presets acima ou clique nas variáveis à direita para inserir."
               className={cn(
                 'w-full h-full resize-none text-xs font-mono leading-relaxed',
-                'bg-transparent border border-border rounded-[4px] px-3 py-2.5',
+                'bg-transparent border border-border rounded-lg px-3 py-2.5',
                 'text-foreground placeholder:text-muted-foreground/50',
                 'focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20',
                 'transition-all duration-300'
@@ -203,7 +203,7 @@ export const ContextoTab = ({ agente, onAgentChange }: ContextoTabProps) => {
                             onClick={() => insertVariable(campo.label, campo.chave)}
                             title={`Inserir: ${campo.label}: {{${campo.chave}}}\n${campo.descricao}`}
                             className={cn(
-                              'group text-left px-2 py-1.5 rounded-[4px] transition-all duration-300 w-full',
+                              'group text-left px-2 py-1.5 rounded-lg transition-all duration-300 w-full',
                               'hover:bg-primary/8 hover:text-primary',
                               'border border-transparent hover:border-primary/20'
                             )}
@@ -253,7 +253,7 @@ export const ContextoTab = ({ agente, onAgentChange }: ContextoTabProps) => {
                                   onClick={() => insertVariable(def.name, chave)}
                                   title={`Inserir: ${def.name}: {{${chave}}}`}
                                   className={cn(
-                                    'group text-left px-2 py-1.5 rounded-[4px] transition-all duration-300 w-full',
+                                    'group text-left px-2 py-1.5 rounded-lg transition-all duration-300 w-full',
                                     'hover:bg-primary/8 hover:text-primary',
                                     'border border-transparent hover:border-primary/20'
                                   )}

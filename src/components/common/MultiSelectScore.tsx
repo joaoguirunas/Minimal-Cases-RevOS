@@ -47,7 +47,7 @@ const MultiSelectScore = ({ selectedScores, onScoresChange, disabled }: MultiSel
   return (
     <div className="space-y-2">
       <Select onValueChange={handleAddScore} disabled={disabled || availableScores.length === 0}>
-        <SelectTrigger className="w-full rounded-[4px]">
+        <SelectTrigger className="w-full rounded-lg">
           <SelectValue placeholder={
             availableScores.length === 0 
               ? "Todos os scores selecionados" 
@@ -66,7 +66,7 @@ const MultiSelectScore = ({ selectedScores, onScoresChange, disabled }: MultiSel
       {selectedScoresData.length > 0 && (
         <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
           {selectedScoresData.map((score) => (
-            <Badge key={score.value} variant="secondary" className="rounded-[4px] text-xs h-6 px-2">
+            <Badge key={score.value} variant="secondary" className="rounded-lg text-xs h-6 px-2">
               {score.label}
               <button
                 onClick={() => handleRemoveScore(score.value)}

@@ -82,7 +82,7 @@ export const PersonScoreSection = ({
   const hasAllFields = objectiveId && investmentId && framingId;
 
   return (
-    <section className="border border-border rounded-[4px] bg-card">
+    <section className="border border-border rounded-lg bg-card">
       <div className="px-4 pt-4 pb-3 border-b border-white/[0.06] flex items-center gap-2">
         <Target className="w-3.5 h-3.5 text-muted-foreground/50" strokeWidth={1.5} />
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
@@ -97,7 +97,7 @@ export const PersonScoreSection = ({
               Objetivo
             </Label>
             <Select value={objectiveId} onValueChange={onObjectiveChange}>
-              <SelectTrigger id="score-objective" className="h-8 text-[13px] rounded-[4px]">
+              <SelectTrigger id="score-objective" className="h-8 text-[13px] rounded-lg">
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
@@ -115,7 +115,7 @@ export const PersonScoreSection = ({
               Investimento
             </Label>
             <Select value={investmentId} onValueChange={onInvestmentChange}>
-              <SelectTrigger id="score-investment" className="h-8 text-[13px] rounded-[4px]">
+              <SelectTrigger id="score-investment" className="h-8 text-[13px] rounded-lg">
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
@@ -133,7 +133,7 @@ export const PersonScoreSection = ({
               Enquadramento
             </Label>
             <Select value={framingId} onValueChange={onFramingChange}>
-              <SelectTrigger id="score-framing" className="h-8 text-[13px] rounded-[4px]">
+              <SelectTrigger id="score-framing" className="h-8 text-[13px] rounded-lg">
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
@@ -150,14 +150,14 @@ export const PersonScoreSection = ({
         {hasAllFields && (
           <>
             {isLoading ? (
-              <div className="flex items-center gap-2 px-3 py-2.5 rounded-[4px] bg-muted border border-white/[0.06]">
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted border border-white/[0.06]">
                 <span className="text-[12px] text-muted-foreground">Calculando score...</span>
               </div>
             ) : scoreMatrix ? (
               (() => {
                 const variant = getScoreVariant(scoreMatrix.score_number);
                 return (
-                  <div className={cn('flex items-center gap-3 px-3 py-2.5 rounded-[4px] border', variant.bg)}>
+                  <div className={cn('flex items-center gap-3 px-3 py-2.5 rounded-lg border', variant.bg)}>
                     <CheckCircle className={cn('w-4 h-4 flex-shrink-0', variant.icon)} strokeWidth={1.5} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export const PersonScoreSection = ({
                 );
               })()
             ) : (
-              <div className="flex items-center gap-2 px-3 py-2.5 rounded-[4px] bg-amber-500/8 border border-amber-500/30">
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-amber-500/8 border border-amber-500/30">
                 <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" strokeWidth={1.5} />
                 <span className="text-[12px] text-amber-700 dark:text-amber-400">
                   Combinação não cadastrada na matriz de score

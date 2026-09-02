@@ -26,7 +26,7 @@ const ExcluirPessoaModal = ({
 }: ExcluirPessoaModalProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="rounded-[4px]">
+      <AlertDialogContent className="rounded-lg">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-[#1C1C1E] font-semibold">
             Excluir Pessoa Definitivamente
@@ -48,12 +48,12 @@ const ExcluirPessoaModal = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-[4px] border-[#E5E7EB] text-[#5F6368]">
+          <AlertDialogCancel className="rounded-lg border-[#E5E7EB] text-[#5F6368]">
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirmar}
-            className="bg-[#FF647C] text-white hover:bg-[#FF5366] rounded-[4px]"
+            className="bg-[#FF647C] text-white hover:bg-[#FF5366] rounded-lg"
           >
             Excluir Definitivamente
           </AlertDialogAction>

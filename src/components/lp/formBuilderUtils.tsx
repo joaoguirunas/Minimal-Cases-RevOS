@@ -483,7 +483,7 @@ export function renderTestInput(
   if (field.type === "file") {
     return (
       <div
-        className="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-border rounded-[4px] bg-muted py-4 px-3 cursor-pointer hover:border-primary/60 transition-colors"
+        className="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-border rounded-lg bg-muted py-4 px-3 cursor-pointer hover:border-primary/60 transition-colors"
         style={{ borderRadius: radius }}
         onClick={() => (document.getElementById(`sim-file-${field.id}`) as HTMLInputElement)?.click()}
       >

@@ -72,7 +72,7 @@ export default function CriarComFiltrosTab({ onFilterResult, onNext, onBack }: C
 
       {/* ── Filters ─────────────────────────────────────────────────────── */}
       <div className="flex-1">
-        <div className="border border-border bg-card rounded-[4px] p-6">
+        <div className="border border-border bg-card rounded-lg p-6">
           <FiltroContatosVisual filters={filters} onFilterChange={handleFilterChange} />
         </div>
 

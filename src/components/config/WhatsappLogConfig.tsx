@@ -207,7 +207,7 @@ const ExpandedRow = ({ msg }: { msg: LogMessage }) => (
     {msg.metadata && Object.keys(msg.metadata).length > 0 && (
       <div className="space-y-1">
         <p className="text-muted-foreground font-medium uppercase text-[9px] tracking-wider">Metadata</p>
-        <pre className="font-mono text-[9px] text-muted-foreground bg-muted rounded-[4px] p-2 overflow-x-auto">
+        <pre className="font-mono text-[9px] text-muted-foreground bg-muted rounded-lg p-2 overflow-x-auto">
           {JSON.stringify(msg.metadata, null, 2)}
         </pre>
       </div>
@@ -420,13 +420,13 @@ const WhatsappLogConfig = () => {
             <span className="text-sm">Carregando...</span>
           </div>
         ) : filteredMessages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-[4px]">
+          <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-lg">
             <MessageSquare className="h-6 w-6 text-muted-foreground/30 mb-2" />
             <p className="text-sm text-muted-foreground">Nenhuma mensagem encontrada</p>
             <p className="text-xs text-muted-foreground/50 mt-0.5">Tente ajustar os filtros</p>
           </div>
         ) : (
-          <div className="border border-border rounded-[4px] overflow-hidden">
+          <div className="border border-border rounded-lg overflow-hidden">
             {/* Header row */}
             <div className="grid grid-cols-[28px_1fr_80px_90px_90px_80px_24px] gap-2 px-3 py-2 bg-muted border-b border-border text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
               <span />

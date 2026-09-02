@@ -234,7 +234,7 @@ function TagInput({ value, onChange, placeholder }: {
     <div className="space-y-1.5">
       <div className="flex flex-wrap gap-1.5">
         {value.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] text-[11px] bg-muted border border-border text-foreground">
+          <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] bg-muted border border-border text-foreground">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="text-muted-foreground hover:text-foreground">
               <X className="w-3 h-3" strokeWidth={1.5} />
@@ -296,7 +296,7 @@ function ManualProductEntry({ productsEmpty, productsLoading, onAdd, onSelect }:
           <Plus className="w-3 h-3" strokeWidth={1.5} /> Inserir produto manualmente
         </button>
       ) : (
-        <div className="rounded-[4px] border border-border p-2.5 space-y-2">
+        <div className="rounded-lg border border-border p-2.5 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <Input value={id} onChange={(e) => setId(e.target.value)} placeholder="product_id" className="h-8 text-[12px] font-mono" />
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do produto" className="h-8 text-[12px]" />
@@ -464,7 +464,7 @@ function ConnectSection() {
   return (
     <div className="space-y-5">
       {/* Status card */}
-      <div className="rounded-[4px] border border-border bg-card p-5">
+      <div className="rounded-lg border border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[13px] font-semibold text-foreground">Conexão Kiwify</p>
@@ -483,7 +483,7 @@ function ConnectSection() {
           </span>
         </div>
         {status?.last_error && (
-          <div className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-[4px] border border-red-500/20 bg-red-500/10">
+          <div className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-lg border border-red-500/20 bg-red-500/10">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
             <p className="text-[12px] text-red-600 dark:text-red-400">{status.last_error}</p>
           </div>
@@ -491,7 +491,7 @@ function ConnectSection() {
       </div>
 
       {/* Credentials */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <KeyRound className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
           <div>
@@ -545,7 +545,7 @@ function ConnectSection() {
         </div>
 
         {testResult && (
-          <div className="border border-border rounded-[4px] p-4 space-y-2">
+          <div className="border border-border rounded-lg p-4 space-y-2">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Resultado do teste</p>
             <div className="flex items-start gap-2 text-[12px]">
               {testResult.missing.length === 0
@@ -588,7 +588,7 @@ function ConnectSection() {
       </div>
 
       {/* Manual webhook configuration (KFY-4.1) — alternative to auto-create */}
-      <Collapsible open={manualOpen} onOpenChange={setManualOpen} className="rounded-[4px] border border-border bg-card">
+      <Collapsible open={manualOpen} onOpenChange={setManualOpen} className="rounded-lg border border-border bg-card">
         <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 p-5 text-left">
           <div className="flex items-center gap-2">
             <Webhook className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
@@ -659,7 +659,7 @@ function ConnectSection() {
       </Collapsible>
 
       {/* Webhook URL (reference) */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Webhook className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
           <div>
@@ -842,7 +842,7 @@ function ProductsSection({ connected }: { connected: boolean }) {
 
   if (!connected) {
     return (
-      <div className="rounded-[4px] border border-dashed border-border bg-card p-8 text-center">
+      <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
         <p className="text-[13px] text-muted-foreground">Conecte a Kiwify na aba "Conectar" para ver os produtos da conta.</p>
       </div>
     );
@@ -866,7 +866,7 @@ function ProductsSection({ connected }: { connected: boolean }) {
       {isLoading ? (
         <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : products.length === 0 ? (
-        <div className="rounded-[4px] border border-dashed border-border bg-card p-8 text-center space-y-2">
+        <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center space-y-2">
           <p className="text-[13px] text-muted-foreground">Nenhum produto retornado pela API.</p>
           <ManualProductEntry
             productsEmpty
@@ -877,7 +877,7 @@ function ProductsSection({ connected }: { connected: boolean }) {
         </div>
       ) : (
         <>
-          <div className="rounded-[4px] border border-border bg-card divide-y divide-border">
+          <div className="rounded-lg border border-border bg-card divide-y divide-border">
             {products.map((p) => (
               <div key={p.id} className="flex items-center gap-3 p-3">
                 <span className={cn('w-2 h-2 rounded-full shrink-0', productColor(p.id).dot)} />
@@ -944,11 +944,11 @@ function MappingsSection({ connected }: { connected: boolean }) {
       {isLoading ? (
         <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : mappings.length === 0 ? (
-        <div className="rounded-[4px] border border-dashed border-border bg-card p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
           <p className="text-[13px] text-muted-foreground">Nenhum mapeamento configurado.</p>
         </div>
       ) : (
-        <div className="rounded-[4px] border border-border bg-card divide-y divide-border">
+        <div className="rounded-lg border border-border bg-card divide-y divide-border">
           {mappings.map((m) => (
             <div key={m.id} className="flex items-start justify-between gap-3 p-4">
               <div className="min-w-0 space-y-1">
@@ -1112,7 +1112,7 @@ function AutomationDialog({ open, onOpenChange, initial, products, productsLoadi
               </Button>
             </div>
             {form.steps.map((step, idx) => (
-              <div key={idx} className="rounded-[4px] border border-border p-3 space-y-2.5">
+              <div key={idx} className="rounded-lg border border-border p-3 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-medium text-muted-foreground">Passo {idx + 1}</span>
                   {form.steps.length > 1 && (
@@ -1162,7 +1162,7 @@ function AutomationDialog({ open, onOpenChange, initial, products, productsLoadi
                     type="button"
                     onClick={() => toggleCancel(t)}
                     className={cn(
-                      'text-[11px] px-2 py-1 rounded-[3px] border transition-colors',
+                      'text-[11px] px-2 py-1 rounded-md border transition-colors',
                       on
                         ? 'bg-foreground text-background border-foreground'
                         : 'bg-muted text-muted-foreground border-border hover:text-foreground',
@@ -1226,11 +1226,11 @@ function AutomationsSection({ connected }: { connected: boolean }) {
       {isLoading ? (
         <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : automations.length === 0 ? (
-        <div className="rounded-[4px] border border-dashed border-border bg-card p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
           <p className="text-[13px] text-muted-foreground">Nenhuma automação configurada.</p>
         </div>
       ) : (
-        <div className="rounded-[4px] border border-border bg-card divide-y divide-border">
+        <div className="rounded-lg border border-border bg-card divide-y divide-border">
           {automations.map((a) => (
             <div key={a.id} className="flex items-start justify-between gap-3 p-4">
               <div className="min-w-0 space-y-1">
@@ -1330,12 +1330,12 @@ function EventRow({ event, onReprocess, reprocessing }: {
       </div>
       <CollapsibleContent>
         {event.error && (
-          <div className="mt-2 ml-5 flex items-start gap-2 px-3 py-2 rounded-[4px] border border-red-500/20 bg-red-500/10">
+          <div className="mt-2 ml-5 flex items-start gap-2 px-3 py-2 rounded-lg border border-red-500/20 bg-red-500/10">
             <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
             <p className="text-[12px] text-red-600 dark:text-red-400">{event.error}</p>
           </div>
         )}
-        <pre className="mt-2 ml-5 p-3 rounded-[4px] bg-muted border border-border text-[11px] font-mono overflow-x-auto max-h-64">
+        <pre className="mt-2 ml-5 p-3 rounded-lg bg-muted border border-border text-[11px] font-mono overflow-x-auto max-h-64">
           {JSON.stringify(event.raw_payload, null, 2)}
         </pre>
       </CollapsibleContent>
@@ -1397,11 +1397,11 @@ function EventLogSection() {
       {isLoading ? (
         <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
       ) : events.length === 0 ? (
-        <div className="rounded-[4px] border border-dashed border-border bg-card p-8 text-center">
+        <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
           <p className="text-[13px] text-muted-foreground">Nenhum evento no período/filtro selecionado.</p>
         </div>
       ) : (
-        <div className="rounded-[4px] border border-border bg-card divide-y divide-border">
+        <div className="rounded-lg border border-border bg-card divide-y divide-border">
           {events.map((e) => (
             <EventRow key={e.id} event={e} onReprocess={handleReprocess} reprocessing={reprocessingId === e.id} />
           ))}

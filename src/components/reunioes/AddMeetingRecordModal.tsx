@@ -55,16 +55,16 @@ const TagInput = ({ value, onChange, placeholder }: { value: string[]; onChange:
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
           placeholder={placeholder}
-          className="h-[30px] text-xs rounded-[4px]"
+          className="h-[30px] text-xs rounded-lg"
         />
-        <Button type="button" variant="outline" size="sm" onClick={addTag} className="h-[30px] px-2.5 rounded-[4px] shrink-0">
+        <Button type="button" variant="outline" size="sm" onClick={addTag} className="h-[30px] px-2.5 rounded-lg shrink-0">
           <Plus className="w-3.5 h-3.5" />
         </Button>
       </div>
       {value.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {value.map((tag, i) => (
-            <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] text-[11px] font-medium bg-muted border border-border text-foreground">
+            <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted border border-border text-foreground">
               {tag}
               <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-foreground">
                 <X className="w-2.5 h-2.5" />
@@ -151,7 +151,7 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg rounded-[4px]">
+      <DialogContent className="max-w-lg rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold">
             {step === 1 ? 'Adicionar Registro' : `Novo ${RECORD_TYPES.find(r => r.type === selectedType)?.label}`}
@@ -165,7 +165,7 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
               <button
                 key={type}
                 onClick={() => handleSelectType(type)}
-                className="flex flex-col gap-1.5 p-3 rounded-[2px] border border-border bg-muted hover:bg-muted hover:border-border text-left transition-colors"
+                className="flex flex-col gap-1.5 p-3 rounded-md border border-border bg-muted hover:bg-muted hover:border-border text-left transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Icon className="w-4 h-4 text-muted-foreground" />
@@ -186,21 +186,21 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
               <>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">URL da Gravação *</Label>
-                  <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://loom.com/share/..." className="h-[30px] text-sm rounded-[4px]" />
+                  <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://loom.com/share/..." className="h-[30px] text-sm rounded-lg" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Duração (minutos)</Label>
-                  <Input type="number" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} placeholder="Ex: 45" className="h-[30px] text-sm rounded-[4px]" />
+                  <Input type="number" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} placeholder="Ex: 45" className="h-[30px] text-sm rounded-lg" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">URL do Thumbnail</Label>
-                  <Input value={thumbnailUrl} onChange={e => setThumbnailUrl(e.target.value)} placeholder="https://..." className="h-[30px] text-sm rounded-[4px]" />
+                  <Input value={thumbnailUrl} onChange={e => setThumbnailUrl(e.target.value)} placeholder="https://..." className="h-[30px] text-sm rounded-lg" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fonte</Label>
                   <Select value={source} onValueChange={setSource}>
-                    <SelectTrigger className="h-[30px] text-sm rounded-[4px]"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
-                    <SelectContent className="rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-sm rounded-lg"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
+                    <SelectContent className="rounded-lg">
                       {SOURCES.map(s => <SelectItem key={s.value} value={s.value} className="text-sm">{s.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -213,18 +213,18 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
               <>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Título</Label>
-                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título do registro..." className="h-[30px] text-sm rounded-[4px]" />
+                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título do registro..." className="h-[30px] text-sm rounded-lg" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Conteúdo *</Label>
-                  <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Digite o conteúdo aqui..." className="min-h-[140px] text-sm rounded-[4px] resize-none" />
+                  <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Digite o conteúdo aqui..." className="min-h-[140px] text-sm rounded-lg resize-none" />
                 </div>
                 {(selectedType === 'transcript' || selectedType === 'ai_summary') && (
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fonte</Label>
                     <Select value={source} onValueChange={setSource}>
-                      <SelectTrigger className="h-[30px] text-sm rounded-[4px]"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
-                      <SelectContent className="rounded-[4px]">
+                      <SelectTrigger className="h-[30px] text-sm rounded-lg"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
+                      <SelectContent className="rounded-lg">
                         {SOURCES.map(s => <SelectItem key={s.value} value={s.value} className="text-sm">{s.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -251,8 +251,8 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Sentimento</Label>
                   <Select value={aiSentiment} onValueChange={(v: typeof aiSentiment) => setAiSentiment(v)}>
-                    <SelectTrigger className="h-[30px] text-sm rounded-[4px]"><SelectValue /></SelectTrigger>
-                    <SelectContent className="rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-sm rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="rounded-lg">
                       <SelectItem value="positivo" className="text-sm">Positivo</SelectItem>
                       <SelectItem value="neutro" className="text-sm">Neutro</SelectItem>
                       <SelectItem value="negativo" className="text-sm">Negativo</SelectItem>
@@ -278,19 +278,19 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Título (opcional)</Label>
-                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título da análise..." className="h-[30px] text-sm rounded-[4px]" />
+                  <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Título da análise..." className="h-[30px] text-sm rounded-lg" />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Conteúdo adicional (opcional)</Label>
-                  <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Observações adicionais..." className="min-h-[80px] text-sm rounded-[4px] resize-none" />
+                  <Textarea value={content} onChange={e => setContent(e.target.value)} placeholder="Observações adicionais..." className="min-h-[80px] text-sm rounded-lg resize-none" />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fonte</Label>
                   <Select value={source} onValueChange={setSource}>
-                    <SelectTrigger className="h-[30px] text-sm rounded-[4px]"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
-                    <SelectContent className="rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-sm rounded-lg"><SelectValue placeholder="Selecionar fonte..." /></SelectTrigger>
+                    <SelectContent className="rounded-lg">
                       {SOURCES.map(s => <SelectItem key={s.value} value={s.value} className="text-sm">{s.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -304,20 +304,20 @@ export const AddMeetingRecordModal = ({ open, onOpenChange, meetingId }: AddMeet
         <div className="flex items-center justify-between pt-2 border-t border-border">
           {step === 2 ? (
             <>
-              <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-[30px] px-3 text-xs rounded-[4px]">
+              <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-[30px] px-3 text-xs rounded-lg">
                 ← Voltar
               </Button>
               <Button
                 size="sm"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending}
-                className="h-[30px] px-4 text-xs rounded-[4px]"
+                className="h-[30px] px-4 text-xs rounded-lg"
               >
                 {createMutation.isPending ? 'Salvando...' : 'Salvar registro'}
               </Button>
             </>
           ) : (
-            <Button variant="ghost" size="sm" onClick={handleClose} className="h-[30px] px-3 text-xs rounded-[4px] ml-auto">
+            <Button variant="ghost" size="sm" onClick={handleClose} className="h-[30px] px-3 text-xs rounded-lg ml-auto">
               Cancelar
             </Button>
           )}

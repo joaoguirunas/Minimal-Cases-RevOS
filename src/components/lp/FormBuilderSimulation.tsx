@@ -26,7 +26,7 @@ function BrowserChrome() {
       <div className="w-2 h-2 rounded-full bg-red-400" />
       <div className="w-2 h-2 rounded-full bg-yellow-400" />
       <div className="w-2 h-2 rounded-full bg-green-400" />
-      <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-[3px] flex items-center px-2 gap-1">
+      <div className="flex-1 mx-2 h-4 bg-background border border-border rounded-md flex items-center px-2 gap-1">
         <Globe className="w-2.5 h-2.5 text-muted-foreground" />
         <span className="text-[9px] text-muted-foreground">seusite.com/landing</span>
       </div>
@@ -139,7 +139,7 @@ export function ChatbotWidgetTest({
           <div className="h-2 bg-muted-foreground rounded w-full mt-3" />
           <div className="h-2 bg-muted-foreground rounded w-5/6" />
           <div className="h-2 bg-muted-foreground rounded w-4/5" />
-          <div className="h-24 bg-muted border border-border rounded-[4px] mt-6" />
+          <div className="h-24 bg-muted border border-border rounded-lg mt-6" />
           <div className="h-2 bg-muted-foreground rounded w-3/4 mt-3" />
           <div className="h-2 bg-muted-foreground rounded w-full" />
         </div>
@@ -191,7 +191,7 @@ export function ChatbotWidgetTest({
                 )}
                 <div
                   className={cn(
-                    "max-w-[78%] px-3 py-2 rounded-[2px] text-sm leading-snug",
+                    "max-w-[78%] px-3 py-2 rounded-md text-sm leading-snug",
                     msg.role === "bot"
                       ? "bg-muted text-foreground rounded-tl-sm"
                       : "text-white rounded-tr-sm"
@@ -209,7 +209,7 @@ export function ChatbotWidgetTest({
                 <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: botColor }}>
                   <BotMessageSquare className="w-3 h-3 text-white" />
                 </div>
-                <div className="bg-muted px-3 py-2.5 rounded-[2px] flex items-center gap-1">
+                <div className="bg-muted px-3 py-2.5 rounded-md flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -230,7 +230,7 @@ export function ChatbotWidgetTest({
                   disabled={!!currentField.required && !inputVal.trim()}
                   style={{ background: botColor }}
                   className={cn(
-                    "flex-1 py-2 rounded-[4px] text-white text-sm font-semibold transition-opacity",
+                    "flex-1 py-2 rounded-lg text-white text-sm font-semibold transition-opacity",
                     currentField.required && !inputVal.trim() ? "opacity-40 cursor-not-allowed" : "hover:opacity-90"
                   )}
                 >
@@ -245,7 +245,7 @@ export function ChatbotWidgetTest({
             <div className="p-3 border-t border-border shrink-0">
               <button
                 onClick={resetChat}
-                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-[4px] transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
               >
                 <RotateCcw className="w-3 h-3" /> Testar novamente
               </button>
@@ -401,7 +401,7 @@ function SimulationSuccessView({
       </div>
       <button
         onClick={onReset}
-        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-[4px] border border-border text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors"
       >
         <RotateCcw className="w-3 h-3" /> Simular novamente
       </button>
@@ -523,7 +523,7 @@ function ChatbotInlineSimulation({ fields, settings, formId }: { fields: LpFormF
               </div>
             )}
             <div
-              className={cn("max-w-[80%] px-3 py-2 rounded-[2px] text-sm leading-snug", msg.role === "bot" ? "bg-muted text-foreground" : "text-white")}
+              className={cn("max-w-[80%] px-3 py-2 rounded-md text-sm leading-snug", msg.role === "bot" ? "bg-muted text-foreground" : "text-white")}
               style={msg.role === "user" ? { background: botColor } : {}}
             >{msg.text}</div>
           </div>
@@ -533,7 +533,7 @@ function ChatbotInlineSimulation({ fields, settings, formId }: { fields: LpFormF
             <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: botColor }}>
               <BotMessageSquare className="w-3 h-3 text-white" />
             </div>
-            <div className="bg-muted px-3 py-2.5 rounded-[2px] flex items-center gap-1">
+            <div className="bg-muted px-3 py-2.5 rounded-md flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -579,7 +579,7 @@ function ChatbotInlineSimulation({ fields, settings, formId }: { fields: LpFormF
       )}
       {done && (
         <div className="px-3 pb-3 pt-2 border-t border-border shrink-0">
-          <button onClick={reset} className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-[4px] transition-colors">
+          <button onClick={reset} className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors">
             <RotateCcw className="w-3 h-3" /> Simular novamente
           </button>
         </div>
@@ -672,7 +672,7 @@ function FullscreenSimulation({ fields, settings, formId }: { fields: LpFormFiel
       </div>
       <div className="absolute inset-0 bg-black/40" />
       {!dismissed ? (
-        <div className="absolute inset-2 bg-card rounded-[2px] flex flex-col overflow-hidden">
+        <div className="absolute inset-2 bg-card rounded-md flex flex-col overflow-hidden">
           <div className="flex items-center justify-end px-3 py-2 border-b border-border shrink-0">
             <button onClick={() => setDismissed(true)} className="w-6 h-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
               <X className="w-3.5 h-3.5" />
@@ -688,7 +688,7 @@ function FullscreenSimulation({ fields, settings, formId }: { fields: LpFormFiel
         </div>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <button onClick={() => setDismissed(false)} className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-[4px] bg-card border border-border text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => setDismissed(false)} className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-card border border-border text-muted-foreground hover:text-foreground transition-colors">
             <RotateCcw className="w-3 h-3" /> Abrir modal novamente
           </button>
         </div>
@@ -741,13 +741,13 @@ export function WidgetSimulation({
         <MousePointerClick className="w-3.5 h-3.5 text-primary shrink-0" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-foreground shrink-0">Simular</span>
         <div className="flex-1" />
-        <div className="flex items-center bg-muted rounded-[4px] p-0.5 gap-0.5">
+        <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
           {modes.map(({ key, icon: mIcon, label: mLabel }) => (
             <button
               key={key}
               onClick={() => onModeChange(key)}
               className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-[3px] text-[10px] font-semibold transition-all",
+                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-all",
                 formMode === key ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -852,7 +852,7 @@ function ClassicInlineSimulation({
 
       {/* The embedded form */}
       <div
-        className="border border-border rounded-[2px] p-4 space-y-3 overflow-hidden"
+        className="border border-border rounded-md p-4 space-y-3 overflow-hidden"
         style={{
           backgroundColor: fs.glass ? 'rgba(255,255,255,0.12)' : (fs.bg || undefined),
           backdropFilter: fs.glass ? 'blur(12px)' : undefined,
@@ -865,7 +865,7 @@ function ClassicInlineSimulation({
         {/* Badge */}
         {fs.badgeEnabled && (
           <div className="flex justify-end -mt-1 mb-1">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-[2px] border border-border bg-card">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-border bg-card">
               <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: fs.badgeColor }} />
               {fs.badgeText}
             </span>
@@ -1041,7 +1041,7 @@ function StepsInlineSimulation({
 
         {/* Step card */}
         <div
-          className="border border-border rounded-[2px] overflow-hidden"
+          className="border border-border rounded-md overflow-hidden"
           style={{
             backgroundColor: fs.glass ? undefined : (fs.bg || undefined),
             background: fs.glass ? (fs.bg || 'rgba(255,255,255,0.12)') : undefined,
@@ -1056,7 +1056,7 @@ function StepsInlineSimulation({
             {/* Badge — step 1 only */}
             {stepIdx === 0 && fs.badgeEnabled && (
               <div className="flex justify-end mb-2">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-[2px] border border-border bg-card">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-border bg-card">
                   <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: fs.badgeColor }} />
                   {fs.badgeText}
                 </span>
@@ -1144,7 +1144,7 @@ function StepsInlineSimulation({
           <div className="flex items-center gap-2 px-4 pb-4">
             {stepIdx > 0 && (
               <button onClick={back}
-                className="px-4 py-2 rounded-[4px] text-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                className="px-4 py-2 rounded-lg text-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
                 style={{ borderRadius: fs.buttonRadius }}
               >
                 ← Voltar
@@ -1333,7 +1333,7 @@ function ChatbotSimulation({
                 )}
                 <div
                   className={cn(
-                    "max-w-[80%] px-3 py-2 rounded-[2px] text-sm leading-snug",
+                    "max-w-[80%] px-3 py-2 rounded-md text-sm leading-snug",
                     msg.role === "bot" ? "bg-muted text-foreground" : "text-white"
                   )}
                   style={msg.role === "user" ? { background: botColor } : {}}
@@ -1349,7 +1349,7 @@ function ChatbotSimulation({
                 <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: botColor }}>
                   <BotMessageSquare className="w-3 h-3 text-white" />
                 </div>
-                <div className="bg-muted px-3 py-2.5 rounded-[2px] flex items-center gap-1">
+                <div className="bg-muted px-3 py-2.5 rounded-md flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -1385,7 +1385,7 @@ function ChatbotSimulation({
           {done && (
             <div className="px-3 pb-3 pt-2 border-t border-border shrink-0">
               <button onClick={closeAndReset}
-                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-[4px] transition-colors">
+                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors">
                 <RotateCcw className="w-3 h-3" /> Simular novamente
               </button>
             </div>

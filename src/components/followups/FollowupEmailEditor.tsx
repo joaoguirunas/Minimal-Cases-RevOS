@@ -91,7 +91,7 @@ export const FollowupEmailEditor = ({ content, onChange, className }: FollowupEm
   if (!editor) return null;
 
   return (
-    <div className={cn('rounded-[4px] border border-border bg-background overflow-hidden', className)}>
+    <div className={cn('rounded-lg border border-border bg-background overflow-hidden', className)}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-border bg-card">
         <Toggle size="sm" pressed={editor.isActive('bold')}

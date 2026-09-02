@@ -335,7 +335,7 @@ const FollowupModal = ({
             <>
               {/* Credenciais do canal (omni_channel_configs · channel=email) */}
               {emailChannelConfig && !emailChannelConfig.is_active ? (
-                <p className="text-[11px] text-amber-500/90 rounded-[4px] border border-amber-500/20 bg-amber-500/5 px-2.5 py-1.5">
+                <p className="text-[11px] text-amber-500/90 rounded-lg border border-amber-500/20 bg-amber-500/5 px-2.5 py-1.5">
                   O canal de e-mail está inativo — o follow-up ficará na fila sem enviar.
                   Ative e configure o provedor em Configurações → Integrações → E-mail.
                 </p>
@@ -373,7 +373,7 @@ const FollowupModal = ({
               </div>
 
               {form.email_template_id ? (
-                <div className="rounded-[4px] border border-border bg-muted/40 px-2.5 py-2 text-[12px] text-muted-foreground">
+                <div className="rounded-lg border border-border bg-muted/40 px-2.5 py-2 text-[12px] text-muted-foreground">
                   <span className="font-medium text-foreground">Assunto:</span>{' '}
                   {emailTemplates.find(t => t.id === form.email_template_id)?.subject ?? '—'}
                   <span className="block text-[11px] mt-0.5">

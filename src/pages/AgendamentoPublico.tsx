@@ -382,7 +382,7 @@ const AgendamentoPublico = () => {
           <img src={logoUrl} alt={companyName ?? 'Logo'} className="h-10 max-w-[200px] object-contain" />
         ) : (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-[2px] bg-primary flex items-center justify-center">
+            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <CalendarCheck className="w-4.5 h-4.5 text-primary-foreground" />
             </div>
             <span className="text-base font-bold text-foreground tracking-tight">
@@ -398,7 +398,7 @@ const AgendamentoPublico = () => {
 
           {/* ── Error ──────────────────────────────────────────────────── */}
           {error && (
-            <div className="flex items-start gap-3 px-4 py-3 rounded-[2px] bg-rose-50 border border-rose-200 text-rose-700 text-sm dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400">
+            <div className="flex items-start gap-3 px-4 py-3 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-sm dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
@@ -407,9 +407,9 @@ const AgendamentoPublico = () => {
           {/* ── Loading ────────────────────────────────────────────────── */}
           {loading && (
             <div className="space-y-4 pt-2">
-              <div className="h-24 rounded-[2px] bg-muted animate-pulse" />
-              <div className="h-44 rounded-[2px] bg-muted animate-pulse" />
-              <div className="h-28 rounded-[2px] bg-muted animate-pulse" />
+              <div className="h-24 rounded-md bg-muted animate-pulse" />
+              <div className="h-44 rounded-md bg-muted animate-pulse" />
+              <div className="h-28 rounded-md bg-muted animate-pulse" />
             </div>
           )}
 
@@ -422,7 +422,7 @@ const AgendamentoPublico = () => {
             return (
               <div className="space-y-5">
                 {/* Hero */}
-                <div className="bg-card rounded-[2px] border border-border px-6 py-8 text-center space-y-3">
+                <div className="bg-card rounded-md border border-border px-6 py-8 text-center space-y-3">
                   <div className="flex justify-center">
                     <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center ring-4 ring-emerald-500/10">
                       <CalendarCheck className="w-9 h-9 text-emerald-500" />
@@ -437,7 +437,7 @@ const AgendamentoPublico = () => {
                 </div>
 
                 {/* Meeting details */}
-                <div className="bg-card rounded-[2px] border border-border overflow-hidden">
+                <div className="bg-card rounded-md border border-border overflow-hidden">
                   {consultor && (
                     <div className="px-5 py-4 flex items-center gap-3 border-b border-border">
                       <ConsultorAvatar name={consultor.name} />
@@ -450,7 +450,7 @@ const AgendamentoPublico = () => {
 
                   <div className="px-5 py-4 space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-[2px] bg-muted flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
@@ -462,7 +462,7 @@ const AgendamentoPublico = () => {
                     </div>
 
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-[2px] bg-muted flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
                         <Clock className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
@@ -490,7 +490,7 @@ const AgendamentoPublico = () => {
           {!loading && session && !effectiveExistingMeeting && step === 1 && (
             <>
               {/* Greeting + step indicator */}
-              <div className="bg-card rounded-[2px] border border-border px-6 py-5">
+              <div className="bg-card rounded-md border border-border px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 min-w-0">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Olá,</p>
@@ -503,7 +503,7 @@ const AgendamentoPublico = () => {
                   </div>
                   {/* Duration badge */}
                   <div className="shrink-0 flex flex-col items-center gap-1 pt-1">
-                    <div className="w-11 h-11 rounded-[2px] bg-primary/10 flex items-center justify-center">
+                    <div className="w-11 h-11 rounded-md bg-primary/10 flex items-center justify-center">
                       <Clock className="w-5 h-5 text-primary" />
                     </div>
                     <span className="text-[10px] font-semibold text-primary whitespace-nowrap">{duration} min</span>
@@ -518,12 +518,12 @@ const AgendamentoPublico = () => {
               </div>
 
               {/* Calendar */}
-              <div className="bg-card rounded-[2px] border border-border overflow-hidden">
+              <div className="bg-card rounded-md border border-border overflow-hidden">
                 {/* Month nav */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border">
                   <button
                     onClick={() => setCalWeekStart(addDays(calWeekStart, -7))}
-                    className="w-[30px] h-[30px] flex items-center justify-center rounded-[2px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    className="w-[30px] h-[30px] flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
@@ -537,7 +537,7 @@ const AgendamentoPublico = () => {
                   </div>
                   <button
                     onClick={() => setCalWeekStart(addDays(calWeekStart, 7))}
-                    className="w-[30px] h-[30px] flex items-center justify-center rounded-[2px] hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    className="w-[30px] h-[30px] flex items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -556,7 +556,7 @@ const AgendamentoPublico = () => {
                         disabled={!hasSlots}
                         onClick={() => { setSelectedDate(day); setSelectedSlot(null); }}
                         className={cn(
-                          'relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-[2px] transition-all duration-150',
+                          'relative flex flex-col items-center gap-1 py-2.5 px-1 rounded-md transition-all duration-150',
                           isSelected
                             ? 'bg-primary text-primary-foreground scale-105'
                             : hasSlots
@@ -591,7 +591,7 @@ const AgendamentoPublico = () => {
 
               {/* Time slots */}
               {selectedDate && (
-                <div className="bg-card rounded-[2px] border border-border overflow-hidden">
+                <div className="bg-card rounded-md border border-border overflow-hidden">
                   <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
                     <p className="text-sm font-semibold text-foreground capitalize">
                       {format(selectedDate, "EEEE, d 'de' MMMM", { locale: ptBR })}
@@ -617,7 +617,7 @@ const AgendamentoPublico = () => {
                               key={`${slot.date}-${slot.start_time}`}
                               onClick={() => setSelectedSlot(slot)}
                               className={cn(
-                                'py-2.5 rounded-[2px] text-sm font-semibold border-2 transition-all duration-150',
+                                'py-2.5 rounded-md text-sm font-semibold border-2 transition-all duration-150',
                                 isSel
                                   ? 'bg-primary text-primary-foreground border-primary scale-105'
                                   : 'bg-background text-foreground border-border hover:border-primary/40 hover:bg-primary/5'
@@ -643,7 +643,7 @@ const AgendamentoPublico = () => {
               {/* Selected summary + Confirm button */}
               <div className="space-y-3 pt-1">
                 {selectedSlot && (
-                  <div className="flex items-center gap-3 px-4 py-3 rounded-[2px] bg-primary/8 border border-primary/20">
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-md bg-primary/8 border border-primary/20">
                     <CalendarCheck className="w-4 h-4 text-primary shrink-0" />
                     <p className="text-sm font-medium text-primary">
                       {selectedDate && format(selectedDate, "d MMM", { locale: ptBR })} às {selectedSlot.start_time} · {duration} min
@@ -667,7 +667,7 @@ const AgendamentoPublico = () => {
                       onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
                       placeholder="voce@exemplo.com"
                       className={cn(
-                        'w-full h-11 px-3 rounded-[2px] text-sm bg-background border-2 transition-colors outline-none',
+                        'w-full h-11 px-3 rounded-md text-sm bg-background border-2 transition-colors outline-none',
                         emailError
                           ? 'border-rose-300 focus:border-rose-400'
                           : 'border-border focus:border-primary/40'
@@ -683,7 +683,7 @@ const AgendamentoPublico = () => {
                   disabled={!selectedSlot || confirming}
                   onClick={confirm}
                   className={cn(
-                    'w-full h-12 rounded-[2px] text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2',
+                    'w-full h-12 rounded-md text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2',
                     selectedSlot && !confirming
                       ? 'bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98]'
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
@@ -701,7 +701,7 @@ const AgendamentoPublico = () => {
           {step === 2 && session && selectedSlot && (
             <div className="space-y-5">
               {/* Success hero */}
-              <div className="bg-card rounded-[2px] border border-border px-6 py-8 text-center space-y-3">
+              <div className="bg-card rounded-md border border-border px-6 py-8 text-center space-y-3">
                 <div className="flex justify-center">
                   <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center ring-4 ring-emerald-500/10">
                     <CheckCircle2 className="w-9 h-9 text-emerald-500" />
@@ -721,14 +721,14 @@ const AgendamentoPublico = () => {
               {/* Aviso não-bloqueante (AC9c): email rejeitado pela RPC — reunião
                   confirmada, mas o convite no calendário não será enviado. */}
               {emailWarning && (
-                <div className="flex items-start gap-3 px-4 py-3 rounded-[2px] bg-amber-50 border border-amber-200 text-amber-800 text-sm dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400">
+                <div className="flex items-start gap-3 px-4 py-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-sm dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400">
                   <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>{emailWarning}</span>
                 </div>
               )}
 
               {/* Meeting details */}
-              <div className="bg-card rounded-[2px] border border-border overflow-hidden">
+              <div className="bg-card rounded-md border border-border overflow-hidden">
                 {confirmedConsultor && (
                   <div className="px-5 py-4 flex items-center gap-3 border-b border-border">
                     <ConsultorAvatar name={confirmedConsultor.name} />
@@ -741,7 +741,7 @@ const AgendamentoPublico = () => {
 
                 <div className="px-5 py-4 space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-[2px] bg-muted flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
                       <Calendar className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div>
@@ -753,7 +753,7 @@ const AgendamentoPublico = () => {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-[2px] bg-muted flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
                       <Clock className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div>

@@ -121,21 +121,21 @@ const QualificationStatusBadge = ({ status }: { status: string | null | undefine
   const s = status.toLowerCase();
   if (s.includes("aprovado") || s.includes("qualified") || s.includes("yes")) {
     return (
-      <Badge className="bg-[#00D26A]/10 text-[#00D26A] border-[#00D26A]/20 gap-1 text-[11px] rounded-[2px]">
+      <Badge className="bg-[#00D26A]/10 text-[#00D26A] border-[#00D26A]/20 gap-1 text-[11px] rounded-md">
         <CheckCircle className="w-3 h-3" />{status}
       </Badge>
     );
   }
   if (s.includes("nurturing") || s.includes("pendente") || s.includes("maybe")) {
     return (
-      <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20 gap-1 text-[11px] rounded-[2px]">
+      <Badge className="bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20 gap-1 text-[11px] rounded-md">
         <Clock className="w-3 h-3" />{status}
       </Badge>
     );
   }
   if (s.includes("descartado") || s.includes("rejected") || s.includes("no")) {
     return (
-      <Badge className="bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 gap-1 text-[11px] rounded-[2px]">
+      <Badge className="bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20 gap-1 text-[11px] rounded-md">
         <XCircle className="w-3 h-3" />{status}
       </Badge>
     );
@@ -204,7 +204,7 @@ export const QualificacaoIASection = ({ data }: QualificacaoIASectionProps) => {
   // ── Empty state ──
   if (!hasAnyData) {
     return (
-      <section className="border border-border rounded-[2px] bg-card">
+      <section className="border border-border rounded-md bg-card">
         <div className="px-4 pt-4 pb-3 border-b border-border flex items-center gap-2">
           <Brain className="w-3.5 h-3.5 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
@@ -228,7 +228,7 @@ export const QualificacaoIASection = ({ data }: QualificacaoIASectionProps) => {
   ];
 
   return (
-    <section className="border border-border rounded-[2px] bg-card overflow-hidden">
+    <section className="border border-border rounded-md bg-card overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -251,7 +251,7 @@ export const QualificacaoIASection = ({ data }: QualificacaoIASectionProps) => {
                 key={t.id}
                 value={t.id}
                 className={cn(
-                  "h-6 text-[11px] px-2 rounded-[2px] relative transition-all duration-300",
+                  "h-6 text-[11px] px-2 rounded-md relative transition-all duration-300",
                   !t.has && "opacity-45",
                 )}
               >
@@ -282,9 +282,9 @@ export const QualificacaoIASection = ({ data }: QualificacaoIASectionProps) => {
                     className={cn(
                       "text-[11px]",
                       data?.q8_engagement_level?.toLowerCase().includes("alto")
-                        ? "bg-[#00D26A]/10 text-[#00D26A] border-[#00D26A]/20 rounded-[2px]"
+                        ? "bg-[#00D26A]/10 text-[#00D26A] border-[#00D26A]/20 rounded-md"
                         : data?.q8_engagement_level?.toLowerCase().includes("médio")
-                          ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20 rounded-[2px]"
+                          ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20 rounded-md"
                           : "bg-muted text-muted-foreground",
                     )}
                   >

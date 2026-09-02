@@ -210,7 +210,7 @@ const ControleIA = ({ pessoa, tenantId }: ControleIAProps) => {
         <>
           {!eligibility.loading && (eligibility.agent && eligibility.scoreOk ? (
             /* Agent matched + score OK → show active/processing pill */
-            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-[2px] text-[11px] font-medium transition-colors ${
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
               aiIsProcessing
                 ? 'bg-violet-500/10 text-violet-600 dark:text-violet-400'
                 : 'bg-card text-muted-foreground/60'
@@ -224,13 +224,13 @@ const ControleIA = ({ pessoa, tenantId }: ControleIAProps) => {
             </div>
           ) : eligibility.agent && !eligibility.scoreOk ? (
             /* Agent found but score gate blocks */
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-[2px] bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-medium">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-medium">
               <AlertCircle className="w-3 h-3 shrink-0" />
               <span className="truncate max-w-[140px]">{eligibility.agent.name} — score inelegível</span>
             </div>
           ) : (
             /* No agent matches */
-            <div className="flex items-start gap-1.5 px-2 py-1 rounded-[2px] bg-card text-muted-foreground/50 text-[11px]">
+            <div className="flex items-start gap-1.5 px-2 py-1 rounded-md bg-card text-muted-foreground/50 text-[11px]">
               <AlertCircle className="w-3 h-3 shrink-0 mt-0.5" />
               <span className="leading-tight">
                 {eligibility.diagnostics[0] ?? 'Sem agente configurado'}

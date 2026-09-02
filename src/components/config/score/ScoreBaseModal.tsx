@@ -69,7 +69,7 @@ export const ScoreBaseModal = ({
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Digite o nome"
               required
-              className="rounded-[4px]"
+              className="rounded-lg"
             />
           </div>
 
@@ -81,7 +81,7 @@ export const ScoreBaseModal = ({
                 setFormData({ ...formData, active: value === 'active' })
               }
             >
-              <SelectTrigger id="active" className="rounded-[4px]">
+              <SelectTrigger id="active" className="rounded-lg">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

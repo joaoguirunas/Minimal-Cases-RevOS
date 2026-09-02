@@ -129,7 +129,7 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          <Card className="border border-border rounded-[2px]">
+          <Card className="border border-border rounded-md">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -151,7 +151,7 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                           <Clock className="w-3 h-3" />
                           Início
                         </Label>
-                        <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto p-2 border border-border rounded-[4px] bg-muted">
+                        <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto p-2 border border-border rounded-lg bg-muted">
                           {TIME_SLOTS.map((time) => (
                             <Button
                               key={`start-${time}`}
@@ -159,7 +159,7 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                               variant={startTime === time ? "default" : "outline"}
                               size="sm"
                               className={cn(
-                                "h-8 text-xs rounded-[4px]",
+                                "h-8 text-xs rounded-lg",
                                 startTime === time && "ring-2 ring-primary ring-offset-1"
                               )}
                               onClick={() => setStartTime(time)}
@@ -175,7 +175,7 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                           <Clock className="w-3 h-3" />
                           Fim
                         </Label>
-                        <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto p-2 border border-border rounded-[4px] bg-muted">
+                        <div className="grid grid-cols-4 gap-2 max-h-[180px] overflow-y-auto p-2 border border-border rounded-lg bg-muted">
                           {TIME_SLOTS.map((time) => (
                             <Button
                               key={`end-${time}`}
@@ -183,7 +183,7 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                               variant={endTime === time ? "default" : "outline"}
                               size="sm"
                               className={cn(
-                                "h-8 text-xs rounded-[4px]",
+                                "h-8 text-xs rounded-lg",
                                 endTime === time && "ring-2 ring-primary ring-offset-1"
                               )}
                               onClick={() => setEndTime(time)}
@@ -201,12 +201,12 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="consultor">Consultor</Label>
                     <Select value={consultorId} onValueChange={setConsultorId}>
-                      <SelectTrigger id="consultor" className="rounded-[4px]" disabled={isLoadingUsuarios}>
+                      <SelectTrigger id="consultor" className="rounded-lg" disabled={isLoadingUsuarios}>
                         <SelectValue placeholder={isLoadingUsuarios ? "Carregando..." : "Selecione o consultor"} />
                       </SelectTrigger>
-                      <SelectContent className="rounded-[4px]">
+                      <SelectContent className="rounded-lg">
                         {usuarios.map((usuario: { id: string; nome?: string; name?: string }) => (
-                          <SelectItem key={usuario.id} value={usuario.id} className="rounded-[4px]">
+                          <SelectItem key={usuario.id} value={usuario.id} className="rounded-lg">
                             {usuario.nome || usuario.name}
                           </SelectItem>
                         ))}
@@ -217,15 +217,15 @@ const EditarReuniaoModal: React.FC<EditarReuniaoModalProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
                     <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger id="status" className="rounded-[4px]">
+                      <SelectTrigger id="status" className="rounded-lg">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="rounded-[4px]">
-                        <SelectItem value="agendado" className="rounded-[4px]">Agendada</SelectItem>
-                        <SelectItem value="compareceu" className="rounded-[4px]">Compareceu</SelectItem>
-                        <SelectItem value="nao-compareceu" className="rounded-[4px]">Não compareceu</SelectItem>
-                        <SelectItem value="cancelado" className="rounded-[4px]">Cancelada</SelectItem>
-                        <SelectItem value="bloqueio manual" className="rounded-[4px]">Bloqueio Manual</SelectItem>
+                      <SelectContent className="rounded-lg">
+                        <SelectItem value="agendado" className="rounded-lg">Agendada</SelectItem>
+                        <SelectItem value="compareceu" className="rounded-lg">Compareceu</SelectItem>
+                        <SelectItem value="nao-compareceu" className="rounded-lg">Não compareceu</SelectItem>
+                        <SelectItem value="cancelado" className="rounded-lg">Cancelada</SelectItem>
+                        <SelectItem value="bloqueio manual" className="rounded-lg">Bloqueio Manual</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

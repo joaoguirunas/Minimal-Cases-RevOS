@@ -234,7 +234,7 @@ const CamposExtrasConfig = () => {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-12 bg-muted animate-pulse rounded-[4px]" />
+          <div key={i} className="h-12 bg-muted animate-pulse rounded-lg" />
         ))}
       </div>
     );
@@ -253,7 +253,7 @@ const CamposExtrasConfig = () => {
     const isSelectType = form.type === 'single_select' || form.type === 'select';
 
     return (
-      <div className="border border-border rounded-[4px] p-4 space-y-4 bg-card">
+      <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Name */}
           <div className="space-y-1.5">
@@ -405,7 +405,7 @@ const CamposExtrasConfig = () => {
       <div
         key={field.id}
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 border border-border rounded-[4px] bg-card",
+          "flex items-center gap-3 px-3 py-2.5 border border-border rounded-lg bg-card",
           !field.active && "opacity-50"
         )}
       >
@@ -476,7 +476,7 @@ const CamposExtrasConfig = () => {
       </div>
 
       {/* Entity type tabs */}
-      <div className="flex gap-1 p-0.5 bg-muted rounded-[4px] w-fit">
+      <div className="flex gap-1 p-0.5 bg-muted rounded-lg w-fit">
         {ENTITY_TABS.map(tab => {
           const Icon = tab.icon;
           const isActive = activeEntity === tab.value;
@@ -488,7 +488,7 @@ const CamposExtrasConfig = () => {
               type="button"
               onClick={() => handleEntityChange(tab.value)}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] text-[12px] font-medium transition-colors",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors",
                 isActive
                   ? "bg-background text-foreground border border-border"
                   : "text-muted-foreground hover:text-foreground"

@@ -20,7 +20,7 @@ export default function SurfacesTab() {
             ].map(({ name, bg, level }) => (
               <div key={name} className="flex-1 flex flex-col items-center gap-2">
                 <div
-                  className="w-full rounded-[2px] border border-white/[0.06] shadow-lg"
+                  className="w-full rounded-md border border-white/[0.06] shadow-lg"
                   style={{ backgroundColor: bg, height: `${60 + level * 20}px` }}
                 />
                 <p className="text-[9px] font-mono text-white/30">{name}</p>
@@ -62,9 +62,9 @@ export default function SurfacesTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <GlowCard glow="#FF4400">
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Glass Blur (10px)</h3>
-            <div className="relative h-40 rounded-[2px] overflow-hidden">
+            <div className="relative h-40 rounded-md overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#FF4400]/20 to-[#3B82F6]/20" />
-              <div className="absolute inset-4 rounded-[2px] border border-white/10 bg-white/[0.05] backdrop-blur-[10px] flex items-center justify-center">
+              <div className="absolute inset-4 rounded-md border border-white/10 bg-white/[0.05] backdrop-blur-[10px] flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-[11px] font-medium text-white/60">Navigation / Modal</p>
                   <code className="text-[9px] font-mono text-white/25">blur(10px)</code>
@@ -75,9 +75,9 @@ export default function SurfacesTab() {
           </GlowCard>
           <GlowCard glow="#00D26A">
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Glass Blur Soft (5px)</h3>
-            <div className="relative h-40 rounded-[2px] overflow-hidden">
+            <div className="relative h-40 rounded-md overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00D26A]/15 to-[#6C16F8]/15" />
-              <div className="absolute inset-4 rounded-[2px] border border-white/10 bg-white/[0.03] backdrop-blur-[5px] flex items-center justify-center">
+              <div className="absolute inset-4 rounded-md border border-white/10 bg-white/[0.03] backdrop-blur-[5px] flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-[11px] font-medium text-white/60">Tooltips / Popovers</p>
                   <code className="text-[9px] font-mono text-white/25">blur(5px)</code>
@@ -95,10 +95,10 @@ export default function SurfacesTab() {
         <GlowCard glow="#F59E0B">
           <h3 className="text-[10px] font-mono text-white/30 mb-6 uppercase tracking-[0.08em]">Stacked Surfaces</h3>
           <div className="relative h-56 flex items-center justify-center">
-            <div className="w-[80%] h-44 rounded-[2px] bg-[#050505] border border-white/[0.04] flex items-end justify-center p-4">
-              <div className="w-[80%] h-32 rounded-[2px] bg-[#111113] border border-white/[0.06] flex items-end justify-center p-4">
-                <div className="w-[80%] h-20 rounded-[2px] bg-[#1C1E19] border border-white/[0.08] flex items-center justify-center">
-                  <div className="w-[70%] h-10 rounded-[2px] bg-white/[0.05] border border-white/10 flex items-center justify-center">
+            <div className="w-[80%] h-44 rounded-md bg-[#050505] border border-white/[0.04] flex items-end justify-center p-4">
+              <div className="w-[80%] h-32 rounded-md bg-[#111113] border border-white/[0.06] flex items-end justify-center p-4">
+                <div className="w-[80%] h-20 rounded-md bg-[#1C1E19] border border-white/[0.08] flex items-center justify-center">
+                  <div className="w-[70%] h-10 rounded-md bg-white/[0.05] border border-white/10 flex items-center justify-center">
                     <span className="text-[9px] font-mono text-white/30">Overlay</span>
                   </div>
                 </div>

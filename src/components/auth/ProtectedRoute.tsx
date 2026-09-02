@@ -123,7 +123,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   if (!user.profile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB]">
-        <Card className="max-w-md mx-auto p-6 border-orange-200 bg-orange-50 rounded-[4px]">
+        <Card className="max-w-md mx-auto p-6 border-orange-200 bg-orange-50 rounded-lg">
           <div className="text-center space-y-4">
             <AlertTriangle className="w-12 h-12 text-orange-600 mx-auto" />
             <h2 className="text-lg font-semibold text-orange-900">Perfil Incompleto</h2>
@@ -133,7 +133,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             <div className="space-y-2">
               <Button 
                 onClick={refreshProfile} 
-                className="w-full bg-[#3366FF] hover:bg-[#2952CC] text-white rounded-[4px]"
+                className="w-full bg-[#3366FF] hover:bg-[#2952CC] text-white rounded-lg"
                 disabled={isLoading}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -143,7 +143,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
               <Button 
                 onClick={() => window.location.reload()} 
                 variant="outline" 
-                className="w-full rounded-[4px] border-[#E5E7EB]"
+                className="w-full rounded-lg border-[#E5E7EB]"
               >
                 Recarregar Página
               </Button>
@@ -162,7 +162,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   if (mfaTimedOut) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB]">
-        <Card className="max-w-md mx-auto p-6 border-orange-200 bg-orange-50 rounded-[4px]">
+        <Card className="max-w-md mx-auto p-6 border-orange-200 bg-orange-50 rounded-lg">
           <div className="text-center space-y-4">
             <AlertTriangle className="w-12 h-12 text-orange-600 mx-auto" />
             <h2 className="text-lg font-semibold text-orange-900">Verificação MFA lenta</h2>
@@ -171,7 +171,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             </p>
             <Button
               onClick={() => { setMfaTimedOut(false); setMfaChecked(false); }}
-              className="w-full bg-[#3366FF] hover:bg-[#2952CC] text-white rounded-[4px]"
+              className="w-full bg-[#3366FF] hover:bg-[#2952CC] text-white rounded-lg"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Tentar novamente

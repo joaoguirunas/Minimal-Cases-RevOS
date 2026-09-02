@@ -824,7 +824,7 @@ function FormHeader({ fs }: { fs: ReturnType<typeof getFormStyle> }) {
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="flex items-center gap-2 p-3 rounded-[2px] bg-red-50 border border-red-200 text-sm text-red-600 mb-4">
+    <div className="flex items-center gap-2 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-600 mb-4">
       <AlertCircle className="w-4 h-4 shrink-0" />
       {message}
     </div>
@@ -973,7 +973,7 @@ function StepsForm({
       {submitError && <ErrorBanner message={submitError} />}
       <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
         {stepIdx > 0 && (
-          <button type="button" onClick={() => setStepIdx((i) => i - 1)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-[4px] border border-border text-sm font-semibold hover:bg-muted transition-colors">
+          <button type="button" onClick={() => setStepIdx((i) => i - 1)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors">
             <ChevronLeft className="w-4 h-4" />
             Voltar
           </button>
@@ -1083,7 +1083,7 @@ function ChatbotForm({
               <select
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
-                className="w-full rounded-[4px] border border-border px-3 py-2 text-sm focus:outline-none"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none"
                 style={{ appearance: "none", WebkitAppearance: "none", paddingRight: "2.25rem", cursor: "pointer" }}
               >
                 <option value="">Selecione...</option>
@@ -1107,7 +1107,7 @@ function ChatbotForm({
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
               placeholder="(99) 99999-9999"
               disabled={submitting}
-              className="flex-1 rounded-[4px] border border-border px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
             />
             <button onClick={handleNext} disabled={submitting} style={{ padding: "8px 12px", borderRadius: 4, background: botColor, color: "#fff", border: "none", cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.6 : 1 }}>
               {submitting ? <Loader2 style={{ width: 16, height: 16 }} /> : <ChevronRight style={{ width: 16, height: 16 }} />}
@@ -1123,7 +1123,7 @@ function ChatbotForm({
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
               placeholder="Digite sua resposta..."
               disabled={submitting}
-              className="flex-1 rounded-[4px] border border-border px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:outline-none disabled:opacity-50"
             />
             <button onClick={handleNext} disabled={submitting} style={{ padding: "8px 12px", borderRadius: 4, background: botColor, color: "#fff", border: "none", cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.6 : 1 }}>
               {submitting ? <Loader2 style={{ width: 16, height: 16 }} /> : <ChevronRight style={{ width: 16, height: 16 }} />}

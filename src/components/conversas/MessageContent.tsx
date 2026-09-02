@@ -144,7 +144,7 @@ export const MessageContent = ({
           src={media_url}
           alt={media_metadata?.file_name || 'imagem'}
           onError={() => setImgError(true)}
-          className="rounded-[2px] max-w-[220px] max-h-[220px] object-cover cursor-pointer"
+          className="rounded-md max-w-[220px] max-h-[220px] object-cover cursor-pointer"
           onClick={() => window.open(media_url, '_blank')}
         />
         {message && (
@@ -160,7 +160,7 @@ export const MessageContent = ({
     return (
       <div className="space-y-1.5">
         <div className={cn(
-          'flex items-center gap-2 rounded-[2px] px-3 py-2',
+          'flex items-center gap-2 rounded-md px-3 py-2',
           isFromClient ? 'bg-card' : 'bg-primary-foreground/10'
         )}>
           <Volume2 className="w-4 h-4 shrink-0 opacity-60" />
@@ -187,7 +187,7 @@ export const MessageContent = ({
         <video
           src={media_url}
           controls
-          className="rounded-[2px] max-w-[280px] max-h-[220px] object-cover"
+          className="rounded-md max-w-[280px] max-h-[220px] object-cover"
         />
         {message && (
           <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{message}</p>
@@ -207,13 +207,13 @@ export const MessageContent = ({
           target="_blank"
           rel="noopener noreferrer"
           className={cn(
-            'flex items-center gap-2.5 px-3 py-2.5 rounded-[2px] border transition-colors',
+            'flex items-center gap-2.5 px-3 py-2.5 rounded-md border transition-colors',
             isFromClient
               ? 'bg-card border-border hover:bg-accent/50'
               : 'bg-primary-foreground/10 border-primary-foreground/20 hover:bg-primary-foreground/20'
           )}
         >
-          <div className="w-8 h-8 rounded-[2px] bg-card flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center shrink-0">
             <FileText className="w-4 h-4 opacity-60" />
           </div>
           <div className="flex-1 min-w-0">

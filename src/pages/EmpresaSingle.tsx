@@ -138,7 +138,7 @@ const EmpresaSingle = () => {
           <p className="text-[12px] text-muted-foreground/60">
             A empresa foi removida ou o link é inválido.
           </p>
-          <Button size="sm" onClick={() => navigate('/crm/clients')} className="h-[30px] px-3 text-xs mt-1 rounded-[4px]">
+          <Button size="sm" onClick={() => navigate('/crm/clients')} className="h-[30px] px-3 text-xs mt-1 rounded-lg">
             Voltar para Clientes
           </Button>
         </div>
@@ -178,7 +178,7 @@ const EmpresaSingle = () => {
               size="sm"
               onClick={() => setShowDeleteModal(true)}
               disabled={isPending || deleteCompany.isPending}
-              className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-[4px]"
+              className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-lg"
               title="Excluir"
             >
               <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -187,7 +187,7 @@ const EmpresaSingle = () => {
               size="sm"
               onClick={handleSave}
               disabled={isPending || !formData.trade_name.trim()}
-              className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]"
+              className="h-[30px] px-3 text-xs gap-1.5 rounded-lg"
             >
               {isPending
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -208,7 +208,7 @@ const EmpresaSingle = () => {
             <div className="lg:col-span-2 space-y-5">
 
               {/* Informações básicas */}
-              <section className="border border-border rounded-[4px] bg-card">
+              <section className="border border-border rounded-lg bg-card">
                 <div className="px-4 pt-4 pb-3 border-b border-white/[0.06]">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
                     Informações básicas
@@ -333,7 +333,7 @@ const EmpresaSingle = () => {
             <div className="space-y-5">
 
               {/* Danger zone */}
-              <section className="border border-destructive/20 rounded-[4px] bg-card">
+              <section className="border border-destructive/20 rounded-lg bg-card">
                 <div className="px-4 pt-4 pb-3 border-b border-destructive/10">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-destructive/60">
                     Zona de risco
@@ -346,7 +346,7 @@ const EmpresaSingle = () => {
                     size="sm"
                     onClick={() => setShowDeleteModal(true)}
                     disabled={isPending || deleteCompany.isPending}
-                    className="w-full h-[30px] text-xs gap-1.5 border-destructive/30 rounded-[4px] text-destructive hover:bg-destructive/5 hover:text-destructive"
+                    className="w-full h-[30px] text-xs gap-1.5 border-destructive/30 rounded-lg text-destructive hover:bg-destructive/5 hover:text-destructive"
                   >
                     <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     Excluir empresa
@@ -362,7 +362,7 @@ const EmpresaSingle = () => {
       {/* ── Delete Confirmation Modal ──────────────────────────────────────── */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="bg-card border border-border rounded-[4px] p-6 max-w-sm mx-4">
+          <div className="bg-card border border-border rounded-lg p-6 max-w-sm mx-4">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-destructive" strokeWidth={1.5} />

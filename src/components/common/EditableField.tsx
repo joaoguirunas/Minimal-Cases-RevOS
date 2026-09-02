@@ -117,7 +117,7 @@ const EditableField = ({
           <Textarea
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
-            className="min-h-[60px] text-sm border-border focus:border-primary rounded-[4px]"
+            className="min-h-[60px] text-sm border-border focus:border-primary rounded-lg"
             placeholder={inputPlaceholder || placeholder}
           />
         );
@@ -125,7 +125,7 @@ const EditableField = ({
       case 'select':
         return (
           <Select value={tempValue} onValueChange={setTempValue}>
-            <SelectTrigger className="h-8 text-sm border-border focus:border-primary rounded-[4px]">
+            <SelectTrigger className="h-8 text-sm border-border focus:border-primary rounded-lg">
               <SelectValue placeholder={inputPlaceholder || placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -144,7 +144,7 @@ const EditableField = ({
             type="number"
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
-            className="h-8 text-sm border-border focus:border-primary rounded-[4px]"
+            className="h-8 text-sm border-border focus:border-primary rounded-lg"
             placeholder={inputPlaceholder || placeholder}
           />
         );
@@ -155,7 +155,7 @@ const EditableField = ({
             type="email"
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
-            className="h-8 text-sm border-border focus:border-primary rounded-[4px]"
+            className="h-8 text-sm border-border focus:border-primary rounded-lg"
             placeholder={inputPlaceholder || placeholder}
           />
         );
@@ -166,7 +166,7 @@ const EditableField = ({
             type="text"
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
-            className="h-8 text-sm border-border focus:border-primary rounded-[4px]"
+            className="h-8 text-sm border-border focus:border-primary rounded-lg"
             placeholder={inputPlaceholder || placeholder}
           />
         );
@@ -185,7 +185,7 @@ const EditableField = ({
   };
 
   return (
-    <div className={`flex items-center gap-3 p-3 bg-muted border border-border rounded-[4px] overflow-hidden ${className}`}>
+    <div className={`flex items-center gap-3 p-3 bg-muted border border-border rounded-lg overflow-hidden ${className}`}>
       <div className="w-4 h-4 text-muted-foreground flex-shrink-0">
         {icon}
       </div>
@@ -203,7 +203,7 @@ const EditableField = ({
                 variant="ghost" 
                 onClick={handleSave}
                 disabled={saving}
-                className="h-6 w-6 p-0 hover:bg-primary/10 rounded-[4px]"
+                className="h-6 w-6 p-0 hover:bg-primary/10 rounded-lg"
               >
                 {saving ? (
                   <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" />
@@ -216,7 +216,7 @@ const EditableField = ({
                 variant="ghost" 
                 onClick={handleCancel}
                 disabled={saving}
-                className="h-6 w-6 p-0 hover:bg-destructive/10 rounded-[4px]"
+                className="h-6 w-6 p-0 hover:bg-destructive/10 rounded-lg"
               >
                 <X className="w-3 h-3 text-destructive" />
               </Button>
@@ -239,7 +239,7 @@ const EditableField = ({
                 size="sm"
                 variant="ghost"
                 onClick={handleEdit}
-                className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-[4px]"
+                className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
               >
                 <Edit3 className="w-3 h-3" />
               </Button>

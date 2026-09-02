@@ -89,7 +89,7 @@ const UrlSimulator = ({ ruleSets }: { ruleSets: BookingRuleSet[] }) => {
         </p>
       </div>
 
-      <div className="rounded-[4px] border border-border bg-muted p-4 space-y-4">
+      <div className="rounded-lg border border-border bg-muted p-4 space-y-4">
         {/* Lead search */}
         <div className="space-y-1.5">
           <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
@@ -112,7 +112,7 @@ const UrlSimulator = ({ ruleSets }: { ruleSets: BookingRuleSet[] }) => {
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground animate-spin" />
             )}
             {showDropdown && leads.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-popover border border-border rounded-[4px] overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-popover border border-border rounded-lg overflow-hidden">
                 {leads.map(lead => (
                   <button
                     key={lead.id}
@@ -152,7 +152,7 @@ const UrlSimulator = ({ ruleSets }: { ruleSets: BookingRuleSet[] }) => {
                 key={d}
                 onClick={() => setDuration(d)}
                 className={cn(
-                  'flex-1 py-1.5 rounded-[4px] text-xs font-medium border transition-colors',
+                  'flex-1 py-1.5 rounded-lg text-xs font-medium border transition-colors',
                   duration === d
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-card text-muted-foreground border-border hover:bg-muted'
@@ -173,7 +173,7 @@ const UrlSimulator = ({ ruleSets }: { ruleSets: BookingRuleSet[] }) => {
             <select
               value={ruleSetId}
               onChange={e => setRuleSetId(e.target.value)}
-              className="w-full h-[30px] text-xs bg-card border border-border rounded-[4px] px-2 pr-7 appearance-none text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full h-[30px] text-xs bg-card border border-border rounded-lg px-2 pr-7 appearance-none text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="default">
                 Padrão{defaultRuleSet ? ` (${defaultRuleSet.name})` : ''}
@@ -209,7 +209,7 @@ const UrlSimulator = ({ ruleSets }: { ruleSets: BookingRuleSet[] }) => {
             </p>
             <div className="flex items-center gap-2">
               <code className={cn(
-                'flex-1 text-[10px] px-2.5 py-2 rounded-[4px] truncate font-mono border',
+                'flex-1 text-[10px] px-2.5 py-2 rounded-lg truncate font-mono border',
                 generatedUrl
                   ? 'bg-card border-border text-foreground'
                   : 'bg-muted border-border text-muted-foreground/40 italic'
@@ -262,7 +262,7 @@ const BookingDistribuicaoConfig = () => {
     return (
       <div className="space-y-2 p-6">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-16 rounded-[4px] bg-muted animate-pulse" />
+          <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
         ))}
       </div>
     );
@@ -290,7 +290,7 @@ const BookingDistribuicaoConfig = () => {
         </div>
 
         {ruleSets.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-[4px]">
+          <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">
             <GitBranch className="w-8 h-8 mx-auto mb-2 opacity-30" />
             <p className="text-sm">Nenhum conjunto de regras</p>
           </div>
@@ -302,7 +302,7 @@ const BookingDistribuicaoConfig = () => {
                 <div
                   key={rs.id}
                   className={cn(
-                    'flex items-center gap-3 px-4 py-3 rounded-[4px] border transition-colors',
+                    'flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors',
                     rs.is_default
                       ? 'border-primary/30 bg-primary/[0.02]'
                       : 'border-border bg-card'

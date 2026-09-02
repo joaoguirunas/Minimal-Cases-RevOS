@@ -18,12 +18,12 @@ const NegocioAnalise = ({ negocioId, tenantId }: NegocioAnaliseProps) => {
   };
 
   return (
-    <Card className="p-6 rounded-[2px]">
+    <Card className="p-6 rounded-md">
       <h3 className="font-semibold mb-6 text-[14px]">Análise do Negócio</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-[#3B82F6]/10 border border-[#3B82F6]/20 rounded-[2px] transition-all duration-300">
+          <div className="flex items-center gap-3 p-4 bg-[#3B82F6]/10 border border-[#3B82F6]/20 rounded-md transition-all duration-300">
             <Clock className="w-8 h-8 text-[#3B82F6]" />
             <div>
               <p className="text-sm text-muted-foreground">Tempo no Funil</p>
@@ -31,7 +31,7 @@ const NegocioAnalise = ({ negocioId, tenantId }: NegocioAnaliseProps) => {
             </div>
           </div>
           
-          <div className="flex items-center gap-3 p-4 bg-[#00D26A]/10 border border-[#00D26A]/20 rounded-[2px] transition-all duration-300">
+          <div className="flex items-center gap-3 p-4 bg-[#00D26A]/10 border border-[#00D26A]/20 rounded-md transition-all duration-300">
             <TrendingUp className="w-8 h-8 text-[#00D26A]" />
             <div>
               <p className="text-sm text-muted-foreground">Probabilidade de Conversão</p>
@@ -41,7 +41,7 @@ const NegocioAnalise = ({ negocioId, tenantId }: NegocioAnaliseProps) => {
         </div>
         
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-[#B8924B]/10 border border-[#B8924B]/20 rounded-[2px] transition-all duration-300">
+          <div className="flex items-center gap-3 p-4 bg-[#B8924B]/10 border border-[#B8924B]/20 rounded-md transition-all duration-300">
             <DollarSign className="w-8 h-8 text-[#B8924B]" />
             <div>
               <p className="text-sm text-muted-foreground">Valor Estimado</p>
@@ -49,7 +49,7 @@ const NegocioAnalise = ({ negocioId, tenantId }: NegocioAnaliseProps) => {
             </div>
           </div>
           
-          <div className="flex items-center gap-3 p-4 bg-[#F59E0B]/10 rounded-[2px] border border-[#F59E0B]/20">
+          <div className="flex items-center gap-3 p-4 bg-[#F59E0B]/10 rounded-md border border-[#F59E0B]/20">
             <Target className="w-8 h-8 text-[#F59E0B]" />
             <div>
               <p className="text-sm text-muted-foreground">Próxima Ação</p>
@@ -62,11 +62,11 @@ const NegocioAnalise = ({ negocioId, tenantId }: NegocioAnaliseProps) => {
       <div className="mt-6 pt-6 border-t">
         <h4 className="text-[13px] font-medium mb-4 text-muted-foreground/70 uppercase tracking-widest text-[11px] font-mono">Histórico de Mudanças de Estágio</h4>
         <div className="space-y-2">
-          <div className="flex justify-between items-center py-2 px-3 bg-card border border-border rounded-[2px]">
+          <div className="flex justify-between items-center py-2 px-3 bg-card border border-border rounded-md">
             <span className="text-sm">Qualificação → Proposta</span>
             <span className="text-xs text-muted-foreground">2 dias atrás</span>
           </div>
-          <div className="flex justify-between items-center py-2 px-3 bg-card border border-border rounded-[2px]">
+          <div className="flex justify-between items-center py-2 px-3 bg-card border border-border rounded-md">
             <span className="text-sm">Contato Inicial → Qualificação</span>
             <span className="text-xs text-muted-foreground">5 dias atrás</span>
           </div>

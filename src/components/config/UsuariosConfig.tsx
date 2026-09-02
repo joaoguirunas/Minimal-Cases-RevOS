@@ -136,12 +136,12 @@ export const UsuariosConfig = () => {
             size="sm"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="h-[30px] w-[30px] p-0 text-muted-foreground/60 hover:text-foreground rounded-[4px]"
+            className="h-[30px] w-[30px] p-0 text-muted-foreground/60 hover:text-foreground rounded-lg"
           >
             <RefreshCw className={cn("w-3.5 h-3.5", isFetching && "animate-spin")} strokeWidth={1.5} />
           </Button>
           {canCreateUser && (
-            <Button size="sm" onClick={() => setNovoUsuarioOpen(true)} className="gap-1.5 h-[30px] text-xs rounded-[4px]">
+            <Button size="sm" onClick={() => setNovoUsuarioOpen(true)} className="gap-1.5 h-[30px] text-xs rounded-lg">
               <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
               {t('usersConfig.newUser')}
             </Button>
@@ -151,21 +151,21 @@ export const UsuariosConfig = () => {
 
       {/* User list */}
       {usuarios.length === 0 ? (
-        <div className="border border-border rounded-[2px] p-8 text-center">
+        <div className="border border-border rounded-md p-8 text-center">
           <p className="text-[13px] text-muted-foreground/60 mb-3">
             {canCreateUser
               ? 'Nenhum usuário cadastrado. Crie o primeiro para começar.'
               : 'Nenhum usuário disponível. Contacte um administrador.'}
           </p>
           {canCreateUser && (
-            <Button size="sm" onClick={() => setNovoUsuarioOpen(true)} className="gap-1.5 h-[30px] text-xs rounded-[4px]">
+            <Button size="sm" onClick={() => setNovoUsuarioOpen(true)} className="gap-1.5 h-[30px] text-xs rounded-lg">
               <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
               Criar Primeiro Usuário
             </Button>
           )}
         </div>
       ) : (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           {usuarios.map((usuario, index) => {
             const nome = usuario.name || usuario.nome || '';
             const userType = resolveUserType(usuario);
@@ -183,7 +183,7 @@ export const UsuariosConfig = () => {
               >
                 {/* Avatar + info */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-[30px] h-[30px] rounded-[2px] bg-muted flex items-center justify-center flex-shrink-0">
+                  <div className="w-[30px] h-[30px] rounded-md bg-muted flex items-center justify-center flex-shrink-0">
                     <span className="text-[10px] font-semibold text-muted-foreground">
                       {initials || '?'}
                     </span>
@@ -259,7 +259,7 @@ export const UsuariosConfig = () => {
                           size="sm"
                           aria-label={`Remover MFA de ${usuario.nome ?? usuario.name ?? ''}`}
                           onClick={() => setMfaRevokeTarget({ id: usuario.id, auth_user_id: usuario.auth_user_id, name: usuario.nome ?? usuario.name ?? '' })}
-                          className="h-[28px] text-[11px] rounded-[3px] text-amber-600 hover:text-amber-600 hover:bg-amber-500/10 gap-1 px-2"
+                          className="h-[28px] text-[11px] rounded-md text-amber-600 hover:text-amber-600 hover:bg-amber-500/10 gap-1 px-2"
                         >
                           <ShieldOff className="w-3 h-3" aria-hidden="true" strokeWidth={1.5} />
                           Remover MFA

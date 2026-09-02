@@ -288,19 +288,19 @@ const EditarUsuarioModal = ({
               }))}
               className="grid grid-cols-2 gap-2"
             >
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="comercial" id="edit-comercial" />
                 <Label htmlFor="edit-comercial" className="cursor-pointer text-sm">Comercial</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="user" id="edit-user" />
                 <Label htmlFor="edit-user" className="cursor-pointer text-sm">User</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="manager" id="edit-manager" />
                 <Label htmlFor="edit-manager" className="cursor-pointer text-sm">Manager</Label>
               </div>
-              <div className="flex items-center space-x-2 border rounded-[4px] p-3">
+              <div className="flex items-center space-x-2 border rounded-lg p-3">
                 <RadioGroupItem value="admin" id="edit-admin" />
                 <Label htmlFor="edit-admin" className="cursor-pointer text-sm">Admin</Label>
               </div>
@@ -332,7 +332,7 @@ const EditarUsuarioModal = ({
           {times.length > 0 && (
             <div>
               <Label>Times/Equipes</Label>
-              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-[4px] p-2">
+              <div className="space-y-2 max-h-32 overflow-y-auto border rounded-lg p-2">
                 {times.map((time) => (
                   <div key={time.id} className="flex items-center space-x-2">
                     <Checkbox

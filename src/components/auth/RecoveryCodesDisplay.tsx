@@ -50,7 +50,7 @@ export function RecoveryCodesDisplay({
   return (
     <div className="space-y-4">
       {/* Amber callout */}
-      <div className="flex items-start gap-3 p-4 rounded-[4px] border border-amber-500/30 bg-amber-500/[0.08]">
+      <div className="flex items-start gap-3 p-4 rounded-lg border border-amber-500/30 bg-amber-500/[0.08]">
         <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" aria-hidden="true" />
         <div className="space-y-1">
           <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
@@ -70,7 +70,7 @@ export function RecoveryCodesDisplay({
       </div>
 
       {/* Codes grid */}
-      <div className="bg-muted rounded-[4px] p-4">
+      <div className="bg-muted rounded-lg p-4">
         <ul aria-label="Códigos de recuperação MFA" className="grid grid-cols-2 gap-2">
           {codes.map((code, i) => (
             <li key={i}>
@@ -90,7 +90,7 @@ export function RecoveryCodesDisplay({
         <Button
           size="sm"
           variant="outline"
-          className="rounded-[4px] h-8 gap-1.5 text-xs"
+          className="rounded-lg h-8 gap-1.5 text-xs"
           onClick={handleCopyAll}
         >
           {copied ? (
@@ -103,7 +103,7 @@ export function RecoveryCodesDisplay({
         <Button
           size="sm"
           variant="outline"
-          className="rounded-[4px] h-8 gap-1.5 text-xs"
+          className="rounded-lg h-8 gap-1.5 text-xs"
           onClick={handleDownload}
         >
           <Download className="w-3.5 h-3.5" />
@@ -112,7 +112,7 @@ export function RecoveryCodesDisplay({
       </div>
 
       {/* Mandatory checkbox */}
-      <div className="flex items-start gap-2.5 p-3 border border-border rounded-[4px] bg-card">
+      <div className="flex items-start gap-2.5 p-3 border border-border rounded-lg bg-card">
         <Checkbox
           id="codes-saved"
           checked={codesSaved}
@@ -126,7 +126,7 @@ export function RecoveryCodesDisplay({
       </div>
 
       <Button
-        className="w-full rounded-[4px]"
+        className="w-full rounded-lg"
         disabled={!codesSaved}
         aria-disabled={!codesSaved}
         onClick={onConfirmed}

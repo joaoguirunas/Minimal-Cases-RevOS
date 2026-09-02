@@ -119,7 +119,7 @@ export const ScoreMatriz = () => {
           )}
 
           {/* Table */}
-          <div className="rounded-[2px] border border-border overflow-hidden">
+          <div className="rounded-md border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -326,19 +326,19 @@ export const ScoreMatriz = () => {
               {viewItem.profile_score && (
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Perfil do Lead</label>
-                  <p className="mt-2 text-sm p-3 bg-muted rounded-[2px]">{viewItem.profile_score}</p>
+                  <p className="mt-2 text-sm p-3 bg-muted rounded-md">{viewItem.profile_score}</p>
                 </div>
               )}
               {viewItem.pre_description_score && (
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Pré-descrição</label>
-                  <p className="mt-2 text-sm p-3 bg-muted rounded-[2px]">{viewItem.pre_description_score}</p>
+                  <p className="mt-2 text-sm p-3 bg-muted rounded-md">{viewItem.pre_description_score}</p>
                 </div>
               )}
               {viewItem.detail_score && (
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Detalhes</label>
-                  <p className="mt-2 text-sm p-3 bg-muted rounded-[2px]">{viewItem.detail_score}</p>
+                  <p className="mt-2 text-sm p-3 bg-muted rounded-md">{viewItem.detail_score}</p>
                 </div>
               )}
             </div>

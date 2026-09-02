@@ -70,7 +70,7 @@ export function DateRangeFilter({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal rounded-[4px] h-[30px] text-xs",
+            "w-full justify-start text-left font-normal rounded-lg h-[30px] text-xs",
             !hasDateRange && "text-muted-foreground",
             className
           )}
@@ -112,7 +112,7 @@ export function DateRangeFilter({
               variant="outline"
               size="sm"
               onClick={handleClear}
-              className="flex-1 rounded-[4px]"
+              className="flex-1 rounded-lg"
             >
               {t('conversations.dateRangeFilter.clear')}
             </Button>
@@ -120,7 +120,7 @@ export function DateRangeFilter({
               size="sm"
               onClick={handleApply}
               disabled={!hasValidSelection}
-              className="flex-1 rounded-[4px]"
+              className="flex-1 rounded-lg"
             >
               {t('conversations.dateRangeFilter.apply')}
             </Button>

@@ -40,7 +40,7 @@ const MotivoPerdasModal = ({ isOpen, onClose, onConfirm, isLoading = false }: Mo
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md rounded-[2px]">
+      <DialogContent className="sm:max-w-md rounded-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <XCircle className="w-5 h-5" />
@@ -54,10 +54,10 @@ const MotivoPerdasModal = ({ isOpen, onClose, onConfirm, isLoading = false }: Mo
               Selecione o motivo da perda *
             </Label>
             <Select value={selectedMotivoId} onValueChange={setSelectedMotivoId}>
-              <SelectTrigger className="rounded-[4px]">
+              <SelectTrigger className="rounded-lg">
                 <SelectValue placeholder="Escolha um motivo" />
               </SelectTrigger>
-              <SelectContent className="rounded-[4px]">
+              <SelectContent className="rounded-lg">
                 {motivos.map((motivo) => (
                   <SelectItem key={motivo.id} value={motivo.id}>
                     {motivo.name}
@@ -76,7 +76,7 @@ const MotivoPerdasModal = ({ isOpen, onClose, onConfirm, isLoading = false }: Mo
               value={motivoTexto}
               onChange={(e) => setMotivoTexto(e.target.value)}
               placeholder="Descreva detalhes sobre o motivo da perda..."
-              className="min-h-[80px] rounded-[4px]"
+              className="min-h-[80px] rounded-lg"
             />
           </div>
         </div>
@@ -86,14 +86,14 @@ const MotivoPerdasModal = ({ isOpen, onClose, onConfirm, isLoading = false }: Mo
             variant="outline"
             onClick={handleClose}
             disabled={isLoading}
-            className="rounded-[4px] h-[30px] text-xs"
+            className="rounded-lg h-[30px] text-xs"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={!selectedMotivoId || isLoading}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-[4px] h-[30px] text-xs"
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg h-[30px] text-xs"
           >
             {isLoading ? "Salvando..." : "Confirmar Perda"}
           </Button>

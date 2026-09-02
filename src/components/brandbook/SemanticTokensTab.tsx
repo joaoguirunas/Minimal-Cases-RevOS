@@ -16,8 +16,8 @@ export default function SemanticTokensTab() {
               { name: 'Elevated', token: '--color-bg-elevated', color: '#1C1E19', desc: 'Highlighted panels' },
               { name: 'Overlay', token: '--color-bg-overlay', color: 'rgba(15,15,17,0.92)', desc: 'Modal backdrop' },
             ].map(({ name, token, color, desc }) => (
-              <div key={name} className="p-4 rounded-[2px] border border-white/[0.04]">
-                <div className="w-full h-16 rounded-[2px] border border-white/[0.06] mb-3" style={{ backgroundColor: color }} />
+              <div key={name} className="p-4 rounded-md border border-white/[0.04]">
+                <div className="w-full h-16 rounded-md border border-white/[0.06] mb-3" style={{ backgroundColor: color }} />
                 <p className="text-[11px] font-medium text-white/50 mb-0.5">{name}</p>
                 <code className="text-[9px] font-mono text-[#FF4400]/40 block mb-1">{token}</code>
                 <p className="text-[9px] text-white/20">{desc}</p>
@@ -65,7 +65,7 @@ export default function SemanticTokensTab() {
           ].map(({ name, token, color, opacity, shadow }) => (
             <GlowCard key={name} glow={color}>
               <div className="flex items-center justify-center h-20 mb-4">
-                <div className="w-16 h-16 rounded-[2px] border" style={{ borderColor: `rgba(255,68,0,${opacity})`, boxShadow: shadow, backgroundColor: `rgba(255,68,0,${opacity * 0.1})` }} />
+                <div className="w-16 h-16 rounded-md border" style={{ borderColor: `rgba(255,68,0,${opacity})`, boxShadow: shadow, backgroundColor: `rgba(255,68,0,${opacity * 0.1})` }} />
               </div>
               <p className="text-[11px] font-medium text-white/50 mb-0.5">{name}</p>
               <code className="text-[9px] font-mono text-[#FF4400]/40">{token}</code>
@@ -88,9 +88,9 @@ export default function SemanticTokensTab() {
               { name: 'Warning BG', token: '--warning-bg', color: 'rgba(245,158,11,0.05)', example: 'Warning banner bg' },
               { name: 'Warning Border', token: '--warning-border', color: 'rgba(245,158,11,0.20)', example: 'Warning banner frame' },
             ].map(({ name, token, color, example }) => (
-              <div key={name} className="p-3 rounded-[2px] border border-white/[0.04] bg-white/[0.01]">
+              <div key={name} className="p-3 rounded-md border border-white/[0.04] bg-white/[0.01]">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-4 h-4 rounded-[2px] border border-white/[0.08]" style={{ backgroundColor: color }} />
+                  <div className="w-4 h-4 rounded-md border border-white/[0.08]" style={{ backgroundColor: color }} />
                   <span className="text-[10px] font-medium text-white/50">{name}</span>
                 </div>
                 <code className="text-[9px] font-mono text-[#FF4400]/40 block mb-1">{token}</code>

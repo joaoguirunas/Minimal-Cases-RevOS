@@ -59,7 +59,7 @@ export const PipelineStageSelector = ({
         
         <div
           className={`
-            mt-1 w-full px-3 py-2 border border-border rounded-[4px] 
+            mt-1 w-full px-3 py-2 border border-border rounded-lg 
             bg-background cursor-pointer flex items-center justify-between
             transition-colors hover:border-primary/50
             ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -75,7 +75,7 @@ export const PipelineStageSelector = ({
         
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-[4px] z-50 max-h-60 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg z-50 max-h-60 overflow-y-auto">
             {pipelines.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
                 Nenhum pipeline encontrado
@@ -123,7 +123,7 @@ export const PipelineStageSelector = ({
                     return (
                       <div 
                         key={stage.id}
-                        className={`relative flex items-center gap-3 p-3 rounded-[4px] border transition-all cursor-pointer ${
+                        className={`relative flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
                           isSelected 
                             ? 'border-primary bg-primary/5' 
                             : isClickable 
@@ -188,7 +188,7 @@ export const PipelineStageSelector = ({
 
       {/* Mensagem quando não há pipeline selecionado */}
       {!pipelineId && (
-        <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-[4px] text-center">
+        <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
           {disabled ? (
             'Clique em "Editar" para configurar o pipeline'
           ) : (

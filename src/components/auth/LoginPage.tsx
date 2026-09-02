@@ -194,7 +194,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md rounded-[4px]">
+      <Card className="w-full max-w-md rounded-lg">
         <CardHeader className="space-y-4">
           {/* Logo */}
           <div className="flex items-center justify-center mb-2">
@@ -214,7 +214,7 @@ const LoginPage = () => {
           </div>
           
           {initError && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-[4px] p-3">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-destructive" />
                 <p className="text-destructive text-sm">{initError}</p>
@@ -236,7 +236,7 @@ const LoginPage = () => {
                 required
                 disabled={isLoading}
                 autoComplete="email"
-                className="rounded-[4px]"
+                className="rounded-lg"
               />
             </div>
             
@@ -251,7 +251,7 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="pr-10 rounded-[4px]"
+                  className="pr-10 rounded-lg"
                   autoComplete="current-password"
                 />
                 <Button
@@ -286,7 +286,7 @@ const LoginPage = () => {
             </div>
 
             {isBlocked && (
-              <div className="flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-[4px] px-3 py-2">
+              <div className="flex items-center gap-2 text-[12px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>Muitas tentativas. Aguarde <span className="font-semibold tabular-nums">{blockedSecondsLeft}s</span> para tentar novamente.</span>
               </div>
@@ -330,7 +330,7 @@ const LoginPage = () => {
       </p>
 
       <Dialog open={resetPasswordOpen} onOpenChange={setResetPasswordOpen}>
-        <DialogContent className="sm:max-w-md rounded-[4px]">
+        <DialogContent className="sm:max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-foreground">Recuperar Senha</DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -348,7 +348,7 @@ const LoginPage = () => {
                 onChange={(e) => setResetEmail(e.target.value)}
                 required
                 disabled={resetInProgress}
-                className="rounded-[4px]"
+                className="rounded-lg"
               />
             </div>
             <DialogFooter className="sm:justify-between">
@@ -357,7 +357,7 @@ const LoginPage = () => {
                 variant="outline"
                 onClick={() => setResetPasswordOpen(false)}
                 disabled={resetInProgress}
-                className="rounded-[4px]"
+                className="rounded-lg"
               >
                 Cancelar
               </Button>

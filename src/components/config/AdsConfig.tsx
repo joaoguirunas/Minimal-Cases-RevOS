@@ -131,7 +131,7 @@ function AccountRow({ account, onSync, onDelete, isSyncing }: {
     : null;
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <div className="flex items-center gap-3 px-4 py-3">
         {account.platform === 'meta' ? <MetaIcon size={24} /> : <GoogleIcon size={24} />}
         <div className="flex-1 min-w-0">
@@ -307,7 +307,7 @@ function PlatformSection({
 
       {/* Manual token form — Meta only */}
       {type === 'meta' && showManualForm && (
-        <div className="border border-border rounded-[4px] p-3 space-y-3 bg-muted/30">
+        <div className="border border-border rounded-lg p-3 space-y-3 bg-muted/30">
           <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">Adicionar conta via token</p>
           <div className="space-y-1">
             <Label className="text-[11px] text-muted-foreground">Access Token *</Label>
@@ -315,7 +315,7 @@ function PlatformSection({
               value={manualToken}
               onChange={(e) => setManualToken(e.target.value)}
               placeholder="EAAxxxxxx..."
-              className="h-[30px] text-sm rounded-[4px] font-mono"
+              className="h-[30px] text-sm rounded-lg font-mono"
             />
           </div>
           <div className="space-y-1">
@@ -324,7 +324,7 @@ function PlatformSection({
               value={manualAccountId}
               onChange={(e) => setManualAccountId(e.target.value)}
               placeholder="123456789 ou act_123456789"
-              className="h-[30px] text-sm rounded-[4px]"
+              className="h-[30px] text-sm rounded-lg"
             />
           </div>
           <div className="space-y-1">
@@ -333,7 +333,7 @@ function PlatformSection({
               value={manualAccountName}
               onChange={(e) => setManualAccountName(e.target.value)}
               placeholder="Ex: Campanha Verão 2025"
-              className="h-[30px] text-sm rounded-[4px]"
+              className="h-[30px] text-sm rounded-lg"
             />
           </div>
           <div className="flex items-center gap-2 pt-1">
@@ -366,13 +366,13 @@ function PlatformSection({
       </div>
 
       {!configured && (
-        <p className="text-[12px] text-amber-600 dark:text-amber-400 bg-amber-500/8 border border-amber-200/30 rounded-[2px] px-3 py-2">
+        <p className="text-[12px] text-amber-600 dark:text-amber-400 bg-amber-500/8 border border-amber-200/30 rounded-md px-3 py-2">
           Configure as credenciais da {label} na seção abaixo antes de conectar.
         </p>
       )}
 
       {missingDevToken && (
-        <div className="flex items-start gap-2 text-[12px] text-amber-700 dark:text-amber-300 bg-amber-500/8 border border-amber-200/30 rounded-[4px] px-3 py-2">
+        <div className="flex items-start gap-2 text-[12px] text-amber-700 dark:text-amber-300 bg-amber-500/8 border border-amber-200/30 rounded-lg px-3 py-2">
           <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
           <span>
             <strong>Developer Token não configurado.</strong> Cole o token do API Center e solicite o{' '}
@@ -387,7 +387,7 @@ function PlatformSection({
 
       {/* Google: dev token configured but may need approval for production accounts */}
       {type === 'google' && hasDeveloperToken && connected && (
-        <div className="flex items-start gap-2 text-[12px] text-blue-700 dark:text-blue-300 bg-blue-500/8 border border-blue-200/30 rounded-[4px] px-3 py-2.5">
+        <div className="flex items-start gap-2 text-[12px] text-blue-700 dark:text-blue-300 bg-blue-500/8 border border-blue-200/30 rounded-lg px-3 py-2.5">
           <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
           <span>
             Se a sincronização falhar com <em>"Developer Token not approved"</em>, seu token ainda está no nível{' '}
@@ -403,7 +403,7 @@ function PlatformSection({
       )}
 
       {isLoading ? (
-        <Skeleton className="h-14 w-full rounded-[2px]" />
+        <Skeleton className="h-14 w-full rounded-md" />
       ) : accounts.length > 0 ? (
         <div className="space-y-2">
           {accounts.map(acc => (
@@ -430,7 +430,7 @@ function SetupGuide({ steps, defaultOpen = true }: {
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
@@ -510,7 +510,7 @@ function MetaCredentialsForm() {
     saveSettings.mutate(update);
   };
 
-  if (isLoading) return <Skeleton className="h-24 w-full rounded-[2px]" />;
+  if (isLoading) return <Skeleton className="h-24 w-full rounded-md" />;
 
   const metaSaved = !!settings?.meta_app_id;
 
@@ -597,7 +597,7 @@ function GoogleCredentialsForm() {
 
   const isPending = updateSettings.isPending || saveSettings.isPending;
 
-  if (isLoading) return <Skeleton className="h-32 w-full rounded-[2px]" />;
+  if (isLoading) return <Skeleton className="h-32 w-full rounded-md" />;
 
   const googleSaved = !!appSettings?.google_client_id;
   const devTokenSaved = !!biSettings?.google_developer_token;
@@ -766,7 +766,7 @@ function AccountPicker({ platform, pending, onDone }: {
   const PlatIcon = platform === 'meta' ? MetaIcon : GoogleIcon;
 
   return (
-    <div className="border border-primary/20 rounded-[4px] overflow-hidden bg-card">
+    <div className="border border-primary/20 rounded-lg overflow-hidden bg-card">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-primary/10 bg-primary/5">
         <PlatIcon size={16} />
@@ -784,7 +784,7 @@ function AccountPicker({ platform, pending, onDone }: {
       <div className="p-4 space-y-3">
         {/* API disabled warning */}
         {isManualMode && pending.enable_api_url && (
-          <div className="flex items-start gap-2 text-[12px] text-amber-700 dark:text-amber-300 bg-amber-500/8 border border-amber-200/30 rounded-[4px] px-3 py-2.5">
+          <div className="flex items-start gap-2 text-[12px] text-amber-700 dark:text-amber-300 bg-amber-500/8 border border-amber-200/30 rounded-lg px-3 py-2.5">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
             <span>
               <strong>Google Ads API não ativada</strong> neste projeto.{' '}
@@ -809,7 +809,7 @@ function AccountPicker({ platform, pending, onDone }: {
               />
               <button
                 onClick={toggleAll}
-                className="flex-shrink-0 h-[30px] px-3 text-[12px] font-medium border border-border rounded-[4px] hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
+                className="flex-shrink-0 h-[30px] px-3 text-[12px] font-medium border border-border rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
               >
                 {allSelected ? 'Desmarcar todos' : 'Selecionar todos'}
               </button>
@@ -824,7 +824,7 @@ function AccountPicker({ platform, pending, onDone }: {
                 <label
                   key={account.id}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-[4px] border cursor-pointer transition-colors",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors",
                     selected.has(account.id)
                       ? "border-primary/30 bg-primary/5"
                       : "border-border bg-background hover:bg-muted/50"
@@ -989,7 +989,7 @@ export default function AdsConfig({ platform, hideCredentials = false }: { platf
       )}
 
       {/* Connected accounts */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <div className="px-5 py-3.5 border-b border-border bg-muted">
           <p className="text-[13px] font-medium text-foreground">Contas Conectadas</p>
           <p className="text-[12px] text-muted-foreground/50 mt-0.5">
@@ -1020,7 +1020,7 @@ export default function AdsConfig({ platform, hideCredentials = false }: { platf
 
       {/* Credentials */}
       {!hideCredentials && (
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <div className="px-5 py-3.5 border-b border-border bg-muted">
             <p className="text-[13px] font-medium text-foreground">Credenciais OAuth</p>
             <p className="text-[12px] text-muted-foreground/50 mt-0.5">

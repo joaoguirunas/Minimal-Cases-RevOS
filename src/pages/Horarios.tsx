@@ -197,7 +197,7 @@ const Horarios = () => {
         <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2 bg-primary/10 rounded-[4px]">
+              <div className="p-2 bg-primary/10 rounded-lg">
                 <Clock className="w-6 h-6 text-primary" />
               </div>
               <div>
@@ -244,7 +244,7 @@ const Horarios = () => {
                 value={selectedUserId}
                 onValueChange={setSelectedUserId}
               >
-                <SelectTrigger className="w-full h-[30px] text-xs rounded-[4px]">
+                <SelectTrigger className="w-full h-[30px] text-xs rounded-lg">
                   <SelectValue placeholder={t('mySchedule.selectUserPlaceholder') || "Selecione um consultor"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -268,7 +268,7 @@ const Horarios = () => {
               variant="outline"
               size="sm"
               onClick={resetarHorarios}
-              className="gap-2 h-[30px] rounded-[4px] text-xs"
+              className="gap-2 h-[30px] rounded-lg text-xs"
             >
               <RotateCcw className="w-4 h-4" />
               {t('mySchedule.clearAll')}
@@ -278,7 +278,7 @@ const Horarios = () => {
             <Button
               onClick={salvarHorarios}
               disabled={isSubmitting}
-              className="gap-2 h-[30px] rounded-[4px] text-xs"
+              className="gap-2 h-[30px] rounded-lg text-xs"
             >
               <Save className="w-4 h-4" />
               {isSubmitting ? t('common.saving') : t('mySchedule.saveSchedule')}

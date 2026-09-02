@@ -61,7 +61,7 @@ export const NotificationsDropdown = () => {
           variant="ghost"
           size="icon"
           aria-label={unreadCount > 0 ? `Notificações (${unreadCount} não lidas)` : 'Notificações'}
-          className="relative h-[30px] w-[30px] rounded-[4px] transition-all duration-300"
+          className="relative h-[30px] w-[30px] rounded-lg transition-all duration-300"
         >
           <Bell className="w-4 h-4" />
           {unreadCount > 0 && (

@@ -35,7 +35,7 @@ export default function ImportPreviewTable({
   const mappedCompanyFields = Object.keys(mapping.company_struct ?? {});
 
   return (
-    <div className="rounded-[4px] border border-border overflow-hidden">
+    <div className="rounded-lg border border-border overflow-hidden">
       <div className="bg-muted/50 px-3 py-1.5 flex items-center justify-between">
         <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
           Prévia — {maxPreview} primeiras linhas

@@ -9,7 +9,7 @@ interface ClienteJaAtribuidoAlertProps {
 
 const ClienteJaAtribuidoAlert = ({ nomeCliente, nomeResponsavel }: ClienteJaAtribuidoAlertProps) => {
   return (
-    <Alert className="border-orange-200 bg-orange-50 rounded-[4px]">
+    <Alert className="border-orange-200 bg-orange-50 rounded-lg">
       <AlertTriangle className="h-4 w-4 text-orange-600" />
       <AlertDescription className="text-orange-800">
         <strong>{nomeCliente}</strong> já está atribuído ao atendente <strong>{nomeResponsavel}</strong>.

@@ -56,7 +56,7 @@ function NewEvolutionChannelForm({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+    <div className="rounded-lg border border-border bg-card p-5 space-y-4">
       <div className="flex items-center gap-2">
         <MessageSquareText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
         <p className="text-[13px] font-medium text-foreground">Novo canal Evolution</p>
@@ -174,7 +174,7 @@ function EvolutionChannelCard({ channel }: { channel: EvolutionChannel }) {
   };
 
   return (
-    <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+    <div className="rounded-lg border border-border bg-card p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
           <MessageSquareText className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
@@ -283,7 +283,7 @@ export default function EvolutionIntegrationConfig() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-[4px] border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
+      <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
         <p className="text-[12px] font-medium text-amber-600 dark:text-amber-400">WhatsApp não-oficial (Evolution API)</p>
         <p className="text-[12px] text-muted-foreground leading-relaxed">
           Conecta um número de WhatsApp real via QR code (sem aprovação da Meta, sem template, sem janela de 24h).

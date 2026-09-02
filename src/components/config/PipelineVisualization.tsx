@@ -14,7 +14,7 @@ const PipelineVisualization = ({ pipeline }: PipelineVisualizationProps) => {
 
   if (sortedStages.length === 0) {
     return (
-      <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted rounded-[4px]">
+      <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted rounded-lg">
         <p className="text-sm">Nenhuma etapa configurada para este pipeline</p>
       </div>
     );
@@ -40,7 +40,7 @@ const PipelineVisualization = ({ pipeline }: PipelineVisualizationProps) => {
           <div key={stage.id} className="flex items-center gap-2">
             <div className="flex flex-col items-center gap-2 min-w-[120px]">
               <div
-                className="w-14 h-14 rounded-[4px] flex items-center justify-center text-white font-semibold text-sm transition-transform hover:scale-105"
+                className="w-14 h-14 rounded-lg flex items-center justify-center text-white font-semibold text-sm transition-transform hover:scale-105"
                 style={{ backgroundColor: stage.cor }}
               >
                 {stage.ordem}

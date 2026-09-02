@@ -57,7 +57,7 @@ const BookingRuleCard = ({ rule, index, total, teams, users, onChange, onMoveUp,
     onChange(rule._key, { config: { ...cfg, ...patch } });
 
   return (
-    <div className="flex items-start gap-3 px-3 py-2.5 rounded-[4px] border border-border bg-card">
+    <div className="flex items-start gap-3 px-3 py-2.5 rounded-lg border border-border bg-card">
       {/* Drag handle / order */}
       <div className="flex flex-col gap-0.5 pt-0.5 shrink-0">
         <button

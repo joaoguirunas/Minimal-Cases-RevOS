@@ -355,7 +355,7 @@ export function StylePanel({
         <TabsContent value="exibicao" className="flex-1 overflow-y-auto p-4 space-y-6 mt-0">
 
       {/* ── Design (skin) ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Design</p>
         </div>
@@ -367,14 +367,14 @@ export function StylePanel({
                 onClick={() => patchStyle({ form_skin: skin.key })}
                 title={skin.label}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 p-2 rounded-[4px] border-2 transition-all",
+                  "flex flex-col items-center gap-1.5 p-2 rounded-lg border-2 transition-all",
                   (st.form_skin ?? "default") === skin.key
                     ? "border-primary bg-primary/10"
                     : "border-border hover:border-primary/40"
                 )}
               >
                 <span
-                  className="w-full h-8 rounded-[2px] flex items-center justify-center overflow-hidden"
+                  className="w-full h-8 rounded-md flex items-center justify-center overflow-hidden"
                   style={{ background: skin.thumb.wrap }}
                 >
                   <span className="w-3/5 h-2 rounded-[1px]" style={{ background: skin.thumb.input }} />
@@ -391,7 +391,7 @@ export function StylePanel({
       </div>
 
       {/* ── Fundo do formulário ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Fundo do formulário</p>
         </div>
@@ -421,7 +421,7 @@ export function StylePanel({
       </div>
 
       {/* ── Modo da Página ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Modo da Página</p>
         </div>
@@ -430,7 +430,7 @@ export function StylePanel({
             <button
               onClick={() => patchStyle({ page_mode: 'light' })}
               className={cn(
-                "flex flex-col items-center gap-1.5 p-3 rounded-[4px] border-2 transition-all text-xs font-semibold",
+                "flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-xs font-semibold",
                 (!st.page_mode || st.page_mode === 'light')
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:border-primary/40"
@@ -442,7 +442,7 @@ export function StylePanel({
             <button
               onClick={() => patchStyle({ page_mode: 'dark' })}
               className={cn(
-                "flex flex-col items-center gap-1.5 p-3 rounded-[4px] border-2 transition-all text-xs font-semibold",
+                "flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-xs font-semibold",
                 st.page_mode === 'dark'
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:border-primary/40"
@@ -459,7 +459,7 @@ export function StylePanel({
       </div>
 
       {/* ── Modo de exibição ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Modo de exibição</p>
         </div>
@@ -474,7 +474,7 @@ export function StylePanel({
                 key={key}
                 onClick={() => setSettings((s) => ({ ...s, display_style: key }))}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 py-2.5 text-[10px] font-semibold rounded-[4px] border transition-colors",
+                  "flex flex-col items-center gap-1.5 py-2.5 text-[10px] font-semibold rounded-lg border transition-colors",
                   displayStyle === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                 )}
               >
@@ -493,7 +493,7 @@ export function StylePanel({
                 <div className="grid grid-cols-2 gap-1.5">
                   {([{ v: "bottom-right" as const, label: "↘ Direita" }, { v: "bottom-left" as const, label: "↙ Esquerda" }] as const).map(({ v, label }) => (
                     <button key={v} onClick={() => patchWidget({ position: v })}
-                      className={cn("text-xs px-2 py-2 rounded-[4px] border text-center font-medium transition-colors", widget.position === v ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}
+                      className={cn("text-xs px-2 py-2 rounded-lg border text-center font-medium transition-colors", widget.position === v ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}
                     >{label}</button>
                   ))}
                 </div>
@@ -504,7 +504,7 @@ export function StylePanel({
                 <div className="grid grid-cols-2 gap-1.5">
                   {([{ v: "round" as const, label: "● Redondo" }, { v: "pill" as const, label: "⬭ Pílula" }] as const).map(({ v, label }) => (
                     <button key={v} onClick={() => patchWidget({ button_shape: v })}
-                      className={cn("text-xs px-2 py-2 rounded-[4px] border text-center font-medium transition-colors", (widget.button_shape ?? "round") === v ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}
+                      className={cn("text-xs px-2 py-2 rounded-lg border text-center font-medium transition-colors", (widget.button_shape ?? "round") === v ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50")}
                     >{label}</button>
                   ))}
                 </div>
@@ -516,7 +516,7 @@ export function StylePanel({
                   <div className="grid grid-cols-5 gap-1.5">
                     {["💬", "⚡", "📋", "📞", "🎯", "✉️", "🚀", "💡", "🎁", "👋"].map((emoji) => (
                       <button key={emoji} onClick={() => patchWidget({ button_icon: emoji })}
-                        className={cn("h-9 text-lg flex items-center justify-center rounded-[4px] border transition-colors", (widget.button_icon ?? "📋") === emoji ? "border-primary bg-primary/10" : "border-border hover:border-primary/50")}
+                        className={cn("h-9 text-lg flex items-center justify-center rounded-lg border transition-colors", (widget.button_icon ?? "📋") === emoji ? "border-primary bg-primary/10" : "border-border hover:border-primary/50")}
                       >{emoji}</button>
                     ))}
                   </div>
@@ -524,7 +524,7 @@ export function StylePanel({
               ) : (
                 <div className="space-y-1.5">
                   <label className="text-xs text-muted-foreground font-semibold">Texto do botão</label>
-                  <Input value={widget.button_label ?? "Fale conosco"} onChange={(e) => patchWidget({ button_label: e.target.value })} placeholder="Fale conosco" className="h-[30px] text-sm rounded-[4px]" />
+                  <Input value={widget.button_label ?? "Fale conosco"} onChange={(e) => patchWidget({ button_label: e.target.value })} placeholder="Fale conosco" className="h-[30px] text-sm rounded-lg" />
                 </div>
               )}
               {/* Cor */}
@@ -561,7 +561,7 @@ export function StylePanel({
         <TabsContent value="cabecalho" className="flex-1 overflow-y-auto p-4 space-y-6 mt-0">
 
       {/* ── Cabeçalho ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Cabeçalho</p>
         </div>
@@ -596,7 +596,7 @@ export function StylePanel({
                   value={st.title ?? ''}
                   onChange={(e) => patchStyle({ title: e.target.value })}
                   placeholder="Preencha o formulário"
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
 
@@ -609,7 +609,7 @@ export function StylePanel({
                       key={key}
                       onClick={() => patchStyle({ title_size: key })}
                       className={cn(
-                        "py-1.5 text-xs font-bold rounded-[4px] border transition-colors",
+                        "py-1.5 text-xs font-bold rounded-lg border transition-colors",
                         (st.title_size ?? 'md') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                       )}
                     >
@@ -633,7 +633,7 @@ export function StylePanel({
                       key={key}
                       onClick={() => patchStyle({ title_weight: key })}
                       className={cn(
-                        "py-1.5 text-[10px] rounded-[4px] border transition-colors",
+                        "py-1.5 text-[10px] rounded-lg border transition-colors",
                         (st.title_weight ?? 'bold') === key ? "border-primary bg-primary/10 text-primary font-bold" : "border-border text-muted-foreground hover:border-primary/50"
                       )}
                       style={{ fontWeight: WEIGHT_MAP[key] }}
@@ -648,7 +648,7 @@ export function StylePanel({
               <div className="space-y-1.5">
                 <label className="text-xs text-muted-foreground font-semibold">Fonte</label>
                 <Select value={st.title_font ?? 'sans'} onValueChange={(v) => patchStyle({ title_font: v })}>
-                  <SelectTrigger className="h-[30px] text-xs rounded-[4px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-[30px] text-xs rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>{FONT_OPTIONS.map(({ key, label }) => <SelectItem key={key} value={key} className="text-xs">{label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -682,7 +682,7 @@ export function StylePanel({
                       key={key}
                       onClick={() => patchStyle({ title_align: key })}
                       className={cn(
-                        "py-1.5 flex items-center justify-center rounded-[4px] border transition-colors",
+                        "py-1.5 flex items-center justify-center rounded-lg border transition-colors",
                         (st.title_align ?? 'left') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                       )}
                     >
@@ -699,7 +699,7 @@ export function StylePanel({
                   value={st.subtitle ?? ''}
                   onChange={(e) => patchStyle({ subtitle: e.target.value })}
                   placeholder="Breve descrição..."
-                  className="text-sm rounded-[4px] resize-none"
+                  className="text-sm rounded-lg resize-none"
                   rows={2}
                 />
               </div>
@@ -719,7 +719,7 @@ export function StylePanel({
                           key={key}
                           onClick={() => patchStyle({ subtitle_size: key })}
                           className={cn(
-                            "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                            "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                             (st.subtitle_size ?? 'sm') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                           )}
                         >
@@ -758,7 +758,7 @@ export function StylePanel({
         <TabsContent value="campos" className="flex-1 overflow-y-auto p-4 space-y-6 mt-0">
 
       {/* ── Campos ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Campos</p>
         </div>
@@ -791,7 +791,7 @@ export function StylePanel({
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground font-semibold">Fonte dos labels</label>
             <Select value={st.label_font ?? 'sans'} onValueChange={(v) => patchStyle({ label_font: v })}>
-              <SelectTrigger className="h-[30px] text-xs rounded-[4px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-[30px] text-xs rounded-lg"><SelectValue /></SelectTrigger>
               <SelectContent>{FONT_OPTIONS.map(({ key, label }) => <SelectItem key={key} value={key} className="text-xs">{label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -810,7 +810,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ label_weight: key })}
                   className={cn(
-                    "py-1.5 text-[10px] rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] rounded-lg border transition-colors",
                     (st.label_weight ?? 'semibold') === key ? "border-primary bg-primary/10 text-primary font-bold" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                   style={{ fontWeight: WEIGHT_MAP[key] }}
@@ -830,7 +830,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ label_size: key })}
                   className={cn(
-                    "py-1.5 text-xs font-bold rounded-[4px] border transition-colors",
+                    "py-1.5 text-xs font-bold rounded-lg border transition-colors",
                     (st.label_size ?? 'md') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -890,7 +890,7 @@ export function StylePanel({
                   { key: 'thick'  as const, label: 'Grossa', w: '2.5px' },
                 ] as const).map(({ key, label, w }) => (
                   <button key={key} onClick={() => patchStyle({ input_border_width: key })}
-                    className={cn("flex flex-col items-center gap-1 py-1.5 rounded-[4px] border transition-colors",
+                    className={cn("flex flex-col items-center gap-1 py-1.5 rounded-lg border transition-colors",
                       (st.input_border_width ?? 'normal') === key ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                     )}
                   >
@@ -925,7 +925,7 @@ export function StylePanel({
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground font-semibold">Fonte dos campos</label>
             <Select value={st.input_font ?? 'sans'} onValueChange={(v) => patchStyle({ input_font: v })}>
-              <SelectTrigger className="h-[30px] text-xs rounded-[4px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-[30px] text-xs rounded-lg"><SelectValue /></SelectTrigger>
               <SelectContent>{FONT_OPTIONS.map(({ key, label }) => <SelectItem key={key} value={key} className="text-xs">{label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -944,7 +944,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ input_font_weight: key })}
                   className={cn(
-                    "py-1.5 text-[10px] rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] rounded-lg border transition-colors",
                     (st.input_font_weight ?? 'normal') === key ? "border-primary bg-primary/10 text-primary font-bold" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                   style={{ fontWeight: WEIGHT_MAP[key] }}
@@ -970,11 +970,11 @@ export function StylePanel({
                     key={key}
                     onClick={() => patchStyle({ input_size: key })}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-[4px] border p-2 transition-colors",
+                      "flex flex-col items-center gap-1 rounded-lg border p-2 transition-colors",
                       isActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                     )}
                   >
-                    <div className="w-full border rounded-[2px] bg-background/50 transition-all" style={{ borderColor: isActive ? 'hsl(var(--primary))' : 'hsl(var(--border))', paddingTop: `calc(${py} * 0.5)`, paddingBottom: `calc(${py} * 0.5)` }} />
+                    <div className="w-full border rounded-md bg-background/50 transition-all" style={{ borderColor: isActive ? 'hsl(var(--primary))' : 'hsl(var(--border))', paddingTop: `calc(${py} * 0.5)`, paddingBottom: `calc(${py} * 0.5)` }} />
                     <span className={cn("text-[9px] font-semibold", isActive ? "text-primary" : "text-muted-foreground")}>{label}</span>
                   </button>
                 );
@@ -996,7 +996,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ input_radius: key })}
                   className={cn(
-                    "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                     (st.input_radius ?? 'sm') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -1020,7 +1020,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ field_gap: key })}
                   className={cn(
-                    "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                     (st.field_gap ?? 'normal') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -1039,7 +1039,7 @@ export function StylePanel({
         <TabsContent value="botao" className="flex-1 overflow-y-auto p-4 space-y-6 mt-0">
 
       {/* ── Botão ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Botão</p>
         </div>
@@ -1089,7 +1089,7 @@ export function StylePanel({
                       { key: 'diagonal' as const, label: '↘ Diagonal'   },
                     ] as const).map(({ key, label }) => (
                       <button key={key} onClick={() => patchStyle({ button_gradient_dir: key })}
-                        className={cn("py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                        className={cn("py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                           (st.button_gradient_dir ?? 'right') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                         )}
                       >{label}</button>
@@ -1106,7 +1106,7 @@ export function StylePanel({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => patchStyle({ button_text_color: '#ffffff' })}
-                className={cn("flex-1 py-1.5 text-xs rounded-[4px] border font-medium transition-colors",
+                className={cn("flex-1 py-1.5 text-xs rounded-lg border font-medium transition-colors",
                   (st.button_text_color ?? '#ffffff') === '#ffffff' ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                 )}
               >
@@ -1114,7 +1114,7 @@ export function StylePanel({
               </button>
               <button
                 onClick={() => patchStyle({ button_text_color: '#000000' })}
-                className={cn("flex-1 py-1.5 text-xs rounded-[4px] border font-medium transition-colors",
+                className={cn("flex-1 py-1.5 text-xs rounded-lg border font-medium transition-colors",
                   st.button_text_color === '#000000' ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                 )}
               >
@@ -1128,7 +1128,7 @@ export function StylePanel({
           <div className="space-y-1.5">
             <label className="text-xs text-muted-foreground font-semibold">Fonte</label>
             <Select value={st.button_font ?? 'sans'} onValueChange={(v) => patchStyle({ button_font: v })}>
-              <SelectTrigger className="h-[30px] text-xs rounded-[4px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-[30px] text-xs rounded-lg"><SelectValue /></SelectTrigger>
               <SelectContent>{FONT_OPTIONS.map(({ key, label }) => <SelectItem key={key} value={key} className="text-xs">{label}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -1147,7 +1147,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ button_font_weight: key })}
                   className={cn(
-                    "py-1.5 text-[10px] rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] rounded-lg border transition-colors",
                     (st.button_font_weight ?? 'bold') === key ? "border-primary bg-primary/10 text-primary font-bold" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                   style={{ fontWeight: WEIGHT_MAP[key] }}
@@ -1172,7 +1172,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ button_radius: key })}
                   className={cn(
-                    "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                     (st.button_radius ?? 'sm') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -1195,7 +1195,7 @@ export function StylePanel({
                   key={key}
                   onClick={() => patchStyle({ button_size: key })}
                   className={cn(
-                    "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                    "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                     (st.button_size ?? 'md') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                   )}
                 >
@@ -1216,7 +1216,7 @@ export function StylePanel({
           </div>
 
           {/* Preview do botão */}
-          <div className="border border-border rounded-[4px] p-3 bg-muted">
+          <div className="border border-border rounded-lg p-3 bg-muted">
             <p className="text-[9px] text-muted-foreground uppercase tracking-wide mb-2">Preview</p>
             <div className={st.button_full_width !== false ? "w-full" : "inline-block"}>
               <button
@@ -1249,7 +1249,7 @@ export function StylePanel({
         <TabsContent value="detalhes" className="flex-1 overflow-y-auto p-4 space-y-6 mt-0">
 
       {/* ── Detalhes ── */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2.5 border-b border-border bg-muted">
           <p className="text-[10px] font-bold text-foreground uppercase tracking-wide">Detalhes</p>
         </div>
@@ -1288,7 +1288,7 @@ export function StylePanel({
                         key={key}
                         onClick={() => patchStyle({ accent_type: key })}
                         className={cn(
-                          "py-1.5 text-[9px] font-semibold rounded-[4px] border transition-colors",
+                          "py-1.5 text-[9px] font-semibold rounded-lg border transition-colors",
                           (st.accent_type ?? 'solid') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                         )}
                       >
@@ -1339,7 +1339,7 @@ export function StylePanel({
                         key={key}
                         onClick={() => patchStyle({ accent_width: key })}
                         className={cn(
-                          "flex flex-col items-center gap-1 py-2 rounded-[4px] border transition-colors",
+                          "flex flex-col items-center gap-1 py-2 rounded-lg border transition-colors",
                           (st.accent_width ?? 'normal') === key ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                         )}
                       >
@@ -1362,7 +1362,7 @@ export function StylePanel({
                         key={key}
                         onClick={() => patchStyle({ accent_position: key })}
                         className={cn(
-                          "py-1.5 text-[10px] font-medium rounded-[4px] border transition-colors",
+                          "py-1.5 text-[10px] font-medium rounded-lg border transition-colors",
                           (st.accent_position ?? 'top') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                         )}
                       >
@@ -1374,7 +1374,7 @@ export function StylePanel({
 
                 {/* Preview da linha */}
                 <div
-                  className="rounded-[2px] transition-all"
+                  className="rounded-md transition-all"
                   style={{
                     height: ACCENT_WIDTH_MAP[st.accent_width ?? 'normal'],
                     background: (st.accent_type === 'gradient' || st.accent_type === 'animated')
@@ -1409,7 +1409,7 @@ export function StylePanel({
                     value={st.badge_text ?? 'Online agora'}
                     onChange={(e) => patchStyle({ badge_text: e.target.value })}
                     placeholder="Online agora"
-                    className="h-[30px] text-xs rounded-[4px]"
+                    className="h-[30px] text-xs rounded-lg"
                   />
                 </div>
 
@@ -1429,7 +1429,7 @@ export function StylePanel({
                         key={key}
                         onClick={() => patchStyle({ badge_icon: key })}
                         className={cn(
-                          "py-1.5 text-sm rounded-[4px] border transition-colors flex items-center justify-center",
+                          "py-1.5 text-sm rounded-lg border transition-colors flex items-center justify-center",
                           (st.badge_icon ?? 'circle') === key ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
                         )}
                       >
@@ -1452,8 +1452,8 @@ export function StylePanel({
                 </div>
 
                 {/* Preview */}
-                <div className="border border-border rounded-[4px] px-3 py-2 bg-muted flex justify-end">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-[2px] border border-border bg-card">
+                <div className="border border-border rounded-lg px-3 py-2 bg-muted flex justify-end">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-border bg-card">
                     <BadgeIndicator icon={(st.badge_icon ?? 'circle') as 'circle' | 'pulse' | 'wave' | 'star' | 'bolt' | 'heart'} color={st.badge_color ?? '#22c55e'} size={8} />
                     {st.badge_text || 'Online agora'}
                   </span>

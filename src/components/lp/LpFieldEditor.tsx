@@ -107,7 +107,7 @@ export function LpFieldEditor({
   return (
     <div
       className={cn(
-        "group/field rounded-[4px] transition-colors",
+        "group/field rounded-lg transition-colors",
         expanded
           ? "bg-card border border-border"
           : isMissingMapping
@@ -190,7 +190,7 @@ export function LpFieldEditor({
               value={field.label}
               onChange={(e) => patch({ label: e.target.value })}
               placeholder="Rótulo do campo"
-              className="h-[30px] text-sm rounded-[4px] font-medium"
+              className="h-[30px] text-sm rounded-lg font-medium"
             />
           </div>
 
@@ -213,7 +213,7 @@ export function LpFieldEditor({
                 value={field.step_id ?? "none"}
                 onValueChange={(v) => patch({ step_id: v === "none" ? undefined : v })}
               >
-                <SelectTrigger className="h-[30px] text-sm rounded-[4px]">
+                <SelectTrigger className="h-[30px] text-sm rounded-lg">
                   <SelectValue placeholder="Sem etapa" />
                 </SelectTrigger>
                 <SelectContent>
@@ -234,7 +234,7 @@ export function LpFieldEditor({
                 value={field.placeholder ?? ""}
                 onChange={(e) => patch({ placeholder: e.target.value })}
                 placeholder="Texto de ajuda..."
-                className="h-[30px] text-sm rounded-[4px] text-muted-foreground"
+                className="h-[30px] text-sm rounded-lg text-muted-foreground"
               />
             </div>
           )}
@@ -247,7 +247,7 @@ export function LpFieldEditor({
                 value={field.placeholder ?? ""}
                 onChange={(e) => patch({ placeholder: e.target.value })}
                 placeholder="Valor fixo do campo oculto"
-                className="h-[30px] text-sm rounded-[4px]"
+                className="h-[30px] text-sm rounded-lg"
               />
             </div>
           )}
@@ -293,7 +293,7 @@ export function LpFieldEditor({
                         patch({ options: opts });
                       }}
                       placeholder={`Opção ${idx + 1}`}
-                      className="h-[30px] text-sm rounded-[4px] flex-1"
+                      className="h-[30px] text-sm rounded-lg flex-1"
                     />
                     <button
                       onClick={() =>
@@ -334,7 +334,7 @@ export function LpFieldEditor({
                   value={field.accept ?? ""}
                   onChange={(e) => patch({ accept: e.target.value || undefined })}
                   placeholder="image/*,application/pdf"
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
               <div className="space-y-1">
@@ -347,7 +347,7 @@ export function LpFieldEditor({
                   }
                   placeholder="10"
                   min={1}
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
             </div>
@@ -365,7 +365,7 @@ export function LpFieldEditor({
                     patch({ min: e.target.value === "" ? undefined : Number(e.target.value) })
                   }
                   placeholder="—"
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
               <div className="space-y-1">
@@ -377,7 +377,7 @@ export function LpFieldEditor({
                     patch({ max: e.target.value === "" ? undefined : Number(e.target.value) })
                   }
                   placeholder="—"
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
               <div className="space-y-1">
@@ -389,7 +389,7 @@ export function LpFieldEditor({
                     patch({ step: e.target.value === "" ? undefined : Number(e.target.value) })
                   }
                   placeholder="1"
-                  className="h-[30px] text-sm rounded-[4px]"
+                  className="h-[30px] text-sm rounded-lg"
                 />
               </div>
             </div>

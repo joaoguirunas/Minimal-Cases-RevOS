@@ -221,7 +221,7 @@ const CamposExtrasSection = ({ leadId, pipelineId, category = 'all' }: Props) =>
     : 'Campos Personalizados';
 
   return (
-    <section className="border border-border rounded-[2px] bg-card">
+    <section className="border border-border rounded-md bg-card">
       <div className="px-4 pt-4 pb-3 border-b border-border">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
           {sectionLabel}

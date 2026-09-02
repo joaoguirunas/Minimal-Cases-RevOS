@@ -82,7 +82,7 @@ function CopyRow({ label, value, hint }: { label: string; value: string; hint?: 
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-border rounded-[4px] p-4 space-y-3">
+    <div className="border border-border rounded-lg p-4 space-y-3">
       <p className="text-[12px] font-semibold text-foreground">{title}</p>
       {children}
     </div>
@@ -259,8 +259,8 @@ export default function TldvIntegrationConfig() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="border border-border rounded-[4px] p-4 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-[4px] bg-violet-500/10 flex items-center justify-center shrink-0">
+      <div className="border border-border rounded-lg p-4 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
           <Video className="w-4 h-4 text-violet-500" strokeWidth={1.5} />
         </div>
         <div className="flex-1 min-w-0">
@@ -432,7 +432,7 @@ export default function TldvIntegrationConfig() {
           </p>
           <div className="space-y-3">
             {unmatchedList.map((meeting) => (
-              <div key={meeting.tldv_id} className="border border-border rounded-[4px] p-3 space-y-2">
+              <div key={meeting.tldv_id} className="border border-border rounded-lg p-3 space-y-2">
                 <div className="space-y-0.5">
                   <p className="text-[12px] font-medium text-foreground">{meeting.title}</p>
                   <p className="text-[11px] text-muted-foreground">

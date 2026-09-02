@@ -160,7 +160,7 @@ function LogRow({ entry }: { entry: LogEntry }) {
       {/* Expanded metadata */}
       {expanded && (
         <div className="px-10 pb-3">
-          <div className="rounded-[4px] border border-border bg-muted p-3 relative">
+          <div className="rounded-lg border border-border bg-muted p-3 relative">
             <CopyButton text={JSON.stringify(entry.metadata, null, 2)} />
             <pre className="text-[10px] text-muted-foreground overflow-auto max-h-64 leading-relaxed whitespace-pre-wrap break-all">
               {JSON.stringify(entry.metadata, null, 2)}
@@ -261,7 +261,7 @@ export default function LogsViewer() {
             key={s.value}
             onClick={() => setSource(s.value)}
             className={cn(
-              'px-3 py-1.5 rounded-[4px] text-xs font-medium whitespace-nowrap transition-colors',
+              'px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors',
               source === s.value
                 ? 'bg-foreground text-background'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -292,7 +292,7 @@ export default function LogsViewer() {
               key={l}
               onClick={() => setLevelFilter(l)}
               className={cn(
-                'px-2 py-1 rounded-[4px] text-[10px] font-medium uppercase transition-colors',
+                'px-2 py-1 rounded-lg text-[10px] font-medium uppercase transition-colors',
                 levelFilter === l
                   ? l === 'all'    ? 'bg-foreground text-background'
                   : l === 'error'  ? 'bg-red-500 text-white'
@@ -361,7 +361,7 @@ export default function LogsViewer() {
         )}
 
         {error && (
-          <div className="flex items-start gap-3 mx-6 mt-4 p-4 rounded-[4px] border border-red-500/20 bg-red-500/5">
+          <div className="flex items-start gap-3 mx-6 mt-4 p-4 rounded-lg border border-red-500/20 bg-red-500/5">
             <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-medium text-red-500">Erro ao carregar logs</p>

@@ -32,7 +32,7 @@ const ModuleCard = ({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/50 transition-colors text-left"
@@ -537,7 +537,7 @@ const SystemDocConfig = () => {
       </div>
 
       {/* Architecture overview */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="Arquitetura" />
         <div className="px-5 py-4 space-y-2">
           <div className="grid grid-cols-2 gap-3 text-[12px]">
@@ -579,7 +579,7 @@ const SystemDocConfig = () => {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="border border-border rounded-[2px] px-4 py-3 text-center"
+            className="border border-border rounded-md px-4 py-3 text-center"
           >
             <p className="text-[20px] font-bold text-foreground tabular-nums">{stat.value}</p>
             <p className="text-[11px] text-muted-foreground/60">{stat.label}</p>
@@ -598,7 +598,7 @@ const SystemDocConfig = () => {
       </div>
 
       {/* DB Functions */}
-      <div className="border border-border rounded-[2px] overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <SectionHeader title="Funções de Banco (Triggers & Stored Procedures)" />
         <div className="divide-y divide-border/30">
           {[

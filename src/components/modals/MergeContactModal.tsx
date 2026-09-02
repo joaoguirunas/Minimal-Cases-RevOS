@@ -63,7 +63,7 @@ function ContactRow({
   const isExisting = variant === 'existing';
   return (
     <div className={cn(
-      "flex items-start gap-3 rounded-[4px] border p-3",
+      "flex items-start gap-3 rounded-lg border p-3",
       isExisting
         ? "bg-primary/5 border-primary/20"
         : "bg-muted border-border",

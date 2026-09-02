@@ -229,7 +229,7 @@ export const EditarPessoaModal = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <Card className="border border-border rounded-[2px]">
+            <Card className="border border-border rounded-md">
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div>
@@ -418,7 +418,7 @@ export const EditarPessoaModal = ({
               />
             </div>
 
-            <Card className="border border-border rounded-[2px] mt-6">
+            <Card className="border border-border rounded-md mt-6">
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

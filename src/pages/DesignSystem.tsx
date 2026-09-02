@@ -159,7 +159,7 @@ function Surface({
   return (
     <div
       className={cn(
-        'rounded-[4px] border border-border bg-card p-5',
+        'rounded-lg border border-border bg-card p-5',
         className,
       )}
     >
@@ -171,7 +171,7 @@ function Surface({
 /** Tiny monospace token label — used for `text-xs`, `--background`, etc. */
 function Token({ children }: { children: ReactNode }) {
   return (
-    <code className="font-mono text-[10px] text-muted-foreground bg-muted/40 border border-border/60 rounded-[2px] px-1.5 py-0.5">
+    <code className="font-mono text-[10px] text-muted-foreground bg-muted/40 border border-border/60 rounded-md px-1.5 py-0.5">
       {children}
     </code>
   );
@@ -343,7 +343,7 @@ function TipografiaTab() {
           description="Famílias carregadas globalmente via Google Fonts em src/index.css."
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-[2px] border border-border bg-background p-4">
+          <div className="rounded-md border border-border bg-background p-4">
             <p className="text-[11px] text-muted-foreground mb-2">Sans (default)</p>
             <p style={{ fontFamily: 'Inter Tight, sans-serif' }} className="text-[24px] font-semibold">
               Inter Tight
@@ -352,7 +352,7 @@ function TipografiaTab() {
               Pesos: 300 → 900. Usado em todo body, headings e UI.
             </p>
           </div>
-          <div className="rounded-[2px] border border-border bg-background p-4">
+          <div className="rounded-md border border-border bg-background p-4">
             <p className="text-[11px] text-muted-foreground mb-2">Mono</p>
             <p style={{ fontFamily: 'JetBrains Mono, monospace' }} className="text-[24px] font-semibold">
               JetBrains Mono
@@ -361,7 +361,7 @@ function TipografiaTab() {
               Pesos: 400, 500, 600. Tokens, IDs, código inline, badges.
             </p>
           </div>
-          <div className="rounded-[2px] border border-border bg-background p-4">
+          <div className="rounded-md border border-border bg-background p-4">
             <p className="text-[11px] text-muted-foreground mb-2">Display (Brandbook)</p>
             <p style={{ fontFamily: "'IBM Plex Mono', monospace" }} className="text-[24px] font-semibold">
               IBM Plex Mono
@@ -524,7 +524,7 @@ const CARD_VARIANTS = [
 
 function ColorSwatch({ token }: { token: ColorToken }) {
   return (
-    <div className="rounded-[2px] border border-border overflow-hidden flex flex-col">
+    <div className="rounded-md border border-border overflow-hidden flex flex-col">
       <div
         className="h-16 w-full"
         style={{ backgroundColor: `hsl(${token.hslDark})` }}
@@ -576,7 +576,7 @@ function CoresTab() {
           {STATS_GROUPS.map((g) => (
             <div
               key={g.name}
-              className="rounded-[4px] p-4 border"
+              className="rounded-lg p-4 border"
               style={{
                 backgroundColor: `hsl(var(${g.bg}))`,
                 borderColor: `hsl(var(${g.border}))`,
@@ -605,7 +605,7 @@ function CoresTab() {
           {CARD_VARIANTS.map((g) => (
             <div
               key={g.name}
-              className="rounded-[4px] p-4 border"
+              className="rounded-lg p-4 border"
               style={{
                 backgroundColor: `hsl(var(${g.bg}))`,
                 borderColor: `hsl(var(${g.border}))`,
@@ -652,7 +652,7 @@ function ComponentesTab() {
       <Surface>
         <SectionHead
           title="Botões"
-          description="Altura padrão h-[30px], radius rounded-[4px], texto text-xs."
+          description="Altura padrão h-[30px], radius rounded-lg, texto text-xs."
         />
         <DemoRow label="Variantes">
           <Button>Default</Button>
@@ -694,7 +694,7 @@ function ComponentesTab() {
       <Surface>
         <SectionHead
           title="Inputs"
-          description="Altura h-[30px], radius rounded-[2px], texto text-xs."
+          description="Altura h-[30px], radius rounded-md, texto text-xs."
         />
         <DemoRow label="Default">
           <Input placeholder="Nome do contato" className="max-w-xs" />
@@ -901,9 +901,9 @@ const SPACING_SCALE = [
 ];
 
 const RADIUS_SCALE = [
-  { token: 'rounded-[2px]', usage: 'Cards, popovers, badges, inputs' },
-  { token: 'rounded-[3px]', usage: 'Triggers de sub-tabs internos' },
-  { token: 'rounded-[4px]', usage: 'Botões, surfaces destacadas' },
+  { token: 'rounded-md', usage: 'Cards, popovers, badges, inputs' },
+  { token: 'rounded-md', usage: 'Triggers de sub-tabs internos' },
+  { token: 'rounded-lg', usage: 'Botões, surfaces destacadas' },
   { token: 'rounded-[6px]', usage: 'Containers ocasionais' },
   { token: 'rounded-md',    usage: 'shadcn default (calc(--radius) - 2px)' },
   { token: 'rounded-full',  usage: 'Avatares, pílulas, dots' },
@@ -927,7 +927,7 @@ function LayoutTab() {
           title="Layout de Dashboard"
           description="Estrutura usada pelo DashLayout: sidebar fixa + área de conteúdo."
         />
-        <div className="rounded-[4px] border border-border overflow-hidden h-[320px] grid grid-cols-[200px_1fr]">
+        <div className="rounded-lg border border-border overflow-hidden h-[320px] grid grid-cols-[200px_1fr]">
           <div className="bg-sidebar border-r border-sidebar-border p-3 space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 mb-2">
               Sidebar
@@ -936,7 +936,7 @@ function LayoutTab() {
               <div
                 key={label}
                 className={cn(
-                  'flex items-center gap-2 rounded-[2px] px-2 py-1.5 text-[12px] transition-colors',
+                  'flex items-center gap-2 rounded-md px-2 py-1.5 text-[12px] transition-colors',
                   i === 1
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                     : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/40',
@@ -959,7 +959,7 @@ function LayoutTab() {
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 rounded-[2px] border border-border bg-muted/30" />
+                <div key={i} className="h-20 rounded-md border border-border bg-muted/30" />
               ))}
             </div>
           </div>
@@ -975,8 +975,8 @@ function LayoutTab() {
         <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3">
           {SPACING_SCALE.map((s) => (
             <div key={s.token} className="flex flex-col items-center gap-2">
-              <div className="bg-muted/40 rounded-[2px] flex items-center justify-center">
-                <div className={cn('bg-primary/80 rounded-[2px]', s.token)}>
+              <div className="bg-muted/40 rounded-md flex items-center justify-center">
+                <div className={cn('bg-primary/80 rounded-md', s.token)}>
                   <div className="w-1 h-1" />
                 </div>
               </div>
@@ -994,7 +994,7 @@ function LayoutTab() {
           {RADIUS_SCALE.map((r) => (
             <div
               key={r.token}
-              className="flex flex-col items-center gap-2 p-3 border border-border rounded-[2px] bg-background"
+              className="flex flex-col items-center gap-2 p-3 border border-border rounded-md bg-background"
             >
               <div className={cn('w-16 h-16 bg-primary/80', r.token)} />
               <CopyableValue value={r.token} />
@@ -1012,7 +1012,7 @@ function LayoutTab() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {SHADOW_SCALE.map((s) => (
             <div key={s.token} className="flex flex-col items-center gap-2">
-              <div className={cn('w-20 h-20 rounded-[2px] bg-card border border-border', s.sample)} />
+              <div className={cn('w-20 h-20 rounded-md bg-card border border-border', s.sample)} />
               <CopyableValue value={s.token} />
             </div>
           ))}
@@ -1112,7 +1112,7 @@ function IconografiaTab() {
         />
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-6">
           {ICON_SIZES.map((s) => (
-            <div key={s.className} className="rounded-[2px] border border-border bg-background p-3 flex flex-col items-center gap-2">
+            <div key={s.className} className="rounded-md border border-border bg-background p-3 flex flex-col items-center gap-2">
               <Home className={s.className} strokeWidth={1.5} />
               <CopyableValue value={s.className} />
               <p className="text-[10px] text-center text-muted-foreground/70 leading-tight">{s.usage}</p>
@@ -1142,7 +1142,7 @@ function IconografiaTab() {
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="flex flex-col items-center gap-1.5 p-3 rounded-[2px] border border-border bg-background hover:bg-muted/40 hover:border-border transition-colors group"
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-md border border-border bg-background hover:bg-muted/40 hover:border-border transition-colors group"
                     onClick={() => {
                       navigator.clipboard.writeText(`<${name} className="w-4 h-4" strokeWidth={1.5} />`);
                       toast.success(`Copiado: <${name} />`);
@@ -1171,7 +1171,7 @@ function IconografiaTab() {
         <div className="flex flex-wrap items-center gap-6">
           {[1, 1.25, 1.5, 1.75, 2].map((sw) => (
             <div key={sw} className="flex flex-col items-center gap-2">
-              <div className="w-14 h-14 rounded-[2px] border border-border bg-background flex items-center justify-center">
+              <div className="w-14 h-14 rounded-md border border-border bg-background flex items-center justify-center">
                 <Home className="w-7 h-7" strokeWidth={sw} />
               </div>
               <CopyableValue value={`strokeWidth={${sw}}`} />
@@ -1218,7 +1218,7 @@ function PadroesTab() {
           title="Header de página/seção"
           description="Título + descrição + ações à direita. Padrão para topo de qualquer view."
         />
-        <div className="border border-border rounded-[4px] bg-background">
+        <div className="border border-border rounded-lg bg-background">
           <div className="flex items-start justify-between gap-4 p-5 border-b border-border">
             <div className="min-w-0">
               <h2 className="text-[18px] font-semibold tracking-tight text-foreground">
@@ -1249,7 +1249,7 @@ function PadroesTab() {
           title="Empty state"
           description="Exibido quando uma listagem ou seção não tem dados."
         />
-        <div className="border border-dashed border-border rounded-[4px] bg-background p-10 flex flex-col items-center text-center">
+        <div className="border border-dashed border-border rounded-lg bg-background p-10 flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-full bg-muted/60 flex items-center justify-center mb-4">
             <Inbox className="w-6 h-6 text-muted-foreground" strokeWidth={1.5} />
           </div>
@@ -1271,7 +1271,7 @@ function PadroesTab() {
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="border border-border rounded-[2px] bg-card p-4 space-y-3">
+            <div key={i} className="border border-border rounded-md bg-card p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <Skeleton className="w-10 h-10 rounded-full" />
                 <div className="flex-1 space-y-2">
@@ -1293,7 +1293,7 @@ function PadroesTab() {
           title="Tabela de dados"
           description="Listagem padrão com header, linhas e badges semânticos."
         />
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -1331,7 +1331,7 @@ function PadroesTab() {
           title="Formulário com seções"
           description="Estrutura comum de formulário em modais e páginas de edição."
         />
-        <div className="border border-border rounded-[4px] bg-background max-w-2xl">
+        <div className="border border-border rounded-lg bg-background max-w-2xl">
           <div className="px-5 py-2.5 bg-muted border-b border-border">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
               Dados do contato

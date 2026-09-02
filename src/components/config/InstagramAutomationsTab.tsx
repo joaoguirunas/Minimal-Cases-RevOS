@@ -67,7 +67,7 @@ function PostCard({ post_id: _id, thumbnail_url, caption, published_at, selected
       onClick={onClick}
       onKeyDown={handleKey}
       className={cn(
-        'relative aspect-square rounded-[4px] overflow-hidden border-2 cursor-pointer transition-all focus-visible:outline-2 focus-visible:outline-primary',
+        'relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all focus-visible:outline-2 focus-visible:outline-primary',
         selected ? 'border-primary/60 bg-primary/5' : 'border-border hover:border-border/80',
       )}
     >
@@ -85,7 +85,7 @@ function PostCard({ post_id: _id, thumbnail_url, caption, published_at, selected
       )}
       {showTypeBadge && (
         <div className="absolute top-1 left-1">
-          <span className="text-[8px] font-medium px-1 py-0.5 rounded-[2px] bg-black/50 text-white/90 leading-none">
+          <span className="text-[8px] font-medium px-1 py-0.5 rounded-md bg-black/50 text-white/90 leading-none">
             {isReel ? 'Reels' : 'Post'}
           </span>
         </div>
@@ -170,7 +170,7 @@ function PostPicker({ selectedId, onSelect, onManual, autoOpen }: PostPickerProp
       <div className="flex gap-1">
         {isLoading
           ? TYPE_FILTERS.map(f => (
-              <div key={f.value} className="h-5 w-10 rounded-[3px] bg-muted animate-pulse" />
+              <div key={f.value} className="h-5 w-10 rounded-md bg-muted animate-pulse" />
             ))
           : !readableError && posts.length > 0 && TYPE_FILTERS.map(f => (
               <button
@@ -178,7 +178,7 @@ function PostPicker({ selectedId, onSelect, onManual, autoOpen }: PostPickerProp
                 type="button"
                 onClick={() => { setTypeFilter(f.value); resetPage(); }}
                 className={cn(
-                  'text-[10px] px-2 h-5 rounded-[3px] border transition-colors',
+                  'text-[10px] px-2 h-5 rounded-md border transition-colors',
                   typeFilter === f.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-transparent text-muted-foreground border-border hover:text-foreground',
@@ -193,13 +193,13 @@ function PostPicker({ selectedId, onSelect, onManual, autoOpen }: PostPickerProp
       {isLoading && (
         <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-square rounded-[4px] bg-muted animate-pulse" />
+            <div key={i} className="aspect-square rounded-lg bg-muted animate-pulse" />
           ))}
         </div>
       )}
 
       {!isLoading && readableError && (
-        <div className="flex items-start gap-2 p-2.5 rounded-[4px] border border-amber-500/30 bg-amber-500/10">
+        <div className="flex items-start gap-2 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10">
           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-[11px] text-amber-600 dark:text-amber-400 flex-1">{readableError}</p>
         </div>
@@ -289,10 +289,10 @@ function PostPickerSection({ value, onChange }: { value: string; onChange: (id: 
           <img
             src={selectedPost.thumbnail_url ?? selectedPost.media_url ?? ''}
             alt=""
-            className="w-8 h-8 rounded-[3px] object-cover shrink-0"
+            className="w-8 h-8 rounded-md object-cover shrink-0"
           />
         ) : (
-          <div className="w-8 h-8 rounded-[3px] bg-muted shrink-0" />
+          <div className="w-8 h-8 rounded-md bg-muted shrink-0" />
         )}
         <div className="flex-1 min-w-0">
           <p className="text-[11px] text-foreground truncate">
@@ -390,7 +390,7 @@ function PostPreviewCard({ postId }: { postId: string }) {
           </div>
         )}
         <div className="absolute top-1.5 left-1.5">
-          <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1 py-0.5 rounded-[2px] bg-black/60 text-white/90 leading-none">
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1 py-0.5 rounded-md bg-black/60 text-white/90 leading-none">
             <TypeIcon className="w-2.5 h-2.5" />
             {typeLabel}
           </span>
@@ -561,7 +561,7 @@ function AutomationList({
 
       {/* Empty state */}
       {automations.length === 0 && (
-        <div className="border border-dashed border-border rounded-[4px] py-10 flex flex-col items-center gap-3 text-center">
+        <div className="border border-dashed border-border rounded-lg py-10 flex flex-col items-center gap-3 text-center">
           <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
             <Zap className="w-4 h-4 text-muted-foreground" />
           </div>
@@ -587,7 +587,7 @@ function AutomationList({
             <div
               key={a.id}
               className={cn(
-                'border rounded-[4px] p-3.5 transition-colors',
+                'border rounded-lg p-3.5 transition-colors',
                 a.is_active ? 'border-border bg-card' : 'border-border bg-muted',
               )}
             >
@@ -903,12 +903,12 @@ function AutomationForm({
             ))}
           </div>
 
-          <div className="rounded-[4px] border border-border/60 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+          <div className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
             {TRIGGER_LABELS[form.trigger_type]?.desc}
           </div>
 
           {isComment && (
-            <div className="border border-border rounded-[4px] p-3 space-y-2 bg-muted/20">
+            <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/20">
               <p className="text-[11px] font-medium text-foreground flex items-center gap-1.5">
                 <Hash className="w-3 h-3 text-muted-foreground" /> Post alvo
               </p>
@@ -985,11 +985,11 @@ function AutomationForm({
             <div className="space-y-1">
               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Contém</span>
               <div
-                className="flex flex-wrap gap-1.5 p-2 rounded-[4px] border border-border bg-background min-h-[34px] items-center cursor-text"
+                className="flex flex-wrap gap-1.5 p-2 rounded-lg border border-border bg-background min-h-[34px] items-center cursor-text"
                 onClick={() => document.getElementById('filter-contains-input')?.focus()}
               >
                 {containsTags.map((f, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] bg-muted text-[11px] text-foreground border border-border/60">
+                  <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[11px] text-foreground border border-border/60">
                     {f.value}
                     <button
                       type="button"
@@ -1028,11 +1028,11 @@ function AutomationForm({
             <div className="space-y-1">
               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Não contém</span>
               <div
-                className="flex flex-wrap gap-1.5 p-2 rounded-[4px] border border-border bg-background min-h-[34px] items-center cursor-text"
+                className="flex flex-wrap gap-1.5 p-2 rounded-lg border border-border bg-background min-h-[34px] items-center cursor-text"
                 onClick={() => document.getElementById('filter-not-contains-input')?.focus()}
               >
                 {notContainsTags.map((f, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] bg-muted text-[11px] text-foreground border border-border/60">
+                  <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[11px] text-foreground border border-border/60">
                     {f.value}
                     <button
                       type="button"
@@ -1088,7 +1088,7 @@ function AutomationForm({
           {(containsTags.length + notContainsTags.length) > 1 && (
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wide">Regra</span>
-              <div className="flex items-center border border-border rounded-[4px] overflow-hidden h-[22px]">
+              <div className="flex items-center border border-border rounded-lg overflow-hidden h-[22px]">
                 <button
                   type="button"
                   onClick={() => setField('filter_operator', 'any')}
@@ -1215,7 +1215,7 @@ function AutomationForm({
                 </div>
 
                 <div
-                  className="flex flex-wrap gap-1.5 p-2 rounded-[4px] border border-border bg-background min-h-[34px] items-center cursor-text"
+                  className="flex flex-wrap gap-1.5 p-2 rounded-lg border border-border bg-background min-h-[34px] items-center cursor-text"
                   onClick={() => document.getElementById('qr-input')?.focus()}
                 >
                   {form.action_dm_quick_replies.map((qr, i) => (
@@ -1285,13 +1285,13 @@ function AutomationForm({
 
               <div
                 className={cn(
-                  'flex flex-wrap gap-1.5 p-2 rounded-[4px] border bg-background min-h-[36px] items-center cursor-text transition-colors',
+                  'flex flex-wrap gap-1.5 p-2 rounded-lg border bg-background min-h-[36px] items-center cursor-text transition-colors',
                   hasFieldError('comment_texts') ? 'border-destructive/60' : 'border-border',
                 )}
                 onClick={() => document.getElementById('comment-text-input')?.focus()}
               >
                 {form.action_comment_texts.map((text, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 pl-2 pr-1.5 py-0.5 rounded-[3px] bg-muted text-[11px] text-foreground border border-border/60 max-w-[220px]">
+                  <span key={i} className="inline-flex items-center gap-1 pl-2 pr-1.5 py-0.5 rounded-md bg-muted text-[11px] text-foreground border border-border/60 max-w-[220px]">
                     <span className="truncate">{text}</span>
                     <button
                       type="button"
@@ -1328,7 +1328,7 @@ function AutomationForm({
           )}
 
           {commentOnlyAction && !isComment && (
-            <div className="text-[11px] text-amber-600 bg-amber-500/8 border border-amber-500/20 rounded-[4px] px-3 py-2">
+            <div className="text-[11px] text-amber-600 bg-amber-500/8 border border-amber-500/20 rounded-lg px-3 py-2">
               ⚠ Responder comentário só funciona com o gatilho "Comentário em post". Altere o gatilho ou escolha "Enviar DM".
             </div>
           )}
@@ -1348,7 +1348,7 @@ function AutomationForm({
       {/* ── Coluna direita — preview + avançado + ações ── */}
       <div className="w-[280px] xl:w-[300px] shrink-0 space-y-4">
         {/* Post preview / trigger placeholder */}
-        <div className="border border-border rounded-[4px] overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <div className="px-3 py-2.5 border-b border-border">
             <p className="text-[11px] font-semibold text-foreground">
               {form.target_post_id ? 'Preview do post' : 'Gatilho'}
@@ -1377,7 +1377,7 @@ function AutomationForm({
         </div>
 
         {/* Advanced settings */}
-        <div className="border border-border rounded-[4px] overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <div className="px-3 py-2 flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-muted-foreground">Cooldown</span>
@@ -1386,7 +1386,7 @@ function AutomationForm({
                 min={0}
                 value={form.cooldown_hours}
                 onChange={e => setField('cooldown_hours', parseInt(e.target.value) || 0)}
-                className="w-12 h-[22px] text-[11px] text-center bg-muted/40 border border-border/60 rounded-[3px] outline-none focus:border-foreground/30 transition-colors"
+                className="w-12 h-[22px] text-[11px] text-center bg-muted/40 border border-border/60 rounded-md outline-none focus:border-foreground/30 transition-colors"
               />
               <span className="text-[11px] text-muted-foreground/50">h</span>
             </div>
@@ -1397,7 +1397,7 @@ function AutomationForm({
                 type="number"
                 value={form.priority}
                 onChange={e => setField('priority', parseInt(e.target.value) || 0)}
-                className="w-10 h-[22px] text-[11px] text-center bg-muted/40 border border-border/60 rounded-[3px] outline-none focus:border-foreground/30 transition-colors"
+                className="w-10 h-[22px] text-[11px] text-center bg-muted/40 border border-border/60 rounded-md outline-none focus:border-foreground/30 transition-colors"
               />
             </div>
           </div>
@@ -1413,7 +1413,7 @@ function AutomationForm({
             Cancelar
           </Button>
           {validationErrors.length > 0 && (
-            <div className="rounded-[4px] border border-destructive/40 bg-destructive/5 px-3 py-2 space-y-1">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 space-y-1">
               {validationErrors.map((err, i) => (
                 <p key={i} className="text-[11px] text-destructive flex items-start gap-1.5">
                   <span className="shrink-0 mt-px">✕</span>
@@ -1497,7 +1497,7 @@ function Section({
   const [open, setOpen] = useState(!collapsible);
 
   return (
-    <div className="border border-border rounded-[4px] overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       <button
         type="button"
         className={cn(
@@ -1559,7 +1559,7 @@ function AutomationLogSection({
   const failCount = logs.filter(l => l.status === 'failed').length;
 
   return (
-    <div className="border border-border rounded-[4px] overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       {/* Header */}
       <button
         type="button"
@@ -1622,7 +1622,7 @@ function AutomationLogSection({
                           {entry.person_name || 'Usuário'}
                         </span>
                         <span className={cn(
-                          'inline-flex items-center text-[9px] font-semibold px-1.5 py-px rounded-[3px] border shrink-0',
+                          'inline-flex items-center text-[9px] font-semibold px-1.5 py-px rounded-md border shrink-0',
                           sc.className,
                         )}>
                           {sc.label}

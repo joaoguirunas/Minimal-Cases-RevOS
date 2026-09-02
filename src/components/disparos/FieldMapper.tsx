@@ -655,7 +655,7 @@ export default function FieldMapper({
     <div className="space-y-4">
       {/* Validation summary */}
       {missingRequired.length > 0 && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-[4px] bg-amber-500/10 border border-amber-500/20 text-[12px] text-amber-600 dark:text-amber-400">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[12px] text-amber-600 dark:text-amber-400">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" strokeWidth={1.5} />
           <span>
             Campos obrigatórios não mapeados: <strong>{missingRequired.join(', ')}</strong>

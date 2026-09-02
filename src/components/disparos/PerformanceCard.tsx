@@ -43,7 +43,7 @@ export function PerformanceCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
     >
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <h3 className="text-[18px] font-['Outfit'] font-semibold mb-6 flex items-center gap-2">
           <Activity className="w-5 h-5 text-primary" />
           Performance e Timeline
@@ -51,9 +51,9 @@ export function PerformanceCard({
 
         <div className="space-y-6">
           {/* Velocity Metric */}
-          <div className="flex items-center justify-between p-4 rounded-[2px] bg-[#B8924B]/5 border border-[#B8924B]/10">
+          <div className="flex items-center justify-between p-4 rounded-md bg-[#B8924B]/5 border border-[#B8924B]/10">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-[4px] bg-[#B8924B]/10">
+              <div className="p-2 rounded-lg bg-[#B8924B]/10">
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -118,7 +118,7 @@ export function PerformanceCard({
 
           {/* Duration */}
           {duration && (
-            <div className="flex items-center justify-between p-3 rounded-[2px] bg-card border border-border">
+            <div className="flex items-center justify-between p-3 rounded-md bg-card border border-border">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="w-4 h-4" />
                 <span>Duração Total</span>

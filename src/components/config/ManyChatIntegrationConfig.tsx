@@ -167,7 +167,7 @@ export default function ManyChatIntegrationConfig() {
       </div>
 
       {/* Conexão */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <KeyRound className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
           <div>
@@ -200,7 +200,7 @@ export default function ManyChatIntegrationConfig() {
       </div>
 
       {/* Webhook */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Webhook className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
           <div>
@@ -251,7 +251,7 @@ export default function ManyChatIntegrationConfig() {
       </div>
 
       {/* Canais */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-0">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-0">
         <p className="text-[13px] font-medium text-foreground mb-3">Canais ativos</p>
         <div className="divide-y divide-border">
           <div className="flex items-center justify-between py-3">

@@ -56,7 +56,7 @@ export default function TeamsConfig() {
   const CopyBtn = ({ text, k }: { text: string; k: string }) => (
     <button
       onClick={() => handleCopy(text, k)}
-      className="shrink-0 p-1.5 rounded-[3px] hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+      className="shrink-0 p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
       title="Copiar"
     >
       {copied === k ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -95,22 +95,22 @@ export default function TeamsConfig() {
           </p>
         </div>
         {isFullyConfigured ? (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-emerald-600 border-emerald-500/40 bg-emerald-500/5">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-emerald-600 border-emerald-500/40 bg-emerald-500/5">
             <CheckCircle2 className="w-3 h-3" /> Configurado
           </Badge>
         ) : isIdSaved ? (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-amber-600 border-amber-500/40 bg-amber-500/5">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-amber-600 border-amber-500/40 bg-amber-500/5">
             <AlertCircle className="w-3 h-3" /> Secret pendente
           </Badge>
         ) : (
-          <Badge variant="outline" className="gap-1.5 rounded-[4px] shrink-0 text-muted-foreground border-border bg-muted">
+          <Badge variant="outline" className="gap-1.5 rounded-lg shrink-0 text-muted-foreground border-border bg-muted">
             <AlertCircle className="w-3 h-3" /> Não configurado
           </Badge>
         )}
       </div>
 
       {/* Steps */}
-      <div className="border border-border rounded-[4px] bg-card divide-y divide-border">
+      <div className="border border-border rounded-lg bg-card divide-y divide-border">
 
         {/* Step 1 — Register app */}
         <div className="p-4 flex gap-3">
@@ -125,7 +125,7 @@ export default function TeamsConfig() {
               <li>Redirect URI: <strong>Web</strong>, adicione a URI abaixo</li>
             </ol>
             <div className="flex items-center gap-2">
-              <code className="text-[11px] bg-muted px-2 py-1 rounded-[3px] text-muted-foreground flex-1 truncate">
+              <code className="text-[11px] bg-muted px-2 py-1 rounded-md text-muted-foreground flex-1 truncate">
                 {redirectUri}
               </code>
               <CopyBtn text={redirectUri} k="uri" />
@@ -188,7 +188,7 @@ export default function TeamsConfig() {
           <StepNum n={5} />
           <div className="flex-1 space-y-2">
             <p className="text-sm font-medium text-foreground">Como funciona a integração</p>
-            <div className="flex items-start gap-2 p-2 rounded-[4px] bg-blue-500/5 border border-blue-500/20">
+            <div className="flex items-start gap-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/20">
               <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
               <p className="text-xs text-blue-700 dark:text-blue-400">
                 Cada consultor pode conectar <strong>Google Calendar OU Microsoft Teams</strong> — não os dois ao mesmo tempo. Ao conectar Teams, o Google Agenda é desconectado automaticamente.
@@ -224,7 +224,7 @@ export default function TeamsConfig() {
                 />
                 <Button
                   size="sm"
-                  className="h-[30px] px-3 rounded-[4px] shrink-0"
+                  className="h-[30px] px-3 rounded-lg shrink-0"
                   onClick={handleSaveId}
                   disabled={isLoading || saveSettings.isPending || !clientId.trim() || !isIdDirty}
                 >
@@ -271,7 +271,7 @@ export default function TeamsConfig() {
                 </div>
                 <Button
                   size="sm"
-                  className="h-[30px] px-3 rounded-[4px] shrink-0"
+                  className="h-[30px] px-3 rounded-lg shrink-0"
                   onClick={handleSaveSecret}
                   disabled={isLoading || saveSettings.isPending || !isSecretDirty}
                 >
@@ -287,7 +287,7 @@ export default function TeamsConfig() {
 
       {/* Status banner */}
       {isFullyConfigured && !isIdDirty && !isSecretDirty ? (
-        <div className="flex items-center gap-3 p-3 rounded-[4px] border border-emerald-500/25 bg-emerald-500/5">
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-emerald-500/25 bg-emerald-500/5">
           <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Microsoft Teams configurado</p>
@@ -300,7 +300,7 @@ export default function TeamsConfig() {
           </a>
         </div>
       ) : isIdSaved && !isSecretSaved ? (
-        <div className="flex items-center gap-3 p-3 rounded-[4px] border border-amber-500/25 bg-amber-500/5">
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-amber-500/25 bg-amber-500/5">
           <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
           <p className="text-sm text-amber-700 dark:text-amber-400">
             Client ID salvo. Preencha o <strong>Client Secret</strong> (Passo 7) para concluir.

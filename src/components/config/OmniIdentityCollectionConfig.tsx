@@ -102,7 +102,7 @@ export default function OmniIdentityCollectionConfig() {
       {globalEnabled && (
         <div className="space-y-6">
           {/* WhatsApp → Instagram */}
-          <div className="rounded-[2px] border p-4 space-y-3">
+          <div className="rounded-md border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="font-medium">WhatsApp → Instagram</Label>
               <Switch
@@ -138,7 +138,7 @@ export default function OmniIdentityCollectionConfig() {
           </div>
 
           {/* Instagram → WhatsApp */}
-          <div className="rounded-[2px] border p-4 space-y-3">
+          <div className="rounded-md border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="font-medium">Instagram → WhatsApp</Label>
               <Switch
@@ -159,7 +159,7 @@ export default function OmniIdentityCollectionConfig() {
           </div>
 
           {/* Email collection */}
-          <div className="rounded-[2px] border p-4">
+          <div className="rounded-md border p-4">
             <div className="flex items-center justify-between">
               <Label className="font-medium">Coleta de Email (qualquer canal)</Label>
               <Switch

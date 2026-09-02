@@ -15,7 +15,7 @@ export const ChangelogDisplay = ({ changelog, compact = false, aiAnalysis, model
   
   if (!changelogData) {
     return (
-      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-[2px]">
+      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
         <strong>Changelog:</strong> {changelog}
       </div>
     );

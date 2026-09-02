@@ -129,7 +129,7 @@ export default function ScheduleAutomacoes() {
           size="sm"
           onClick={() => setShowForm(true)}
           disabled={showForm}
-          className="h-[30px] text-xs rounded-[4px] gap-1.5"
+          className="h-[30px] text-xs rounded-lg gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" />
           Nova Regra
@@ -139,7 +139,7 @@ export default function ScheduleAutomacoes() {
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
         {/* ── New rule form ─────────────────────────────────────── */}
         {showForm && (
-          <div className="border border-primary/30 rounded-[2px] bg-card p-4 space-y-4">
+          <div className="border border-primary/30 rounded-md bg-card p-4 space-y-4">
             <p className="text-[13px] font-semibold text-foreground">Nova regra de automação</p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -222,7 +222,7 @@ export default function ScheduleAutomacoes() {
                 variant="ghost"
                 size="sm"
                 onClick={() => { setShowForm(false); setFormData({ trigger_status: undefined, pipeline_id: undefined, target_pipeline_id: undefined, target_stage_id: undefined, is_active: true }); }}
-                className="h-[30px] text-xs rounded-[4px]"
+                className="h-[30px] text-xs rounded-lg"
               >
                 Cancelar
               </Button>
@@ -230,7 +230,7 @@ export default function ScheduleAutomacoes() {
                 size="sm"
                 onClick={handleSave}
                 disabled={!canSave || createMutation.isPending}
-                className="h-[30px] text-xs rounded-[4px] gap-1.5"
+                className="h-[30px] text-xs rounded-lg gap-1.5"
               >
                 {createMutation.isPending && <Loader2 className="w-3 h-3 animate-spin" />}
                 Salvar Regra
@@ -248,7 +248,7 @@ export default function ScheduleAutomacoes() {
 
         {/* ── Empty state ───────────────────────────────────────── */}
         {!loading && automations.length === 0 && !showForm && (
-          <div className="border border-dashed border-border rounded-[2px] py-14 flex flex-col items-center gap-3 text-center">
+          <div className="border border-dashed border-border rounded-md py-14 flex flex-col items-center gap-3 text-center">
             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
               <Zap className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
             </div>
@@ -262,7 +262,7 @@ export default function ScheduleAutomacoes() {
               size="sm"
               variant="outline"
               onClick={() => setShowForm(true)}
-              className="h-[30px] text-xs rounded-[4px] gap-1.5"
+              className="h-[30px] text-xs rounded-lg gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               Criar primeira regra
@@ -272,7 +272,7 @@ export default function ScheduleAutomacoes() {
 
         {/* ── Rules grouped by pipeline ─────────────────────────── */}
         {!loading && Array.from(grouped.entries()).map(([pipelineId, rules]) => (
-          <div key={pipelineId} className="border border-border rounded-[2px] overflow-hidden">
+          <div key={pipelineId} className="border border-border rounded-md overflow-hidden">
             {/* Pipeline header */}
             <div className="px-4 py-2.5 bg-muted border-b border-border">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">
@@ -324,7 +324,7 @@ export default function ScheduleAutomacoes() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-[30px] w-[30px] rounded-[4px] shrink-0"
+                      className="h-[30px] w-[30px] rounded-lg shrink-0"
                       onClick={() => handleDelete(rule.id)}
                       disabled={deleteMutation.isPending}
                     >

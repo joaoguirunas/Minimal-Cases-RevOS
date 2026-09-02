@@ -47,7 +47,7 @@ export const ScoreInformationDisplay = ({
 
   if (!scoreMatrixId) {
     return (
-      <Card className="border-0 border border-border rounded-[2px]">
+      <Card className="border-0 border border-border rounded-md">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
@@ -67,7 +67,7 @@ export const ScoreInformationDisplay = ({
 
   if (isLoading) {
     return (
-      <Card className="border-0 border border-border rounded-[2px]">
+      <Card className="border-0 border border-border rounded-md">
         <CardContent className="p-6">
           <div className="space-y-3">
             <div className="h-4 bg-muted animate-pulse rounded w-1/4"></div>
@@ -81,7 +81,7 @@ export const ScoreInformationDisplay = ({
 
   if (!scoreData) {
     return (
-      <Card className="border-0 border border-border rounded-[2px] bg-destructive/10">
+      <Card className="border-0 border border-border rounded-md bg-destructive/10">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
@@ -100,13 +100,13 @@ export const ScoreInformationDisplay = ({
   }
 
   return (
-    <Card className="border-0 border border-border rounded-[2px]">
+    <Card className="border-0 border border-border rounded-md">
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Header com Score Number */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-[2px] bg-primary/10">
+              <div className="p-2 rounded-md bg-primary/10">
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -123,7 +123,7 @@ export const ScoreInformationDisplay = ({
           {/* Campos do Score */}
           <div className="grid grid-cols-1 gap-3">
             {/* Objetivo */}
-            <div className="flex items-start gap-3 p-3 bg-muted rounded-[2px]">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-md">
               <Target className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
@@ -136,7 +136,7 @@ export const ScoreInformationDisplay = ({
             </div>
 
             {/* Renda */}
-            <div className="flex items-start gap-3 p-3 bg-muted rounded-[2px]">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-md">
               <TrendingUp className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
@@ -149,7 +149,7 @@ export const ScoreInformationDisplay = ({
             </div>
 
             {/* Enquadramento */}
-            <div className="flex items-start gap-3 p-3 bg-muted rounded-[2px]">
+            <div className="flex items-start gap-3 p-3 bg-muted rounded-md">
               <TrendingUp className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
@@ -164,7 +164,7 @@ export const ScoreInformationDisplay = ({
 
           {/* Detalhe do Score */}
           {scoreData.detail_score && (
-            <div className="p-3 bg-primary/5 rounded-[2px] border border-primary/10">
+            <div className="p-3 bg-primary/5 rounded-md border border-primary/10">
               <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
                 Detalhe
               </Label>
@@ -174,7 +174,7 @@ export const ScoreInformationDisplay = ({
 
           {/* Perfil do Score */}
           {scoreData.profile_score && (
-            <div className="p-3 bg-primary/5 rounded-[2px] border border-primary/10">
+            <div className="p-3 bg-primary/5 rounded-md border border-primary/10">
               <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
                 Perfil
               </Label>
@@ -184,7 +184,7 @@ export const ScoreInformationDisplay = ({
 
           {/* Descrição */}
           {scoreData.pre_description_score && (
-            <div className="p-3 bg-primary/5 rounded-[2px] border border-primary/10">
+            <div className="p-3 bg-primary/5 rounded-md border border-primary/10">
               <Label className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
                 Descrição
               </Label>

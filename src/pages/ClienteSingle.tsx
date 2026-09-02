@@ -79,7 +79,7 @@ const SERVICE_STATUS_OPTIONS = [
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border border-border rounded-[4px] bg-card">
+    <section className="border border-border rounded-lg bg-card">
       <div className="px-4 pt-4 pb-3 border-b border-white/[0.06]">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">{title}</p>
       </div>
@@ -318,7 +318,7 @@ const ClienteSingle = () => {
           </div>
           <p className="text-[13px] font-medium text-foreground">Cliente não encontrado</p>
           <p className="text-[12px] text-muted-foreground/60">O cliente foi removido ou o link é inválido.</p>
-          <Button size="sm" onClick={() => navigate('/crm/clients')} className="h-[30px] px-3 text-xs mt-1 rounded-[4px]">
+          <Button size="sm" onClick={() => navigate('/crm/clients')} className="h-[30px] px-3 text-xs mt-1 rounded-lg">
             Voltar para Clientes
           </Button>
         </div>
@@ -346,7 +346,7 @@ const ClienteSingle = () => {
               <p className="text-[15px] font-semibold text-foreground truncate" title={pessoa.name}>{pessoa.name}</p>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                 <span className={cn(
-                  "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none flex-shrink-0",
+                  "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none flex-shrink-0",
                   formData.status === 'active'
                     ? "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400"
                     : "bg-muted text-muted-foreground border-border"
@@ -355,7 +355,7 @@ const ClienteSingle = () => {
                 </span>
                 {scoreNumber != null && (
                   <span className={cn(
-                    "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-[2px] border leading-none flex-shrink-0",
+                    "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded-md border leading-none flex-shrink-0",
                     scoreNumber >= 8
                       ? "bg-emerald-500/10 text-emerald-600 border-emerald-200/40 dark:text-emerald-400"
                       : scoreNumber >= 5
@@ -382,7 +382,7 @@ const ClienteSingle = () => {
               size="sm"
               onClick={() => setShowExcluirModal(true)}
               disabled={isPending || isDeletingPessoa}
-              className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-[4px]"
+              className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-lg"
               title="Excluir"
             >
               <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -391,7 +391,7 @@ const ClienteSingle = () => {
               size="sm"
               onClick={handleSave}
               disabled={isPending || !formData.nome.trim()}
-              className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]"
+              className="h-[30px] px-3 text-xs gap-1.5 rounded-lg"
             >
               {isPending
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -462,7 +462,7 @@ const ClienteSingle = () => {
                     <select
                       value={formData.source}
                       onChange={e => set('source')(e.target.value)}
-                      className="w-full h-[30px] rounded-[4px] border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full h-[30px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                       {SOURCE_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -476,7 +476,7 @@ const ClienteSingle = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {pessoa.instagram_user_id && (
                       <FieldRow label="Instagram (@username)">
-                        <div className="flex items-center gap-2 h-8 px-2.5 rounded-[4px] border border-white/[0.06] bg-muted">
+                        <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg border border-white/[0.06] bg-muted">
                           <Instagram className="w-3.5 h-3.5 text-pink-500/70 flex-shrink-0" strokeWidth={1.5} />
                           <span className="text-[12px] text-foreground truncate">@{pessoa.instagram_user_id}</span>
                         </div>
@@ -484,7 +484,7 @@ const ClienteSingle = () => {
                     )}
                     {pessoa.instagram_id && (
                       <FieldRow label="Instagram IGSID">
-                        <div className="flex items-center gap-2 h-8 px-2.5 rounded-[4px] border border-white/[0.06] bg-muted">
+                        <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg border border-white/[0.06] bg-muted">
                           <Instagram className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" strokeWidth={1.5} />
                           <span className="text-[12px] text-muted-foreground font-mono truncate">{pessoa.instagram_id}</span>
                         </div>
@@ -501,7 +501,7 @@ const ClienteSingle = () => {
                     <select
                       value={formData.tipo}
                       onChange={e => set('tipo')(e.target.value)}
-                      className="w-full h-[30px] rounded-[4px] border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full h-[30px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                       {TYPE_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -512,7 +512,7 @@ const ClienteSingle = () => {
                     <select
                       value={formData.disc_profile}
                       onChange={e => set('disc_profile')(e.target.value)}
-                      className="w-full h-[30px] rounded-[4px] border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full h-[30px] rounded-lg border border-input bg-background px-2.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     >
                       {DISC_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -564,7 +564,7 @@ const ClienteSingle = () => {
             <div className="space-y-5">
 
               {/* Empresas */}
-              <section className="border border-border rounded-[4px] bg-card">
+              <section className="border border-border rounded-lg bg-card">
                 <div className="px-4 pt-4 pb-3 border-b border-white/[0.06]">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Empresas vinculadas</p>
                 </div>
@@ -575,7 +575,7 @@ const ClienteSingle = () => {
                         const company = companies.find(c => c.id === companyId);
                         if (!company) return null;
                         return (
-                          <div key={companyId} className="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-muted border border-white/[0.06]">
+                          <div key={companyId} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-muted border border-white/[0.06]">
                             <Building2 className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" strokeWidth={1.5} />
                             <span className="text-[13px] text-foreground flex-1 truncate">{company.trade_name}</span>
                             <button type="button" onClick={() => handleToggleCompany(companyId)} className="text-muted-foreground/40 hover:text-destructive transition-colors">
@@ -588,7 +588,7 @@ const ClienteSingle = () => {
                   )}
                   <Popover open={companyPopoverOpen} onOpenChange={setCompanyPopoverOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full h-[30px] text-xs gap-1.5 border-border text-muted-foreground justify-between rounded-[4px]">
+                      <Button variant="outline" size="sm" className="w-full h-[30px] text-xs gap-1.5 border-border text-muted-foreground justify-between rounded-lg">
                         <span>Vincular empresa...</span>
                         <ChevronsUpDown className="w-3.5 h-3.5 opacity-50" strokeWidth={1.5} />
                       </Button>
@@ -615,7 +615,7 @@ const ClienteSingle = () => {
               </section>
 
               {/* Configurações */}
-              <section className="border border-border rounded-[4px] bg-card">
+              <section className="border border-border rounded-lg bg-card">
                 <div className="px-4 pt-4 pb-3 border-b border-white/[0.06]">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Configurações</p>
                 </div>
@@ -631,7 +631,7 @@ const ClienteSingle = () => {
                           type="button"
                           onClick={() => set('status')(s)}
                           className={cn(
-                            "text-[10px] font-medium px-2 py-1 rounded-[4px] border transition-colors",
+                            "text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors",
                             formData.status === s
                               ? "bg-primary text-primary-foreground border-primary"
                               : "border-white/[0.06] text-muted-foreground hover:text-foreground"
@@ -653,7 +653,7 @@ const ClienteSingle = () => {
                           type="button"
                           onClick={() => set('service_status')(o.value)}
                           className={cn(
-                            "text-[10px] font-medium px-2 py-1 rounded-[4px] border transition-colors",
+                            "text-[10px] font-medium px-2 py-1 rounded-lg border transition-colors",
                             formData.service_status === o.value
                               ? "bg-primary text-primary-foreground border-primary"
                               : "border-white/[0.06] text-muted-foreground hover:text-foreground"
@@ -698,7 +698,7 @@ const ClienteSingle = () => {
                 <Section title="Contatos unificados">
                   <div className="space-y-2">
                     {(pessoa.merge_history as Array<{ merged_at: string; duplicate_id: string; duplicate_name: string; messages_moved?: number; leads_moved?: number }>).map((entry, i) => (
-                      <div key={i} className="flex items-start gap-2 px-2.5 py-2 rounded-[4px] bg-muted border border-white/[0.06]">
+                      <div key={i} className="flex items-start gap-2 px-2.5 py-2 rounded-lg bg-muted border border-white/[0.06]">
                         <GitMerge className="w-3.5 h-3.5 text-primary/60 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
                         <div className="min-w-0">
                           <p className="text-[12px] text-foreground truncate">
@@ -717,7 +717,7 @@ const ClienteSingle = () => {
               )}
 
               {/* Danger zone */}
-              <section className="border border-destructive/20 rounded-[4px] bg-card">
+              <section className="border border-destructive/20 rounded-lg bg-card">
                 <div className="px-4 pt-4 pb-3 border-b border-destructive/10">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-destructive/60">Zona de risco</p>
                 </div>
@@ -728,7 +728,7 @@ const ClienteSingle = () => {
                     size="sm"
                     onClick={() => setShowExcluirModal(true)}
                     disabled={isPending || isDeletingPessoa}
-                    className="w-full h-[30px] text-xs gap-1.5 border-destructive/30 rounded-[4px] text-destructive hover:bg-destructive/5 hover:text-destructive"
+                    className="w-full h-[30px] text-xs gap-1.5 border-destructive/30 rounded-lg text-destructive hover:bg-destructive/5 hover:text-destructive"
                   >
                     <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                     Excluir cliente

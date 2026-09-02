@@ -224,7 +224,7 @@ const GerenciarMembrosTime = ({ time, onVoltar }: GerenciarMembrosTimeProps) => 
           </Button>
           
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 rounded-[4px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
               <Users className="w-5 h-5 text-primary" />
             </div>
             <div>
@@ -324,7 +324,7 @@ const GerenciarMembrosTime = ({ time, onVoltar }: GerenciarMembrosTimeProps) => 
                         {todosPipelines.map((pipeline) => (
                           <div
                             key={pipeline.id}
-                            className="flex items-center space-x-2 p-1.5 rounded-[2px] hover:bg-muted cursor-pointer"
+                            className="flex items-center space-x-2 p-1.5 rounded-md hover:bg-muted cursor-pointer"
                             onClick={() => handlePipelineToggle(pipeline.id)}
                           >
                             <Checkbox
@@ -349,7 +349,7 @@ const GerenciarMembrosTime = ({ time, onVoltar }: GerenciarMembrosTimeProps) => 
                         {todasTags.map((tag) => (
                           <div
                             key={tag.id}
-                            className="flex items-center space-x-2 p-1.5 rounded-[2px] hover:bg-muted cursor-pointer"
+                            className="flex items-center space-x-2 p-1.5 rounded-md hover:bg-muted cursor-pointer"
                             onClick={() => handleTagToggle(tag.id)}
                           >
                             <Checkbox
@@ -470,7 +470,7 @@ const GerenciarMembrosTime = ({ time, onVoltar }: GerenciarMembrosTimeProps) => 
                       return (
                         <div
                           key={membro.usuario_id}
-                          className="flex items-center justify-between p-3 rounded-[2px] border hover:bg-muted transition-colors"
+                          className="flex items-center justify-between p-3 rounded-md border hover:bg-muted transition-colors"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary font-medium text-sm">
@@ -570,7 +570,7 @@ const GerenciarMembrosTime = ({ time, onVoltar }: GerenciarMembrosTimeProps) => 
                       {usuariosDisponiveis.map((usuario) => (
                         <div
                           key={usuario.id}
-                          className={`flex items-center space-x-3 p-3 border rounded-[2px] cursor-pointer transition-all hover:bg-muted ${
+                          className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all hover:bg-muted ${
                             selectedMembers.includes(usuario.id)
                               ? 'border-primary bg-primary/5'
                               : 'hover:border-primary/30'

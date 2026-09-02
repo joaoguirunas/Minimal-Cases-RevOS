@@ -48,7 +48,7 @@ function ChannelBadge({ channel, messageType }: { channel: string | null; messag
     telefone:  'bg-orange-500/10 text-orange-600 dark:text-orange-400',
   };
   return (
-    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] text-[11px] font-medium ${colors[ch] ?? colors.whatsapp}`}>
+    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium ${colors[ch] ?? colors.whatsapp}`}>
       <Icon size={10} />
       {resolveChannelLabel(channel, messageType ?? null)}
     </span>
@@ -116,7 +116,7 @@ function OriginBadge({ fromContact, sourceType }: { fromContact: string | null; 
     'text-blue-400':   'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   };
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-[2px] text-[11px] font-medium ${bgMap[color] ?? bgMap['text-zinc-500']}`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-medium ${bgMap[color] ?? bgMap['text-zinc-500']}`}>
       {label}
     </span>
   );
@@ -254,7 +254,7 @@ export function OmniMensagensContent() {
         <Button
           variant={showDeadLetter ? 'default' : 'outline'}
           size="sm"
-          className={`h-[30px] text-[12px] gap-1.5 rounded-[4px] ml-auto ${showDeadLetter ? '' : (dlStats.data?.pending ?? 0) > 0 ? 'border-red-300 text-red-600 dark:border-red-700 dark:text-red-400' : ''}`}
+          className={`h-[30px] text-[12px] gap-1.5 rounded-lg ml-auto ${showDeadLetter ? '' : (dlStats.data?.pending ?? 0) > 0 ? 'border-red-300 text-red-600 dark:border-red-700 dark:text-red-400' : ''}`}
           onClick={() => setShowDeadLetter(!showDeadLetter)}
         >
           <AlertTriangle size={12} />
@@ -269,7 +269,7 @@ export function OmniMensagensContent() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-[30px] w-[30px] p-0 shrink-0 rounded-[4px]"
+          className="h-[30px] w-[30px] p-0 shrink-0 rounded-lg"
           disabled={showDeadLetter ? dlEntries.isRefetching : isLoading || isRefetching}
           onClick={() => showDeadLetter
             ? dlEntries.refetch()
@@ -298,7 +298,7 @@ export function OmniMensagensContent() {
                   key={opt.value ?? 'all'}
                   variant={dlStatusFilter === opt.value ? 'default' : 'ghost'}
                   size="sm"
-                  className="h-[30px] text-[11px] px-2 rounded-[4px]"
+                  className="h-[30px] text-[11px] px-2 rounded-lg"
                   onClick={() => setDlStatusFilter(opt.value)}
                 >
                   {opt.label}
@@ -361,7 +361,7 @@ export function OmniMensagensContent() {
 
                 {/* Attempts */}
                 <div className="flex justify-center">
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-[2px] text-[11px] font-medium ${
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[11px] font-medium ${
                     entry.attempts >= entry.max_attempts
                       ? 'bg-red-500/10 text-red-600 dark:text-red-400'
                       : 'bg-muted text-muted-foreground'
@@ -388,7 +388,7 @@ export function OmniMensagensContent() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-[30px] text-[11px] gap-1 px-2 rounded-[4px]"
+                      className="h-[30px] text-[11px] gap-1 px-2 rounded-lg"
                       disabled={retryMutation.isPending}
                       onClick={() => retryMutation.mutate(entry.id)}
                     >
@@ -507,7 +507,7 @@ function DeadLetterStatusBadge({ status }: { status: string }) {
   const meta = DL_STATUS_META[status] ?? DL_STATUS_META.pending;
   const Icon = meta.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] text-[11px] font-medium ${meta.color}`}>
+    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium ${meta.color}`}>
       <Icon size={10} />
       {meta.label}
     </span>
@@ -528,7 +528,7 @@ function FilterDropdown({ options, value, onChange }: {
         <Button
           variant="outline"
           size="sm"
-          className={`h-[30px] text-[12px] gap-1.5 rounded-[4px] ${value ? 'border-foreground text-foreground' : ''}`}
+          className={`h-[30px] text-[12px] gap-1.5 rounded-lg ${value ? 'border-foreground text-foreground' : ''}`}
         >
           {current.label}
           <ChevronDown size={11} />

@@ -838,9 +838,9 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
                 <button
                   key={preset.id}
                   onClick={() => applyPreset(preset)}
-                  className="flex items-start gap-3 p-3.5 rounded-[2px] border border-border hover:border-foreground/20 hover:bg-muted/50 transition-all text-left group"
+                  className="flex items-start gap-3 p-3.5 rounded-md border border-border hover:border-foreground/20 hover:bg-muted/50 transition-all text-left group"
                 >
-                  <div className="p-2 rounded-[4px] bg-muted text-muted-foreground group-hover:text-foreground group-hover:bg-muted transition-colors shrink-0">
+                  <div className="p-2 rounded-lg bg-muted text-muted-foreground group-hover:text-foreground group-hover:bg-muted transition-colors shrink-0">
                     {preset.icon}
                   </div>
                   <div className="min-w-0">
@@ -970,7 +970,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
 
               {/* Variable hints */}
               {variableHints.length > 0 && (
-                <div className="bg-muted rounded-[4px] px-3 py-2 border border-border">
+                <div className="bg-muted rounded-lg px-3 py-2 border border-border">
                   <p className="text-[11px] font-medium text-muted-foreground mb-1">Variáveis neste modelo:</p>
                   <div className="space-y-0.5">
                     {variableHints.map((hint, idx) => (

@@ -130,7 +130,7 @@ const WhatsAppInput = ({
       {/* Unified input group */}
       <div
         className={cn(
-          "flex items-center h-[30px] w-full rounded-[4px] border bg-background transition-colors",
+          "flex items-center h-[30px] w-full rounded-lg border bg-background transition-colors",
           focused
             ? "border-ring ring-2 ring-ring/20"
             : "border-input",

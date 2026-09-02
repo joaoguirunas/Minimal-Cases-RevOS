@@ -67,7 +67,7 @@ function ValidationSection({ result }: { result: ValidationResult }) {
 
   if (!result.ok && result.error && !result.system_user_name) {
     return (
-      <div className="border border-red-500/20 rounded-[4px] p-4 space-y-2 bg-red-500/5">
+      <div className="border border-red-500/20 rounded-lg p-4 space-y-2 bg-red-500/5">
         <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Resultado da validação</p>
         <div className="flex items-start gap-2 text-[12px]">
           <XCircle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" strokeWidth={1.5} />
@@ -85,7 +85,7 @@ function ValidationSection({ result }: { result: ValidationResult }) {
   const permsOk = missingPerms.length === 0;
 
   return (
-    <div className="border border-border rounded-[4px] p-4 space-y-2">
+    <div className="border border-border rounded-lg p-4 space-y-2">
       <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Resultado da validação</p>
       <Check
         ok={tokenOk}
@@ -223,7 +223,7 @@ function WhatsAppFirstReplySection({ compact }: { compact?: boolean }) {
           </p>
         </div>
       </div>
-      <div className="rounded-[4px] border border-border bg-card p-4">
+      <div className="rounded-lg border border-border bg-card p-4">
         {inner}
       </div>
     </div>
@@ -381,7 +381,7 @@ function CredenciaisSection({ settings, queryClient, igCredentials, igLoading }:
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* App Meta */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">App Meta</p>
           <div className="grid grid-cols-2 gap-4">
@@ -413,7 +413,7 @@ function CredenciaisSection({ settings, queryClient, igCredentials, igLoading }:
       </div>
 
       {/* System User Token */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System User Token</p>
         <div className="space-y-1.5">
           <Label className="text-[13px]">Token de Acesso</Label>
@@ -682,7 +682,7 @@ function InstagramSectionInner({
 
         <TabsContent value="conexao" className="space-y-5 mt-0">
           {/* Status card */}
-          <div className="rounded-[4px] border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[13px] font-semibold text-foreground">Instagram DM</p>
@@ -725,7 +725,7 @@ function InstagramSectionInner({
           {/* Token renewal alert */}
           {tokenStatus && tokenStatus.status !== 'missing' && tokenStatus.latestAlert && (
             <div className={cn(
-              'flex items-start gap-2 px-3 py-2.5 rounded-[4px] border text-[11px]',
+              'flex items-start gap-2 px-3 py-2.5 rounded-lg border text-[11px]',
               tokenStatus.latestAlert.alert_type === 'token_refreshed'
                 ? 'border-emerald-500/20 bg-emerald-500/10'
                 : 'border-amber-500/20 bg-amber-500/10',
@@ -751,14 +751,14 @@ function InstagramSectionInner({
 
           {/* App Meta status */}
           {biSettings?.meta_app_id ? (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-[4px] border border-emerald-500/20 bg-emerald-500/10">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10">
               <StepBadge n={1} done />
               <p className="text-[12px] text-emerald-600 dark:text-emerald-400 font-medium">
                 App Meta configurado — ID: <code className="font-mono">{biSettings.meta_app_id}</code>
               </p>
             </div>
           ) : (
-            <div className="flex items-start gap-2 px-3 py-2.5 rounded-[4px] border border-amber-500/20 bg-amber-500/10">
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg border border-amber-500/20 bg-amber-500/10">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
               <p className="text-[12px] text-amber-600 dark:text-amber-400">
                 App Meta não configurado. Configure o App ID e App Secret na aba <strong>Geral</strong> antes de usar o Instagram.
@@ -767,7 +767,7 @@ function InstagramSectionInner({
           )}
 
           {/* Webhook */}
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <StepBadge n={2} />
               <div className="flex-1">
@@ -795,7 +795,7 @@ function InstagramSectionInner({
           </div>
 
           {/* OAuth redirect URI */}
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <StepBadge n={3} />
               <div className="flex-1">
@@ -815,7 +815,7 @@ function InstagramSectionInner({
           </div>
 
           {/* Credentials */}
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <StepBadge n={4} done={isConnected && !tokenExpired} />
@@ -830,7 +830,7 @@ function InstagramSectionInner({
             </div>
 
             {tokenExpired && (
-              <div className="flex items-start gap-2 px-3 py-2.5 rounded-[4px] border border-red-500/20 bg-red-500/10">
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg border border-red-500/20 bg-red-500/10">
                 <TriangleAlert className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                 <div className="text-[12px] space-y-0.5">
                   <p className="font-semibold text-red-500">Token expirado em {tokenExpiresStr}</p>
@@ -922,7 +922,7 @@ function InstagramSectionInner({
           </div>
 
           {/* Comportamento */}
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Comportamento</p>
             <div className="flex items-center justify-between py-1">
               <div>
@@ -972,7 +972,7 @@ function InstagramSectionInner({
         </TabsContent>
 
         <TabsContent value="automacoes" className="space-y-4 mt-0">
-          <div className="rounded-[4px] border border-border bg-card p-5 flex flex-col items-center gap-3 text-center py-8">
+          <div className="rounded-lg border border-border bg-card p-5 flex flex-col items-center gap-3 text-center py-8">
             <p className="text-[13px] text-muted-foreground">
               As automações foram movidas para o painel OMNI PRO.
             </p>
@@ -999,8 +999,8 @@ export default function MetaIntegrationConfig() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        <Skeleton className="h-7 w-full rounded-[4px]" />
-        <Skeleton className="h-48 w-full rounded-[4px]" />
+        <Skeleton className="h-7 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-lg" />
       </div>
     );
   }
@@ -1030,7 +1030,7 @@ export default function MetaIntegrationConfig() {
         }
       </div>
 
-      <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-[2px] p-1">
+      <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-md p-1">
         {([
           { value: 'geral',     label: 'Geral' },
           { value: 'whatsapp',  label: 'WhatsApp' },
@@ -1039,7 +1039,7 @@ export default function MetaIntegrationConfig() {
           <TabsTrigger
             key={value}
             value={value}
-            className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-[3px]"
+            className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-md"
           >
             {label}
           </TabsTrigger>
@@ -1095,7 +1095,7 @@ function WhatsAppTabContent() {
         </TabsList>
 
         <TabsContent value="canais" className="space-y-4 mt-0">
-          <div className="rounded-[4px] border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
             <p className="text-[12px] font-medium text-amber-600 dark:text-amber-400">Dois tipos de canal WhatsApp</p>
             <p className="text-[12px] text-muted-foreground leading-relaxed">
               Esta seção configura canais <span className="font-medium text-foreground">WhatsApp Business API (WABA)</span> — números gerenciados pelo Meta para disparos em massa e templates.
@@ -1104,7 +1104,7 @@ function WhatsAppTabContent() {
             </p>
           </div>
 
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <Webhook className="w-4 h-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
               <div>
@@ -1140,7 +1140,7 @@ function WhatsAppTabContent() {
         </TabsContent>
 
         <TabsContent value="automacoes" className="space-y-4 mt-0">
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
                 <UserPlus className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
@@ -1157,7 +1157,7 @@ function WhatsAppTabContent() {
             </div>
           </div>
 
-          <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+          <div className="rounded-lg border border-border bg-card p-5 space-y-4">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
                 <MessageSquareReply className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />

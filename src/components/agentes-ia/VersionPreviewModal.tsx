@@ -157,7 +157,7 @@ export const VersionPreviewModal = ({
                         <CardTitle className="text-sm">Dados de Entrada</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-xs bg-muted p-3 rounded-[2px] font-mono whitespace-pre-wrap">
+                        <div className="text-xs bg-muted p-3 rounded-md font-mono whitespace-pre-wrap">
                           {versionData.dados_entrada}
                         </div>
                       </CardContent>
@@ -170,7 +170,7 @@ export const VersionPreviewModal = ({
                         <CardTitle className="text-sm">Identidade</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-xs bg-muted p-3 rounded-[2px] font-mono whitespace-pre-wrap">
+                        <div className="text-xs bg-muted p-3 rounded-md font-mono whitespace-pre-wrap">
                           {versionData.identidade}
                         </div>
                       </CardContent>
@@ -183,7 +183,7 @@ export const VersionPreviewModal = ({
                         <CardTitle className="text-sm">Regras Gerais</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-xs bg-muted p-3 rounded-[2px] font-mono whitespace-pre-wrap">
+                        <div className="text-xs bg-muted p-3 rounded-md font-mono whitespace-pre-wrap">
                           {versionData.regras_gerais}
                         </div>
                       </CardContent>
@@ -196,7 +196,7 @@ export const VersionPreviewModal = ({
                         <CardTitle className="text-sm">Prompt Base</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-xs bg-muted p-3 rounded-[2px] font-mono whitespace-pre-wrap">
+                        <div className="text-xs bg-muted p-3 rounded-md font-mono whitespace-pre-wrap">
                           {versionData.prompt_base}
                         </div>
                       </CardContent>
@@ -223,14 +223,14 @@ export const VersionPreviewModal = ({
                         <Card key={step.id ?? i}>
                           <CardHeader className="pb-2">
                             <CardTitle className="text-sm flex items-center gap-2">
-                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-[2px] bg-muted border border-border text-muted-foreground">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-muted border border-border text-muted-foreground">
                                 controle: {step.controle}
                               </span>
                               {step.nome || `Etapa ${i + 1}`}
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-xs bg-muted p-3 rounded-[2px] font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
+                            <div className="text-xs bg-muted p-3 rounded-md font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
                               {step.prompt || '(sem prompt)'}
                             </div>
                           </CardContent>

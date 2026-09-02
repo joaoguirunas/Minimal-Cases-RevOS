@@ -98,7 +98,7 @@ function ColorSwatch({ name, hex, hsl, token }: {
   return (
     <div className="group flex flex-col items-center gap-3">
       <div
-        className="w-[72px] h-[72px] rounded-[2px] border border-white/[0.08] shadow-lg transition-transform duration-300 group-hover:scale-105"
+        className="w-[72px] h-[72px] rounded-md border border-white/[0.08] shadow-lg transition-transform duration-300 group-hover:scale-105"
         style={{ backgroundColor: hex }}
       />
       <div className="text-center space-y-0.5">
@@ -113,10 +113,10 @@ function ColorSwatch({ name, hex, hsl, token }: {
 
 function GlowCard({ children, className = '', glow }: { children: React.ReactNode; className?: string; glow?: string }) {
   return (
-    <div className={`group/card relative rounded-[2px] border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.10] hover:bg-white/[0.035] ${className}`}>
+    <div className={`group/card relative rounded-md border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.10] hover:bg-white/[0.035] ${className}`}>
       {glow && (
         <div
-          className="pointer-events-none absolute inset-0 rounded-[2px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 -z-10"
+          className="pointer-events-none absolute inset-0 rounded-md opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 -z-10"
           style={{ boxShadow: `0 0 80px 4px ${glow}10, inset 0 0 60px 2px ${glow}06` }}
         />
       )}
@@ -293,8 +293,8 @@ export default function Brandbook() {
                       { bg: 'bg-[#6C16F8]/15', color: '#6C16F8', label: 'AI Accent', sub: 'AI features' },
                       { bg: 'bg-[#3B82F6]/15', color: '#3B82F6', label: 'Accent', sub: 'Highlights' },
                     ].map(({ bg, color, label, sub, textDark }) => (
-                      <div key={label} className={`flex items-center gap-4 p-3 rounded-[2px] ${textDark ? 'bg-white border border-white/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
-                        <div className={`w-10 h-10 rounded-[2px] ${bg} flex items-center justify-center`}>
+                      <div key={label} className={`flex items-center gap-4 p-3 rounded-md ${textDark ? 'bg-white border border-white/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
+                        <div className={`w-10 h-10 rounded-md ${bg} flex items-center justify-center`}>
                           <span className="font-['Outfit'] text-sm font-black" style={{ color }}>R</span>
                         </div>
                         <div>
@@ -340,7 +340,7 @@ export default function Brandbook() {
                             a.click();
                             URL.revokeObjectURL(url);
                           }}
-                          className="w-full flex items-center justify-between px-3 py-2 rounded-[2px] bg-white/[0.04] border border-white/[0.06] hover:bg-[#B8924B]/[0.20] hover:border-[#B8924B]/40 transition-all group"
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-white/[0.04] border border-white/[0.06] hover:bg-[#B8924B]/[0.20] hover:border-[#B8924B]/40 transition-all group"
                         >
                           <div className="text-left">
                             <p className="text-[11px] text-white/80 group-hover:text-white font-medium">{label}</p>
@@ -393,7 +393,7 @@ export default function Brandbook() {
                       { icon: Rocket, name: 'Hero', pct: '15%', desc: 'Superar desafios', color: '#00D26A' },
                     ].map(({ icon: Icon, name, pct, desc, color }) => (
                       <div key={name} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-[2px] flex items-center justify-center shrink-0" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
+                        <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
                           <Icon className="w-4 h-4" style={{ color }} strokeWidth={1.5} />
                         </div>
                         <div className="flex-1">
@@ -456,7 +456,7 @@ export default function Brandbook() {
                       { name: 'Input', hex: '#1B2028', token: '--input' },
                     ].map(({ name, hex, token }) => (
                       <div key={name} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-[2px] border border-white/[0.08] shrink-0" style={{ backgroundColor: hex }} />
+                        <div className="w-8 h-8 rounded-md border border-white/[0.08] shrink-0" style={{ backgroundColor: hex }} />
                         <div className="flex-1">
                           <p className="text-[10px] font-semibold text-white/60">{name}</p>
                           <p className="text-[9px] font-mono text-white/25">{hex}</p>
@@ -503,7 +503,7 @@ export default function Brandbook() {
                     { label: 'Warning', icon: AlertTriangle, bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-400' },
                     { label: 'Error', icon: XCircle, bg: 'bg-rose-500/10', border: 'border-rose-500/20', text: 'text-rose-400' },
                   ].map(({ label, icon: Icon, bg, border, text }) => (
-                    <div key={label} className={`${bg} ${border} border rounded-[2px] p-4`}>
+                    <div key={label} className={`${bg} ${border} border rounded-md p-4`}>
                       <div className="flex items-center gap-2 mb-2">
                         <Icon className={`w-4 h-4 ${text}`} />
                         <span className={`text-[11px] font-semibold ${text}`}>{label}</span>
@@ -523,7 +523,7 @@ export default function Brandbook() {
                 ].map(({ label, value, delta, color }) => (
                   <div
                     key={label}
-                    className="relative rounded-[2px] border p-5 transition-all duration-300 hover:scale-[1.02] group overflow-hidden"
+                    className="relative rounded-md border p-5 transition-all duration-300 hover:scale-[1.02] group overflow-hidden"
                     style={{ borderColor: `${color}18`, backgroundColor: `${color}06` }}
                   >
                     <div
@@ -547,7 +547,7 @@ export default function Brandbook() {
                   { label: 'Card Money', sub: 'Revenue', color: '#10B981', token: '--card-money-*' },
                   { label: 'Card Summary', sub: 'Overview', color: '#F59E0B', token: '--card-summary-*' },
                 ].map(({ label, sub, color, token }) => (
-                  <div key={label} className="rounded-[2px] border border-white/[0.06] bg-white/[0.02] p-5 relative overflow-hidden group hover:bg-white/[0.04] transition-all duration-300">
+                  <div key={label} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-5 relative overflow-hidden group hover:bg-white/[0.04] transition-all duration-300">
                     <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: color }} />
                     <div className="absolute top-0 left-0 w-full h-px" style={{ background: `linear-gradient(to right, ${color}30, transparent)` }} />
                     <p className="text-[11px] font-semibold text-white/65 pl-4">{label}</p>
@@ -574,7 +574,7 @@ export default function Brandbook() {
               <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
                 <GlowCard className="md:col-span-3" glow="#3B82F6">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-[2px] bg-[#3B82F6]/10 border border-[#3B82F6]/15 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-md bg-[#3B82F6]/10 border border-[#3B82F6]/15 flex items-center justify-center">
                       <Type className="w-5 h-5 text-[#3B82F6]" />
                     </div>
                     <div>
@@ -595,7 +595,7 @@ export default function Brandbook() {
 
                 <GlowCard className="md:col-span-2" glow="#6C16F8">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="w-10 h-10 rounded-[2px] bg-[#6C16F8]/10 border border-[#6C16F8]/15 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-md bg-[#6C16F8]/10 border border-[#6C16F8]/15 flex items-center justify-center">
                       <Type className="w-5 h-5 text-[#6C16F8]" />
                     </div>
                     <div>
@@ -674,7 +674,7 @@ export default function Brandbook() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <GlowCard glow="#B8924B">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-[2px] bg-[#B8924B]/10 shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-md bg-[#B8924B]/10 shrink-0">
                       <Save className="w-5 h-5 text-[#B8924B]" />
                     </div>
                     <div>
@@ -683,16 +683,16 @@ export default function Brandbook() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Button className="h-[30px] rounded-[4px] text-xs">Salvar</Button>
-                    <Button className="h-[30px] rounded-[4px] text-xs">Confirmar</Button>
-                    <Button className="h-[30px] rounded-[4px] text-xs">Enviar</Button>
+                    <Button className="h-[30px] rounded-lg text-xs">Salvar</Button>
+                    <Button className="h-[30px] rounded-lg text-xs">Confirmar</Button>
+                    <Button className="h-[30px] rounded-lg text-xs">Enviar</Button>
                   </div>
-                  <p className="text-[10px] font-mono text-white/20 mt-4">h-[30px] · rounded-[4px] · variant=default</p>
+                  <p className="text-[10px] font-mono text-white/20 mt-4">h-[30px] · rounded-lg · variant=default</p>
                 </GlowCard>
 
                 <GlowCard glow="#3B82F6">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-[2px] bg-[#3B82F6]/10 shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-md bg-[#3B82F6]/10 shrink-0">
                       <ArrowRight className="w-5 h-5 text-[#3B82F6]" />
                     </div>
                     <div>
@@ -701,16 +701,16 @@ export default function Brandbook() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Button variant="ghost" className="h-[30px] rounded-[4px] text-xs">Dashboard</Button>
+                    <Button variant="ghost" className="h-[30px] rounded-lg text-xs">Dashboard</Button>
                     <Button variant="link" className="h-[30px] text-xs">Ver detalhes →</Button>
-                    <Button variant="ghost" className="h-[30px] rounded-[4px] text-xs gap-1.5"><Globe className="w-3.5 h-3.5" /> Integrações</Button>
+                    <Button variant="ghost" className="h-[30px] rounded-lg text-xs gap-1.5"><Globe className="w-3.5 h-3.5" /> Integrações</Button>
                   </div>
                   <p className="text-[10px] font-mono text-white/20 mt-4">variant=ghost | link · navegação contextual</p>
                 </GlowCard>
 
                 <GlowCard glow="#6C16F8">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-[2px] bg-[#6C16F8]/10 shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-md bg-[#6C16F8]/10 shrink-0">
                       <Settings className="w-5 h-5 text-[#6C16F8]" />
                     </div>
                     <div>
@@ -719,18 +719,18 @@ export default function Brandbook() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Heart className="w-4 h-4" /></Button>
-                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Search className="w-4 h-4" /></Button>
-                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Settings2 className="w-4 h-4" /></Button>
-                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Mail className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Star className="w-4 h-4" /></Button>
+                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-lg"><Heart className="w-4 h-4" /></Button>
+                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-lg"><Search className="w-4 h-4" /></Button>
+                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-lg"><Settings2 className="w-4 h-4" /></Button>
+                    <Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-lg"><Mail className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-[30px] w-[30px] rounded-lg"><Star className="w-4 h-4" /></Button>
                   </div>
-                  <p className="text-[10px] font-mono text-white/20 mt-4">h-[30px] w-[30px] · size=icon · rounded-[4px]</p>
+                  <p className="text-[10px] font-mono text-white/20 mt-4">h-[30px] w-[30px] · size=icon · rounded-lg</p>
                 </GlowCard>
 
                 <GlowCard glow="#00D26A">
                   <div className="flex items-start gap-4 mb-5">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-[2px] bg-[#00D26A]/10 shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-md bg-[#00D26A]/10 shrink-0">
                       <Rocket className="w-5 h-5 text-[#00D26A]" />
                     </div>
                     <div>
@@ -739,8 +739,8 @@ export default function Brandbook() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <Button size="lg" className="rounded-[4px] gap-2"><Zap className="w-4 h-4" /> Começar Agora</Button>
-                    <Button size="lg" variant="outline" className="rounded-[4px] gap-2"><FileText className="w-4 h-4" /> Saiba Mais</Button>
+                    <Button size="lg" className="rounded-lg gap-2"><Zap className="w-4 h-4" /> Começar Agora</Button>
+                    <Button size="lg" variant="outline" className="rounded-lg gap-2"><FileText className="w-4 h-4" /> Saiba Mais</Button>
                   </div>
                   <p className="text-[10px] font-mono text-white/20 mt-4">size=lg · formulários, onboarding, landing pages</p>
                 </GlowCard>
@@ -762,7 +762,7 @@ export default function Brandbook() {
                     { variant: 'destructive' as const, label: 'Destructive', color: '#EF4444', desc: 'Ação perigosa · red' },
                   ].map(({ variant, label, color, desc }) => (
                     <div key={variant} className="flex flex-col items-center gap-3">
-                      <Button variant={variant} className="h-[30px] rounded-[4px] text-xs w-full">{label}</Button>
+                      <Button variant={variant} className="h-[30px] rounded-lg text-xs w-full">{label}</Button>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
                         <span className="text-[10px] font-mono text-white/25">{variant}</span>
@@ -774,7 +774,7 @@ export default function Brandbook() {
                 <div className="mt-6 pt-4 border-t border-white/[0.04]">
                   <SubLabel>Also Available</SubLabel>
                   <div className="flex gap-3 mt-2">
-                    <Button variant="outline" className="h-[30px] rounded-[4px] text-xs">Outline</Button>
+                    <Button variant="outline" className="h-[30px] rounded-lg text-xs">Outline</Button>
                     <Button variant="link" className="h-[30px] text-xs">Link →</Button>
                   </div>
                 </div>
@@ -791,8 +791,8 @@ export default function Brandbook() {
                     { size: 'default' as const, label: 'MD', spec: 'h-9 (36px)', use: 'Padrão do app' },
                     { size: 'lg' as const, label: 'LG', spec: 'h-11 (44px)', use: 'CTAs, forms' },
                   ].map(({ size, label, spec, use }) => (
-                    <div key={label} className="flex flex-col items-center gap-4 p-4 rounded-[2px] border border-white/[0.06] bg-white/[0.015]">
-                      <Button size={size} className="rounded-[4px] w-full">{label}</Button>
+                    <div key={label} className="flex flex-col items-center gap-4 p-4 rounded-md border border-white/[0.06] bg-white/[0.015]">
+                      <Button size={size} className="rounded-lg w-full">{label}</Button>
                       <div className="text-center space-y-1">
                         <span className="text-[11px] font-mono text-white/40 block font-semibold">{spec}</span>
                         <span className="text-[9px] text-white/20 block">{use}</span>
@@ -815,28 +815,28 @@ export default function Brandbook() {
               <GlowCard glow="#B8924B">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
                   <div className="flex flex-col items-center gap-3">
-                    <Button className="h-[30px] rounded-[4px] text-xs">Default</Button>
+                    <Button className="h-[30px] rounded-lg text-xs">Default</Button>
                     <span className="text-[10px] font-mono text-white/25">default</span>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <Button className="h-[30px] rounded-[4px] text-xs bg-[hsl(18,100%,58%)]">Hover</Button>
+                    <Button className="h-[30px] rounded-lg text-xs bg-[hsl(18,100%,58%)]">Hover</Button>
                     <span className="text-[10px] font-mono text-white/25">:hover</span>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <Button disabled className="h-[30px] rounded-[4px] text-xs gap-1.5">
+                    <Button disabled className="h-[30px] rounded-lg text-xs gap-1.5">
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       Loading...
                     </Button>
                     <span className="text-[10px] font-mono text-white/25">loading</span>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <Button disabled className="h-[30px] rounded-[4px] text-xs">Disabled</Button>
+                    <Button disabled className="h-[30px] rounded-lg text-xs">Disabled</Button>
                     <span className="text-[10px] font-mono text-white/25">disabled</span>
                   </div>
                 </div>
                 <div className="mt-8 pt-4 border-t border-white/[0.04]">
                   <SubLabel>Loading Pattern</SubLabel>
-                  <div className="rounded-[2px] bg-white/[0.02] border border-white/[0.06] p-4">
+                  <div className="rounded-md bg-white/[0.02] border border-white/[0.06] p-4">
                     <code className="text-[11px] font-mono text-white/40 leading-relaxed whitespace-pre">{`<Button disabled className="gap-1.5">
   <Loader2 className="w-3.5 h-3.5 animate-spin" />
   Salvando...
@@ -854,8 +854,8 @@ export default function Brandbook() {
                   <SubLabel>Action Pair — Salvar + Cancelar</SubLabel>
                   <p className="text-[11px] text-white/30 mb-4">O par mais comum do app: ação primária + escape</p>
                   <div className="flex items-center gap-3">
-                    <Button className="h-[30px] rounded-[4px] text-xs gap-1.5"><Save className="w-3.5 h-3.5" /> Salvar</Button>
-                    <Button variant="ghost" className="h-[30px] rounded-[4px] text-xs gap-1.5"><X className="w-3.5 h-3.5" /> Cancelar</Button>
+                    <Button className="h-[30px] rounded-lg text-xs gap-1.5"><Save className="w-3.5 h-3.5" /> Salvar</Button>
+                    <Button variant="ghost" className="h-[30px] rounded-lg text-xs gap-1.5"><X className="w-3.5 h-3.5" /> Cancelar</Button>
                   </div>
                 </GlowCard>
 
@@ -863,8 +863,8 @@ export default function Brandbook() {
                   <SubLabel>Create — Novo Lead</SubLabel>
                   <p className="text-[11px] text-white/30 mb-4">Ação de criação com ícone Plus</p>
                   <div className="flex items-center gap-3">
-                    <Button className="h-[30px] rounded-[4px] text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Novo Lead</Button>
-                    <Button variant="outline" className="h-[30px] rounded-[4px] text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Novo Negócio</Button>
+                    <Button className="h-[30px] rounded-lg text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Novo Lead</Button>
+                    <Button variant="outline" className="h-[30px] rounded-lg text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Novo Negócio</Button>
                   </div>
                 </GlowCard>
 
@@ -872,8 +872,8 @@ export default function Brandbook() {
                   <SubLabel>Destructive — Excluir</SubLabel>
                   <p className="text-[11px] text-white/30 mb-4">Ação perigosa, exige confirmação</p>
                   <div className="flex items-center gap-3">
-                    <Button variant="destructive" className="h-[30px] rounded-[4px] text-xs gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Excluir</Button>
-                    <Button variant="outline" className="h-[30px] rounded-[4px] text-xs border-red-500/20 text-red-400 hover:bg-red-500/10 gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Remover</Button>
+                    <Button variant="destructive" className="h-[30px] rounded-lg text-xs gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Excluir</Button>
+                    <Button variant="outline" className="h-[30px] rounded-lg text-xs border-red-500/20 text-red-400 hover:bg-red-500/10 gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Remover</Button>
                   </div>
                 </GlowCard>
 
@@ -881,7 +881,7 @@ export default function Brandbook() {
                   <SubLabel>Utility — Config + Navigation</SubLabel>
                   <p className="text-[11px] text-white/30 mb-4">Ações secundárias e links</p>
                   <div className="flex items-center gap-3">
-                    <Button variant="outline" className="h-[30px] rounded-[4px] text-xs gap-1.5"><Settings2 className="w-3.5 h-3.5" /> Configurações</Button>
+                    <Button variant="outline" className="h-[30px] rounded-lg text-xs gap-1.5"><Settings2 className="w-3.5 h-3.5" /> Configurações</Button>
                     <Button variant="link" className="text-xs gap-1">Ver mais <ArrowRight className="w-3 h-3" /></Button>
                   </div>
                 </GlowCard>
@@ -1010,7 +1010,7 @@ export default function Brandbook() {
                     <div>
                       <Label className="text-[11px] text-white/40 mb-1.5 block">Textarea with Counter</Label>
                       <textarea
-                        className="flex min-h-[80px] w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none"
+                        className="flex min-h-[80px] w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none"
                         placeholder="Descreva o negócio..."
                         maxLength={200}
                         value={textareaValue}
@@ -1020,7 +1020,7 @@ export default function Brandbook() {
                     </div>
                     <div>
                       <Label className="text-[11px] text-white/40 mb-1.5 block">Select</Label>
-                      <select className="flex h-10 w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B]">
+                      <select className="flex h-10 w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B]">
                         <option>Vendas Inbound</option>
                         <option>Vendas Outbound</option>
                         <option>Pós-venda</option>
@@ -1029,7 +1029,7 @@ export default function Brandbook() {
                     <div>
                       <Label className="text-[11px] text-white/40 mb-1.5 block">Inline Edit</Label>
                       <div
-                        className="flex items-center gap-3 p-2.5 rounded-[2px] border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.02] transition-all cursor-pointer group"
+                        className="flex items-center gap-3 p-2.5 rounded-md border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.02] transition-all cursor-pointer group"
                         onClick={() => setIsEditing(!isEditing)}
                       >
                         {isEditing ? (
@@ -1135,7 +1135,7 @@ export default function Brandbook() {
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <Button size="sm" className="w-full h-[30px] rounded-[4px] text-xs">Ver Pipeline</Button>
+                      <Button size="sm" className="w-full h-[30px] rounded-lg text-xs">Ver Pipeline</Button>
                     </CardFooter>
                   </ShadcnCard>
                 </ComponentCard>
@@ -1157,7 +1157,7 @@ export default function Brandbook() {
 
               {/* Table — full width */}
               <ComponentCard title="Table" desc="Data grid with module badges" importPath="import { Table, ... } from '@/components/ui/table'">
-                <div className="rounded-[2px] border border-white/[0.06] overflow-hidden">
+                <div className="rounded-md border border-white/[0.06] overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -1235,7 +1235,7 @@ export default function Brandbook() {
                           { icon: Info, tip: 'Informações' },
                         ].map(({ icon: Ic, tip }) => (
                           <Tooltip key={tip}>
-                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-[4px]"><Ic className="w-4 h-4" /></Button></TooltipTrigger>
+                            <TooltipTrigger asChild><Button variant="outline" size="icon" className="h-[30px] w-[30px] rounded-lg"><Ic className="w-4 h-4" /></Button></TooltipTrigger>
                             <TooltipContent><p>{tip}</p></TooltipContent>
                           </Tooltip>
                         ))}
@@ -1274,25 +1274,25 @@ export default function Brandbook() {
                 <SubLabel>Skeleton Loaders</SubLabel>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                   <div className="space-y-3">
-                    <div className="h-3 w-3/4 bg-white/[0.06] rounded-[2px] animate-pulse" />
-                    <div className="h-3 w-full bg-white/[0.04] rounded-[2px] animate-pulse" />
-                    <div className="h-3 w-2/3 bg-white/[0.04] rounded-[2px] animate-pulse" />
+                    <div className="h-3 w-3/4 bg-white/[0.06] rounded-md animate-pulse" />
+                    <div className="h-3 w-full bg-white/[0.04] rounded-md animate-pulse" />
+                    <div className="h-3 w-2/3 bg-white/[0.04] rounded-md animate-pulse" />
                     <p className="text-[9px] font-mono text-white/20 mt-2">Text skeleton</p>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-white/[0.06] rounded-full animate-pulse shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 w-2/3 bg-white/[0.06] rounded-[2px] animate-pulse" />
-                        <div className="h-2.5 w-1/2 bg-white/[0.04] rounded-[2px] animate-pulse" />
+                        <div className="h-3 w-2/3 bg-white/[0.06] rounded-md animate-pulse" />
+                        <div className="h-2.5 w-1/2 bg-white/[0.04] rounded-md animate-pulse" />
                       </div>
                     </div>
                     <p className="text-[9px] font-mono text-white/20 mt-2">Avatar + text</p>
                   </div>
                   <div className="space-y-3">
-                    <div className="h-24 w-full bg-white/[0.06] rounded-[2px] animate-pulse" />
-                    <div className="h-3 w-3/4 bg-white/[0.04] rounded-[2px] animate-pulse" />
-                    <div className="h-3 w-1/2 bg-white/[0.04] rounded-[2px] animate-pulse" />
+                    <div className="h-24 w-full bg-white/[0.06] rounded-md animate-pulse" />
+                    <div className="h-3 w-3/4 bg-white/[0.04] rounded-md animate-pulse" />
+                    <div className="h-3 w-1/2 bg-white/[0.04] rounded-md animate-pulse" />
                     <p className="text-[9px] font-mono text-white/20 mt-2">Card skeleton</p>
                   </div>
                 </div>
@@ -1341,7 +1341,7 @@ export default function Brandbook() {
 
               {/* Tab Bar Preview */}
               <ComponentCard title="Tab Bar — 45px Standard" desc="Design system navigation pattern" importPath="import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'">
-                <div className="rounded-[2px] overflow-hidden border border-white/[0.08]">
+                <div className="rounded-md overflow-hidden border border-white/[0.08]">
                   <div className="flex items-center h-[45px] border-b border-white/[0.08] bg-[#0a0a0a] px-4">
                     {[
                       { icon: MessageSquare, label: 'Conversas', active: true },
@@ -1415,7 +1415,7 @@ export default function Brandbook() {
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">Description</Label>
                     <textarea
-                      className="flex min-h-[120px] w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none"
+                      className="flex min-h-[120px] w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none"
                       placeholder="Descreva os detalhes do negócio..."
                       maxLength={500}
                       defaultValue="Lead qualificado, interesse em CRM PRO com integração WhatsApp."
@@ -1436,7 +1436,7 @@ export default function Brandbook() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">Pipeline</Label>
-                    <select className="flex h-10 w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B]">
+                    <select className="flex h-10 w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B]">
                       <option>Vendas Inbound</option>
                       <option>Vendas Outbound</option>
                       <option>Pós-venda</option>
@@ -1444,7 +1444,7 @@ export default function Brandbook() {
                   </div>
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">Etapa</Label>
-                    <select className="flex h-10 w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70">
+                    <select className="flex h-10 w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/70">
                       <option>Qualificação</option>
                       <option>Proposta</option>
                       <option>Negociação</option>
@@ -1452,7 +1452,7 @@ export default function Brandbook() {
                   </div>
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">Disabled</Label>
-                    <select disabled className="flex h-10 w-full rounded-[2px] border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-sm text-white/30 opacity-50">
+                    <select disabled className="flex h-10 w-full rounded-md border border-white/[0.06] bg-white/[0.01] px-3 py-2 text-sm text-white/30 opacity-50">
                       <option>Selecione...</option>
                     </select>
                   </div>
@@ -1468,7 +1468,7 @@ export default function Brandbook() {
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">Telefone</Label>
                     <div className="flex gap-2">
-                      <div className="flex items-center gap-1.5 px-3 rounded-[2px] border border-white/[0.08] bg-white/[0.03] text-sm text-white/60 shrink-0">
+                      <div className="flex items-center gap-1.5 px-3 rounded-md border border-white/[0.08] bg-white/[0.03] text-sm text-white/60 shrink-0">
                         <span>🇧🇷</span><span className="text-white/40">+55</span>
                       </div>
                       <Input placeholder="(11) 99999-0000" className="flex-1" />
@@ -1477,7 +1477,7 @@ export default function Brandbook() {
                   <div>
                     <Label className="text-[11px] text-white/40 mb-1.5 block font-mono uppercase tracking-[0.08em]">WhatsApp</Label>
                     <div className="flex gap-2">
-                      <div className="flex items-center gap-1.5 px-3 rounded-[2px] border border-emerald-500/20 bg-emerald-500/5 text-sm shrink-0">
+                      <div className="flex items-center gap-1.5 px-3 rounded-md border border-emerald-500/20 bg-emerald-500/5 text-sm shrink-0">
                         <MessageSquare className="w-3.5 h-3.5 text-emerald-400" /><span className="text-emerald-400/60">+55</span>
                       </div>
                       <Input placeholder="(11) 99999-0000" className="flex-1" />
@@ -1492,14 +1492,14 @@ export default function Brandbook() {
               <SectionHeader num="05" title="File Upload" subtitle="Drag and drop upload area" />
               <GlowCard glow="#3B82F6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border-2 border-dashed border-white/[0.08] rounded-[2px] p-8 text-center hover:border-[#B8924B]/30 hover:bg-[#B8924B]/[0.02] transition-all cursor-pointer">
-                    <div className="w-12 h-12 rounded-[2px] bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+                  <div className="border-2 border-dashed border-white/[0.08] rounded-md p-8 text-center hover:border-[#B8924B]/30 hover:bg-[#B8924B]/[0.02] transition-all cursor-pointer">
+                    <div className="w-12 h-12 rounded-md bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
                       <FileText className="w-6 h-6 text-white/30" />
                     </div>
                     <p className="text-[12px] text-white/50 mb-1">Drag & drop or click to browse</p>
                     <p className="text-[10px] font-mono text-white/20">PDF, PNG, JPG — max 10MB</p>
                   </div>
-                  <div className="border border-white/[0.06] rounded-[2px] p-4 bg-white/[0.02]">
+                  <div className="border border-white/[0.06] rounded-md p-4 bg-white/[0.02]">
                     <p className="text-[10px] font-mono text-white/30 mb-3 uppercase tracking-[0.08em]">Uploaded Files</p>
                     <div className="space-y-2">
                       {[
@@ -1507,7 +1507,7 @@ export default function Brandbook() {
                         { name: 'logo-cliente.png', size: '340 KB', done: true },
                         { name: 'contrato-v2.docx', size: '1.1 MB', done: false },
                       ].map(({ name, size, done }) => (
-                        <div key={name} className="flex items-center gap-3 p-2 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+                        <div key={name} className="flex items-center gap-3 p-2 rounded-md bg-white/[0.02] border border-white/[0.04]">
                           <FileText className="w-4 h-4 text-white/25 shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-[11px] text-white/60 truncate">{name}</p>
@@ -1532,7 +1532,7 @@ export default function Brandbook() {
                     { label: 'Company', value: 'TechStar Solutions' },
                     { label: 'Value', value: 'R$ 45.000,00' },
                   ].map(({ label, value }) => (
-                    <div key={label} className="flex items-center gap-4 p-3 rounded-[2px] border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.02] transition-all group cursor-pointer">
+                    <div key={label} className="flex items-center gap-4 p-3 rounded-md border border-white/[0.04] hover:border-white/[0.08] hover:bg-white/[0.02] transition-all group cursor-pointer">
                       <span className="text-[10px] font-mono text-white/25 w-24 shrink-0 uppercase tracking-[0.08em]">{label}</span>
                       <span className="text-[13px] text-white/70 flex-1">{value}</span>
                       <Eye className="w-3.5 h-3.5 text-white/10 group-hover:text-white/30 transition-colors" />
@@ -1562,7 +1562,7 @@ export default function Brandbook() {
                     </div>
                     <div>
                       <Label className="text-[11px] text-white/40 mb-1.5 block">Observações</Label>
-                      <textarea className="flex min-h-[80px] w-full rounded-[2px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none" placeholder="Notas..." />
+                      <textarea className="flex min-h-[80px] w-full rounded-md border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80 placeholder:text-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#B8924B] resize-none" placeholder="Notas..." />
                     </div>
                     <div className="flex items-center gap-2">
                       <Checkbox id="notify-bb" />
@@ -1570,8 +1570,8 @@ export default function Brandbook() {
                     </div>
                     <Separator className="bg-white/[0.06]" />
                     <div className="flex justify-end gap-3">
-                      <Button variant="ghost" className="h-[30px] rounded-[4px] text-xs">Cancelar</Button>
-                      <Button className="h-[30px] rounded-[4px] text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Criar Negócio</Button>
+                      <Button variant="ghost" className="h-[30px] rounded-lg text-xs">Cancelar</Button>
+                      <Button className="h-[30px] rounded-lg text-xs gap-1.5"><Plus className="w-3.5 h-3.5" /> Criar Negócio</Button>
                     </div>
                   </div>
                 </div>
@@ -1594,7 +1594,7 @@ export default function Brandbook() {
                   { title: 'Subtle', desc: '150-300ms for UI. cubic-bezier(0.16, 1, 0.3, 1).', color: '#00D26A' },
                 ].map(({ title, desc, color }) => (
                   <GlowCard key={title} glow={color}>
-                    <div className="w-10 h-10 rounded-[2px] mb-4 flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
+                    <div className="w-10 h-10 rounded-md mb-4 flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
                       <Zap className="w-5 h-5" style={{ color }} />
                     </div>
                     <h3 className="text-[13px] font-semibold text-white/80 mb-2">{title}</h3>
@@ -1615,7 +1615,7 @@ export default function Brandbook() {
                     { name: 'spring', value: 'stiffness: 300, damping: 30', use: 'Bouncy' },
                     { name: 'ease-out', value: 'cubic-bezier(0, 0, 0.2, 1)', use: 'Exits' },
                   ].map(({ name, value, use }) => (
-                    <div key={name} className="p-4 rounded-[2px] bg-white/[0.02] border border-white/[0.06]">
+                    <div key={name} className="p-4 rounded-md bg-white/[0.02] border border-white/[0.06]">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-2 h-2 rounded-full bg-[#B8924B]" />
                         <span className="text-[12px] font-semibold text-white/70">{name}</span>
@@ -1666,7 +1666,7 @@ export default function Brandbook() {
                 <GlowCard glow="#B8924B">
                   <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Fade In Up</h3>
                   <div className="h-32 flex items-center justify-center">
-                    <div className="animate-bounce"><div className="w-16 h-16 rounded-[2px] bg-[#B8924B]/20 border border-[#B8924B]/30 flex items-center justify-center"><Rocket className="w-8 h-8 text-[#B8924B]" /></div></div>
+                    <div className="animate-bounce"><div className="w-16 h-16 rounded-md bg-[#B8924B]/20 border border-[#B8924B]/30 flex items-center justify-center"><Rocket className="w-8 h-8 text-[#B8924B]" /></div></div>
                   </div>
                 </GlowCard>
                 <GlowCard glow="#3B82F6">
@@ -1732,8 +1732,8 @@ export default function Brandbook() {
                   { name: 'World Map', icon: Globe, v: 3, color: '#3B82F6' },
                   { name: 'KPI Grid', icon: LayoutGrid, v: 1, color: '#00D26A' },
                 ].map(({ name, icon: Icon, v, color }) => (
-                  <div key={name} className="group p-5 rounded-[2px] border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all">
-                    <div className="w-10 h-10 rounded-[2px] mb-3 flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
+                  <div key={name} className="group p-5 rounded-md border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12] hover:bg-white/[0.04] transition-all">
+                    <div className="w-10 h-10 rounded-md mb-3 flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
                       <Icon className="w-5 h-5" style={{ color }} strokeWidth={1.5} />
                     </div>
                     <h4 className="text-[12px] font-semibold text-white/70 mb-0.5">{name}</h4>
@@ -1944,7 +1944,7 @@ export default function Brandbook() {
                     { label: 'Currency', value: 'R$ 1.2M', format: 'Intl.NumberFormat', color: '#3B82F6' },
                     { label: 'Compact', value: '1.2K', format: 'notation: "compact"', color: '#6C16F8' },
                   ].map(({ label, value, format, color }) => (
-                    <div key={label} className="text-center p-5 rounded-[2px] bg-white/[0.02] border border-white/[0.06]">
+                    <div key={label} className="text-center p-5 rounded-md bg-white/[0.02] border border-white/[0.06]">
                       <p className="text-[10px] font-mono text-white/25 mb-2 uppercase tracking-[0.08em]">{label}</p>
                       <p className="text-[32px] font-['Outfit'] font-black leading-none mb-2" style={{ color }}>{value}</p>
                       <code className="text-[9px] font-mono text-white/15">{format}</code>
@@ -1998,7 +1998,7 @@ export default function Brandbook() {
                     { n: 'Sessions', c: '#EC4899' }, { n: 'Automation', c: '#06B6D4' },
                     { n: 'Support', c: '#8B5CF6' }, { n: 'Other', c: '#64748B' },
                   ].map(({ n, c }) => (
-                    <div key={n} className="flex items-center gap-3 p-2.5 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+                    <div key={n} className="flex items-center gap-3 p-2.5 rounded-md bg-white/[0.02] border border-white/[0.04]">
                       <div className="w-4 h-4 rounded-[1px] shrink-0" style={{ backgroundColor: c }} />
                       <div><p className="text-[10px] text-white/50">{n}</p><p className="text-[9px] font-mono text-white/20">{c}</p></div>
                     </div>
@@ -2016,7 +2016,7 @@ export default function Brandbook() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <GlowCard glow="#3B82F6">
                   <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">Tooltip Pattern</h3>
-                  <div className="p-4 rounded-[2px] bg-[#111] border border-white/[0.08] inline-block">
+                  <div className="p-4 rounded-md bg-[#111] border border-white/[0.08] inline-block">
                     <p className="text-[11px] text-white/50 mb-2 font-medium">Janeiro 2026</p>
                     {[
                       { l: 'Revenue', val: 'R$ 89.2K', c: '#B8924B' },
@@ -2083,7 +2083,7 @@ export default function Brandbook() {
             <section>
               <SectionHeader num="11" title="World Map" subtitle="Geographic data visualization" />
               <GlowCard glow="#3B82F6">
-                <div className="h-48 rounded-[2px] bg-white/[0.01] border border-white/[0.04] flex items-center justify-center">
+                <div className="h-48 rounded-md bg-white/[0.01] border border-white/[0.04] flex items-center justify-center">
                   <div className="text-center">
                     <Globe className="w-12 h-12 text-white/10 mx-auto mb-3" />
                     <p className="text-[12px] text-white/30">World Map — EqualEarth Projection</p>
@@ -2105,7 +2105,7 @@ export default function Brandbook() {
                     "import { PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis } from 'recharts'",
                     "import { RadialBarChart, RadialBar, ComposedChart } from 'recharts'",
                   ].map((imp) => (
-                    <div key={imp} className="p-3 rounded-[2px] bg-white/[0.02] border border-white/[0.04]">
+                    <div key={imp} className="p-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
                       <code className="text-[10px] font-mono text-white/30">{imp}</code>
                     </div>
                   ))}
@@ -2169,7 +2169,7 @@ export default function Brandbook() {
                   ].map(({ h, label, color, sub }) => (
                     <div key={label} className="flex flex-col items-center gap-2">
                       <div
-                        className="rounded-[2px] border flex items-center justify-center text-[10px] font-mono w-36"
+                        className="rounded-md border flex items-center justify-center text-[10px] font-mono w-36"
                         style={{ height: `${h}px`, backgroundColor: `${color}12`, color, borderColor: `${color}25` }}
                       >
                         {h}px
@@ -2193,7 +2193,7 @@ export default function Brandbook() {
                     <span className="text-[11px] font-semibold text-gray-800">Light Mode</span>
                   </div>
                   <div className="space-y-3">
-                    <div className="bg-gray-50 border border-gray-200 rounded-[2px] p-3">
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-[#B8924B]/10 flex items-center justify-center">
@@ -2208,8 +2208,8 @@ export default function Brandbook() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <div className="flex-1 h-8 rounded-[2px] bg-[#B8924B] flex items-center justify-center text-[10px] font-medium text-white">Primary</div>
-                      <div className="flex-1 h-8 rounded-[2px] bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] font-medium text-gray-700">Secondary</div>
+                      <div className="flex-1 h-8 rounded-md bg-[#B8924B] flex items-center justify-center text-[10px] font-medium text-white">Primary</div>
+                      <div className="flex-1 h-8 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] font-medium text-gray-700">Secondary</div>
                     </div>
                   </div>
                   <div className="mt-5 pt-4 border-t border-gray-200 space-y-1.5">
@@ -2226,7 +2226,7 @@ export default function Brandbook() {
                     <span className="text-[11px] font-semibold text-white/80">Dark Mode</span>
                   </div>
                   <div className="space-y-3">
-                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-[2px] p-3">
+                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-md p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-[#B8924B]/10 flex items-center justify-center">
@@ -2241,8 +2241,8 @@ export default function Brandbook() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <div className="flex-1 h-8 rounded-[2px] bg-[#B8924B] flex items-center justify-center text-[10px] font-medium text-white">Primary</div>
-                      <div className="flex-1 h-8 rounded-[2px] bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-[10px] font-medium text-white/60">Secondary</div>
+                      <div className="flex-1 h-8 rounded-md bg-[#B8924B] flex items-center justify-center text-[10px] font-medium text-white">Primary</div>
+                      <div className="flex-1 h-8 rounded-md bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-[10px] font-medium text-white/60">Secondary</div>
                     </div>
                   </div>
                   <div className="mt-5 pt-4 border-t border-white/[0.06] space-y-1.5">
@@ -2262,7 +2262,7 @@ export default function Brandbook() {
                     { title: 'Opacity over new shades', desc: 'Use text-white/40 or bg-white/5 rather than creating new grays.' },
                     { title: 'Test both modes', desc: 'Every component renders in light and dark. Use .dark class toggle.' },
                   ].map(({ title, desc }) => (
-                    <div key={title} className="p-4 rounded-[2px] bg-white/[0.03] border border-white/[0.06]">
+                    <div key={title} className="p-4 rounded-md bg-white/[0.03] border border-white/[0.06]">
                       <p className="text-[11px] font-semibold text-[#00D26A] mb-1.5">{title}</p>
                       <p className="text-[10px] text-white/30 leading-relaxed">{desc}</p>
                     </div>
@@ -2308,7 +2308,7 @@ export default function Brandbook() {
                     { icon: Megaphone, label: 'Mega' },
                   ].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-1.5 group">
-                      <div className="w-10 h-10 rounded-[2px] bg-white/[0.03] border border-white/[0.06] flex items-center justify-center group-hover:bg-[#B8924B]/10 group-hover:border-[#B8924B]/20 transition-all duration-200">
+                      <div className="w-10 h-10 rounded-md bg-white/[0.03] border border-white/[0.06] flex items-center justify-center group-hover:bg-[#B8924B]/10 group-hover:border-[#B8924B]/20 transition-all duration-200">
                         <Icon className="w-5 h-5 text-white/50 group-hover:text-[#B8924B] transition-colors duration-200" strokeWidth={1.5} />
                       </div>
                       <span className="text-[8px] font-mono text-white/25">{label}</span>
@@ -2360,7 +2360,7 @@ export default function Brandbook() {
                       { trait: 'Minimalista', desc: 'Cada palavra tem propósito' },
                       { trait: 'PT-BR Nativo', desc: 'Linguagem brasileira, não traduzida' },
                     ].map(({ trait, desc }) => (
-                      <div key={trait} className="flex items-start gap-3 p-3 rounded-[2px] bg-white/[0.02] border border-white/[0.05]">
+                      <div key={trait} className="flex items-start gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.05]">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#B8924B] mt-1.5 shrink-0" />
                         <div>
                           <p className="text-[11px] font-semibold text-white/70">{trait}</p>
@@ -2380,7 +2380,7 @@ export default function Brandbook() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {['Lead', 'Pipeline', 'Etapa', 'Negócio', 'Agendamento', 'Campanha', 'Automação', 'Score', 'Conversão', 'Consultor'].map(w => (
-                          <span key={w} className="px-2.5 py-1 rounded-[2px] text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">{w}</span>
+                          <span key={w} className="px-2.5 py-1 rounded-md text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">{w}</span>
                         ))}
                       </div>
                     </div>
@@ -2390,7 +2390,7 @@ export default function Brandbook() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {['Prospect → Lead', 'Deal → Negócio', 'Stage → Etapa', 'Meeting → Agendamento', 'Workflow → Automação', 'Agent → Consultor'].map(w => (
-                          <span key={w} className="px-2.5 py-1 rounded-[2px] text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/15">{w}</span>
+                          <span key={w} className="px-2.5 py-1 rounded-md text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/15">{w}</span>
                         ))}
                       </div>
                     </div>
@@ -2415,7 +2415,7 @@ export default function Brandbook() {
                 ].map(({ name, desc, icon: Icon, color, large }) => (
                   <div
                     key={name}
-                    className={`group relative rounded-[2px] border border-white/[0.06] bg-white/[0.02] transition-all duration-300 overflow-hidden hover:border-white/[0.12] hover:bg-white/[0.04] ${
+                    className={`group relative rounded-md border border-white/[0.06] bg-white/[0.02] transition-all duration-300 overflow-hidden hover:border-white/[0.12] hover:bg-white/[0.04] ${
                       large ? 'md:col-span-2 p-8' : 'p-6'
                     }`}
                   >
@@ -2425,7 +2425,7 @@ export default function Brandbook() {
                     />
                     <div className="relative">
                       <div
-                        className={`rounded-[2px] flex items-center justify-center ${large ? 'w-12 h-12 mb-5' : 'w-10 h-10 mb-4'}`}
+                        className={`rounded-md flex items-center justify-center ${large ? 'w-12 h-12 mb-5' : 'w-10 h-10 mb-4'}`}
                         style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}
                       >
                         <Icon className={large ? 'w-6 h-6' : 'w-5 h-5'} style={{ color }} strokeWidth={1.5} />
@@ -2451,7 +2451,7 @@ export default function Brandbook() {
                       { bg: '#0a0a0a', fg: '#3B82F6', label: 'Accent on background', ratio: '4.6:1', pass: 'AA' },
                       { bg: '#B8924B', fg: '#FFFFFF', label: 'Text on primary', ratio: '3.9:1', pass: 'AA Lg' },
                     ].map(({ bg, fg, label, ratio, pass }) => (
-                      <div key={label} className="flex items-center gap-4 p-3 rounded-[2px] bg-white/[0.02] border border-white/[0.05]">
+                      <div key={label} className="flex items-center gap-4 p-3 rounded-md bg-white/[0.02] border border-white/[0.05]">
                         <div className="flex gap-1 shrink-0">
                           <div className="w-6 h-6 rounded" style={{ backgroundColor: bg, border: '1px solid rgba(255,255,255,0.1)' }} />
                           <div className="w-6 h-6 rounded" style={{ backgroundColor: fg, border: '1px solid rgba(255,255,255,0.1)' }} />

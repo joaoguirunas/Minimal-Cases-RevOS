@@ -215,7 +215,7 @@ export const ScoreMatrizModal = ({
                     {catItems.map((catItem) => (
                       <div
                         key={catItem.id}
-                        className="flex items-start space-x-3 p-3 rounded-[2px] hover:bg-muted transition-colors"
+                        className="flex items-start space-x-3 p-3 rounded-md hover:bg-muted transition-colors"
                       >
                         <Checkbox
                           id={`${cat.id}-${catItem.id}`}

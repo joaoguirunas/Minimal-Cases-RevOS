@@ -99,7 +99,7 @@ export default function SmsMegaConfig() {
 
       {/* Provider tabs */}
       <Tabs value={provider} onValueChange={(v) => setProvider(v as SmsProvider)} className="space-y-5">
-        <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-[2px] p-1">
+        <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-md p-1">
           {([
             { value: 'twilio',  label: 'Twilio' },
             { value: 'klaviyo', label: 'Klaviyo' },
@@ -108,7 +108,7 @@ export default function SmsMegaConfig() {
             <TabsTrigger
               key={value}
               value={value}
-              className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-[3px]"
+              className="text-[11px] h-[26px] px-3 data-[state=active]:bg-background data-[state=active]:rounded-md"
             >
               {label}
             </TabsTrigger>

@@ -136,7 +136,7 @@ export default function CriarDisparoModal({ open, onClose }: CriarDisparoModalPr
           </div>
 
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
-            <TabsList className="grid w-full grid-cols-3 h-[45px] bg-card dark:bg-zinc-950 rounded-[2px]">
+            <TabsList className="grid w-full grid-cols-3 h-[45px] bg-card dark:bg-zinc-950 rounded-md">
               <TabsTrigger value="tipo" disabled={currentTab !== 'tipo'}>
                 1. Tipo
               </TabsTrigger>
@@ -155,7 +155,7 @@ export default function CriarDisparoModal({ open, onClose }: CriarDisparoModalPr
                     handleClose();
                     navigate('/settings', { state: { openSection: 'importacao-exportacao' } });
                   }}
-                  className="p-6 border rounded-[2px] transition-all border-border hover:border-white/[0.10]"
+                  className="p-6 border rounded-md transition-all border-border hover:border-white/[0.10]"
                 >
                   <FileUp className="w-12 h-12 mx-auto mb-3 text-primary" />
                   <h3 className="font-semibold text-[14px] mb-2">Importar Lista</h3>
@@ -166,7 +166,7 @@ export default function CriarDisparoModal({ open, onClose }: CriarDisparoModalPr
 
                 <button
                   onClick={() => setTipo('filtered')}
-                  className={`p-6 border rounded-[2px] transition-all ${
+                  className={`p-6 border rounded-md transition-all ${
                     tipo === 'filtered'
                       ? 'border-primary bg-[#B8924B]/5'
                       : 'border-border hover:border-white/[0.10]'
@@ -199,17 +199,17 @@ export default function CriarDisparoModal({ open, onClose }: CriarDisparoModalPr
               variant="outline"
               onClick={handleBack}
               disabled={currentTab === 'tipo'}
-              className="h-[30px] rounded-[4px] text-xs"
+              className="h-[30px] rounded-lg text-xs"
             >
               Voltar
             </Button>
 
             {currentTab !== 'config' ? (
-              <Button onClick={handleNext} className="h-[30px] rounded-[4px] text-xs">
+              <Button onClick={handleNext} className="h-[30px] rounded-lg text-xs">
                 Próximo
               </Button>
             ) : (
-              <Button onClick={handleCreate} disabled={isCreating} className="h-[30px] rounded-[4px] text-xs">
+              <Button onClick={handleCreate} disabled={isCreating} className="h-[30px] rounded-lg text-xs">
                 {isCreating ? 'Criando...' : 'Criar e Iniciar Disparo'}
               </Button>
             )}

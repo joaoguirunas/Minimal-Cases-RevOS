@@ -70,7 +70,7 @@ export const BusinessHoursSettings = () => {
   const isDirty = JSON.stringify(draft) !== JSON.stringify(settings);
 
   return (
-    <div className="border border-border rounded-[4px] overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       {/* Header bar */}
       <button
         type="button"
@@ -135,7 +135,7 @@ export const BusinessHoursSettings = () => {
                       type="button"
                       onClick={() => toggleDay(d.value)}
                       className={cn(
-                        'w-9 h-8 rounded-[4px] text-[11px] font-medium border transition-colors',
+                        'w-9 h-8 rounded-lg text-[11px] font-medium border transition-colors',
                         active
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'bg-background text-muted-foreground border-border hover:border-primary/40'
@@ -155,7 +155,7 @@ export const BusinessHoursSettings = () => {
                 <select
                   value={draft.start_hour}
                   onChange={e => upd({ start_hour: parseInt(e.target.value, 10) })}
-                  className="w-full h-8 rounded-[4px] border border-border bg-background px-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full h-8 rounded-lg border border-border bg-background px-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   {HOURS.filter(h => h < draft.end_hour).map(h => (
                     <option key={h} value={h}>{formatHour(h)}</option>
@@ -167,7 +167,7 @@ export const BusinessHoursSettings = () => {
                 <select
                   value={draft.end_hour}
                   onChange={e => upd({ end_hour: parseInt(e.target.value, 10) })}
-                  className="w-full h-8 rounded-[4px] border border-border bg-background px-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full h-8 rounded-lg border border-border bg-background px-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   {HOURS.filter(h => h > draft.start_hour).map(h => (
                     <option key={h} value={h}>{formatHour(h)}</option>
@@ -197,7 +197,7 @@ export const BusinessHoursSettings = () => {
             <Button
               type="button" size="sm" variant="outline"
               onClick={handleCancel}
-              className="h-[30px] text-xs rounded-[4px]"
+              className="h-[30px] text-xs rounded-lg"
             >
               Cancelar
             </Button>
@@ -205,7 +205,7 @@ export const BusinessHoursSettings = () => {
               type="button" size="sm"
               onClick={handleSave}
               disabled={!isDirty || update.isPending}
-              className="h-[30px] text-xs rounded-[4px]"
+              className="h-[30px] text-xs rounded-lg"
             >
               Salvar
             </Button>

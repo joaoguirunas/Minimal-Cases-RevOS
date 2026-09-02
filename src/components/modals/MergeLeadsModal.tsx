@@ -40,7 +40,7 @@ function LeadCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        'w-full text-left rounded-[4px] border p-3 transition-colors',
+        'w-full text-left rounded-lg border p-3 transition-colors',
         selected
           ? 'bg-primary/5 border-primary/40 ring-1 ring-primary/30'
           : 'bg-muted border-border hover:border-border',

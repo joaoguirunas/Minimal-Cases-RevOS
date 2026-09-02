@@ -116,7 +116,7 @@ const Swatch = ({
 }) => (
   <div className="flex-1 min-w-[88px] max-w-[120px]">
     <div
-      className="h-14 rounded-[4px] ring-1 ring-black/[0.06] dark:ring-white/[0.06] mb-2.5"
+      className="h-14 rounded-lg ring-1 ring-black/[0.06] dark:ring-white/[0.06] mb-2.5"
       style={{ background: bg }}
     />
     <p className="text-[12px] font-medium text-foreground leading-snug">{label}</p>
@@ -420,7 +420,7 @@ const DesignSystemConfig = () => {
           id="espacamento"
           eyebrow="Foundation"
           title="Espaçamento & Raio"
-          description="Escala baseada em 4px. Border radius: rounded-[4px] para elementos, rounded-lg para containers."
+          description="Escala baseada em 4px. Border radius: rounded-lg para elementos, rounded-lg para containers."
         >
           <Sub label="Escala de espaçamento" />
           <div className="space-y-2">
@@ -456,7 +456,7 @@ const DesignSystemConfig = () => {
           <div className="flex flex-wrap items-end gap-7">
             {[
               { cls: "rounded-none",  label: "none",    use: "Dividers" },
-              { cls: "rounded-[4px]", label: "[4px]",   use: "Botões, inputs, badges" },
+              { cls: "rounded-lg", label: "[4px]",   use: "Botões, inputs, badges" },
               { cls: "rounded",       label: "4px",     use: "Tags, chips" },
               { cls: "rounded-md",    label: "6px",     use: "Dropdown items" },
               { cls: "rounded-lg",    label: "8px",     use: "Cards, modais" },
@@ -692,14 +692,14 @@ const DesignSystemConfig = () => {
             {/* Pattern 1: Flat card */}
             <div>
               <p className="text-[11px] font-medium text-foreground mb-3">1 · Flat card</p>
-              <div className="border border-border bg-card shadow-sm rounded-[4px] p-4 space-y-1">
+              <div className="border border-border bg-card shadow-sm rounded-lg p-4 space-y-1">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">
                   Leads totais
                 </p>
                 <p className="text-2xl font-semibold text-foreground">1.247</p>
                 <p className="text-[12px] text-success">+12% esta semana</p>
               </div>
-              <Mono className="mt-2">border border-border bg-card shadow-sm rounded-[4px]</Mono>
+              <Mono className="mt-2">border border-border bg-card shadow-sm rounded-lg</Mono>
             </div>
 
             {/* Pattern 2: Section card (FieldRow) */}
@@ -733,7 +733,7 @@ const DesignSystemConfig = () => {
                 ].map((s) => (
                   <div
                     key={s.l}
-                    className="rounded-[4px] p-3"
+                    className="rounded-lg p-3"
                     style={{ background: `hsl(var(${s.bg}))`, border: `1px solid hsl(var(${s.bd}))` }}
                   >
                     <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: `hsl(var(${s.tx}))` }}>{s.l}</p>
@@ -747,12 +747,12 @@ const DesignSystemConfig = () => {
             {/* Pattern 4: Muted box */}
             <div>
               <p className="text-[11px] font-medium text-foreground mb-3">4 · Muted box</p>
-              <div className="bg-muted/30 rounded-[4px] border border-border/20 px-4 py-3">
+              <div className="bg-muted/30 rounded-lg border border-border/20 px-4 py-3">
                 <p className="text-[13px] text-muted-foreground/70">
                   Nenhum item encontrado. Crie o primeiro para começar.
                 </p>
               </div>
-              <Mono className="mt-2">bg-muted/30 border border-border/20 rounded-[4px]</Mono>
+              <Mono className="mt-2">bg-muted/30 border border-border/20 rounded-lg</Mono>
             </div>
           </div>
 
@@ -857,7 +857,7 @@ const DesignSystemConfig = () => {
               { cls: "w-6 h-6",        label: "w-6",       use: "Featured" },
             ].map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-2.5">
-                <div className="w-10 h-10 bg-muted/30 rounded-[4px] flex items-center justify-center">
+                <div className="w-10 h-10 bg-muted/30 rounded-lg flex items-center justify-center">
                   <Settings className={s.cls} strokeWidth={1.5} />
                 </div>
                 <div className="text-center space-y-0.5">
@@ -918,7 +918,7 @@ const DesignSystemConfig = () => {
               { icon: AlertCircle, color: "text-amber-600 dark:text-amber-400",  bg: "bg-warning/10 border-warning/20", msg: "Ação irreversível. Confirme antes de continuar." },
               { icon: Info,        color: "text-muted-foreground/50", bg: "bg-muted/40 border-border/30",    msg: "Dica: configure webhooks em Integrações." },
             ].map(({ icon: Icon, color, bg, msg }) => (
-              <div key={msg} className={cn("flex items-start gap-2 text-[12px] border rounded-[4px] px-3 py-2.5", bg)}>
+              <div key={msg} className={cn("flex items-start gap-2 text-[12px] border rounded-lg px-3 py-2.5", bg)}>
                 <Icon className={cn("w-3.5 h-3.5 mt-px shrink-0", color)} strokeWidth={1.5} />
                 <span className="text-foreground/80">{msg}</span>
               </div>

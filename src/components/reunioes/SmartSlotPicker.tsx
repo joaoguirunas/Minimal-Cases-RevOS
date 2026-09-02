@@ -110,7 +110,7 @@ export const SmartSlotPicker = ({
   if (!consultorId) {
     return (
       <div className={cn('space-y-3', className)}>
-        <div className="flex items-center gap-2 p-3 rounded-[2px] bg-muted border border-border">
+        <div className="flex items-center gap-2 p-3 rounded-md bg-muted border border-border">
           <UserX className="w-4 h-4 text-muted-foreground shrink-0" />
           <p className="text-xs text-muted-foreground">
             Selecione um consultor para ver hor&aacute;rios dispon&iacute;veis
@@ -123,14 +123,14 @@ export const SmartSlotPicker = ({
               type="time"
               value={manualStart}
               onChange={(e) => setManualStart(e.target.value)}
-              className="h-[30px] text-xs rounded-[4px]"
+              className="h-[30px] text-xs rounded-lg"
               placeholder="In&iacute;cio"
             />
             <Input
               type="time"
               value={manualEnd}
               onChange={(e) => setManualEnd(e.target.value)}
-              className="h-[30px] text-xs rounded-[4px]"
+              className="h-[30px] text-xs rounded-lg"
               placeholder="Fim"
             />
           </div>
@@ -151,7 +151,7 @@ export const SmartSlotPicker = ({
               type="button"
               onClick={() => handleDurationChange(opt.value)}
               className={cn(
-                'px-3 py-1.5 text-xs rounded-[4px] border font-medium transition-colors',
+                'px-3 py-1.5 text-xs rounded-lg border font-medium transition-colors',
                 duration === opt.value
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'bg-card border-border hover:bg-muted text-foreground',
@@ -172,7 +172,7 @@ export const SmartSlotPicker = ({
               variant="outline"
               size="sm"
               className={cn(
-                'w-full justify-start text-left font-normal text-xs h-[30px] rounded-[4px]',
+                'w-full justify-start text-left font-normal text-xs h-[30px] rounded-lg',
                 !selectedDate && 'text-muted-foreground',
               )}
             >
@@ -206,7 +206,7 @@ export const SmartSlotPicker = ({
                 type="time"
                 value={manualStart}
                 onChange={(e) => setManualStart(e.target.value)}
-                className="h-[30px] text-xs rounded-[4px]"
+                className="h-[30px] text-xs rounded-lg"
               />
             </div>
             <div className="space-y-1">
@@ -215,7 +215,7 @@ export const SmartSlotPicker = ({
                 type="time"
                 value={manualEnd}
                 onChange={(e) => setManualEnd(e.target.value)}
-                className="h-[30px] text-xs rounded-[4px]"
+                className="h-[30px] text-xs rounded-lg"
               />
             </div>
           </div>
@@ -225,7 +225,7 @@ export const SmartSlotPicker = ({
               size="sm"
               variant="outline"
               onClick={handleManualApply}
-              className="h-[30px] text-xs rounded-[4px]"
+              className="h-[30px] text-xs rounded-lg"
             >
               Aplicar hor&aacute;rio
             </Button>
@@ -248,7 +248,7 @@ export const SmartSlotPicker = ({
                   <span className="text-xs">Carregando hor&aacute;rios...</span>
                 </div>
               ) : availableSlots.length === 0 ? (
-                <div className="text-center py-6 bg-muted rounded-[2px] border border-border">
+                <div className="text-center py-6 bg-muted rounded-md border border-border">
                   <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
                   <p className="text-xs text-muted-foreground">Nenhum hor&aacute;rio dispon&iacute;vel nesta data</p>
                 </div>
@@ -272,7 +272,7 @@ export const SmartSlotPicker = ({
                               type="button"
                               onClick={() => handleSlotClick(slot)}
                               className={cn(
-                                'py-2 text-xs rounded-[4px] border font-medium text-center transition-colors',
+                                'py-2 text-xs rounded-lg border font-medium text-center transition-colors',
                                 isSelected
                                   ? 'bg-primary text-primary-foreground border-primary'
                                   : 'bg-card border-border hover:bg-muted text-foreground',
@@ -292,7 +292,7 @@ export const SmartSlotPicker = ({
           )}
 
           {!selectedDate && (
-            <div className="text-center py-6 bg-muted rounded-[2px] border border-border border-dashed">
+            <div className="text-center py-6 bg-muted rounded-md border border-border border-dashed">
               <CalendarIcon className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
               <p className="text-xs text-muted-foreground">Selecione uma data para ver os hor&aacute;rios</p>
             </div>

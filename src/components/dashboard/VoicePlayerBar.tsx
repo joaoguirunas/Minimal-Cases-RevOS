@@ -56,7 +56,7 @@ export function VoicePlayerBar({
         aria-label={autoSpeak ? 'Desativar narração automática' : 'Ativar narração automática'}
         aria-pressed={autoSpeak}
         className={cn(
-          "p-1 rounded-[4px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+          "p-1 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
           autoSpeak ? 'text-muted-foreground hover:text-foreground' : 'text-muted-foreground/40 hover:text-muted-foreground'
         )}
       >
@@ -78,7 +78,7 @@ export function VoicePlayerBar({
           }}
           title={!tts.isElevenLabs ? "Configure ElevenLabs em Configurações para voz premium" : undefined}
           className={cn(
-            "flex items-center gap-1.5 px-2 py-1 text-[12px] rounded-[4px] transition-colors",
+            "flex items-center gap-1.5 px-2 py-1 text-[12px] rounded-lg transition-colors",
             tts.isElevenLabs
               ? "text-muted-foreground hover:text-foreground hover:bg-muted"
               : "text-muted-foreground/50 hover:text-muted-foreground cursor-help"
@@ -110,7 +110,7 @@ export function VoicePlayerBar({
       {/* ── Speed control ──── */}
       {(tts.isPlaying || tts.isLoadingAudio) && (
         <div
-          className="flex items-center border border-border rounded-[4px] overflow-hidden"
+          className="flex items-center border border-border rounded-lg overflow-hidden"
           role="group"
           aria-label="Velocidade de reprodução"
         >
@@ -140,7 +140,7 @@ export function VoicePlayerBar({
             <button
               onClick={tts.stop}
               aria-label="Parar narração"
-              className="flex items-center gap-1.5 cursor-pointer rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="flex items-center gap-1.5 cursor-pointer rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <Square className="w-3 h-3 text-violet-500 fill-violet-500" />
               <SpeakingOrb />
@@ -166,7 +166,7 @@ export function VoicePlayerBar({
           <button
             onClick={() => { if (tts.currentSpeakingText) tts.speak(tts.currentSpeakingText); }}
             aria-label="Tentar narração novamente"
-            className="flex items-center gap-1.5 text-amber-500 hover:text-amber-400 transition-colors rounded-[4px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="flex items-center gap-1.5 text-amber-500 hover:text-amber-400 transition-colors rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             <AlertCircle className="w-3 h-3" />
             <span className="text-[10px] font-medium">ElevenLabs falhou</span>

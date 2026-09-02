@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
         </div>
 
         {/* Content */}
-        <div className="border border-border rounded-[2px] bg-card divide-y divide-border text-[13px] leading-relaxed text-muted-foreground">
+        <div className="border border-border rounded-md bg-card divide-y divide-border text-[13px] leading-relaxed text-muted-foreground">
 
           <section className="px-6 py-5 space-y-2">
             <h2 className="text-[13px] font-semibold text-foreground">1. Informações que coletamos</h2>

@@ -34,7 +34,7 @@ export default function BottleneckAlert({
       initial={shouldReduce ? false : "hidden"}
       animate={shouldReduce ? false : "show"}
     >
-      <div className="flex items-center justify-center w-8 h-8 rounded-[2px] bg-red-500/15 shrink-0 mt-0.5">
+      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-red-500/15 shrink-0 mt-0.5">
         <AlertTriangle className="w-4 h-4 text-red-500" />
       </div>
       <div className="flex flex-col gap-1 min-w-0">

@@ -23,7 +23,7 @@ const MobileModuleGuard = ({ moduleKey, children }: MobileModuleGuardProps) => {
   if (!isActive) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="bg-card border border-border rounded-[2px] p-8 flex flex-col items-center gap-4 text-center max-w-xs w-full">
+        <div className="bg-card border border-border rounded-md p-8 flex flex-col items-center gap-4 text-center max-w-xs w-full">
           <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
             <Lock className="h-6 w-6 text-muted-foreground" />
           </div>

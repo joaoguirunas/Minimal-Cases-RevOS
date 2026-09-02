@@ -34,7 +34,7 @@ export default function Step1Project({ isFocused, onNext }: Step1ProjectProps) {
           value={projectId}
           onChange={e => setProjectId(e.target.value)}
           placeholder="Exemplo: growthsales-production"
-          className="text-xs rounded-[4px]"
+          className="text-xs rounded-lg"
         />
         <p className="text-[11px] text-muted-foreground/60">
           Não salvamos isso — apenas referência para você.

@@ -76,7 +76,7 @@ export default function ConfiguracaoDisparoTab({ onConfigChange, channel }: Conf
 
   return (
     <div className="space-y-6">
-      <Card className="p-6 border border-border bg-card rounded-[2px] space-y-6">
+      <Card className="p-6 border border-border bg-card rounded-md space-y-6">
         {isVoice ? (
           <div>
             <Label htmlFor="voice-agent">Voice Agent *</Label>
@@ -130,7 +130,7 @@ export default function ConfiguracaoDisparoTab({ onConfigChange, channel }: Conf
                   size="icon"
                   onClick={() => setShowTemplateModal(true)}
                   title="Ver detalhes do template"
-                  className="h-[30px] w-[30px] rounded-[4px]"
+                  className="h-[30px] w-[30px] rounded-lg"
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
@@ -271,7 +271,7 @@ export default function ConfiguracaoDisparoTab({ onConfigChange, channel }: Conf
         </div>
       </Card>
 
-      <Card className="p-6 border border-border bg-card rounded-[2px]">
+      <Card className="p-6 border border-border bg-card rounded-md">
         <h3 className="font-semibold mb-3">Resumo da Configuração</h3>
         <div className="space-y-2 text-sm">
           {isVoice ? (

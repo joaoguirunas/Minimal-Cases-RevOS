@@ -55,7 +55,7 @@ const AddMembersSection = ({
             {usuariosDisponiveis.map((usuario) => (
               <div
                 key={usuario.id}
-                className={`flex items-center space-x-3 p-3 border rounded-[2px] cursor-pointer transition-all hover:bg-muted ${
+                className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all hover:bg-muted ${
                   selectedMembers.includes(usuario.id)
                     ? 'border-primary bg-primary/5'
                     : 'hover:border-primary/30'

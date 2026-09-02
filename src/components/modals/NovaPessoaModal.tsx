@@ -150,7 +150,7 @@ export const NovaPessoaModal = ({ open, onOpenChange, onClose }: NovaPessoaModal
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-[4px] bg-primary/10">
+              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10">
                 <User className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
               </div>
               <DialogTitle className="text-[15px] font-semibold">Nova Pessoa</DialogTitle>

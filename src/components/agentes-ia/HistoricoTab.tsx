@@ -94,7 +94,7 @@ const VersoesTab = ({ agentId }: { agentId: string }) => {
         </span>
       </div>
 
-      <div className="border border-white/[0.06] rounded-[4px] overflow-hidden divide-y divide-white/[0.06]">
+      <div className="border border-white/[0.06] rounded-lg overflow-hidden divide-y divide-white/[0.06]">
         {historico.map((versao, index) => (
           <div
             key={versao.id}
@@ -162,7 +162,7 @@ const VersoesTab = ({ agentId }: { agentId: string }) => {
                     setPreviewVersion(versao.versao);
                     setShowPreviewModal(true);
                   }}
-                  className="h-[30px] w-[30px] p-0 text-muted-foreground hover:text-foreground rounded-[4px] transition-colors duration-300"
+                  className="h-[30px] w-[30px] p-0 text-muted-foreground hover:text-foreground rounded-lg transition-colors duration-300"
                   title="Visualizar"
                 >
                   <Eye className="h-3.5 w-3.5" />
@@ -174,7 +174,7 @@ const VersoesTab = ({ agentId }: { agentId: string }) => {
                     setSelectedVersion(versao.id);
                     setShowRestoreModal(true);
                   }}
-                  className="h-[30px] w-[30px] p-0 text-muted-foreground hover:text-foreground rounded-[4px] transition-colors duration-300"
+                  className="h-[30px] w-[30px] p-0 text-muted-foreground hover:text-foreground rounded-lg transition-colors duration-300"
                   title="Restaurar esta versão"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -366,7 +366,7 @@ const ExecucaoDetailModal = ({
                       const isSkipped = tc.result?.startsWith('Skipped:');
                       return (
                         <div key={i} className={cn(
-                          'rounded-[4px] border overflow-hidden',
+                          'rounded-lg border overflow-hidden',
                           isError ? 'border-red-500/30 bg-red-500/5' : isSkipped ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/[0.06] bg-card'
                         )}>
                           <div className="flex items-center gap-2 px-3 py-2">
@@ -410,7 +410,7 @@ const ExecucaoDetailModal = ({
                   return (
                     <div className="p-5 space-y-2">
                       {unique.map(([tool, count]) => (
-                        <div key={tool} className="flex items-center gap-2 px-3 py-2 rounded-[4px] bg-card border border-white/[0.06]">
+                        <div key={tool} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-white/[0.06]">
                           <ChevronRight className="h-3 w-3 text-muted-foreground/60 shrink-0" />
                           <span className="text-xs font-mono text-foreground flex-1">{tool}</span>
                           {count > 1 && (
@@ -502,7 +502,7 @@ export const ExecucoesTab = ({ agentId }: { agentId: string }) => {
         <span className="text-[10px] text-muted-foreground/50">{execucoes.length} registros</span>
       </div>
 
-      <div className="border border-white/[0.06] rounded-[4px] overflow-hidden divide-y divide-white/[0.06]">
+      <div className="border border-white/[0.06] rounded-lg overflow-hidden divide-y divide-white/[0.06]">
         {execucoes.map((exec) => {
           const cfg = statusConfig[exec.execution_status] ?? statusConfig.error;
           const Icon = cfg.icon;
@@ -705,7 +705,7 @@ export const AnalyticsTab = ({ agentId }: { agentId: string }) => {
           { label: 'Duração média', value: formatDuration(stats.avgDuration), icon: Timer, color: 'text-purple-500' },
           { label: 'Tokens totais', value: stats.totalTokens.toLocaleString('pt-BR'), icon: Coins, color: 'text-orange-500' },
         ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="border border-white/[0.06] rounded-[4px] bg-card px-4 py-3 space-y-1.5">
+          <div key={label} className="border border-white/[0.06] rounded-lg bg-card px-4 py-3 space-y-1.5">
             <div className="flex items-center gap-1.5">
               <Icon className={`h-3.5 w-3.5 ${color}`} />
               <span className="text-[10px] text-muted-foreground">{label}</span>
@@ -716,7 +716,7 @@ export const AnalyticsTab = ({ agentId }: { agentId: string }) => {
       </div>
 
       {/* Last 7 days mini chart */}
-      <div className="border border-white/[0.06] rounded-[4px] bg-card p-4">
+      <div className="border border-white/[0.06] rounded-lg bg-card p-4">
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-4">
           Últimos 7 dias
         </p>
@@ -758,7 +758,7 @@ export const AnalyticsTab = ({ agentId }: { agentId: string }) => {
 
       {/* Top tools */}
       {stats.topTools.length > 0 && (
-        <div className="border border-white/[0.06] rounded-[4px] bg-card p-4">
+        <div className="border border-white/[0.06] rounded-lg bg-card p-4">
           <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">
             Ferramentas mais usadas
           </p>

@@ -225,7 +225,7 @@ const StageFollowupsCard = ({ stage, followups, leadsCount = 0 }: StageFollowups
 
   return (
     <>
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-border">
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-medium text-foreground">{stage.nome}</span>
@@ -234,7 +234,7 @@ const StageFollowupsCard = ({ stage, followups, leadsCount = 0 }: StageFollowups
               {leadsCount > 0 && ` · ${leadsCount} lead${leadsCount !== 1 ? 's' : ''}`}
             </span>
           </div>
-          <Button size="sm" onClick={() => setIsModalOpen(true)} className="h-[30px] text-xs rounded-[4px] gap-1">
+          <Button size="sm" onClick={() => setIsModalOpen(true)} className="h-[30px] text-xs rounded-lg gap-1">
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             Adicionar
           </Button>
@@ -267,7 +267,7 @@ const StageFollowupsCard = ({ stage, followups, leadsCount = 0 }: StageFollowups
               {previewMessage?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="bg-muted/40 border border-border rounded-[4px] p-4 mt-2">
+          <div className="bg-muted/40 border border-border rounded-lg p-4 mt-2">
             <p className="text-[13px] text-foreground/80 whitespace-pre-wrap leading-relaxed">
               {previewMessage?.body}
             </p>

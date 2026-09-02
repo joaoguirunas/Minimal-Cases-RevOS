@@ -31,11 +31,11 @@ export function FieldMappingRow({
   onMappingChange,
 }: FieldMappingRowProps) {
   return (
-    <div className="grid gap-3 p-3 bg-muted rounded-[4px] hover:bg-accent transition-colors">
+    <div className="grid gap-3 p-3 bg-muted rounded-lg hover:bg-accent transition-colors">
       <div className="flex items-center gap-2">
         <Label className="text-sm font-medium">{fieldLabel}</Label>
         {required && (
-          <Badge variant="destructive" className="h-5 text-xs rounded-[4px]">
+          <Badge variant="destructive" className="h-5 text-xs rounded-lg">
             Obrigatório
           </Badge>
         )}

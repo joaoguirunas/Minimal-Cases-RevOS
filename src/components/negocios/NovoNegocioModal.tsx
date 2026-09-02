@@ -218,7 +218,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2px]">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">Novo Lead</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
@@ -251,7 +251,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                     variant="outline"
                     role="combobox"
                     aria-expanded={openClienteCombobox}
-                    className="w-full justify-between border-border h-[30px] mt-2 rounded-[4px]"
+                    className="w-full justify-between border-border h-[30px] mt-2 rounded-lg"
                     disabled={isLoading}
                   >
                     {selectedPersonId
@@ -260,7 +260,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0 rounded-[4px]">
+                <PopoverContent className="w-full p-0 rounded-lg">
                   <Command>
                     <CommandInput placeholder="Digite o nome do cliente..." className="h-9" />
                     <CommandList>
@@ -307,7 +307,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   onChange={(e) => setNovoClienteData(prev => ({ ...prev, nome: e.target.value }))}
                   placeholder="Nome completo"
                   disabled={isLoading}
-                  className="border-border h-[30px] mt-2 rounded-[4px]"
+                  className="border-border h-[30px] mt-2 rounded-lg"
                 />
               </div>
 
@@ -320,7 +320,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   onChange={(e) => setNovoClienteData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="email@exemplo.com"
                   disabled={isLoading}
-                  className="border-border h-[30px] mt-2 rounded-[4px]"
+                  className="border-border h-[30px] mt-2 rounded-lg"
                 />
               </div>
             </div>
@@ -333,7 +333,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   onValueChange={(value) => setNovoClienteData(prev => ({ ...prev, whatsappCountry: value }))}
                   disabled={isLoading}
                 >
-                  <SelectTrigger className="w-32 border-border h-[30px] rounded-[4px]">
+                  <SelectTrigger className="w-32 border-border h-[30px] rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -349,7 +349,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   onChange={(e) => setNovoClienteData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
                   placeholder="11999990000"
                   disabled={isLoading}
-                  className="flex-1 border-border h-[30px] rounded-[4px]"
+                  className="flex-1 border-border h-[30px] rounded-lg"
                 />
               </div>
             </div>
@@ -395,7 +395,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                       variant="outline"
                       role="combobox"
                       aria-expanded={openEmpresaCombobox}
-                      className="flex-1 justify-between border-border h-[30px] rounded-[4px]"
+                      className="flex-1 justify-between border-border h-[30px] rounded-lg"
                       disabled={isLoading}
                     >
                       {selectedCompanyId
@@ -404,7 +404,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0 rounded-[4px]">
+                  <PopoverContent className="w-full p-0 rounded-lg">
                     <Command>
                       <CommandInput placeholder="Buscar empresa..." className="h-9" />
                       <CommandList>
@@ -443,7 +443,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   variant="outline"
                   size="icon"
                   onClick={() => setShowNovaEmpresa(true)}
-                  className="h-[30px] w-[30px] rounded-[4px]"
+                  className="h-[30px] w-[30px] rounded-lg"
                   disabled={isLoading}
                 >
                   <Plus className="h-4 w-4" />
@@ -456,7 +456,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                   onChange={(e) => setNovaEmpresaNome(e.target.value)}
                   placeholder="Nome da nova empresa"
                   disabled={isLoading}
-                  className="flex-1 border-border h-[30px] rounded-[4px]"
+                  className="flex-1 border-border h-[30px] rounded-lg"
                 />
                 <Button
                   type="button"
@@ -466,7 +466,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                     setShowNovaEmpresa(false);
                     setNovaEmpresaNome("");
                   }}
-                  className="h-[30px] rounded-[4px] text-xs"
+                  className="h-[30px] rounded-lg text-xs"
                 >
                   Cancelar
                 </Button>
@@ -482,7 +482,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
               onChange={(e) => setNegocioData(prev => ({ ...prev, titulo: e.target.value }))}
               placeholder="Digite um título para o lead (opcional)"
               disabled={isLoading}
-              className="border-border h-[30px] mt-2 rounded-[4px]"
+              className="border-border h-[30px] mt-2 rounded-lg"
             />
           </div>
           
@@ -494,7 +494,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                 onValueChange={(value) => setNegocioData(prev => ({ ...prev, pipeline_id: value }))}
                 disabled={isLoading}
               >
-                <SelectTrigger className="border-border h-[30px] mt-2 rounded-[4px]">
+                <SelectTrigger className="border-border h-[30px] mt-2 rounded-lg">
                   <SelectValue placeholder="Selecione o pipeline" />
                 </SelectTrigger>
                 <SelectContent>
@@ -516,7 +516,7 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
                 onChange={(e) => setNegocioData(prev => ({ ...prev, valor: e.target.value }))}
                 placeholder="0.00"
                 disabled={isLoading}
-                className="border-border h-[30px] mt-2 rounded-[4px]"
+                className="border-border h-[30px] mt-2 rounded-lg"
               />
             </div>
           </div>
@@ -527,14 +527,14 @@ const NovoNegocioModal = ({ open, onOpenChange, stageId }: NovoNegocioModalProps
             variant="outline" 
             onClick={handleClose} 
             disabled={isLoading}
-            className="rounded-[4px]"
+            className="rounded-lg"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-[4px]"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
           >
             {isLoading ? "Criando..." : "Criar Lead"}
           </Button>

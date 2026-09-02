@@ -205,7 +205,7 @@ function WaPreview({ template }: { template: WhatsappTemplate }) {
             {(() => {
               const cat = (template.json_data as Record<string, unknown>).category as string;
               return cat ? (
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-[3px] bg-muted text-muted-foreground uppercase tracking-wide">
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground uppercase tracking-wide">
                   {CATEGORY_LABELS[cat] ?? cat}
                 </span>
               ) : null;
@@ -213,13 +213,13 @@ function WaPreview({ template }: { template: WhatsappTemplate }) {
             {(() => {
               const lang = (template.json_data as Record<string, unknown>).language as string;
               return lang ? (
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-[3px] bg-muted text-muted-foreground">
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground">
                   {LANG_LABELS[lang] ?? lang}
                 </span>
               ) : null;
             })()}
             {buttons.length > 0 && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-[3px] bg-muted text-muted-foreground">
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground">
                 {buttons.length} botão{buttons.length !== 1 ? 'ões' : ''}
               </span>
             )}
@@ -375,7 +375,7 @@ export const WhatsappTemplateModal = ({
                         key={t.id}
                         onClick={() => setSelectedId(t.id)}
                         className={cn(
-                          'w-full text-left rounded-[4px] px-2.5 py-2 transition-colors',
+                          'w-full text-left rounded-lg px-2.5 py-2 transition-colors',
                           isActive
                             ? 'bg-foreground text-background'
                             : 'hover:bg-accent/50 text-foreground',
@@ -390,7 +390,7 @@ export const WhatsappTemplateModal = ({
                           </p>
                           {cat && (
                             <span className={cn(
-                              'text-[9px] font-semibold px-1 py-0.5 rounded-[2px] shrink-0 uppercase tracking-wide',
+                              'text-[9px] font-semibold px-1 py-0.5 rounded-md shrink-0 uppercase tracking-wide',
                               isActive
                                 ? 'bg-background/20 text-background/70'
                                 : 'bg-muted text-muted-foreground',

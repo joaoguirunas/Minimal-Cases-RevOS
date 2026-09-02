@@ -62,7 +62,7 @@ export default function EtapasStep({
             size="sm"
             onClick={handleSelectAll}
             disabled={!stages || stages.length === 0}
-            className="h-[30px] rounded-[4px] text-xs"
+            className="h-[30px] rounded-lg text-xs"
           >
             <CheckSquare className="w-4 h-4 mr-2" />
             Selecionar Todas
@@ -72,7 +72,7 @@ export default function EtapasStep({
             size="sm"
             onClick={handleClearAll}
             disabled={!filters.stage_ids || filters.stage_ids.length === 0}
-            className="h-[30px] rounded-[4px] text-xs"
+            className="h-[30px] rounded-lg text-xs"
           >
             <Square className="w-4 h-4 mr-2" />
             Limpar
@@ -107,7 +107,7 @@ export default function EtapasStep({
                     
                     <div className="flex items-center gap-3 flex-1">
                       <div className={cn(
-                        'w-10 h-10 rounded-[4px] flex items-center justify-center text-[13px] font-medium',
+                        'w-10 h-10 rounded-lg flex items-center justify-center text-[13px] font-medium',
                         isSelected
                           ? 'bg-foreground text-background'
                           : 'bg-muted text-muted-foreground'

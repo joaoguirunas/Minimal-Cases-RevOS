@@ -72,13 +72,13 @@ const PessoaDetailSheet = ({
             {/* Contactos */}
             <div className="space-y-2">
               {pessoa.whatsapp && (
-                <div className="flex items-center gap-2 p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span>{pessoa.whatsapp}</span>
                 </div>
               )}
               {pessoa.email && (
-                <div className="flex items-center gap-2 p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span className="truncate">{pessoa.email}</span>
                 </div>
@@ -90,7 +90,7 @@ const PessoaDetailSheet = ({
               <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <Briefcase className="h-3.5 w-3.5" /> Negócios vinculados
               </label>
-              <div className="p-2.5 rounded-[4px] border border-border bg-card min-h-[44px] text-sm flex items-center">
+              <div className="p-2.5 rounded-lg border border-border bg-card min-h-[44px] text-sm flex items-center">
                 {leadCount > 0
                   ? `${leadCount} negócio${leadCount > 1 ? 's' : ''}`
                   : 'Nenhum negócio vinculado'}
@@ -298,7 +298,7 @@ const EmpresasList = ({ searchTerm }: { searchTerm: string }) => {
       <div className="p-4 space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3 p-3">
-            <Skeleton className="h-10 w-10 rounded-[4px]" />
+            <Skeleton className="h-10 w-10 rounded-lg" />
             <div className="space-y-2 flex-1">
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-3 w-1/2" />
@@ -320,7 +320,7 @@ const EmpresasList = ({ searchTerm }: { searchTerm: string }) => {
         <div className="divide-y divide-border">
           {empresas.map((empresa: any) => (
             <div key={empresa.id} className="px-4 py-3 flex items-center gap-3 min-h-[44px]">
-              <div className="h-10 w-10 rounded-[4px] bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">

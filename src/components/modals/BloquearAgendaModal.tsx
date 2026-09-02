@@ -134,7 +134,7 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
                 onValueChange={(value) => setFormData(prev => ({ ...prev, user_id: value }))}
                 disabled={isSubmitting}
               >
-                <SelectTrigger className="mt-1 rounded-[4px]">
+                <SelectTrigger className="mt-1 rounded-lg">
                   <SelectValue placeholder="Selecione o consultor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -149,7 +149,7 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
               <Input
                 value={user?.profile?.nome || 'Você'}
                 disabled
-                className="mt-1 rounded-[4px] text-muted-foreground"
+                className="mt-1 rounded-lg text-muted-foreground"
               />
             )}
           </div>
@@ -163,7 +163,7 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
               value={formData.date}
               onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
               disabled={isSubmitting}
-              className="mt-1 rounded-[4px]"
+              className="mt-1 rounded-lg"
             />
           </div>
 
@@ -181,14 +181,14 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
                   Carregando horários disponíveis...
                 </div>
               ) : availableSlots.length === 0 ? (
-                <div className="mt-2 p-4 border border-border rounded-[4px] text-center">
+                <div className="mt-2 p-4 border border-border rounded-lg text-center">
                   <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">
                     Nenhum horário disponível nesta data
                   </p>
                 </div>
               ) : (
-                <div className="mt-2 grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-2 border border-border rounded-[4px]">
+                <div className="mt-2 grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-2 border border-border rounded-lg">
                   {availableSlots.map((slot, index) => {
                     const slotValue = `${slot.start.substring(0, 5)}-${slot.end.substring(0, 5)}`;
                     const isSelected = formData.time_slots.includes(slotValue);
@@ -201,7 +201,7 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
                         variant={isSelected ? "default" : "outline"}
                         disabled={!isAvailable || isSubmitting}
                         onClick={() => toggleTimeSlot(slotValue)}
-                        className={`h-auto py-2 px-3 rounded-[4px] ${
+                        className={`h-auto py-2 px-3 rounded-lg ${
                           !isAvailable ? 'opacity-40 cursor-not-allowed' : ''
                         }`}
                       >
@@ -239,7 +239,7 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
               placeholder="Ex.: Reunião externa, compromisso pessoal..."
               disabled={isSubmitting}
-              className="mt-1 rounded-[4px] min-h-[80px]"
+              className="mt-1 rounded-lg min-h-[80px]"
             />
           </div>
         </div>
@@ -250,14 +250,14 @@ export const BloquearAgendaModal = ({ open, onClose }: BloquearAgendaModalProps)
             variant="outline"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="rounded-[4px]"
+            className="rounded-lg"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="gap-2 rounded-[4px]"
+            className="gap-2 rounded-lg"
           >
             <Shield className="w-4 h-4" />
             {isSubmitting ? 'Bloqueando...' : 'Bloquear Agenda'}

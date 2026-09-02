@@ -41,7 +41,6 @@ import NegocioSidebar from "@/components/negocios/NegocioSidebar";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import NegocioReunioes from "@/components/negocios/NegocioReunioes";
 import MotivoPerdasModal from "@/components/negocios/MotivoPerdasModal";
 import CamposExtrasSection from "@/components/negocios/CamposExtrasSection";
 import { ExtraFieldsCard } from "@/components/pessoas/ExtraFieldsCard";
@@ -345,11 +344,11 @@ const NegocioSingle = () => {
           </p>
           <div className="flex items-center justify-center gap-2 pt-1">
             {isError && (
-              <Button size="sm" onClick={() => window.location.reload()} className="h-[30px] text-xs rounded-[4px]">
+              <Button size="sm" onClick={() => window.location.reload()} className="h-[30px] text-xs rounded-lg">
                 Tentar novamente
               </Button>
             )}
-            <Button size="sm" variant="outline" onClick={() => navigate(-1)} className="h-[30px] text-xs rounded-[4px] gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => navigate(-1)} className="h-[30px] text-xs rounded-lg gap-1.5">
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
               Voltar
             </Button>
@@ -394,7 +393,7 @@ const NegocioSingle = () => {
             <div className="flex items-center gap-2.5 flex-wrap min-w-0">
               <div className="flex-shrink-0">
                 <Select value={negocio.pipeline_id} onValueChange={handlePipelineChange}>
-                  <SelectTrigger className="h-[30px] w-auto text-[12px] bg-white/[0.04] border-white/[0.08] gap-1.5 pl-2.5 pr-2 rounded-[4px]">
+                  <SelectTrigger className="h-[30px] w-auto text-[12px] bg-white/[0.04] border-white/[0.08] gap-1.5 pl-2.5 pr-2 rounded-lg">
                     <SelectValue>{currentPipeline?.nome || 'Pipeline'}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
@@ -436,7 +435,7 @@ const NegocioSingle = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-foreground rounded-[4px] flex-shrink-0"
+                    className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-foreground rounded-lg flex-shrink-0"
                     title="Adicionar a outro pipeline"
                   >
                     <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -493,7 +492,7 @@ const NegocioSingle = () => {
               />
 
               {/* Temperatura & Fechamento — lado a lado */}
-              <div className="flex items-center gap-3 rounded-[2px] bg-white/[0.03] border border-white/[0.06] px-2.5 py-1.5 ml-1 flex-shrink-0">
+              <div className="flex items-center gap-3 rounded-md bg-white/[0.03] border border-white/[0.06] px-2.5 py-1.5 ml-1 flex-shrink-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] text-muted-foreground/60">Temperatura</span>
                   <div className="flex items-center gap-0.5">
@@ -544,7 +543,7 @@ const NegocioSingle = () => {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-foreground rounded-[4px]"
+                className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-foreground rounded-lg"
                 title="Atualizar dados"
               >
                 <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} strokeWidth={1.5} />
@@ -553,7 +552,7 @@ const NegocioSingle = () => {
                 <Button
                   onClick={() => handleStatusChange('won')}
                   size="sm"
-                  className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px] bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="h-[30px] px-3 text-xs gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   <Trophy className="w-3.5 h-3.5" strokeWidth={1.5} />
                   Ganhar
@@ -564,7 +563,7 @@ const NegocioSingle = () => {
                   onClick={() => handleStatusChange('lost')}
                   variant="destructive"
                   size="sm"
-                  className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]"
+                  className="h-[30px] px-3 text-xs gap-1.5 rounded-lg"
                 >
                   <XCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
                   Perder
@@ -575,7 +574,7 @@ const NegocioSingle = () => {
                   onClick={() => handleStatusChange('in_progress')}
                   variant="outline"
                   size="sm"
-                  className="h-[30px] px-3 text-xs gap-1.5 rounded-[4px]"
+                  className="h-[30px] px-3 text-xs gap-1.5 rounded-lg"
                 >
                   <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
                   Reabrir
@@ -585,7 +584,7 @@ const NegocioSingle = () => {
                 onClick={() => setShowDeleteModal(true)}
                 variant="ghost"
                 size="sm"
-                className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-[4px]"
+                className="h-[30px] w-[30px] p-0 text-muted-foreground/50 hover:text-destructive rounded-lg"
                 title="Excluir negócio"
               >
                 <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -659,7 +658,6 @@ const NegocioSingle = () => {
                     { value: 'esteira', icon: ShoppingCart, label: 'Esteira' },
                     { value: 'informacoes', icon: UserCheck, label: 'Informações' },
                     { value: 'arquivos', icon: FileText, label: 'Notas' },
-                    { value: 'reunioes', icon: Calendar, label: 'Reuniões' },
                     ...(user?.profile?.super_adm === true
                       ? [{ value: 'fluxo', icon: GitBranch, label: 'Fluxo IA' }]
                       : []),
@@ -703,7 +701,7 @@ const NegocioSingle = () => {
                     {/* Métricas */}
                     <div className="space-y-2">
                       <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Informações gerais</p>
-                      <div className="border border-border rounded-[2px] overflow-hidden">
+                      <div className="border border-border rounded-md overflow-hidden">
                         <div className="flex items-center justify-between px-5 py-3 border-b border-border">
                           <span className="text-[13px] text-muted-foreground/70">Follow-ups enviados</span>
                           <span className="text-[13px] font-medium text-foreground">{negocio.tentativas_followup || 0}</span>
@@ -728,7 +726,7 @@ const NegocioSingle = () => {
                           </span>
                         )}
                       </div>
-                      <div className="border border-border rounded-[2px] overflow-hidden">
+                      <div className="border border-border rounded-md overflow-hidden">
                         <div className="px-5 py-2 bg-muted border-b border-border">
                           <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/40">UTM Parameters</p>
                         </div>
@@ -779,7 +777,7 @@ const NegocioSingle = () => {
                     {(negocio.pessoa?.goal || (negocio.pessoa as any)?.objetivo || negocio.pessoa?.moment || (negocio.pessoa as any)?.momento) && (
                       <div className="space-y-2">
                         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Dados do Lead</p>
-                        <div className="border border-border rounded-[2px] overflow-hidden">
+                        <div className="border border-border rounded-md overflow-hidden">
                           <div className="flex items-start justify-between px-5 py-2.5 border-b border-border gap-4">
                             <span className="text-[12px] text-muted-foreground/60 shrink-0">Objetivo</span>
                             <span className="text-[12px] font-medium text-foreground/80 text-right">
@@ -844,14 +842,6 @@ const NegocioSingle = () => {
                   </div>
                 </TabsContent>
 
-                {/* Reuniões */}
-                <TabsContent value="reunioes" className="mt-0 overflow-auto">
-                  <NegocioReunioes
-                    negocioId={id!}
-                    clientName={negocio.pessoa?.name || negocio.pessoa?.nome || ''}
-                    leadValue={negocio.value ?? undefined}
-                  />
-                </TabsContent>
 
                 {/* Fluxo IA — apenas super admins */}
                 {user?.profile?.super_adm === true && (

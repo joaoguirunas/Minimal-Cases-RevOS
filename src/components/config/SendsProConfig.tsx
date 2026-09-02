@@ -124,7 +124,7 @@ export default function SendsProConfig() {
       </div>
 
       {/* Info banner */}
-      <div className="flex items-start gap-3 p-4 rounded-[4px] border border-blue-200/40 bg-blue-500/5">
+      <div className="flex items-start gap-3 p-4 rounded-lg border border-blue-200/40 bg-blue-500/5">
         <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
         <div className="space-y-1">
           <p className="text-[13px] font-medium text-foreground">Como funciona</p>
@@ -136,7 +136,7 @@ export default function SendsProConfig() {
       </div>
 
       {/* Webhook list */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3 bg-muted border-b border-border">
           <div className="flex items-center gap-2">
             <Zap className="w-3.5 h-3.5 text-orange-500" strokeWidth={1.5} />
@@ -162,7 +162,7 @@ export default function SendsProConfig() {
         {isLoading ? (
           <div className="p-5 space-y-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-10 bg-muted animate-pulse rounded-[4px]" />
+              <div key={i} className="h-10 bg-muted animate-pulse rounded-lg" />
             ))}
           </div>
         ) : webhooks && webhooks.length > 0 ? (
@@ -226,9 +226,9 @@ export default function SendsProConfig() {
       </div>
 
       {/* Payload reference */}
-      <div className="border border-border rounded-[4px] p-5 space-y-3">
+      <div className="border border-border rounded-lg p-5 space-y-3">
         <p className="text-[12px] font-medium text-muted-foreground/70">Payload enviado ao N8N (por contato)</p>
-        <div className="bg-muted border border-border rounded-[4px] p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
+        <div className="bg-muted border border-border rounded-lg p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
           <div><span className="text-blue-400/80">send_id</span><span className="text-muted-foreground/50"> · </span>UUID da campanha</div>
           <div><span className="text-blue-400/80">send_name</span><span className="text-muted-foreground/50"> · </span>Nome da campanha</div>
           <div><span className="text-blue-400/80">channel</span><span className="text-muted-foreground/50"> · </span>whatsapp · email · sms · phone</div>

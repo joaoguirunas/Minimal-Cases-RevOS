@@ -408,21 +408,21 @@ export function MetaFormEditor({ form, onBack }: MetaFormEditorProps) {
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="h-[30px] w-[30px] p-0 rounded-[4px]"
+            className="h-[30px] w-[30px] p-0 rounded-lg"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <Input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="h-[30px] text-sm font-semibold border-transparent hover:border-border focus:border-border rounded-[4px] bg-transparent w-64"
+            className="h-[30px] text-sm font-semibold border-transparent hover:border-border focus:border-border rounded-lg bg-transparent w-64"
           />
         </div>
         <Button
           size="sm"
           onClick={handleSave}
           disabled={saving}
-          className="h-[30px] text-xs gap-1.5 rounded-[4px]"
+          className="h-[30px] text-xs gap-1.5 rounded-lg"
         >
           {saving ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -443,7 +443,7 @@ export function MetaFormEditor({ form, onBack }: MetaFormEditorProps) {
               onClick={() => setActiveTab(tab.key)}
               title={tab.label}
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-[4px] transition-colors",
+                "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
                 activeTab === tab.key
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -604,7 +604,7 @@ function MappingSection({
           return (
             <div
               key={question.key}
-              className="border border-border rounded-[4px] overflow-hidden"
+              className="border border-border rounded-lg overflow-hidden"
             >
               <div className="px-3 py-2.5 bg-muted flex items-start gap-3">
                 <div className="flex-1 min-w-0">
@@ -614,7 +614,7 @@ function MappingSection({
                     </span>
                     <span
                       className={cn(
-                        "text-[10px] font-semibold px-1.5 py-0.5 rounded-[4px] shrink-0",
+                        "text-[10px] font-semibold px-1.5 py-0.5 rounded-lg shrink-0",
                         question.type === "PREFILLED"
                           ? "bg-blue-500/10 text-blue-500 border border-blue-500/20"
                           : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
@@ -633,7 +633,7 @@ function MappingSection({
                     value={crmField}
                     onValueChange={(v) => setMappingForQuestion(question, v)}
                   >
-                    <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-xs rounded-lg">
                       <SelectValue placeholder="-- nao mapeado --" />
                     </SelectTrigger>
                     <SelectContent>
@@ -677,7 +677,7 @@ function MappingSection({
                   {isExpanded && (
                     <div className="px-3 pb-3 space-y-1.5">
                       {categoryItems.length === 0 && (
-                        <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-[4px] px-2 py-1.5">
+                        <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-lg px-2 py-1.5">
                           Nenhum item encontrado para esta categoria de score.
                         </p>
                       )}
@@ -701,7 +701,7 @@ function MappingSection({
                                   setOptionsMapping(question.key, optValue, v)
                                 }
                               >
-                                <SelectTrigger className="h-[30px] text-[10px] rounded-[4px]">
+                                <SelectTrigger className="h-[30px] text-[10px] rounded-lg">
                                   <SelectValue placeholder="-- sem item --" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -732,7 +732,7 @@ function MappingSection({
         })}
       </div>
 
-      <div className="border border-border rounded-[4px] p-3 bg-muted">
+      <div className="border border-border rounded-lg p-3 bg-muted">
         <p className="text-[10px] text-muted-foreground">
           <span className="font-semibold text-foreground">{fieldMapping.length}</span> de{" "}
           <span className="font-semibold text-foreground">{rawQuestions.length}</span> campos
@@ -774,7 +774,7 @@ function PipelineSection({
         </p>
       </div>
 
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2 border-b border-border bg-muted">
           <label className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wide">
             <Zap className="w-3.5 h-3.5 text-yellow-500" />
@@ -794,7 +794,7 @@ function PipelineSection({
                 setInitialStageId("");
               }}
             >
-              <SelectTrigger className="h-[30px] text-sm rounded-[4px]">
+              <SelectTrigger className="h-[30px] text-sm rounded-lg">
                 <SelectValue placeholder="-- sem pipeline --" />
               </SelectTrigger>
               <SelectContent>
@@ -819,7 +819,7 @@ function PipelineSection({
                   setInitialStageId(v === "__first__" ? "" : v)
                 }
               >
-                <SelectTrigger className="h-[30px] text-sm rounded-[4px]">
+                <SelectTrigger className="h-[30px] text-sm rounded-lg">
                   <SelectValue placeholder="Primeira etapa (padrao)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -882,7 +882,7 @@ function AutomationsSection({
           size="sm"
           variant="outline"
           onClick={addPostSubmitAction}
-          className="h-[30px] text-xs rounded-[4px] gap-1"
+          className="h-[30px] text-xs rounded-lg gap-1"
         >
           <Plus className="w-3 h-3" />
           Acao
@@ -901,7 +901,7 @@ function AutomationsSection({
       {postSubmitActions.map((action, idx) => (
         <div
           key={action.id}
-          className="border border-border rounded-[4px] bg-card overflow-hidden"
+          className="border border-border rounded-lg bg-card overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted">
@@ -931,7 +931,7 @@ function AutomationsSection({
                       })
                     }
                     className={cn(
-                      "flex items-center gap-0.5 px-2 py-0.5 rounded-[4px] border text-[10px] font-semibold transition-colors",
+                      "flex items-center gap-0.5 px-2 py-0.5 rounded-lg border text-[10px] font-semibold transition-colors",
                       action.channel === v
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-muted-foreground hover:border-primary/40"
@@ -972,7 +972,7 @@ function AutomationsSection({
                   patchPostSubmitAction(action.id, { delay_minutes: Number(v) })
                 }
               >
-                <SelectTrigger className="h-6 text-[10px] rounded-[4px] flex-1">
+                <SelectTrigger className="h-6 text-[10px] rounded-lg flex-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1003,7 +1003,7 @@ function AutomationsSection({
                       })
                     }
                   >
-                    <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                    <SelectTrigger className="h-[30px] text-xs rounded-lg">
                       <SelectValue placeholder="Selecione canal" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1033,7 +1033,7 @@ function AutomationsSection({
                         })
                       }
                     >
-                      <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                      <SelectTrigger className="h-[30px] text-xs rounded-lg">
                         <SelectValue placeholder="Selecione template" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1099,7 +1099,7 @@ function AutomationsSection({
 
                             return (
                               <div key={varIdx} className="flex items-center gap-1.5">
-                                <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-[4px] shrink-0">
+                                <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-lg shrink-0">
                                   {`{{${varIdx}}}`}
                                 </span>
                                 <Select
@@ -1135,7 +1135,7 @@ function AutomationsSection({
                                     }
                                   }}
                                 >
-                                  <SelectTrigger className="h-6 text-[10px] rounded-[4px] flex-1">
+                                  <SelectTrigger className="h-6 text-[10px] rounded-lg flex-1">
                                     <SelectValue placeholder="-- selecione --" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -1196,7 +1196,7 @@ function AutomationsSection({
                                       })
                                     }
                                     placeholder="Texto fixo"
-                                    className="h-6 text-[10px] flex-1 border border-border rounded-[4px] px-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                                    className="h-6 text-[10px] flex-1 border border-border rounded-lg px-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
                                   />
                                 )}
                               </div>
@@ -1221,7 +1221,7 @@ function AutomationsSection({
                         patchPostSubmitAction(action.id, { webhook_id: v === "__none__" ? "" : v })
                       }
                     >
-                      <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                      <SelectTrigger className="h-[30px] text-xs rounded-lg">
                         <SelectValue placeholder="Selecione um webhook" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1236,7 +1236,7 @@ function AutomationsSection({
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-[4px] px-2 py-1.5">
+                    <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-lg px-2 py-1.5">
                       Nenhum webhook {action.channel === "email" ? "de email" : "de SMS"} configurado.{" "}
                       <span className="text-primary">Configuracoes → OMNI PRO → Webhooks.</span>
                     </p>
@@ -1249,7 +1249,7 @@ function AutomationsSection({
                       value={action.subject ?? ""}
                       onChange={(e) => patchPostSubmitAction(action.id, { subject: e.target.value })}
                       placeholder="Assunto do e-mail"
-                      className="h-[30px] text-xs rounded-[4px]"
+                      className="h-[30px] text-xs rounded-lg"
                     />
                   </div>
                 )}
@@ -1260,7 +1260,7 @@ function AutomationsSection({
                     onChange={(e) => patchPostSubmitAction(action.id, { message_template: e.target.value })}
                     placeholder="Use {{pessoa.nome}}, {{pessoa.email}} etc."
                     rows={3}
-                    className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </>
@@ -1281,7 +1281,7 @@ function AutomationsSection({
                     });
                   }}
                 >
-                  <SelectTrigger className="h-6 text-[10px] rounded-[4px] w-[130px]">
+                  <SelectTrigger className="h-6 text-[10px] rounded-lg w-[130px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1312,7 +1312,7 @@ function AutomationsSection({
                           });
                         }}
                         className={cn(
-                          "px-2 py-1 rounded-[4px] border text-[10px] font-semibold transition-all max-w-[160px] truncate",
+                          "px-2 py-1 rounded-lg border text-[10px] font-semibold transition-all max-w-[160px] truncate",
                           selected ? scoreColor(n) : "bg-muted text-muted-foreground border-border opacity-40 hover:opacity-70"
                         )}
                       >
@@ -1369,13 +1369,13 @@ function SuccessSection({
             Defina diferentes paginas de sucesso por entrada da matriz score.
           </p>
         </div>
-        <Button size="sm" variant="outline" className="h-[30px] text-xs gap-1 rounded-[4px]" onClick={addSuccessRoute}>
+        <Button size="sm" variant="outline" className="h-[30px] text-xs gap-1 rounded-lg" onClick={addSuccessRoute}>
           <Plus className="w-3 h-3" /> Rota
         </Button>
       </div>
 
       {/* Default (fallback) */}
-      <div className="border border-border rounded-[4px] overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="px-3 py-2 border-b border-border bg-muted">
           <label className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wide">
             <Target className="w-3.5 h-3.5 text-muted-foreground" />
@@ -1391,7 +1391,7 @@ function SuccessSection({
             <Input
               value={successTitle}
               onChange={(e) => setSuccessTitle(e.target.value)}
-              className="h-[30px] text-sm rounded-[4px]"
+              className="h-[30px] text-sm rounded-lg"
               placeholder="Enviado com sucesso!"
             />
           </div>
@@ -1400,7 +1400,7 @@ function SuccessSection({
             <Textarea
               value={successMessage}
               onChange={(e) => setSuccessMessage(e.target.value)}
-              className="text-sm rounded-[4px] resize-none"
+              className="text-sm rounded-lg resize-none"
               rows={2}
               placeholder="Obrigado! Entraremos em contato."
             />
@@ -1411,7 +1411,7 @@ function SuccessSection({
               value={redirectUrl}
               onChange={(e) => setRedirectUrl(e.target.value)}
               placeholder="https://..."
-              className="h-[30px] text-sm rounded-[4px]"
+              className="h-[30px] text-sm rounded-lg"
             />
           </div>
         </div>
@@ -1419,7 +1419,7 @@ function SuccessSection({
 
       {/* Score-based routes */}
       {successRoutes.map((route) => (
-        <div key={route.id} className="border border-border rounded-[4px] overflow-hidden">
+        <div key={route.id} className="border border-border rounded-lg overflow-hidden">
           <div className="px-3 py-2 border-b border-border bg-muted flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wide font-semibold mb-1.5">Matriz Score</p>
@@ -1469,7 +1469,7 @@ function SuccessSection({
                 value={route.action}
                 onValueChange={(v) => patchSuccessRoute(route.id, { action: v as MetaSuccessRoute["action"] })}
               >
-                <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                <SelectTrigger className="h-[30px] text-xs rounded-lg">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1489,7 +1489,7 @@ function SuccessSection({
                     value={route.title ?? ""}
                     onChange={(e) => patchSuccessRoute(route.id, { title: e.target.value })}
                     placeholder="Parabens! Voce se qualificou."
-                    className="h-[30px] text-xs rounded-[4px]"
+                    className="h-[30px] text-xs rounded-lg"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -1499,7 +1499,7 @@ function SuccessSection({
                     onChange={(e) => patchSuccessRoute(route.id, { message: e.target.value })}
                     placeholder="Entraremos em contato em breve..."
                     rows={2}
-                    className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </>
@@ -1513,7 +1513,7 @@ function SuccessSection({
                   value={route.redirect_url ?? ""}
                   onChange={(e) => patchSuccessRoute(route.id, { redirect_url: e.target.value })}
                   placeholder="https://..."
-                  className="h-[30px] text-xs rounded-[4px]"
+                  className="h-[30px] text-xs rounded-lg"
                 />
               </div>
             )}
@@ -1532,7 +1532,7 @@ function SuccessSection({
                         patchSuccessRoute(route.id, { booking_rule_set_id: v === "__none__" ? undefined : v })
                       }
                     >
-                      <SelectTrigger className="h-[30px] text-xs rounded-[4px]">
+                      <SelectTrigger className="h-[30px] text-xs rounded-lg">
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1545,7 +1545,7 @@ function SuccessSection({
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-[4px] px-2 py-1.5">
+                    <p className="text-[10px] text-muted-foreground bg-muted border border-border rounded-lg px-2 py-1.5">
                       Nenhuma regra configurada. Acesse Schedule PRO para criar.
                     </p>
                   )}
@@ -1556,7 +1556,7 @@ function SuccessSection({
                     value={route.title ?? ""}
                     onChange={(e) => patchSuccessRoute(route.id, { title: e.target.value })}
                     placeholder="Agende sua conversa!"
-                    className="h-[30px] text-xs rounded-[4px]"
+                    className="h-[30px] text-xs rounded-lg"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -1566,7 +1566,7 @@ function SuccessSection({
                     onChange={(e) => patchSuccessRoute(route.id, { message: e.target.value })}
                     placeholder="Escolha o melhor horario para conversarmos."
                     rows={2}
-                    className="w-full text-xs border border-border rounded-[4px] px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full text-xs border border-border rounded-lg px-2 py-1.5 bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div className="space-y-1.5 pt-2 border-t border-border">
@@ -1577,7 +1577,7 @@ function SuccessSection({
                     value={route.wa_confirm_template ?? ""}
                     onChange={(e) => patchSuccessRoute(route.id, { wa_confirm_template: e.target.value || undefined })}
                     placeholder="confirmacao_reuniao"
-                    className="h-[30px] text-xs rounded-[4px]"
+                    className="h-[30px] text-xs rounded-lg"
                   />
                   <p className="text-[9px] text-muted-foreground leading-relaxed">
                     Nome do template Meta para enviar apos o agendamento. Variaveis: {"{{1}}"} nome, {"{{2}}"} data, {"{{3}}"} hora, {"{{4}}"} link Meet.

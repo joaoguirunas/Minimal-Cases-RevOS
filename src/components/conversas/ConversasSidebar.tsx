@@ -548,7 +548,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
             </div>
 
             {/* WhatsApp — custom phone editor with country selector */}
-            <div className="flex items-start gap-3 p-3 bg-muted border border-border rounded-[4px]">
+            <div className="flex items-start gap-3 p-3 bg-muted border border-border rounded-lg">
               <div className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5">
                 <Phone className="w-3 h-3" />
               </div>
@@ -567,7 +567,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                         size="sm" variant="ghost"
                         onClick={handleSaveWhatsApp}
                         disabled={atualizarPessoa.isPending || !tempPhoneDb}
-                        className="h-6 w-6 p-0 hover:bg-primary/10 rounded-[4px]"
+                        className="h-6 w-6 p-0 hover:bg-primary/10 rounded-lg"
                       >
                         {atualizarPessoa.isPending
                           ? <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" />
@@ -578,7 +578,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                         size="sm" variant="ghost"
                         onClick={() => { setIsEditingPhone(false); setTempPhoneDb(''); }}
                         disabled={atualizarPessoa.isPending}
-                        className="h-6 w-6 p-0 hover:bg-destructive/10 rounded-[4px]"
+                        className="h-6 w-6 p-0 hover:bg-destructive/10 rounded-lg"
                       >
                         <X className="w-3 h-3 text-destructive" />
                       </Button>
@@ -593,7 +593,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                       <Button
                         size="sm" variant="ghost"
                         onClick={() => { setTempPhoneDb(''); setIsEditingPhone(true); }}
-                        className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-[4px]"
+                        className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
                       >
                         <Edit3 className="w-3 h-3" />
                       </Button>
@@ -616,7 +616,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* IGSID read-only */}
             {pessoa.instagram_id && (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] bg-card border border-border">
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border">
                 <Instagram className="w-3 h-3 text-muted-foreground/30 flex-none" strokeWidth={1.5} />
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">IGSID</span>
                 <span className="text-[11px] text-muted-foreground/60 font-mono truncate">{pessoa.instagram_id}</span>
@@ -637,7 +637,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* Empresa */}
             {pessoa.empresa && (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-[4px] bg-card border border-border">
+              <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border">
                 <Building2 className="w-3.5 h-3.5 text-muted-foreground/40 flex-none" strokeWidth={1.5} />
                 <span className="text-[12px] text-foreground truncate">{pessoa.empresa.nome_fantasia}</span>
               </div>
@@ -688,7 +688,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* ── Resumo da Conversa ── */}
             {(pessoa.resumo_conversa) && (
-              <div className="border border-border rounded-[4px] overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setShowResumo(v => !v)}
                   className="w-full flex items-center justify-between px-3 py-2 bg-card hover:bg-accent/50 transition-colors"
@@ -711,7 +711,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* ── Perfil DISC ── */}
             {(pessoa.disc || pessoa.disc_resumo) && (
-              <div className="border border-border rounded-[4px] overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setShowDisc(v => !v)}
                   className="w-full flex items-center justify-between px-3 py-2 bg-card hover:bg-accent/50 transition-colors"
@@ -733,7 +733,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                       <div className="flex items-center gap-2">
                         {(['D','I','S','C'] as const).map(l => (
                           <div key={l} className={cn(
-                            'flex-1 text-center py-1 rounded-[3px] text-[11px] font-bold border',
+                            'flex-1 text-center py-1 rounded-md text-[11px] font-bold border',
                             pessoa.disc === l
                               ? 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-300/30'
                               : 'text-muted-foreground/30 border-border'
@@ -762,7 +762,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* ── Qualificação IA ── */}
             {fieldDefs.filter(d => d.agent_managed).length > 0 && (
-              <div className="border border-border rounded-[4px] overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setShowQualif(v => !v)}
                   className="w-full flex items-center justify-between px-3 py-2 bg-card hover:bg-accent/50 transition-colors"
@@ -814,7 +814,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
 
             {/* ── Campos Personalizados ── */}
             {fieldDefs.filter(d => !d.agent_managed).length > 0 && (
-              <div className="border border-border rounded-[4px] overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <button
                   onClick={() => setShowCampos(v => !v)}
                   className="w-full flex items-center justify-between px-3 py-2 bg-card hover:bg-accent/50 transition-colors"
@@ -890,7 +890,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                 {negocios.length > 0 ? 'Criar outro negócio' : 'Criar negócio'}
               </Button>
             ) : (
-              <div className="border border-border rounded-[4px] p-3 space-y-2 bg-card">
+              <div className="border border-border rounded-lg p-3 space-y-2 bg-card">
                 <SectionLabel>Novo negócio</SectionLabel>
                 <Select value={pipelineId} onValueChange={(v) => { setPipelineId(v); setStageId(""); }}>
                   <SelectTrigger className="h-[30px] text-[12px]">
@@ -917,7 +917,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
                   placeholder="Valor (opcional)"
                   value={valor}
                   onChange={(e) => setValor(e.target.value)}
-                  className="w-full h-[30px] rounded-[4px] border border-input bg-background px-3 text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  className="w-full h-[30px] rounded-lg border border-input bg-background px-3 text-[12px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
                 <div className="flex gap-1.5">
                   <Button

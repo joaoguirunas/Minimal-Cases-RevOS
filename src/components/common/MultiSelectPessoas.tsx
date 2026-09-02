@@ -37,16 +37,16 @@ const MultiSelectPessoas = ({ selectedPessoas, onPessoasChange, tenantId, disabl
   return (
     <div className="space-y-3">
       <Select onValueChange={handleAddPessoa} disabled={disabled || availablePessoas.length === 0}>
-        <SelectTrigger className="rounded-[4px]">
+        <SelectTrigger className="rounded-lg">
           <SelectValue placeholder={
             availablePessoas.length === 0 
               ? "Todas as pessoas já foram selecionadas" 
               : "Selecionar pessoa"
           } />
         </SelectTrigger>
-        <SelectContent className="rounded-[4px]">
+        <SelectContent className="rounded-lg">
           {availablePessoas.map((pessoa) => (
-            <SelectItem key={pessoa.id} value={pessoa.id} className="rounded-[4px]">
+            <SelectItem key={pessoa.id} value={pessoa.id} className="rounded-lg">
               {pessoa.nome}
             </SelectItem>
           ))}
@@ -58,13 +58,13 @@ const MultiSelectPessoas = ({ selectedPessoas, onPessoasChange, tenantId, disabl
           <p className="text-sm font-medium text-foreground">Pessoas selecionadas:</p>
           <div className="flex flex-wrap gap-2">
             {selectedPessoasData.map((pessoa) => (
-              <Badge key={pessoa.id} className="flex items-center gap-2 bg-primary/10 text-primary border-0 rounded-[4px] px-3 py-1">
+              <Badge key={pessoa.id} className="flex items-center gap-2 bg-primary/10 text-primary border-0 rounded-lg px-3 py-1">
                 {pessoa.nome}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemovePessoa(pessoa.id)}
-                  className="h-4 w-4 p-0 hover:bg-destructive/10 rounded-[4px]"
+                  className="h-4 w-4 p-0 hover:bg-destructive/10 rounded-lg"
                   disabled={disabled}
                 >
                   <X className="w-3 h-3" />

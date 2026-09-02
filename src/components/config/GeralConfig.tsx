@@ -72,7 +72,7 @@ function ColorField({
         type="color"
         value={isValid ? raw : "#6366f1"}
         onChange={(e) => { setRaw(e.target.value); onChange(e.target.value); }}
-        className="w-8 h-8 rounded-[3px] border border-border cursor-pointer p-0.5 bg-transparent"
+        className="w-8 h-8 rounded-md border border-border cursor-pointer p-0.5 bg-transparent"
         title={label}
       />
       <Input
@@ -298,7 +298,7 @@ const GeralConfig = () => {
             variant="ghost"
             size="sm"
             onClick={handleCancel}
-            className="h-[30px] text-xs text-muted-foreground/70 rounded-[4px]"
+            className="h-[30px] text-xs text-muted-foreground/70 rounded-lg"
           >
             {t('common.cancel')}
           </Button>
@@ -306,7 +306,7 @@ const GeralConfig = () => {
             size="sm"
             disabled={updateConfig.isPending || saved}
             onClick={handleSubmit as any}
-            className="h-[30px] px-3 gap-1.5 text-xs rounded-[4px]"
+            className="h-[30px] px-3 gap-1.5 text-xs rounded-lg"
           >
             {updateConfig.isPending
               ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />{t('common.saving')}</>
@@ -320,7 +320,7 @@ const GeralConfig = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* ── Identidade ─────────────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title={t('generalSettings.companyInfo.title')} />
 
           <FieldRow label={t('generalSettings.companyInfo.companyName')}>
@@ -335,7 +335,7 @@ const GeralConfig = () => {
 
           <FieldRow label={t('generalSettings.companyInfo.logo')} hint={t('generalSettings.companyInfo.logoFormat')} last>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[2px] border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-8 h-8 rounded-md border border-border bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
                 {config?.logo_url
                   ? <img src={config.logo_url} alt="Logo" className="w-full h-full object-contain" />
                   : <Building2 className="w-3.5 h-3.5 text-muted-foreground/40" strokeWidth={1.5} />}
@@ -346,7 +346,7 @@ const GeralConfig = () => {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadLogo.isPending}
-                className="h-[30px] text-[12px] gap-1.5 rounded-[4px]"
+                className="h-[30px] text-[12px] gap-1.5 rounded-lg"
               >
                 {uploadLogo.isPending
                   ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -360,7 +360,7 @@ const GeralConfig = () => {
                   size="sm"
                   onClick={handleRemoveLogo}
                   disabled={removingLogo}
-                  className="h-[30px] text-[12px] gap-1.5 rounded-[4px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="h-[30px] text-[12px] gap-1.5 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   {removingLogo
                     ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -380,7 +380,7 @@ const GeralConfig = () => {
         </div>
 
         {/* ── Regionalização ─────────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title={t('generalSettings.regionalSettings.title')} />
 
           <FieldRow label={t('generalSettings.regionalSettings.timezone')}>
@@ -429,7 +429,7 @@ const GeralConfig = () => {
         </div>
 
         {/* ── WhatsApp ───────────────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title={t('generalSettings.whatsappIntegration.title')} />
 
           <FieldRow label={t('generalSettings.whatsappIntegration.provider')} hint={t('generalSettings.whatsappIntegration.providerDescription')} last>
@@ -446,7 +446,7 @@ const GeralConfig = () => {
         </div>
 
         {/* ── Dados de Contato ───────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title={t('generalSettings.institutionalData.title')} />
 
           <FieldRow label={t('generalSettings.institutionalData.taxId')}>
@@ -502,7 +502,7 @@ const GeralConfig = () => {
           const privacyUrl = `${window.location.origin}/politica-de-privacidade`;
           const deletionUrl = `${window.location.origin}/excluir-dados`;
           return (
-            <div className="border border-border rounded-[2px] overflow-hidden">
+            <div className="border border-border rounded-md overflow-hidden">
               <SectionHeader title="Links Úteis (Meta)" />
 
               <div className="px-5 py-3 border-b border-border">
@@ -523,7 +523,7 @@ const GeralConfig = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleCopy(privacyUrl)}
-                    className="h-[30px] px-2.5 gap-1.5 text-[12px] rounded-[4px] flex-shrink-0"
+                    className="h-[30px] px-2.5 gap-1.5 text-[12px] rounded-lg flex-shrink-0"
                   >
                     {copiedUrl === privacyUrl
                       ? <Check className="w-3 h-3 text-emerald-400" />
@@ -545,7 +545,7 @@ const GeralConfig = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleCopy(deletionUrl)}
-                    className="h-[30px] px-2.5 gap-1.5 text-[12px] rounded-[4px] flex-shrink-0"
+                    className="h-[30px] px-2.5 gap-1.5 text-[12px] rounded-lg flex-shrink-0"
                   >
                     {copiedUrl === deletionUrl
                       ? <Check className="w-3 h-3 text-emerald-400" />
@@ -559,7 +559,7 @@ const GeralConfig = () => {
         })()}
 
         {/* ── Identidade da Plataforma (White-label) ──────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title="IDENTIDADE DA PLATAFORMA" />
 
           <FieldRow label="Nome do produto" hint="Substitui 'GrowthSales' no header e emails">
@@ -589,7 +589,7 @@ const GeralConfig = () => {
         </div>
 
         {/* ── Domínio customizado ─────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title="DOMÍNIO CUSTOMIZADO" />
 
           <div className="px-5 py-4 space-y-3">
@@ -621,7 +621,7 @@ const GeralConfig = () => {
 
             {verifyResult && (
               <div className={cn(
-                "rounded-[4px] border px-3 py-2.5 text-[12px] space-y-1.5",
+                "rounded-lg border px-3 py-2.5 text-[12px] space-y-1.5",
                 verifyResult.verified
                   ? "border-green-500/30 bg-green-500/5 text-green-700"
                   : "border-amber-500/30 bg-amber-500/5 text-amber-700"
@@ -634,7 +634,7 @@ const GeralConfig = () => {
                 {!verifyResult.verified && (
                   <div className="text-[11px] text-muted-foreground space-y-0.5">
                     <p>Configure um registro CNAME no seu provedor DNS:</p>
-                    <code className="block bg-muted px-2 py-1 rounded-[3px] text-foreground">
+                    <code className="block bg-muted px-2 py-1 rounded-md text-foreground">
                       {formData.custom_domain} → {verifyResult.expected_cname}
                     </code>
                     <p className="text-muted-foreground/60 mt-1">Propagação pode levar até 48h após configurar.</p>
@@ -646,7 +646,7 @@ const GeralConfig = () => {
         </div>
 
         {/* ── Segurança ──────────────────────────────────────────── */}
-        <div className="border border-border rounded-[2px] overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <SectionHeader title="SEGURANÇA" />
 
           <FieldRow label="Tentativas de login" hint="Bloqueio temporário após N tentativas falhas">

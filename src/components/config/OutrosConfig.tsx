@@ -76,7 +76,7 @@ function LinksUteisTab() {
   ];
 
   return (
-    <div className="border border-border rounded-[2px] overflow-hidden">
+    <div className="border border-border rounded-md overflow-hidden">
       <div className="px-5 py-2.5 bg-muted border-b border-border flex items-center gap-2">
         <Link2 className="w-3 h-3 text-muted-foreground/50" strokeWidth={1.5} />
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
@@ -94,7 +94,7 @@ function LinksUteisTab() {
               variant="outline"
               size="sm"
               onClick={() => handleCopy(key, url)}
-              className="h-[30px] text-[12px] gap-1.5 rounded-[4px] shrink-0"
+              className="h-[30px] text-[12px] gap-1.5 rounded-lg shrink-0"
             >
               {copiedKey === key
                 ? <><Check className="w-3 h-3" />Copiado</>
@@ -111,7 +111,7 @@ function LinksUteisTab() {
 function DesignSystemTab() {
   const navigate = useNavigate();
   return (
-    <div className="border border-border rounded-[2px] bg-card p-6 space-y-3">
+    <div className="border border-border rounded-md bg-card p-6 space-y-3">
       <p className="text-[13px] font-medium text-foreground">Design System</p>
       <p className="text-[13px] text-muted-foreground/70 leading-relaxed">
         Visualize tokens de cor, tipografia, ícones e componentes do sistema.
@@ -119,7 +119,7 @@ function DesignSystemTab() {
       <Button
         variant="outline"
         size="sm"
-        className="h-[30px] text-[12px] gap-1.5 rounded-[4px]"
+        className="h-[30px] text-[12px] gap-1.5 rounded-lg"
         onClick={() => navigate("/brandbook")}
       >
         <ExternalLink className="w-3 h-3" strokeWidth={1.5} />
@@ -145,29 +145,29 @@ export default function OutrosConfig() {
       </div>
 
       <Tabs defaultValue="links">
-        <TabsList className="h-8 bg-muted/50 rounded-[4px] p-0.5 gap-0.5">
-          <TabsTrigger value="links" className="h-7 text-[12px] rounded-[3px] px-3">
+        <TabsList className="h-8 bg-muted/50 rounded-lg p-0.5 gap-0.5">
+          <TabsTrigger value="links" className="h-7 text-[12px] rounded-md px-3">
             Links Úteis
           </TabsTrigger>
-          <TabsTrigger value="logs" className="h-7 text-[12px] rounded-[3px] px-3">
+          <TabsTrigger value="logs" className="h-7 text-[12px] rounded-md px-3">
             Logs
           </TabsTrigger>
-          <TabsTrigger value="audit" className="h-7 text-[12px] rounded-[3px] px-3">
+          <TabsTrigger value="audit" className="h-7 text-[12px] rounded-md px-3">
             Configurações
           </TabsTrigger>
-          <TabsTrigger value="lgpd" className="h-7 text-[12px] rounded-[3px] px-3">
+          <TabsTrigger value="lgpd" className="h-7 text-[12px] rounded-md px-3">
             LGPD
           </TabsTrigger>
-          <TabsTrigger value="seguranca" className="h-7 text-[12px] rounded-[3px] px-3">
+          <TabsTrigger value="seguranca" className="h-7 text-[12px] rounded-md px-3">
             Segurança
           </TabsTrigger>
           {isSuperAdmin && (
-            <TabsTrigger value="documentacao" className="h-7 text-[12px] rounded-[3px] px-3">
+            <TabsTrigger value="documentacao" className="h-7 text-[12px] rounded-md px-3">
               Documentação
             </TabsTrigger>
           )}
           {isSuperAdmin && (
-            <TabsTrigger value="design-system" className="h-7 text-[12px] rounded-[3px] px-3">
+            <TabsTrigger value="design-system" className="h-7 text-[12px] rounded-md px-3">
               Design System
             </TabsTrigger>
           )}

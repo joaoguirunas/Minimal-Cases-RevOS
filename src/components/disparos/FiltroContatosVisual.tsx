@@ -105,7 +105,7 @@ export default function FiltroContatosVisual({ filters, onFilterChange }: Props)
         {pipelinesLoading ? (
           <div className="flex gap-2 flex-wrap">
             {[1, 2, 3].map(i => (
-              <Skeleton key={i} className="h-9 w-32 rounded-[4px]" />
+              <Skeleton key={i} className="h-9 w-32 rounded-lg" />
             ))}
           </div>
         ) : !pipelines?.length ? (
@@ -125,7 +125,7 @@ export default function FiltroContatosVisual({ filters, onFilterChange }: Props)
                     })
                   }
                   className={cn(
-                    'inline-flex items-center gap-2 px-4 py-2 rounded-[4px] border text-sm transition-all duration-150 cursor-pointer',
+                    'inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition-all duration-150 cursor-pointer',
                     selected
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-card text-foreground border-border hover:border-primary/60 hover:bg-muted'
