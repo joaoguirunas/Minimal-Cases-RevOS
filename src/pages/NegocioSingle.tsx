@@ -648,7 +648,7 @@ const NegocioSingle = () => {
 
           {/* Content area */}
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <Tabs defaultValue="conversas" className="flex-1 flex flex-col overflow-hidden">
+            <Tabs defaultValue="esteira" className="flex-1 flex flex-col overflow-hidden">
 
               {/* Tab bar */}
               <div className="flex-none border-b border-border bg-card dark:bg-zinc-950">

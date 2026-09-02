@@ -80,7 +80,17 @@ function TouchIcons({ r }: { r: ReconversionRow }) {
 }
 
 export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
-  const { data, isLoading } = useReconversaoBI(dateFrom, dateTo);
+  const { data, isLoading, isError, error, refetch } = useReconversaoBI(dateFrom, dateTo);
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-8 text-center space-y-3">
+        <p className="text-[13px] text-foreground font-medium">Não consegui carregar os dados de reconversão.</p>
+        <p className="text-[12px] text-muted-foreground">{(error as Error)?.message ?? 'Erro desconhecido'}</p>
+        <button onClick={() => refetch()} className="text-[12px] text-primary underline underline-offset-4">Tentar de novo</button>
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return (

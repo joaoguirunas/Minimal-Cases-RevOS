@@ -64,13 +64,23 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
       // ── Reconversões do período ──────────────────────────────────────────
       const { data: recData, error: recErr } = await db
         .from('esteira_reconversions')
-        .select('*, pessoa:clients_people(name)')
+        .select('*')
         .gte('paid_at', from)
         .lte('paid_at', to)
         .order('paid_at', { ascending: false })
         .limit(500);
       if (recErr) throw recErr;
       const all = (recData ?? []) as ReconversionRow[];
+
+      // Nomes em query separada — esteira_reconversions.people_id não tem FK,
+      // então o embed do PostgREST não existe (era isso que travava o BI).
+      const peopleIds = [...new Set(all.map((r) => r.people_id).filter(Boolean))] as string[];
+      if (peopleIds.length > 0) {
+        const { data: people } = await db
+          .from('clients_people').select('id, name').in('id', peopleIds);
+        const nameById = new Map(((people ?? []) as Array<{ id: string; name: string | null }>).map((p) => [p.id, p.name]));
+        for (const r of all) r.pessoa = { name: r.people_id ? (nameById.get(r.people_id) ?? null) : null };
+      }
       const attributed = all.filter((r) => r.attributed);
       const organicos = all.length - attributed.length;
       const porNivel = {

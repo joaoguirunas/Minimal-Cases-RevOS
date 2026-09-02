@@ -153,7 +153,7 @@ const StageColumn = ({
             {isLoading ? (
               <div className="space-y-1.5">
                 {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                  <Skeleton key={i} className="h-20 w-full rounded-xl" />
                 ))}
               </div>
             ) : negocios.length > 0 ? (
@@ -164,7 +164,7 @@ const StageColumn = ({
                       <div
                         onClick={() => navigate(`/crm/kanban/${negocio.id}`)}
                         className={cn(
-                          "w-full bg-background border border-border rounded-lg p-3 space-y-2 cursor-pointer transition-all duration-300",
+                          "w-full bg-background border border-border rounded-xl p-3 space-y-2 cursor-pointer transition-all duration-300",
                           "hover:bg-white/[0.035] hover:border-white/[0.10]",
                           snapshot.isDragging && "ring-2 ring-primary/20 z-[9999]",
                           negocio.status === 'lost' && "bg-[#EF4444]/5 border-[#EF4444]/20",

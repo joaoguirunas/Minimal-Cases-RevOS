@@ -169,8 +169,7 @@ const NegocioSidebar = ({
   if (!negocio) return null;
 
   const sidebarTabs = [
-    { value: 'cliente', icon: User, label: 'Cliente' },
-    { value: 'lead', icon: Briefcase, label: 'Lead' },
+    { value: 'cliente', icon: Briefcase, label: 'Lead' },
   ];
 
   return (
@@ -207,18 +206,6 @@ const NegocioSidebar = ({
               {/* Status de atendimento */}
               {negocio.pessoa && (
                 <StatusAtendimento pessoa={negocio.pessoa} />
-              )}
-
-              {/* Produto Kiwify */}
-              {negocio.pessoa?.cursos?.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                    Produto Kiwify
-                  </p>
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <CursoBadges cursos={negocio.pessoa.cursos} max={4} />
-                  </div>
-                </div>
               )}
 
               {/* Tags */}
@@ -306,7 +293,7 @@ const NegocioSidebar = ({
 
               {/* Dados Pessoais */}
               <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Dados Pessoais</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Contato</p>
                 <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
                   <div className="px-4 py-2.5">
                     <EditableField
@@ -397,93 +384,10 @@ const NegocioSidebar = ({
                 </div>
               </div>
 
-              {/* Perfil DISC */}
-              {negocio.pessoa?.disc_profile && (
-                <div className="space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Perfil DISC</p>
-                  <div className="border border-border rounded-md overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                      <span className="text-[13px] text-muted-foreground/70">Perfil</span>
-                      <span className="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
-                        {negocio.pessoa.disc_profile}
-                      </span>
-                    </div>
-                    {negocio.pessoa.disc_summary && (
-                      <div className="px-4 py-3">
-                        <p className="text-[12px] text-muted-foreground/60 leading-relaxed">{negocio.pessoa.disc_summary}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Score */}
-              {negocio.pessoa && (
-                <NegocioScoreSection
-                  pessoaId={negocio.pessoa.id}
-                  scoreMatrixId={negocio.pessoa.score_matrix_id}
-                  score={negocio.pessoa.score}
-                />
-              )}
-
-              {/* Qualificação IA */}
-              {fieldDefs.filter(d => d.agent_managed).length > 0 && (
-                <div className="space-y-2">
-                  <div className="border border-border rounded-md overflow-hidden">
-                    <button
-                      onClick={() => setShowQualif(v => !v)}
-                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.035] transition-all duration-300"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Brain className="w-3.5 h-3.5 text-violet-500/70" strokeWidth={1.5} />
-                        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Qualificação IA</span>
-                        {(() => {
-                          const filled = fieldDefs.filter(d => d.agent_managed && fieldValues.find(v => v.field_definition_id === d.id)).length;
-                          const total = fieldDefs.filter(d => d.agent_managed).length;
-                          return filled > 0 ? (
-                            <span className="text-[10px] text-muted-foreground/35">{filled}/{total}</span>
-                          ) : null;
-                        })()}
-                      </div>
-                      <ChevronDown className={cn('w-3.5 h-3.5 text-muted-foreground/40 transition-transform duration-200', showQualif && 'rotate-180')} strokeWidth={1.5} />
-                    </button>
-                    {showQualif && (
-                      <div className="divide-y divide-border">
-                        {fieldDefs.filter(d => d.agent_managed).map(def => {
-                          const val = fieldValues.find(v => v.field_definition_id === def.id);
-                          const typed = val ? getTypedLeadValue(val, def.type) : null;
-                          const display = typed !== null && typed !== undefined && typed !== '' ? String(typed) : null;
-                          return (
-                            <div key={def.id} className={cn('px-4 py-2.5', display && String(display).length > 40 ? 'space-y-0.5' : 'flex items-start justify-between gap-3')}>
-                              {display && String(display).length > 40 ? (
-                                <>
-                                  <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wide font-medium block">{def.name}</span>
-                                  <span className="text-[12px] text-foreground/75 leading-relaxed whitespace-pre-wrap break-words block">{display}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-[12px] text-muted-foreground/60 shrink-0">{def.name}</span>
-                                  <span className={cn('text-[12px] text-right leading-snug shrink-0 max-w-[55%] break-words', display ? 'text-foreground/80' : 'text-muted-foreground/30')}>
-                                    {display ?? '—'}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-
-            {/* ────────── LEAD TAB ────────── */}
-            <TabsContent value="lead" className="mt-0 space-y-5">
 
               {/* Negócio */}
               <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Negócio</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Lead</p>
                 <div className="border border-border rounded-md overflow-hidden">
                   {/* Valor */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
@@ -516,7 +420,7 @@ const NegocioSidebar = ({
                     )}
                   </div>
                   {/* Status */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                  <div className="flex items-center justify-between px-4 py-3">
                     <span className="text-[13px] text-muted-foreground/70">Status</span>
                     <span className={cn(
                       "inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-md border leading-none",
@@ -525,103 +429,8 @@ const NegocioSidebar = ({
                       {getStatusLabel()}
                     </span>
                   </div>
-                  {/* Customer Journey */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <span className="text-[13px] text-muted-foreground/70">Jornada</span>
-                    <Select
-                      value={negocio.lifecycle_stage || 'lead'}
-                      onValueChange={async (value) => {
-                        try {
-                          await onUpdateNegocio({ lifecycle_stage: value });
-                        } catch {
-                          // Column may not exist yet (migration pending)
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="h-6 w-auto text-[11px] bg-transparent border-border gap-1 pl-2 pr-1.5">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="lead" className="text-[12px]">Lead</SelectItem>
-                        <SelectItem value="mql" className="text-[12px]">MQL</SelectItem>
-                        <SelectItem value="sql" className="text-[12px]">SQL</SelectItem>
-                        <SelectItem value="opportunity" className="text-[12px]">Oportunidade</SelectItem>
-                        <SelectItem value="customer" className="text-[12px]">Cliente</SelectItem>
-                        <SelectItem value="churned" className="text-[12px]">Churned</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {/* Temperatura */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <span className="text-[13px] text-muted-foreground/70">Temperatura</span>
-                    <div className="flex items-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map(level => (
-                        <button
-                          key={level}
-                          type="button"
-                          onClick={() => onUpdateNegocio({
-                            pre_sale_temperature: negocio.pre_sale_temperature === level ? null : level,
-                          })}
-                          className="p-0.5 transition-transform hover:scale-110"
-                          title={`${level}/5`}
-                        >
-                          <Flame
-                            className={cn(
-                              "w-3.5 h-3.5 transition-colors",
-                              level <= (negocio.pre_sale_temperature || 0)
-                                ? "text-orange-500 fill-orange-500"
-                                : "text-muted-foreground/20"
-                            )}
-                            strokeWidth={1.5}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Fechamento */}
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <span className="text-[13px] text-muted-foreground/70">Fechamento</span>
-                    <div className="flex items-center gap-1">
-                      <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map(level => (
-                          <button
-                            key={level}
-                            type="button"
-                            onClick={() => onUpdateNegocio({
-                              close_probability: negocio.close_probability === level ? null : level,
-                            })}
-                            className="p-0.5 transition-transform hover:scale-110"
-                            title={`${level * 20}%`}
-                          >
-                            <Star
-                              className={cn(
-                                "w-3.5 h-3.5 transition-colors",
-                                level <= (negocio.close_probability || 0)
-                                  ? "text-amber-500 fill-amber-500"
-                                  : "text-muted-foreground/20"
-                              )}
-                              strokeWidth={1.5}
-                            />
-                          </button>
-                        ))}
-                      </div>
-                      {negocio.close_probability ? (
-                        <span className="text-[10px] font-medium text-muted-foreground/40">
-                          {negocio.close_probability * 20}%
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
                 </div>
               </div>
-
-              {/* Atribuição */}
-              {times.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Atribuição</p>
-                  <AtribuirTimeResponsavel negocio={negocio} compact />
-                </div>
-              )}
 
               {/* Pipeline & Etapa */}
               <div className="space-y-2">
@@ -676,184 +485,6 @@ const NegocioSidebar = ({
                       <span className="font-medium text-foreground/60">{currentStage?.nome || "Sem etapa"}</span>
                       {' '}· {filteredStages.findIndex(s => s.id === negocio.leads_stages_id) + 1}/{filteredStages.length}
                     </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Empresa */}
-              <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Empresa</p>
-                <div className="border border-border rounded-md overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border">
-                    <Popover open={companyPopoverOpen} onOpenChange={setCompanyPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          role="combobox"
-                          className="w-full justify-between h-7 text-[13px] p-0 font-normal hover:bg-transparent"
-                          disabled={isLoadingCompanies}
-                        >
-                          <span className="flex items-center gap-1.5 text-left truncate">
-                            <Building2 className="w-3.5 h-3.5 text-muted-foreground/50 flex-none" strokeWidth={1.5} />
-                            <span className={cn("truncate", negocio.empresa ? "text-foreground" : "text-muted-foreground/40")}>
-                              {negocio.empresa?.trade_name || "Selecionar empresa..."}
-                            </span>
-                          </span>
-                          <ChevronsUpDown className="h-3 w-3 opacity-30 flex-none" strokeWidth={1.5} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[280px] p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="Buscar empresa..." className="text-[13px]" />
-                          <CommandList>
-                            <CommandEmpty className="text-[13px]">Nenhuma empresa encontrada.</CommandEmpty>
-                            <CommandGroup>
-                              <CommandItem
-                                value=""
-                                onSelect={async () => {
-                                  await onUpdateNegocio({ company_id: null });
-                                  setCompanyPopoverOpen(false);
-                                  toast.success("Empresa removida!");
-                                }}
-                              >
-                                <X className="mr-2 h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-                                <span className="text-[13px]">Sem empresa</span>
-                              </CommandItem>
-                              {companies.map((company) => (
-                                <CommandItem
-                                  key={company.id}
-                                  value={company.trade_name}
-                                  onSelect={async () => {
-                                    await onUpdateNegocio({ company_id: company.id });
-                                    setCompanyPopoverOpen(false);
-                                    toast.success("Empresa atualizada!");
-                                  }}
-                                >
-                                  <Check
-                                    className={cn("mr-2 h-3.5 w-3.5", negocio.company_id === company.id ? "opacity-100" : "opacity-0")}
-                                    strokeWidth={1.5}
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-[13px] font-medium truncate">{company.trade_name}</p>
-                                    {company.legal_name && (
-                                      <p className="text-[11px] text-muted-foreground truncate">{company.legal_name}</p>
-                                    )}
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  {negocio.empresa ? (
-                    <>
-                      {negocio.empresa.legal_name && (
-                        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-                          <span className="text-[12px] text-muted-foreground/60">Razão Social</span>
-                          <span className="text-[12px] font-medium text-foreground truncate ml-3 max-w-[150px]">{negocio.empresa.legal_name}</span>
-                        </div>
-                      )}
-                      {negocio.empresa.tax_id && (
-                        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-                          <span className="text-[12px] text-muted-foreground/60">CNPJ</span>
-                          <span className="text-[12px] font-mono font-medium text-foreground">{negocio.empresa.tax_id}</span>
-                        </div>
-                      )}
-                      {negocio.empresa.phone && (
-                        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border">
-                          <span className="text-[12px] text-muted-foreground/60">Telefone</span>
-                          <span className="text-[12px] font-medium text-foreground">{negocio.empresa.phone}</span>
-                        </div>
-                      )}
-                      {negocio.empresa.email && (
-                        <div className="flex items-center justify-between px-4 py-2.5">
-                          <span className="text-[12px] text-muted-foreground/60">E-mail</span>
-                          <span className="text-[12px] font-medium text-foreground truncate ml-3 max-w-[150px]">{negocio.empresa.email}</span>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="px-4 py-3">
-                      <p className="text-[12px] text-muted-foreground/40 italic">Nenhuma empresa vinculada</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Controle */}
-              <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Controle</p>
-                <div className="border border-border rounded-md overflow-hidden">
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label=""
-                      value={negocio.controle}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ controle: value })}
-                      icon={<Settings className="w-3 h-3" strokeWidth={1.5} />}
-                      placeholder="Adicionar controle..."
-                      isLoading={isPendingNegocio}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Indicação / Evento */}
-              <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Indicação / Evento</p>
-                <div className="border border-border rounded-md overflow-hidden divide-y divide-border">
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label="Recomendante"
-                      value={negocio.recomendante}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ recomendante: value || null })}
-                      placeholder="Nome do recomendante..."
-                      isLoading={isPendingNegocio}
-                    />
-                  </div>
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label="Relação c/ recomendante"
-                      value={negocio.relacao_recomendante}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ relacao_recomendante: value || null })}
-                      placeholder="Ex: amigo, familiar..."
-                      isLoading={isPendingNegocio}
-                    />
-                  </div>
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label="Relação c/ corretor"
-                      value={negocio.relacao_corretor}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ relacao_corretor: value || null })}
-                      placeholder="Ex: cliente antigo, indicação..."
-                      isLoading={isPendingNegocio}
-                    />
-                  </div>
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label="Nome do evento"
-                      value={negocio.nome_evento}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ nome_evento: value || null })}
-                      placeholder="Ex: Feira do imóvel..."
-                      isLoading={isPendingNegocio}
-                    />
-                  </div>
-                  <div className="px-4 py-2.5">
-                    <EditableField
-                      label="Origem da lista"
-                      value={negocio.origem_lista}
-                      type="text"
-                      onSave={(value) => onUpdateNegocio({ origem_lista: value || null })}
-                      placeholder="Ex: Lista fria, base própria..."
-                      isLoading={isPendingNegocio}
-                    />
                   </div>
                 </div>
               </div>
