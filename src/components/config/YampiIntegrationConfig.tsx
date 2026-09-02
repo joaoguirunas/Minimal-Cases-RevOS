@@ -78,6 +78,7 @@ interface YampiStatus {
   inbound_url?: string;
   webhook_registered: boolean;
   last_error?: string | null;
+  lead_intake_enabled?: boolean;
 }
 
 interface WebhookEvent {
@@ -413,6 +414,26 @@ export default function YampiIntegrationConfig() {
     }
   };
 
+  const intakeEnabled = statusData?.lead_intake_enabled ?? true;
+
+  const setLeadIntake = async (enabled: boolean) => {
+    setBusy('intake');
+    try {
+      await invokeYampi({ action: 'set_lead_intake', enabled });
+      toast({
+        title: enabled ? 'Entrada de novos leads ligada' : 'Entrada de novos leads desligada',
+        description: enabled
+          ? 'Carrinhos e pedidos novos voltam a criar leads na esteira.'
+          : 'Eventos novos não criam mais leads — quem já está na esteira continua se movendo.',
+      });
+      refreshStatus();
+    } catch (e) {
+      toast({ title: 'Falha ao alterar', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const runBackfill = async () => {
     setBusy('backfill');
     try {
@@ -483,6 +504,27 @@ export default function YampiIntegrationConfig() {
             {statusData?.inbound_url && (
               <CopyableField label="URL de inbound (registrada na Yampi)" value={statusData.inbound_url} />
             )}
+
+            {/* ── Entrada de novos leads ── */}
+            <div className={cn(
+              'flex items-center justify-between gap-3 rounded-lg border px-3.5 py-3',
+              intakeEnabled ? 'border-border bg-muted/30' : 'border-amber-500/30 bg-amber-500/5',
+            )}>
+              <div className="min-w-0">
+                <span className="text-[12.5px] font-medium text-foreground">Entrada de novos leads</span>
+                <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
+                  {intakeEnabled
+                    ? 'Carrinhos e pedidos novos criam leads na esteira automaticamente.'
+                    : 'Desligada — eventos novos não criam leads; quem já está na esteira continua se movendo e a reconversão continua sendo medida.'}
+                </p>
+              </div>
+              <Switch
+                checked={intakeEnabled}
+                disabled={busy !== null}
+                onCheckedChange={setLeadIntake}
+              />
+            </div>
+
             <div className="pt-1 flex flex-wrap items-center gap-2">
               <Button
                 variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]"

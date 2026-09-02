@@ -74,6 +74,7 @@ export interface YampiConnectionRow {
   enforce_signature: boolean;
   status: string;
   last_error: string | null;
+  lead_intake_enabled: boolean;
 }
 
 export interface YampiWebhook {
@@ -347,7 +348,7 @@ export async function loadYampiConnection(
 ): Promise<YampiConnectionRow | null> {
   const { data } = await supabase
     .from('yampi_connections')
-    .select('id, alias, user_token_enc, user_secret_enc, webhook_id, webhook_secret_enc, enforce_signature, status, last_error')
+    .select('id, alias, user_token_enc, user_secret_enc, webhook_id, webhook_secret_enc, enforce_signature, status, last_error, lead_intake_enabled')
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();

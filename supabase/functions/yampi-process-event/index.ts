@@ -58,11 +58,14 @@ interface MappingRow {
 
 /**
  * Resolve an existing contact by email then phone, or create one. Follows the
- * auto-merge chain (trg_identity_auto_merge).
+ * auto-merge chain (trg_identity_auto_merge). With allowCreate=false (entrada
+ * de novos leads desligada na conexão) nunca insere — retorna null se a pessoa
+ * ainda não existe no CRM.
  */
 async function resolvePerson(
   supabase: SupabaseClient,
   opts: { email: string | null; phone: string | null; name: string | null },
+  allowCreate = true,
 ): Promise<string | null> {
   const sel = 'id, merged_into_id, status';
 
@@ -90,6 +93,7 @@ async function resolvePerson(
     }
   }
 
+  if (!allowCreate) return null;
   if (!opts.email && !phone) return null;
 
   const insert: Record<string, unknown> = {
@@ -108,13 +112,17 @@ async function resolvePerson(
   return (created as { id: string }).id;
 }
 
-/** Find the person's active lead in the target pipeline, or create one; set its stage. */
+/**
+ * Find the person's active lead in the target pipeline, or create one; set its
+ * stage. With allowCreate=false só move lead existente (nunca cria).
+ */
 async function moveLead(
   supabase: SupabaseClient,
   peopleId: string,
   pipelineId: string,
   stageId: string,
   title: string,
+  allowCreate = true,
 ): Promise<string | null> {
   const { data: existing } = await supabase
     .from('leads')
@@ -132,6 +140,8 @@ async function moveLead(
     await supabase.from('leads').update({ leads_stages_id: stageId }).eq('id', id);
     return id;
   }
+
+  if (!allowCreate) return null;
 
   const { data: created } = await supabase
     .from('leads')
@@ -248,20 +258,30 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Entrada de novos leads (toggle da conexão) ──────────────────────────
+    // Desligada: não cria contato nem lead novos — mas eventos de quem JÁ está
+    // no CRM continuam movendo o lead existente e alimentando a reconversão.
+    const { data: connRow } = await supabase
+      .from('yampi_connections')
+      .select('lead_intake_enabled')
+      .eq('id', event.connection_id)
+      .maybeSingle();
+    const intakeEnabled = (connRow as { lead_intake_enabled: boolean } | null)?.lead_intake_enabled ?? true;
+
     // ── Resolve contact ─────────────────────────────────────────────────────
     const peopleId = await resolvePerson(supabase, {
       email: parsed.customerEmail,
       phone: parsed.customerPhone,
       name: parsed.customerName,
-    });
+    }, intakeEnabled);
     if (!peopleId) {
-      // Cart sem identificação ainda (sem email/telefone) — nada a criar no CRM.
+      // Sem identificação no payload, ou pessoa nova com a entrada desligada.
       await supabase.from('yampi_webhook_events').update({
         status: 'ignored',
-        error: 'no contact identity in payload',
+        error: intakeEnabled ? 'no contact identity in payload' : 'lead intake disabled (new contact skipped)',
         processed_at: new Date().toISOString(),
       }).eq('id', event.id);
-      return json({ ok: true, ignored: true, reason: 'no identity' });
+      return json({ ok: true, ignored: true, reason: intakeEnabled ? 'no identity' : 'intake disabled' });
     }
 
     // Backfill identity fields the CRM is missing (never overwrite existing data).
@@ -284,11 +304,14 @@ Deno.serve(async (req) => {
     if (mapping) {
       const item = parsed.itemTitles[0] ?? 'Loja Minimal';
       const title = `${item} — ${parsed.customerName ?? parsed.customerEmail ?? ''}`.trim();
-      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title);
+      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled);
       if (leadId && parsed.total !== null) {
         await supabase.from('leads').update({ value: parsed.total }).eq('id', leadId);
       }
-      await applyTags(supabase, peopleId, mapping.tags_to_add ?? [], mapping.tags_to_remove ?? []);
+      // Entrada desligada + sem lead existente → não marca tags de stage em quem não entrou na esteira.
+      if (leadId || intakeEnabled) {
+        await applyTags(supabase, peopleId, mapping.tags_to_add ?? [], mapping.tags_to_remove ?? []);
+      }
     } else {
       log.info('no_mapping', { trigger });
     }

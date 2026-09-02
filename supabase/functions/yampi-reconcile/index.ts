@@ -103,16 +103,21 @@ Deno.serve(async (req: Request) => {
 
     // ── 1. Carrinhos recentes → checkout_iniciado ───────────────────────────
     // Filtro por data é diário na API; a janela fina é aplicada client-side via updated_at.
+    // Com a entrada de novos leads desligada, a síntese é pulada inteira (nada de
+    // eventos novos de checkout); o drain de eventos presos (2) continua rodando.
     const now = Date.now();
+    const intakeEnabled = bound.row.lead_intake_enabled ?? true;
     const since = new Date(now - LOOKBACK_MINUTES * 60_000);
     const dateFilter = `updated_at:${fmtYampiDate(new Date(now - 24 * 3600_000))}|${fmtYampiDate(new Date(now))}`;
 
     let carts: YampiAbandonedCart[] = [];
-    try {
-      carts = await bound.client.listRecentCarts(dateFilter, MAX_CARTS_PER_RUN);
-    } catch (e) {
-      log.error('carts_list_failed', { error: (e as Error).message });
-      results.errors++;
+    if (intakeEnabled) {
+      try {
+        carts = await bound.client.listRecentCarts(dateFilter, MAX_CARTS_PER_RUN);
+      } catch (e) {
+        log.error('carts_list_failed', { error: (e as Error).message });
+        results.errors++;
+      }
     }
 
     for (const cart of carts) {

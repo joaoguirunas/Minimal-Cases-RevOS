@@ -29,7 +29,7 @@ import {
   YampiAuthError,
 } from '../_shared/yampi-client.ts';
 
-type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts';
+type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts' | 'set_lead_intake';
 
 interface RequestBody {
   action?: Action;
@@ -40,6 +40,7 @@ interface RequestBody {
   days?: number;
   date_start?: string;
   date_end?: string;
+  enabled?: boolean;
 }
 
 function inboundWebhookUrl(supabaseUrl: string, connectionId?: string): string {
@@ -94,7 +95,7 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json().catch(() => ({}))) as RequestBody;
     const action = body.action;
-    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts'].includes(action)) {
+    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts', 'set_lead_intake'].includes(action)) {
       return err200('Ação inválida', 'BAD_REQUEST');
     }
 
@@ -113,7 +114,24 @@ Deno.serve(async (req: Request) => {
         webhook_registered: !!row.webhook_id,
         inbound_url: inboundWebhookUrl(supabaseUrl, row.id),
         last_error: row.last_error,
+        lead_intake_enabled: row.lead_intake_enabled ?? true,
       });
+    }
+
+    // ── SET_LEAD_INTAKE ─────────────────────────────────────────────────────
+    // Liga/desliga a entrada de novos leads: com false, reconcile não sintetiza
+    // checkout_iniciado e process-event não cria contato/lead novos (leads que
+    // já estão na esteira continuam se movendo normalmente).
+    if (action === 'set_lead_intake') {
+      if (typeof body.enabled !== 'boolean') return err200('enabled (boolean) é obrigatório', 'BAD_REQUEST');
+      const row = await loadYampiConnection(supabase);
+      if (!row) return err200('Nenhuma conexão Yampi configurada', 'NOT_CONNECTED');
+      const { error } = await supabase.from('yampi_connections').update({
+        lead_intake_enabled: body.enabled,
+        updated_at: new Date().toISOString(),
+      }).eq('id', row.id);
+      if (error) return err200(`Falha ao salvar: ${error.message}`, 'DB_ERROR');
+      return ok200({ ok: true, lead_intake_enabled: body.enabled });
     }
 
     // ── TEST (persists nothing) ─────────────────────────────────────────────
@@ -251,6 +269,11 @@ Deno.serve(async (req: Request) => {
       const bound = await createYampiClientForConnection(supabase);
       if (!bound || bound.row.status !== 'connected') {
         return err200('Conecte a Yampi antes do backfill', 'NOT_CONNECTED');
+      }
+      if (bound.row.lead_intake_enabled === false) {
+        // Com a entrada desligada o process-event ignoraria os eventos do backfill
+        // (contato novo não é criado) — melhor falhar claro do que rodar em vão.
+        return err200('A entrada de novos leads está desligada — ligue o toggle antes de rodar o backfill', 'INTAKE_DISABLED');
       }
       const fmt = (d: Date) => d.toISOString().slice(0, 10);
       const now = new Date();
