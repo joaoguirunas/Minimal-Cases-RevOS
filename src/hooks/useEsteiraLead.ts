@@ -97,18 +97,26 @@ function parseYampiCart(raw: AnyRec): { items: CartItem[]; total: number | null;
   const items: CartItem[] = [];
   if (Array.isArray(itemsData)) {
     for (const it of itemsData) {
-      const sku = rec(rec(rec(it).sku).data);
+      const item = rec(it);
+      const sku = rec(rec(item.sku).data);
+      // Preço efetivo: item.price é o valor cobrado; price_sale pode vir 0 no
+      // catálogo Yampi mesmo com o SKU ativo (price_discount guarda o real).
+      const price = [item.price, sku.price_discount, sku.price_sale]
+        .find((v): v is number => typeof v === 'number' && v > 0) ?? null;
       items.push({
-        title: String(sku.title ?? rec(it).title ?? 'Item'),
-        quantity: Number(rec(it).quantity ?? 1) || 1,
-        price: typeof sku.price_sale === 'number' ? sku.price_sale : null,
+        title: String(sku.title ?? item.title ?? 'Item'),
+        quantity: Number(item.quantity ?? 1) || 1,
+        price,
       });
     }
   }
   const totalizers = rec(resource.totalizers);
   const total = typeof totalizers.total === 'number' ? totalizers.total
     : typeof resource.value_total === 'number' ? resource.value_total as number : null;
-  const url = (resource.unauth_simulate_url ?? resource.simulate_url ?? null) as string | null;
+  // simulate_url primeiro: carrinho de cliente logado só restaura com o
+  // customerToken — a versão unauth (forceLogout=1) derruba a sessão e a Yampi
+  // devolve carrinho vazio (caso Ari Chaves). Pra convidado, ambas funcionam.
+  const url = (resource.simulate_url ?? resource.unauth_simulate_url ?? null) as string | null;
   return { items, total, url };
 }
 

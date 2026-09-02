@@ -57,7 +57,9 @@ export async function resolveCartUrlForPerson(
     .limit(3);
   for (const ev of (events ?? []) as Array<AnyRec>) {
     const resource = rec(rec(ev.raw_payload).resource);
-    const url = (resource.unauth_simulate_url ?? resource.simulate_url) as string | undefined;
+    // simulate_url primeiro: carrinho preso a conta de cliente só restaura com o
+    // customerToken; a unauth (forceLogout=1) faz a Yampi devolver carrinho vazio.
+    const url = (resource.simulate_url ?? resource.unauth_simulate_url) as string | undefined;
     if (url) return url;
   }
   const { data: zcart } = await supabase
