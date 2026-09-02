@@ -121,6 +121,24 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (channel === 'sms' && provider === 'klaviyo') {
+      const { sendSmsWithConfig } = await import('../_shared/sms-provider.ts');
+      const result = await sendSmsWithConfig(
+        { is_active: true, credentials: creds as Record<string, string> },
+        { to: test_to, message: testMessage },
+      );
+      if (!result.success) {
+        return new Response(
+          JSON.stringify({ success: false, error: result.error ?? 'Falha no envio de SMS de teste' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+      return new Response(
+        JSON.stringify({ success: true, message: `Evento de SMS enviado ao Klaviyo para ${test_to} — o envio real depende do Flow configurado lá` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     if (channel === 'sms' && provider === 'twilio') {
       if (!creds.account_sid || !creds.auth_token || !creds.from_number) {
         return new Response(

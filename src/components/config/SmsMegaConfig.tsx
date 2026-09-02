@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import NewContactSection from '@/components/config/NewContactSection';
 import ChannelHealthBadge from './ChannelHealthBadge';
 
-type SmsProvider = 'twilio' | 'webhook';
+type SmsProvider = 'twilio' | 'klaviyo' | 'webhook';
 
 export default function SmsMegaConfig() {
   const { data: config, isLoading } = useOmniChannelConfig('sms');
@@ -102,6 +102,7 @@ export default function SmsMegaConfig() {
         <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-[2px] p-1">
           {([
             { value: 'twilio',  label: 'Twilio' },
+            { value: 'klaviyo', label: 'Klaviyo' },
             { value: 'webhook', label: 'Webhook' },
           ] as const).map(({ value, label }) => (
             <TabsTrigger
@@ -136,6 +137,33 @@ export default function SmsMegaConfig() {
                 <Input placeholder="+5511999999999" value={credentials.from_number ?? ''} onChange={e => setCredentials(c => ({ ...c, from_number: e.target.value }))} />
               </div>
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="klaviyo" className="space-y-5 mt-0">
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Credenciais Klaviyo</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13px]">Private API Key</Label>
+                <div className="relative">
+                  <Input type={showSecret ? 'text' : 'password'} placeholder="pk_...." value={credentials.api_key ?? ''} onChange={e => setCredentials(c => ({ ...c, api_key: e.target.value }))} className="font-mono pr-8" />
+                  <button onClick={() => setShowSecret(s => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {showSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13px]">Nome da métrica (evento)</Label>
+                <Input placeholder="CRM SMS Followup" value={credentials.metric_sms ?? ''} onChange={e => setCredentials(c => ({ ...c, metric_sms: e.target.value }))} className="font-mono" />
+              </div>
+            </div>
+            <p className="text-[12px] text-muted-foreground">
+              O CRM dispara um <span className="font-medium text-foreground">evento</span> com essa métrica e o telefone em E.164;
+              no Klaviyo, um <span className="font-medium text-foreground">Flow disparado pela métrica</span> envia o SMS com
+              <span className="font-mono"> {'{{ event.message }}'}</span>. O profile precisa de
+              <span className="font-medium text-foreground"> consentimento de SMS</span> no Klaviyo — sem consent o Klaviyo pula o envio.
+            </p>
           </div>
         </TabsContent>
 

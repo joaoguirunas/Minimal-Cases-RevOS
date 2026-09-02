@@ -5,6 +5,7 @@ import {
   hasDirectEmailProvider,
   type EmailConfig,
 } from "../_shared/email-provider.ts";
+import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
 
@@ -117,6 +118,20 @@ serve(async (req) => {
     }
     const emailProviderActive =
       !!emailConfig?.is_active && hasDirectEmailProvider(emailConfig?.credentials);
+
+    // Config do canal SMS (KLV-1): com provider direto (twilio/klaviyo) ativo,
+    // follow-ups de SMS saem por ele; senão caem no fallback de webhook (legado).
+    let smsConfig: SmsConfig | null = null;
+    {
+      const { data: smsRow } = await supabase
+        .from('omni_channel_configs')
+        .select('is_active, credentials')
+        .eq('channel', 'sms')
+        .maybeSingle();
+      smsConfig = (smsRow as SmsConfig | null) ?? null;
+    }
+    const smsProviderActive =
+      !!smsConfig?.is_active && hasDirectSmsProvider(smsConfig?.credentials);
 
     // Reaproveitar entradas presas em 'processing' por invocação anterior que travou/crashou
     // antes de concluir (ex.: timeout de função) — evita que fiquem órfãs para sempre.
@@ -371,6 +386,33 @@ serve(async (req) => {
           if (!result.success) {
             errorMsg = result.error ?? 'Falha no envio de e-mail';
             console.warn(`[followup-trigger-worker] Entry ${entry.id} (email): ${errorMsg}`);
+          }
+        }
+
+      // ── sms: envio direto via provider configurado (Twilio/Klaviyo) ──────
+      } else if (entry.channel === 'sms' && smsProviderActive) {
+        const toPhone = entry.phone_number ?? pessoa?.whatsapp ?? pessoa?.telefone ?? null;
+        if (!toPhone) {
+          errorMsg = 'Sem telefone disponível para envio de SMS';
+          console.warn(`[followup-trigger-worker] Entry ${entry.id}: ${errorMsg}`);
+        } else {
+          const smsVars: Record<string, string> = {
+            'pessoa.nome': pessoa?.name ?? '',
+            'pessoa.email': pessoa?.email ?? '',
+            'pessoa.telefone': pessoa?.telefone ?? '',
+            'pessoa.whatsapp': pessoa?.whatsapp ?? '',
+            'lead.titulo': lead?.title ?? '',
+            'nome': (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
+          };
+          const result = await sendSmsWithConfig(smsConfig!, {
+            to: toPhone,
+            message: entry.message ?? '',
+            vars: smsVars,
+          });
+          success = result.success;
+          if (!result.success) {
+            errorMsg = result.error ?? 'Falha no envio de SMS';
+            console.warn(`[followup-trigger-worker] Entry ${entry.id} (sms): ${errorMsg}`);
           }
         }
 

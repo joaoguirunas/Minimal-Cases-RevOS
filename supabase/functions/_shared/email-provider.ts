@@ -15,7 +15,7 @@
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const DIRECT_PROVIDERS = ['resend', 'smtp', 'sendgrid'] as const;
+const DIRECT_PROVIDERS = ['resend', 'smtp', 'sendgrid', 'klaviyo'] as const;
 const SEND_TIMEOUT_MS = 30_000;
 
 export interface EmailCredentials {
@@ -168,6 +168,38 @@ async function dispatchSmtp(creds: EmailCredentials, to: string, subject: string
   }
 }
 
+
+/**
+ * klaviyo → NÃO há envio direto na API do Klaviyo. Fazemos upsert do profile e
+ * disparamos um Create Event com a métrica `credentials.metric_email` (default
+ * "CRM Email Followup"); um Flow no Klaviyo disparado por essa métrica envia o
+ * e-mail. O evento carrega subject, o HTML já renderizado e todas as variáveis
+ * ({{ event.subject }}, {{ event.html }}, {{ event.nome }}, ...).
+ */
+async function dispatchKlaviyo(
+  creds: EmailCredentials,
+  to: string,
+  subject: string,
+  html: string,
+  vars: Record<string, string>,
+): Promise<SendResult> {
+  if (!creds.api_key) return { success: false, error: 'Klaviyo: api_key (chave privada) é obrigatória' };
+  const metric = creds.metric_email?.trim() || 'CRM Email Followup';
+  const { KlaviyoClient } = await import('./klaviyo-client.ts');
+  const client = new KlaviyoClient(creds.api_key);
+  try {
+    await client.upsertProfile({ email: to });
+    await client.createEvent({
+      metricName: metric,
+      profile: { email: to },
+      properties: { subject, html, canal: 'email', origem: 'revos-crm', ...vars },
+    });
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: `Klaviyo: ${(e as Error).message}` };
+  }
+}
+
 /**
  * Renderiza subject/html com `vars` e despacha pelo provider de `config.credentials`.
  * NÃO checa `is_active` (o caller decide — o botão de teste envia mesmo com o canal inativo).
@@ -192,6 +224,7 @@ export async function sendEmailWithConfig(config: EmailConfig, params: SendEmail
     case 'resend':   return dispatchResend(creds, params.to, subject, html);
     case 'sendgrid': return dispatchSendgrid(creds, params.to, subject, html);
     case 'smtp':     return dispatchSmtp(creds, params.to, subject, html);
+    case 'klaviyo':  return dispatchKlaviyo(creds, params.to, subject, html, vars);
     default:         return { success: false, error: `Provider e-mail não suportado: ${provider}` };
   }
 }

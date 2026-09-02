@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import ChannelHealthBadge from './ChannelHealthBadge';
 import { EmailTemplatesConfig } from './EmailTemplatesConfig';
 
-type EmailProvider = 'smtp' | 'sendgrid' | 'resend' | 'webhook';
+type EmailProvider = 'smtp' | 'sendgrid' | 'resend' | 'klaviyo' | 'webhook';
 
 export default function EmailMegaConfig() {
   const { data: config, isLoading } = useOmniChannelConfig('email');
@@ -112,6 +112,7 @@ export default function EmailMegaConfig() {
             { value: 'smtp',     label: 'SMTP' },
             { value: 'sendgrid', label: 'SendGrid' },
             { value: 'resend',   label: 'Resend' },
+            { value: 'klaviyo',  label: 'Klaviyo' },
             { value: 'webhook',  label: 'Webhook' },
           ] as const).map(({ value, label }) => (
             <TabsTrigger
@@ -210,6 +211,35 @@ export default function EmailMegaConfig() {
             </div>
             <p className="text-[12px] text-muted-foreground">
               O From Email precisa estar em um <span className="font-medium text-foreground">domínio verificado no Resend</span> (Domains → Add Domain no painel do Resend). Sem domínio verificado, só é possível enviar do sandbox <span className="font-mono">onboarding@resend.dev</span>.
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="klaviyo" className="space-y-5 mt-0">
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Credenciais Klaviyo</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13px]">Private API Key</Label>
+                <div className="relative">
+                  <Input type={showSecret ? 'text' : 'password'} placeholder="pk_...." value={credentials.api_key ?? ''} onChange={e => setCredentials(c => ({ ...c, api_key: e.target.value }))} className="font-mono pr-8" />
+                  <button onClick={() => setShowSecret(s => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {showSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13px]">Nome da métrica (evento)</Label>
+                <Input placeholder="CRM Email Followup" value={credentials.metric_email ?? ''} onChange={e => setCredentials(c => ({ ...c, metric_email: e.target.value }))} className="font-mono" />
+              </div>
+            </div>
+            <p className="text-[12px] text-muted-foreground">
+              O Klaviyo não envia e-mail direto pela API: o CRM cria/atualiza o profile e dispara um
+              <span className="font-medium text-foreground"> evento</span> com essa métrica. No Klaviyo, crie um
+              <span className="font-medium text-foreground"> Flow disparado pela métrica</span> que envia o e-mail —
+              o evento carrega <span className="font-mono">subject</span>, <span className="font-mono">html</span> (já renderizado)
+              e todas as variáveis do follow-up (<span className="font-mono">{'{{ event.subject }}'}</span>,
+              <span className="font-mono">{'{{ event.nome }}'}</span>, ...).
             </p>
           </div>
         </TabsContent>
