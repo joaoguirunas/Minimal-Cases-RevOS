@@ -19,8 +19,9 @@ const BIProRevOpsTab    = lazy(() => import("@/components/dashboard/BIProRevOpsT
 const BIProComercialTab = lazy(() => import("@/components/dashboard/BIProComercialTab"));
 const BIProMarketingTab = lazy(() => import("@/components/dashboard/BIProMarketingTab"));
 const BIProInsightsTab  = lazy(() => import("@/components/dashboard/BIProInsightsTab"));
+const BIProReconversaoTab = lazy(() => import("@/components/dashboard/BIProReconversaoTab"));
 
-type TabKey = 'revops' | 'comercial' | 'marketing' | 'insights';
+type TabKey = 'reconversao' | 'revops' | 'comercial' | 'marketing' | 'insights';
 
 const TAB_TRIGGER_CLASS =
   'flex items-center gap-1.5 px-4 h-full text-[13px] font-medium transition-colors ' +
@@ -34,7 +35,7 @@ const Dashboard = () => {
   const { setLoading } = useLoading();
   const queryClient = useQueryClient();
   const { accounts, syncAccount } = useBIProAdAccounts();
-  const [activeTab, setActiveTab] = useState<TabKey>('insights');
+  const [activeTab, setActiveTab] = useState<TabKey>('reconversao');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -83,6 +84,30 @@ const Dashboard = () => {
     setIsSyncing(false);
   };
 
+  // Range absoluto para o BI de Reconversão (period pills → datas).
+  const reconvRange = (() => {
+    const now = new Date();
+    const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (periodFilter === 'personalizado' && customDateRange?.from) {
+      return { from: customDateRange.from, to: customDateRange.to ?? now };
+    }
+    switch (periodFilter) {
+      case 'today': return { from: startOfDay(now), to: now };
+      case 'week': {
+        const from = startOfDay(now); from.setDate(from.getDate() - from.getDay()); return { from, to: now };
+      }
+      case 'last-week': {
+        const start = startOfDay(now); start.setDate(start.getDate() - start.getDay() - 7);
+        const end = new Date(start); end.setDate(end.getDate() + 7); return { from: start, to: end };
+      }
+      case 'month': return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+      case '90d': { const from = startOfDay(now); from.setDate(from.getDate() - 90); return { from, to: now }; }
+      default: { const from = startOfDay(now); from.setDate(from.getDate() - 30); return { from, to: now }; }
+    }
+  })();
+  const reconvDateFrom = reconvRange.from.toISOString();
+  const reconvDateTo = reconvRange.to.toISOString();
+
   const biProPeriod   = periodFilter !== 'personalizado' ? periodFilter : undefined;
   const biProDateFrom = periodFilter === 'personalizado' && customDateRange?.from
     ? customDateRange.from.toISOString() : undefined;
@@ -100,10 +125,14 @@ const Dashboard = () => {
     label: string;
     icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   }> = [
-    { key: 'insights',  label: 'Insights',  icon: Sparkles   },
-    { key: 'revops',    label: 'RevOps',    icon: TrendingUp },
-    { key: 'comercial', label: 'Comercial', icon: Briefcase  },
-    { key: 'marketing', label: 'Marketing', icon: Megaphone  },
+    // BI-REC-2: BI de reconversão da esteira é a visão principal.
+    // Insights/RevOps/Comercial/Marketing ficam ocultas por ora — para reativar,
+    // devolva as entradas abaixo (o conteúdo das tabs continua montado).
+    { key: 'reconversao', label: 'Reconversão', icon: TrendingUp },
+    // { key: 'insights',  label: 'Insights',  icon: Sparkles   },
+    // { key: 'revops',    label: 'RevOps',    icon: TrendingUp },
+    // { key: 'comercial', label: 'Comercial', icon: Briefcase  },
+    // { key: 'marketing', label: 'Marketing', icon: Megaphone  },
   ];
 
   const tabLoader = (
@@ -203,6 +232,14 @@ const Dashboard = () => {
               </SectionErrorBoundary>
             </div>
           )}
+
+          <TabsContent value="reconversao" className="mt-0">
+            <SectionErrorBoundary section="BI Reconversão">
+              <Suspense fallback={tabLoader}>
+                <BIProReconversaoTab dateFrom={reconvDateFrom} dateTo={reconvDateTo} />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
 
           <TabsContent value="revops" className="mt-0 space-y-5">
             <SectionErrorBoundary section="BI PRO RevOps">

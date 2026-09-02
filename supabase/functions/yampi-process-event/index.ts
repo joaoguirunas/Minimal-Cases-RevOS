@@ -291,6 +291,56 @@ Deno.serve(async (req) => {
       log.info('no_mapping', { trigger });
     }
 
+    // ── BI-REC-1: captura exata de reconversão no pedido pago ───────────────
+    // Foto dos toques da esteira no momento do pagamento; attributed=true quando
+    // houve toque enviado antes de pagar, dentro da janela de 7 dias.
+    if (trigger === 'pedido_pago' && event.order_id) {
+      try {
+        const paidAt = parsed.eventTs ? new Date(parsed.eventTs) : new Date();
+        const { data: touches } = await supabase
+          .from('followup_queue')
+          .select('channel, fired_at')
+          .eq('person_id', peopleId)
+          .eq('status', 'sent')
+          .lt('fired_at', paidAt.toISOString())
+          .order('fired_at', { ascending: true });
+        const rows = (touches ?? []) as Array<{ channel: string; fired_at: string }>;
+        const counts = { email: 0, whatsapp: 0, sms: 0 };
+        for (const t of rows) {
+          if (t.channel === 'email') counts.email++;
+          else if (t.channel === 'sms') counts.sms++;
+          else counts.whatsapp++;
+        }
+        const firstTouch = rows[0]?.fired_at ?? null;
+        const lastTouch = rows.length > 0 ? rows[rows.length - 1].fired_at : null;
+        const hoursSince = lastTouch
+          ? (paidAt.getTime() - new Date(lastTouch).getTime()) / 3_600_000
+          : null;
+        const WINDOW_DAYS = 7;
+        const attributed = rows.length > 0 && hoursSince !== null && hoursSince <= WINDOW_DAYS * 24;
+        await supabase.from('esteira_reconversions').upsert({
+          order_id: event.order_id,
+          people_id: peopleId,
+          lead_id: leadId,
+          order_total: parsed.total,
+          paid_at: paidAt.toISOString(),
+          first_touch_at: firstTouch,
+          last_touch_at: lastTouch,
+          touches_email: counts.email,
+          touches_whatsapp: counts.whatsapp,
+          touches_sms: counts.sms,
+          touches_total: rows.length,
+          hours_since_last_touch: hoursSince,
+          attributed,
+          attribution_window_days: WINDOW_DAYS,
+        }, { onConflict: 'order_id' });
+        log.info('reconversion_recorded', { order_id: event.order_id, attributed, touches: rows.length });
+      } catch (e) {
+        // Enriquecimento — nunca falha o evento.
+        log.error('reconversion_record_failed', { order_id: event.order_id, error: (e as Error).message });
+      }
+    }
+
     await supabase.from('yampi_webhook_events').update({
       people_id: peopleId,
       status: 'processed',

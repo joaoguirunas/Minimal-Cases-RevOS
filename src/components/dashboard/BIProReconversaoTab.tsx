@@ -1,0 +1,243 @@
+/**
+ * BIProReconversaoTab — BI da esteira de recuperação (BI-REC-2).
+ *
+ * Números EXATOS de reconversão: um pedido só conta como "reconvertido por nós"
+ * quando o pagamento aconteceu depois de pelo menos um toque enviado (e-mail /
+ * WhatsApp / SMS), dentro da janela de atribuição de 7 dias — gravado no momento
+ * do pedido pago pelo yampi-process-event (esteira_reconversions).
+ */
+
+import { motion, type Variants } from 'framer-motion';
+import {
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import {
+  CheckCircle2, Clock, DollarSign, Mail, MessageCircle, Smartphone, Target, Users, Zap,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useReconversaoBI, type ReconversionRow } from '@/hooks/useReconversaoBI';
+import {
+  cardVariants, containerVariants, fmtBRL, GRID_KPIS_3, SkeletonBlock, TABLE_HEADER,
+} from './bipro-shared';
+
+// bipro-shared declara os variants como objeto plano; o motion do framer 11 exige Variants.
+const cardV = cardVariants as unknown as Variants;
+const containerV = containerVariants as unknown as Variants;
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+interface Props {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+const fmtPct = (v: number | null) => (v === null ? '—' : `${(v * 100).toFixed(1)}%`);
+const fmtHoras = (h: number | null) => {
+  if (h === null) return '—';
+  if (h < 1) return `${Math.round(h * 60)} min`;
+  if (h < 48) return `${h.toFixed(1)} h`;
+  return `${(h / 24).toFixed(1)} d`;
+};
+
+function KpiCard({ icon: Icon, label, value, sub, accent }: {
+  icon: React.ElementType; label: string; value: string; sub?: string; accent?: boolean;
+}) {
+  return (
+    <motion.div
+      variants={cardV}
+      className={cn(
+        'rounded-[4px] border bg-card p-4 space-y-1.5',
+        accent ? 'border-primary/40' : 'border-border',
+      )}
+    >
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+        <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
+        {label}
+      </div>
+      <p className={cn('text-[24px] font-semibold leading-none tabular-nums', accent ? 'text-primary' : 'text-foreground')}>
+        {value}
+      </p>
+      {sub && <p className="text-[11px] text-muted-foreground/70">{sub}</p>}
+    </motion.div>
+  );
+}
+
+function TouchIcons({ r }: { r: ReconversionRow }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      {r.touches_email > 0 && (
+        <span className="inline-flex items-center gap-0.5 text-sky-400"><Mail className="w-3 h-3" strokeWidth={1.5} />{r.touches_email}</span>
+      )}
+      {r.touches_whatsapp > 0 && (
+        <span className="inline-flex items-center gap-0.5 text-emerald-400"><MessageCircle className="w-3 h-3" strokeWidth={1.5} />{r.touches_whatsapp}</span>
+      )}
+      {r.touches_sms > 0 && (
+        <span className="inline-flex items-center gap-0.5 text-violet-400"><Smartphone className="w-3 h-3" strokeWidth={1.5} />{r.touches_sms}</span>
+      )}
+      {r.touches_total === 0 && <span className="text-muted-foreground/50">—</span>}
+    </span>
+  );
+}
+
+export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
+  const { data, isLoading } = useReconversaoBI(dateFrom, dateTo);
+
+  if (isLoading || !data) {
+    return (
+      <div className="space-y-4">
+        <div className={GRID_KPIS_3}><SkeletonBlock height={96} /><SkeletonBlock height={96} /><SkeletonBlock height={96} /></div>
+        <SkeletonBlock height={260} />
+        <SkeletonBlock height={320} />
+      </div>
+    );
+  }
+
+  return (
+    <motion.div variants={containerV} initial="hidden" animate="show" className="space-y-5">
+      {/* ── KPIs principais ─────────────────────────────────────────────── */}
+      <div className={GRID_KPIS_3}>
+        <KpiCard
+          icon={CheckCircle2} accent
+          label="Reconvertidos por nós"
+          value={String(data.reconvertidos)}
+          sub={`${data.organicos} compraram sem toque (orgânico) — não contamos`}
+        />
+        <KpiCard
+          icon={DollarSign}
+          label="Receita recuperada"
+          value={fmtBRL(data.receitaRecuperada)}
+          sub={data.ticketMedio !== null ? `ticket médio ${fmtBRL(data.ticketMedio)}` : undefined}
+        />
+        <KpiCard
+          icon={Target}
+          label="Taxa de reconversão"
+          value={fmtPct(data.taxaReconversao)}
+          sub={`${data.reconvertidos} de ${data.leadsTocados} leads tocados`}
+        />
+      </div>
+
+      <div className={GRID_KPIS_3}>
+        <KpiCard
+          icon={Users}
+          label="Leads tocados"
+          value={String(data.leadsTocados)}
+          sub="pessoas que receberam ≥ 1 toque no período"
+        />
+        <KpiCard
+          icon={Zap}
+          label="Toques enviados"
+          value={String(data.touchesSent.total)}
+          sub={`✉ ${data.touchesSent.email} · WhatsApp ${data.touchesSent.whatsapp} · SMS ${data.touchesSent.sms}`}
+        />
+        <KpiCard
+          icon={Clock}
+          label="Tempo até converter"
+          value={fmtHoras(data.horasMediasAteConverter)}
+          sub="média entre o último toque e o pagamento"
+        />
+      </div>
+
+      {/* ── Série diária ────────────────────────────────────────────────── */}
+      <motion.div variants={cardV} className="rounded-[4px] border border-border bg-card p-4">
+        <p className="text-[13px] font-medium text-foreground mb-3">Reconversões e receita por dia</p>
+        {data.porDia.length === 0 ? (
+          <p className="text-[12px] text-muted-foreground py-8 text-center">
+            Nenhuma reconversão atribuída no período — os números aparecem aqui assim que um lead tocado pagar.
+          </p>
+        ) : (
+          <div className="h-[240px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.porDia} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                <defs>
+                  <linearGradient id="recGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis
+                  dataKey="dia"
+                  tickFormatter={(d: string) => format(new Date(`${d}T12:00:00`), 'dd/MM')}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  axisLine={false} tickLine={false}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  axisLine={false} tickLine={false} width={28}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
+                    borderRadius: 4, fontSize: 12,
+                  }}
+                  formatter={(value: number, name: string) =>
+                    name === 'receita' ? [fmtBRL(value), 'Receita'] : [value, 'Reconversões']}
+                  labelFormatter={(d: string) => format(new Date(`${d}T12:00:00`), "dd 'de' MMMM", { locale: ptBR })}
+                />
+                <Area type="monotone" dataKey="reconversoes" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#recGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </motion.div>
+
+      {/* ── Tabela de reconvertidos ─────────────────────────────────────── */}
+      <motion.div variants={cardV} className="rounded-[4px] border border-border bg-card overflow-hidden">
+        <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+          <p className="text-[13px] font-medium text-foreground">Pedidos pagos no período</p>
+          <p className="text-[11px] text-muted-foreground">
+            atribuição: toque enviado antes do pagamento, janela de 7 dias
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12.5px]">
+            <thead>
+              <tr className="border-b border-border">
+                <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Cliente</th>
+                <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Toques</th>
+                <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Último toque → pagou</th>
+                <th className={cn(TABLE_HEADER, 'text-right px-4 py-2')}>Valor</th>
+                <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Pago em</th>
+                <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Atribuição</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.rows.length === 0 ? (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-[12px]">
+                  Nenhum pedido pago no período.
+                </td></tr>
+              ) : data.rows.map((r) => (
+                <tr key={r.id} className={cn(!r.attributed && 'opacity-60')}>
+                  <td className="px-4 py-2.5 text-foreground truncate max-w-[220px]">
+                    {r.pessoa?.name ?? '—'}
+                    <span className="text-muted-foreground/50 text-[11px] ml-2">#{r.order_id}</span>
+                  </td>
+                  <td className="px-4 py-2.5"><TouchIcons r={r} /></td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{fmtHoras(r.hours_since_last_touch)}</td>
+                  <td className="px-4 py-2.5 text-right font-medium text-foreground tabular-nums">
+                    {r.order_total !== null ? fmtBRL(r.order_total) : '—'}
+                  </td>
+                  <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
+                    {format(new Date(r.paid_at), 'dd/MM/yy HH:mm', { locale: ptBR })}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {r.attributed ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border text-emerald-500 bg-emerald-500/10 border-emerald-500/20">
+                        <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Reconvertido por nós
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border text-muted-foreground bg-muted border-border">
+                        Orgânico
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
