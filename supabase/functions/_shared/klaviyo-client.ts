@@ -148,6 +148,29 @@ export class KlaviyoClient {
     });
   }
 
+  // ── Metrics & Flows API ─────────────────────────────────────────────────
+
+  /** Busca métrica por nome exato. Métricas só existem após o primeiro evento. */
+  async findMetricByName(name: string): Promise<{ id: string } | null> {
+    const filter = encodeURIComponent(`equals(name,"${name.replace(/"/g, '')}")`);
+    const res = await this.request<{ data?: Array<{ id: string }> }>('GET', `/api/metrics/?filter=${filter}`);
+    return res?.data?.[0] ?? null;
+  }
+
+  /** Busca flow por nome exato. */
+  async findFlowByName(name: string): Promise<{ id: string } | null> {
+    const filter = encodeURIComponent(`equals(name,"${name.replace(/"/g, '')}")`);
+    const res = await this.request<{ data?: Array<{ id: string }> }>('GET', `/api/flows/?filter=${filter}`);
+    return res?.data?.[0] ?? null;
+  }
+
+  /** Cria flow (POST /api/flows). Rate limit apertado: 1/s, 100/dia. */
+  createFlow(name: string, definition: Record<string, unknown>): Promise<{ data?: { id: string } }> {
+    return this.request('POST', '/api/flows/', {
+      data: { type: 'flow', attributes: { name, definition } },
+    });
+  }
+
   // ── Templates API ───────────────────────────────────────────────────────
 
   /** Busca template por nome exato (GET /api/templates com filter equals). */

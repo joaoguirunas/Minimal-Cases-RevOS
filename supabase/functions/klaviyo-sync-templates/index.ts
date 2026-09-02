@@ -71,6 +71,148 @@ Deno.serve(async (req: Request) => {
     }
     const client = new KlaviyoClient(apiKey);
 
+    const body = (await req.json().catch(() => ({}))) as { action?: string };
+
+    // ── BOOTSTRAP DE FLOWS (KLV-3): cria métrica, template dinâmico e flows ──
+    if (body.action === 'bootstrap_flows') {
+      const callerEmail = (user.email ?? '').toLowerCase();
+      if (!callerEmail) return err200('Usuário sem e-mail — necessário para semear a métrica.', 'NO_EMAIL');
+
+      const steps: Array<{ step: string; status: string; detail?: string }> = [];
+      const metricEmailName = creds.metric_email?.trim() || 'CRM Email Followup';
+
+      // 1. Métrica só existe após o primeiro evento — semeia com um evento pro próprio gestor.
+      const ensureMetric = async (name: string, canal: string): Promise<string | null> => {
+        let m = await client.findMetricByName(name);
+        if (!m) {
+          await client.createEvent({
+            metricName: name,
+            profile: { email: callerEmail },
+            properties: { subject: 'Bootstrap CRM', message: 'Bootstrap CRM', html: '<p>Bootstrap</p>', canal, origem: 'revos-crm-bootstrap' },
+          });
+          // Ingestão do evento é assíncrona; tenta por ~20s.
+          for (let i = 0; i < 10 && !m; i++) {
+            await new Promise((r) => setTimeout(r, 2000));
+            m = await client.findMetricByName(name);
+          }
+        }
+        return m?.id ?? null;
+      };
+
+      // 2. Template dinâmico de 1 linha (corpo vem pronto no evento).
+      const dynName = 'CRM · Corpo dinâmico (event.html)';
+      let dynTplId: string | null = null;
+      try {
+        const existing = await client.findTemplateByName(dynName);
+        if (existing) { dynTplId = existing.id; steps.push({ step: 'template dinâmico', status: 'já existia' }); }
+        else {
+          const created = await client.createTemplate(dynName, '{{ event.html|safe }}');
+          dynTplId = created?.data?.id ?? null;
+          steps.push({ step: 'template dinâmico', status: 'criado' });
+        }
+      } catch (e) {
+        steps.push({ step: 'template dinâmico', status: 'falhou', detail: (e as Error).message.slice(0, 200) });
+      }
+
+      // 3. Flow de e-mail.
+      const fromEmail = creds.from_email?.trim();
+      const fromLabel = creds.from_name?.trim() || 'Minimal Cases';
+      if (!fromEmail) {
+        steps.push({ step: 'flow e-mail', status: 'pulado', detail: 'Preencha o From Email na aba Klaviyo (remetente verificado no Klaviyo).' });
+      } else if (!dynTplId) {
+        steps.push({ step: 'flow e-mail', status: 'pulado', detail: 'sem template dinâmico' });
+      } else {
+        const flowName = 'CRM · Email Followup (auto)';
+        try {
+          const existing = await client.findFlowByName(flowName);
+          if (existing) steps.push({ step: 'flow e-mail', status: 'já existia' });
+          else {
+            const metricId = await ensureMetric(metricEmailName, 'email');
+            if (!metricId) throw new Error(`métrica "${metricEmailName}" não apareceu após o evento de bootstrap`);
+            await client.createFlow(flowName, {
+              triggers: [{ type: 'metric', id: metricId }],
+              profile_filter: null,
+              actions: [{
+                temporary_id: 'email-1',
+                type: 'send-email',
+                links: { next: null },
+                data: {
+                  message: {
+                    from_email: fromEmail,
+                    from_label: fromLabel,
+                    subject_line: '{{ event.subject }}',
+                    preview_text: '',
+                    template_id: dynTplId,
+                    smart_sending_enabled: false,
+                    transactional: false,
+                    name: 'E-mail do CRM',
+                  },
+                  status: 'draft',
+                },
+              }],
+              entry_action_id: 'email-1',
+            });
+            steps.push({ step: 'flow e-mail', status: 'criado (em rascunho — revise e ative o Live no Klaviyo)' });
+          }
+        } catch (e) {
+          steps.push({ step: 'flow e-mail', status: 'falhou', detail: (e as Error).message.slice(0, 300) });
+        }
+      }
+
+      // 4. Flow de SMS (se o canal SMS estiver com provider klaviyo).
+      const { data: smsCfg } = await supabase
+        .from('omni_channel_configs')
+        .select('credentials')
+        .eq('channel', 'sms')
+        .maybeSingle();
+      const smsCreds = ((smsCfg as { credentials?: Record<string, string> } | null)?.credentials ?? {});
+      if (smsCreds.provider === 'klaviyo' && smsCreds.api_key) {
+        const smsClient = new KlaviyoClient(smsCreds.api_key);
+        const metricSmsName = smsCreds.metric_sms?.trim() || 'CRM SMS Followup';
+        const flowName = 'CRM · SMS Followup (auto)';
+        try {
+          const existing = await smsClient.findFlowByName(flowName);
+          if (existing) steps.push({ step: 'flow sms', status: 'já existia' });
+          else {
+            let m = await smsClient.findMetricByName(metricSmsName);
+            if (!m) {
+              await smsClient.createEvent({
+                metricName: metricSmsName,
+                profile: { email: callerEmail },
+                properties: { message: 'Bootstrap CRM', canal: 'sms', origem: 'revos-crm-bootstrap' },
+              });
+              for (let i = 0; i < 10 && !m; i++) {
+                await new Promise((r) => setTimeout(r, 2000));
+                m = await smsClient.findMetricByName(metricSmsName);
+              }
+            }
+            if (!m) throw new Error(`métrica "${metricSmsName}" não apareceu após o evento de bootstrap`);
+            await smsClient.createFlow(flowName, {
+              triggers: [{ type: 'metric', id: m.id }],
+              profile_filter: null,
+              actions: [{
+                temporary_id: 'sms-1',
+                type: 'send-sms',
+                links: { next: null },
+                data: {
+                  message: { body: '{{ event.message }}', name: 'SMS do CRM', smart_sending_enabled: false },
+                  status: 'draft',
+                },
+              }],
+              entry_action_id: 'sms-1',
+            });
+            steps.push({ step: 'flow sms', status: 'criado (em rascunho — revise e ative o Live no Klaviyo)' });
+          }
+        } catch (e) {
+          steps.push({ step: 'flow sms', status: 'falhou', detail: (e as Error).message.slice(0, 300) });
+        }
+      } else {
+        steps.push({ step: 'flow sms', status: 'pulado', detail: 'canal SMS não está com provider Klaviyo' });
+      }
+
+      return ok200({ ok: true, bootstrap: steps });
+    }
+
     // ── Templates ativos da biblioteca ──────────────────────────────────────
     const { data: templates } = await supabase
       .from('email_templates')
