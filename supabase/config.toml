@@ -139,3 +139,6 @@ verify_jwt = true # Zoppy admin connect/import — JWT do usuário; gate gestor 
 
 [functions.zoppy-sync]
 verify_jwt = false # Worker de import — invocado por zoppy-connect e por si mesmo com service_role bearer
+
+[functions.klaviyo-sync-templates]
+verify_jwt = true # Sincroniza templates da biblioteca para o Klaviyo — JWT do usuário; gate gestor no código

@@ -148,6 +148,32 @@ export class KlaviyoClient {
     });
   }
 
+  // ── Templates API ───────────────────────────────────────────────────────
+
+  /** Busca template por nome exato (GET /api/templates com filter equals). */
+  async findTemplateByName(name: string): Promise<{ id: string } | null> {
+    const filter = encodeURIComponent(`equals(name,"${name.replace(/"/g, '')}")`);
+    const res = await this.request<{ data?: Array<{ id: string }> }>('GET', `/api/templates/?filter=${filter}`);
+    return res?.data?.[0] ?? null;
+  }
+
+  /** Cria template HTML (POST /api/templates). Limite Klaviyo: 1000 templates via API. */
+  createTemplate(name: string, html: string, text?: string): Promise<{ data?: { id: string } }> {
+    return this.request('POST', '/api/templates/', {
+      data: {
+        type: 'template',
+        attributes: { name, editor_type: 'html', html, ...(text ? { text } : {}) },
+      },
+    });
+  }
+
+  /** Atualiza o HTML de um template existente (PATCH /api/templates/{id}). */
+  updateTemplate(id: string, name: string, html: string): Promise<unknown> {
+    return this.request('PATCH', `/api/templates/${id}/`, {
+      data: { type: 'template', id, attributes: { name, html } },
+    });
+  }
+
   /** Valida a API key. */
   async testAuth(): Promise<void> {
     await this.request('GET', '/api/accounts/');

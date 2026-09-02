@@ -29,6 +29,7 @@ export default function EmailMegaConfig() {
   const [showSecret, setShowSecret] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [testing, setTesting] = useState(false);
+  const [syncingTemplates, setSyncingTemplates] = useState(false);
 
   useEffect(() => {
     if (!config) return;
@@ -63,6 +64,26 @@ export default function EmailMegaConfig() {
       onSuccess: () => toast({ title: 'E-mail Config salva', description: 'Configurações atualizadas com sucesso.' }),
       onError: (err: any) => toast({ title: 'Erro ao salvar', description: err.message, variant: 'destructive' }),
     });
+  };
+
+  const handleSyncKlaviyoTemplates = async () => {
+    setSyncingTemplates(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('klaviyo-sync-templates', { body: {} });
+      const res = data as { ok?: boolean; error?: string; created?: number; updated?: number; failed?: number } | null;
+      if (error || !res?.ok) {
+        toast({ title: 'Falha ao sincronizar templates', description: res?.error || error?.message || 'Erro', variant: 'destructive' });
+      } else {
+        toast({
+          title: 'Templates enviados ao Klaviyo',
+          description: `${res.created ?? 0} criados · ${res.updated ?? 0} atualizados${res.failed ? ` · ${res.failed} falharam` : ''}. No Flow, selecione "CRM · <nome>".`,
+        });
+      }
+    } catch (e) {
+      toast({ title: 'Falha ao sincronizar templates', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setSyncingTemplates(false);
+    }
   };
 
   const handleTest = async () => {
@@ -241,6 +262,18 @@ export default function EmailMegaConfig() {
               e todas as variáveis do follow-up (<span className="font-mono">{'{{ event.subject }}'}</span>,
               <span className="font-mono">{'{{ event.nome }}'}</span>, ...).
             </p>
+            <div className="pt-1 border-t border-border space-y-2">
+              <p className="text-[12px] text-muted-foreground">
+                Prefere usar os templates da biblioteca como <span className="font-medium text-foreground">templates nativos do Klaviyo</span>?
+                O botão abaixo cria/atualiza cada template ativo lá (nome <span className="font-mono">CRM · …</span>),
+                com as variáveis já convertidas para <span className="font-mono">{'{{ event.* }}'}</span> —
+                aí é só selecionar o template no Flow. Salve as credenciais antes.
+              </p>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" disabled={syncingTemplates} onClick={handleSyncKlaviyoTemplates}>
+                {syncingTemplates ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                Enviar templates da biblioteca para o Klaviyo
+              </Button>
+            </div>
           </div>
         </TabsContent>
 
