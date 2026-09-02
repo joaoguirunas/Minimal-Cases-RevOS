@@ -22,6 +22,11 @@ import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supa
 import { createLogger } from '../_shared/logger.ts';
 import {
   createZoppyClientForConnection,
+  RFM_FALLBACK_STAGE,
+  RFM_TO_STAGE,
+  ZOPPY_CARTS_ENTRY_STAGE,
+  ZOPPY_CARTS_PIPELINE,
+  ZOPPY_CUSTOMERS_PIPELINE,
   ZOPPY_RESOURCES,
   type ZoppyAbandonedCart,
   type ZoppyCustomer,
@@ -120,6 +125,64 @@ async function peopleIdForZoppyCustomer(
   return null;
 }
 
+/** Cache de pipeline+stages resolvidos por nome (uma consulta por invocação). */
+interface PipelineRef { pipelineId: string; stages: Record<string, string> }
+
+async function loadPipelineByName(supabase: SupabaseClient, name: string): Promise<PipelineRef | null> {
+  const { data: p } = await supabase
+    .from('leads_pipelines').select('id').eq('name', name).eq('active', true).maybeSingle();
+  if (!p) return null;
+  const pipelineId = (p as { id: string }).id;
+  const { data: stages } = await supabase
+    .from('leads_stages').select('id, name').eq('leads_pipelines_id', pipelineId);
+  const map: Record<string, string> = {};
+  for (const st of (stages ?? []) as Array<{ id: string; name: string }>) map[st.name] = st.id;
+  return { pipelineId, stages: map };
+}
+
+/** Cria (ou move) o lead ativo da pessoa no pipeline; retorna o lead id. */
+async function ensureLead(
+  supabase: SupabaseClient,
+  peopleId: string,
+  pipelineId: string,
+  stageId: string,
+  title: string,
+  value: number | null,
+): Promise<string | null> {
+  const { data: existing } = await supabase
+    .from('leads')
+    .select('id')
+    .eq('people_id', peopleId)
+    .eq('leads_pipelines_id', pipelineId)
+    .neq('status', 'lost')
+    .neq('status', 'archived')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    const id = (existing as { id: string }).id;
+    const patch: Record<string, unknown> = { leads_stages_id: stageId };
+    if (value !== null) patch.value = value;
+    await supabase.from('leads').update(patch).eq('id', id);
+    return id;
+  }
+  const { data: created } = await supabase
+    .from('leads')
+    .insert({
+      title,
+      people_id: peopleId,
+      leads_pipelines_id: pipelineId,
+      leads_stages_id: stageId,
+      status: 'in_progress',
+      lead_source: 'zoppy',
+      ...(value !== null ? { value } : {}),
+    })
+    .select('id')
+    .single();
+  return created ? (created as { id: string }).id : null;
+}
+
 const dateOrNull = (v: unknown): string | null => {
   if (typeof v !== 'string' || !v) return null;
   const t = Date.parse(v);
@@ -170,6 +233,12 @@ Deno.serve(async (req) => {
   let matched = state.contacts_matched;
   let finished = false;
 
+  // Pipelines do import (ZPY-3). Sem pipeline → import segue, só não cria leads.
+  const cliPipe = resource === 'customers' ? await loadPipelineByName(supabase, ZOPPY_CUSTOMERS_PIPELINE) : null;
+  const cartPipe = resource === 'abandoned-carts' ? await loadPipelineByName(supabase, ZOPPY_CARTS_PIPELINE) : null;
+  if (resource === 'customers' && !cliPipe) log.warn('pipeline_clientes_ausente', { name: ZOPPY_CUSTOMERS_PIPELINE });
+  if (resource === 'abandoned-carts' && !cartPipe) log.warn('pipeline_carrinho_ausente', { name: ZOPPY_CARTS_PIPELINE });
+
   try {
     for (let i = 0; i < MAX_PAGES_PER_RUN; i++) {
       let batchLen = 0;
@@ -201,6 +270,16 @@ Deno.serve(async (req) => {
               }
             }
           }
+          // Lead no pipeline Clientes, stage = segmentação RFM da Zoppy (ZPY-3).
+          if (person && cliPipe) {
+            const stageName = RFM_TO_STAGE[(c.position ?? '').toLowerCase()] ?? RFM_FALLBACK_STAGE;
+            const stageId = cliPipe.stages[stageName] ?? cliPipe.stages[RFM_FALLBACK_STAGE];
+            if (stageId) {
+              const title = (fullName(c) ?? email ?? 'Cliente Zoppy').slice(0, 120);
+              await ensureLead(supabase, person.id, cliPipe.pipelineId, stageId, title, null);
+            }
+          }
+
           await supabase.from('zoppy_customers').upsert({
             zoppy_id: c.id,
             external_id: c.externalId ?? null,
@@ -255,6 +334,22 @@ Deno.serve(async (req) => {
         for (const cart of batch) {
           if (!cart?.id) continue;
           const peopleId = await peopleIdForZoppyCustomer(supabase, cart.customerId ?? null, cart.customer);
+
+          // Lead no pipeline Carrinho Abandonado (ZPY-3): título com o 1º item,
+          // valor = total do carrinho. Reimport atualiza valor/stage do lead ativo.
+          if (peopleId && cartPipe) {
+            const stageId = cartPipe.stages[ZOPPY_CARTS_ENTRY_STAGE] ?? Object.values(cartPipe.stages)[0];
+            if (stageId) {
+              const items = Array.isArray((cart.lineItems ?? [])) ? cart.lineItems as Array<Record<string, unknown>> : [];
+              const firstItem = items[0] as Record<string, unknown> | undefined;
+              const prod = (firstItem?.product as Record<string, unknown> | undefined)?.name ??
+                firstItem?.name ?? firstItem?.title ?? 'Carrinho Zoppy';
+              const who = cart.customer ? [cart.customer.firstName, cart.customer.lastName].filter(Boolean).join(' ') : '';
+              const title = `${String(prod)}${who ? ` — ${who}` : ''}`.slice(0, 120);
+              await ensureLead(supabase, peopleId, cartPipe.pipelineId, stageId, title, cart.total ?? null);
+            }
+          }
+
           await supabase.from('zoppy_abandoned_carts').upsert({
             zoppy_id: cart.id,
             external_id: cart.externalId ?? null,

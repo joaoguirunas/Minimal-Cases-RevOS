@@ -21,6 +21,22 @@ export const ZOPPY_BASE_URL = 'https://api-partners.zoppy.com.br';
 export type ZoppyResource = 'customers' | 'orders' | 'abandoned-carts';
 export const ZOPPY_RESOURCES: readonly ZoppyResource[] = ['customers', 'orders', 'abandoned-carts'];
 
+// ── Pipelines do import (ZPY-3) — resolvidos por nome pelo zoppy-sync ────────
+
+export const ZOPPY_CUSTOMERS_PIPELINE = 'Clientes';
+export const ZOPPY_CARTS_PIPELINE = 'Carrinho Abandonado';
+export const ZOPPY_CARTS_ENTRY_STAGE = 'Carrinho abandonado';
+
+/** position (RFM da Zoppy) → nome do stage no pipeline Clientes. */
+export const RFM_TO_STAGE: Record<string, string> = {
+  'promising': 'Promissores',
+  'possible-loyal': 'Possíveis fiéis',
+  'loyal': 'Fiéis',
+  'at-risk': 'Em risco',
+  'sleeping': 'Dormindo',
+};
+export const RFM_FALLBACK_STAGE = 'Sem classificação';
+
 // ── Errors ───────────────────────────────────────────────────────────────────
 
 export class ZoppyAuthError extends Error {
