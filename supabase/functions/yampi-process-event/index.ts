@@ -316,6 +316,18 @@ Deno.serve(async (req) => {
       log.info('no_mapping', { trigger });
     }
 
+    // ── Fim da esteira: pagou ou cancelou → cancela os toques pendentes ─────
+    // Quem já recuperamos (ou desistiu de vez) não pode continuar recebendo
+    // e-mail/SMS/WhatsApp da sequência enfileirada.
+    if ((trigger === 'pedido_pago' || trigger === 'pedido_cancelado') && leadId) {
+      const { error: cancelErr } = await supabase
+        .from('followup_queue')
+        .update({ status: 'cancelled', error_message: `auto-cancel: ${trigger}` })
+        .eq('lead_id', leadId)
+        .eq('status', 'pending');
+      if (!cancelErr) log.info('pending_fups_cancelled', { lead_id: leadId, trigger });
+    }
+
     // ── BI-REC-1: captura exata de reconversão no pedido pago ───────────────
     // Foto dos toques da esteira no momento do pagamento; attributed=true quando
     // houve toque enviado antes de pagar, dentro da janela de 7 dias.

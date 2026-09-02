@@ -7,6 +7,7 @@ import {
 } from "../_shared/email-provider.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, resolveCartUrlForPerson } from "../_shared/tracked-links.ts";
+import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
 
@@ -517,6 +518,15 @@ serve(async (req) => {
           retry_count:   entry.retry_count + (success ? 0 : 1),
         })
         .eq('id', entry.id);
+
+      // Progressão da esteira (YMP-7): 1º toque enviado avança o lead para o
+      // stage "Em recuperação" do pipeline dele (forward-only; no-op se o
+      // pipeline não tem esse stage ou o lead já passou dele).
+      if (success && entry.source_type === 'stage' && entry.lead_id) {
+        try {
+          await progressEsteiraStage(supabase, entry.lead_id, 'Em recuperação');
+        } catch (_) { /* progressão nunca falha o disparo */ }
+      }
 
       results.push({ id: entry.id, lead_id: entry.lead_id, channel: entry.channel, success });
       console.log(`[followup-trigger-worker] Entry ${entry.id} (${entry.channel}): ${success ? 'dispatched' : 'failed'}`);

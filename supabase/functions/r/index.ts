@@ -7,6 +7,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { progressEsteiraStage } from '../_shared/esteira-progress.ts';
 
 const FALLBACK_URL = 'https://minimalcases.com.br/';
 
@@ -23,10 +24,13 @@ Deno.serve(async (req) => {
       );
       const { data } = await supabase
         .from('tracked_links')
-        .select('id, destination, clicks, first_clicked_at')
+        .select('id, destination, clicks, first_clicked_at, lead_id')
         .eq('token', token)
         .maybeSingle();
-      const row = data as { id: string; destination: string; clicks: number; first_clicked_at: string | null } | null;
+      const row = data as {
+        id: string; destination: string; clicks: number;
+        first_clicked_at: string | null; lead_id: string | null;
+      } | null;
       if (row) {
         destination = row.destination;
         const now = new Date().toISOString();
@@ -35,6 +39,11 @@ Deno.serve(async (req) => {
           first_clicked_at: row.first_clicked_at ?? now,
           last_clicked_at: now,
         }).eq('id', row.id);
+        // Progressão da esteira (YMP-7): clique = engajamento → stage "Engajou"
+        // do pipeline do lead (forward-only; nunca regride nem atrasa o redirect).
+        if (row.lead_id) {
+          try { await progressEsteiraStage(supabase, row.lead_id, 'Engajou'); } catch (_) { /* segue o redirect */ }
+        }
       }
     } catch (_) { /* redirect sempre acontece */ }
   }
