@@ -86,6 +86,24 @@ export default function EmailMegaConfig() {
     }
   };
 
+  const handleBootstrapKlaviyoFlows = async () => {
+    setSyncingTemplates(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('klaviyo-sync-templates', { body: { action: 'bootstrap_flows' } });
+      const res = data as { ok?: boolean; error?: string; bootstrap?: Array<{ step: string; status: string; detail?: string }> } | null;
+      if (error || !res?.ok) {
+        toast({ title: 'Falha no bootstrap', description: res?.error || error?.message || 'Erro', variant: 'destructive' });
+      } else {
+        const lines = (res.bootstrap ?? []).map(s => `${s.step}: ${s.status}${s.detail ? ` (${s.detail})` : ''}`).join(' · ');
+        toast({ title: 'Bootstrap do Klaviyo', description: lines || 'ok' });
+      }
+    } catch (e) {
+      toast({ title: 'Falha no bootstrap', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setSyncingTemplates(false);
+    }
+  };
+
   const handleTest = async () => {
     if (!testEmail) return;
     setTesting(true);
@@ -253,6 +271,14 @@ export default function EmailMegaConfig() {
                 <Label className="text-[13px]">Nome da métrica (evento)</Label>
                 <Input placeholder="CRM Email Followup" value={credentials.metric_email ?? ''} onChange={e => setCredentials(c => ({ ...c, metric_email: e.target.value }))} className="font-mono" />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-[13px]">From Email (remetente verificado no Klaviyo)</Label>
+                <Input placeholder="vendas@minimalcases.com.br" value={credentials.from_email ?? ''} onChange={e => setCredentials(c => ({ ...c, from_email: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-[13px]">From Name</Label>
+                <Input placeholder="Minimal Cases" value={credentials.from_name ?? ''} onChange={e => setCredentials(c => ({ ...c, from_name: e.target.value }))} />
+              </div>
             </div>
             <p className="text-[12px] text-muted-foreground">
               O Klaviyo não envia e-mail direto pela API: o CRM cria/atualiza o profile e dispara um
@@ -273,6 +299,14 @@ export default function EmailMegaConfig() {
                 {syncingTemplates ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                 Enviar templates da biblioteca para o Klaviyo
               </Button>
+              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" disabled={syncingTemplates} onClick={handleBootstrapKlaviyoFlows}>
+                {syncingTemplates ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                Criar métrica + flows no Klaviyo (bootstrap)
+              </Button>
+              <p className="text-[11px] text-muted-foreground/70">
+                O bootstrap cria a métrica, o template dinâmico e os flows de e-mail/SMS já configurados —
+                a API do Klaviyo cria flows em rascunho, então o único passo manual é revisar e ligar o Live lá.
+              </p>
             </div>
           </div>
         </TabsContent>
