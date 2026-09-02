@@ -380,3 +380,18 @@ processa páginas de 100 e se re-invoca até terminar; progresso em `zoppy_sync_
 (a UI mostra e permite retomar de erro). Migration: `20260831110000_zoppy_integration.sql`.
 Deploy: `supabase functions deploy zoppy-connect zoppy-sync` (o zoppy-sync com
 `--no-verify-jwt`, validação service-role no código).
+
+### Klaviyo — e-mail e SMS (KLV-1)
+O Klaviyo não expõe envio direto pela API; o caminho oficial é evento → Flow.
+O CRM implementa exatamente isso: provider **klaviyo** nos canais E-mail e SMS
+(Configurações → Integrações): informe a Private API Key e o nome da métrica.
+No envio, o CRM faz upsert do profile e dispara o evento com todas as
+propriedades — e-mail: `subject`, `html` (template da biblioteca já renderizado
+com as variáveis) e cada variável individual; SMS: `message` + variáveis, telefone
+em E.164. No Klaviyo, crie um Flow disparado pela métrica ("CRM Email Followup" /
+"CRM SMS Followup" por padrão) que envia usando `{{ event.subject }}`,
+`{{ event.html }}`, `{{ event.message }}`, `{{ event.nome }}` etc. SMS exige
+consentimento no profile (sem consent o Klaviyo pula). Os follow-ups por etapa
+(canais E-mail com template da biblioteca, e SMS) passam a sair pelo provider
+configurado — fups de SMS antes só saíam via webhook N8N; agora têm envio direto
+(Twilio) ou via Klaviyo.
