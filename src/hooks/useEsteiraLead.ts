@@ -175,9 +175,17 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
           .limit(40);
         for (const ev of (events ?? []) as Array<AnyRec>) {
           const trig = String(ev.trigger ?? ev.event_type);
+          const payload = rec(ev.raw_payload);
+          // Data REAL do carrinho (backfill importa dias depois do abandono —
+          // ev.created_at seria a data do import, não a do carrinho).
+          const res = rec(payload.resource);
+          const resDateRaw = (rec(res.created_at).date as string | undefined) ??
+            (typeof res.created_at === 'string' ? res.created_at : undefined);
+          const cartAt = resDateRaw ? resDateRaw.replace(' ', 'T') : null;
+          const isBackfill = payload.origin === 'backfill';
           timeline.push({
             id: `event-${ev.id}`,
-            at: String(ev.created_at),
+            at: isBackfill && cartAt ? cartAt : String(ev.created_at),
             kind: 'evento',
             type: trig,
             title: TRIGGER_TITLES[trig] ?? trig,
@@ -185,9 +193,9 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
           });
           // Carrinho mais recente com itens vira o card de detalhes.
           if (!cart && ['carrinho_abandonado', 'checkout_iniciado'].includes(trig)) {
-            const parsed = parseYampiCart(rec(ev.raw_payload));
+            const parsed = parseYampiCart(payload);
             if (parsed.items.length > 0 || parsed.url) {
-              cart = { source: 'yampi', ...parsed, createdAt: String(ev.created_at) };
+              cart = { source: 'yampi', ...parsed, createdAt: cartAt ?? String(ev.created_at) };
             }
           }
         }

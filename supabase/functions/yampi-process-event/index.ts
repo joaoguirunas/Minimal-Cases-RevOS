@@ -115,6 +115,8 @@ async function resolvePerson(
 /**
  * Find the person's active lead in the target pipeline, or create one; set its
  * stage. With allowCreate=false só move lead existente (nunca cria).
+ * createdAt: data REAL do carrinho/pedido (backfill chega dias depois do
+ * abandono — sem isso o lead nasce com "hoje" no kanban).
  */
 async function moveLead(
   supabase: SupabaseClient,
@@ -123,6 +125,7 @@ async function moveLead(
   stageId: string,
   title: string,
   allowCreate = true,
+  createdAt: string | null = null,
 ): Promise<string | null> {
   const { data: existing } = await supabase
     .from('leads')
@@ -152,6 +155,7 @@ async function moveLead(
       leads_stages_id: stageId,
       status: 'in_progress',
       lead_source: 'yampi',
+      ...(createdAt ? { created_at: createdAt } : {}),
     })
     .select('id')
     .single();
@@ -304,7 +308,20 @@ Deno.serve(async (req) => {
     if (mapping) {
       const item = parsed.itemTitles[0] ?? 'Loja Minimal';
       const title = `${item} — ${parsed.customerName ?? parsed.customerEmail ?? ''}`.trim();
-      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled);
+      // Data real do carrinho/pedido (Yampi manda {date, timezone: America/Sao_Paulo};
+      // BR é UTC-3 fixo desde 2019). Backfill processa dias depois do abandono —
+      // sem isso o lead nasceria com created_at de hoje.
+      const resource = (event.raw_payload as Record<string, unknown>)?.resource as Record<string, unknown> | undefined;
+      const resCreatedRaw = (resource?.created_at as Record<string, unknown> | string | undefined);
+      const resDateStr = typeof resCreatedRaw === 'string'
+        ? resCreatedRaw
+        : (resCreatedRaw as Record<string, unknown> | undefined)?.date as string | undefined;
+      let cartCreatedAt: string | null = null;
+      if (resDateStr) {
+        const ts = Date.parse(`${resDateStr.replace(' ', 'T')}-03:00`);
+        if (Number.isFinite(ts)) cartCreatedAt = new Date(ts).toISOString();
+      }
+      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt);
       if (leadId && parsed.total !== null) {
         await supabase.from('leads').update({ value: parsed.total }).eq('id', leadId);
       }
