@@ -46,7 +46,7 @@ function KpiCard({ icon: Icon, label, value, sub, accent }: {
     <motion.div
       variants={cardV}
       className={cn(
-        'rounded-[4px] border bg-card p-4 space-y-1.5',
+        'rounded-xl border bg-card p-4 space-y-1.5',
         accent ? 'border-primary/40' : 'border-border',
       )}
     >
@@ -138,7 +138,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
       </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}
-      <motion.div variants={cardV} className="rounded-[4px] border border-border bg-card p-4">
+      <motion.div variants={cardV} className="rounded-xl border border-border bg-card p-4">
         <p className="text-[13px] font-medium text-foreground mb-3">Reconversões e receita por dia</p>
         {data.porDia.length === 0 ? (
           <p className="text-[12px] text-muted-foreground py-8 text-center">
@@ -183,7 +183,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
       </motion.div>
 
       {/* ── Tabela de reconvertidos ─────────────────────────────────────── */}
-      <motion.div variants={cardV} className="rounded-[4px] border border-border bg-card overflow-hidden">
+      <motion.div variants={cardV} className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <p className="text-[13px] font-medium text-foreground">Pedidos pagos no período</p>
           <p className="text-[11px] text-muted-foreground">
@@ -230,7 +230,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
                             ? 'Clicou em link rastreado nosso antes de pagar'
                             : 'Recebeu toque antes de pagar (janela de 7 dias)'}
                         className={cn(
-                          'inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border',
+                          'inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full border',
                           r.attribution_level === 'cupom'
                             ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30'
                             : r.attribution_level === 'clique'
@@ -244,7 +244,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
                           : r.attribution_level === 'clique' ? 'Clique rastreado' : 'Janela 7d'}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border text-muted-foreground bg-muted border-border">
+                      <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded-full border text-muted-foreground bg-muted border-border">
                         Orgânico
                       </span>
                     )}

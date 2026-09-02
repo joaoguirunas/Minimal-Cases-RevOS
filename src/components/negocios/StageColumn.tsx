@@ -89,10 +89,10 @@ const StageColumn = ({
   };
 
   const getScoreColor = (score?: number) => {
-    if (!score) return 'text-muted-foreground/50 bg-muted border-border rounded-[2px]';
-    if (score >= 8) return 'text-[#00D26A] bg-[#00D26A]/10 border-[#00D26A]/20 rounded-[2px]';
-    if (score >= 6) return 'text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20 rounded-[2px]';
-    return 'text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20 rounded-[2px]';
+    if (!score) return 'text-muted-foreground/50 bg-muted border-border rounded-full';
+    if (score >= 8) return 'text-[#00D26A] bg-[#00D26A]/10 border-[#00D26A]/20 rounded-full';
+    if (score >= 6) return 'text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20 rounded-full';
+    return 'text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20 rounded-full';
   };
 
   const handleLoadMore = () => {
@@ -123,7 +123,7 @@ const StageColumn = ({
   );
 
   return (
-    <div className="w-72 flex-shrink-0 border border-border rounded-[2px] bg-card flex flex-col h-full" role="region" aria-label={`Etapa ${stage.nome} — ${negocios.length} negócios`}>
+    <div className="w-72 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col h-full overflow-hidden" role="region" aria-label={`Etapa ${stage.nome} — ${negocios.length} negócios`}>
       {/* Column header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -153,7 +153,7 @@ const StageColumn = ({
             {isLoading ? (
               <div className="space-y-1.5">
                 {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-[2px]" />
+                  <Skeleton key={i} className="h-20 w-full rounded-lg" />
                 ))}
               </div>
             ) : negocios.length > 0 ? (
@@ -164,7 +164,7 @@ const StageColumn = ({
                       <div
                         onClick={() => navigate(`/crm/kanban/${negocio.id}`)}
                         className={cn(
-                          "w-full bg-background border border-border rounded-[2px] p-3 space-y-2 cursor-pointer transition-all duration-300",
+                          "w-full bg-background border border-border rounded-lg p-3 space-y-2 cursor-pointer transition-all duration-300",
                           "hover:bg-white/[0.035] hover:border-white/[0.10]",
                           snapshot.isDragging && "ring-2 ring-primary/20 z-[9999]",
                           negocio.status === 'lost' && "bg-[#EF4444]/5 border-[#EF4444]/20",
@@ -228,7 +228,7 @@ const StageColumn = ({
 
                           {negocio.pessoa?.score_matrix?.name && (
                             <span className={cn(
-                              "inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                              "inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none",
                               getScoreColor(negocio.pessoa.score_matrix.score_number)
                             )}>
                               <Star className="h-2.5 w-2.5" strokeWidth={1.5} />
@@ -238,14 +238,14 @@ const StageColumn = ({
 
 
                           {messageCounts[negocio.id] > 0 && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
                               <MessageCircle className="h-2.5 w-2.5" strokeWidth={1.5} />
                               {messageCounts[negocio.id]} msg
                             </span>
                           )}
 
                           {negocio.utm_source && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
                               <Megaphone className="h-2.5 w-2.5" strokeWidth={1.5} />
                               {negocio.utm_source}
                             </span>
@@ -253,19 +253,19 @@ const StageColumn = ({
 
                           {/* Toques da esteira (follow-ups enviados) por canal */}
                           {(touchCounts[negocio.id]?.email ?? 0) > 0 && (
-                            <span title="E-mails enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-sky-400 bg-sky-400/10 border-sky-400/20">
+                            <span title="E-mails enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-sky-400 bg-sky-400/10 border-sky-400/20">
                               <Mail className="h-2.5 w-2.5" strokeWidth={1.5} />
                               {touchCounts[negocio.id].email}
                             </span>
                           )}
                           {(touchCounts[negocio.id]?.whatsapp ?? 0) > 0 && (
-                            <span title="WhatsApp enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
+                            <span title="WhatsApp enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
                               <MessageCircle className="h-2.5 w-2.5" strokeWidth={1.5} />
                               {touchCounts[negocio.id].whatsapp}
                             </span>
                           )}
                           {(touchCounts[negocio.id]?.sms ?? 0) > 0 && (
-                            <span title="SMS enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
+                            <span title="SMS enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
                               <Smartphone className="h-2.5 w-2.5" strokeWidth={1.5} />
                               {touchCounts[negocio.id].sms}
                             </span>
@@ -282,7 +282,7 @@ const StageColumn = ({
                               <span
                                 title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
                                 className={cn(
-                                  "ml-auto inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                                  "ml-auto inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none",
                                   d >= 7 ? "text-red-400 bg-red-400/10 border-red-400/20"
                                     : d >= 3 ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
                                     : "text-muted-foreground/60 bg-muted border-border",
@@ -303,7 +303,7 @@ const StageColumn = ({
                     variant="ghost"
                     size="sm"
                     onClick={handleLoadMore}
-                    className="w-full text-[12px] text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.035] mt-1 h-[30px] rounded-[4px]"
+                    className="w-full text-[12px] text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.035] mt-1 h-[30px] rounded-lg"
                   >
                     Carregar mais ({negocios.length - displayedItems})
                   </Button>

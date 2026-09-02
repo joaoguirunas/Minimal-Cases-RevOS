@@ -238,7 +238,7 @@ const NegociosToolbar = ({
     <div className="bg-background border-b border-border" role="toolbar" aria-label="Barra de ferramentas CRM">
       <div className="flex items-center gap-2 px-4 py-2">
         {/* View Mode Toggle */}
-        <div className="flex border border-border rounded-[4px] overflow-hidden h-[30px] flex-shrink-0" role="group" aria-label="Modo de visualização">
+        <div className="flex border border-border rounded-lg overflow-hidden h-[30px] flex-shrink-0" role="group" aria-label="Modo de visualização">
           <Button
             variant={viewMode === "kanban" ? "default" : "ghost"}
             size="sm"
@@ -278,7 +278,7 @@ const NegociosToolbar = ({
         {viewMode !== 'clientes' && (
           <Button
             onClick={onCreateNegocio}
-            className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-[4px]"
+            className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-full"
           >
             <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
             Novo Negócio
@@ -343,14 +343,14 @@ const NegociosToolbar = ({
               variant="outline"
               size="sm"
               className={cn(
-                "h-[30px] text-xs gap-1.5 border-border flex-shrink-0 rounded-[4px]",
+                "h-[30px] text-xs gap-1.5 border-border flex-shrink-0 rounded-full",
                 secondaryFilterCount > 0 && "border-primary/40 text-primary bg-primary/5 hover:bg-primary/10"
               )}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />
               Filtros
               {secondaryFilterCount > 0 && (
-                <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-[2px] bg-primary text-primary-foreground leading-none">
+                <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-full bg-primary text-primary-foreground leading-none">
                   {secondaryFilterCount}
                 </span>
               )}
@@ -676,7 +676,7 @@ const NegociosToolbar = ({
             variant="outline"
             size="sm"
             onClick={() => setMoverLeadsOpen(true)}
-            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-[4px]"
+            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-full"
             title="Mover leads em massa"
             aria-label="Mover leads em massa"
           >
@@ -691,7 +691,7 @@ const NegociosToolbar = ({
             size="sm"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-[4px]"
+            className="h-[30px] w-[30px] p-0 border-border flex-shrink-0 rounded-full"
             title="Atualizar"
             aria-label="Atualizar negócios"
           >

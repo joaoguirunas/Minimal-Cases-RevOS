@@ -21,7 +21,7 @@ export function BIProFeedback({ variant, title, description, icon: Icon, action 
     : { bg: 'bg-muted', border: 'border-border', text: 'text-muted-foreground', sub: 'text-muted-foreground' };
 
   return React.createElement('div', {
-    className: `flex flex-col items-center justify-center gap-3 py-10 px-6 rounded-md border ${palette.border} ${palette.bg} text-center`,
+    className: `flex flex-col items-center justify-center gap-3 py-10 px-6 rounded-xl border ${palette.border} ${palette.bg} text-center`,
   },
     Icon && React.createElement(Icon, { className: `w-8 h-8 ${palette.text} opacity-60` }),
     React.createElement('p', { className: `text-[13px] font-semibold ${palette.text}` }, title),
@@ -86,7 +86,7 @@ export const STATUS_COLORS = {
 
 // ── Section card design tokens ──────────────────────────────────────────────
 export const SECTION_SHADOW = '';
-export const CARD_BASE = 'border border-border bg-card rounded-md overflow-hidden';
+export const CARD_BASE = 'border border-border bg-card rounded-xl overflow-hidden';
 export const SECTION_CARD = CARD_BASE;
 export const TABLE_HEADER = 'text-[11px] font-semibold text-muted-foreground uppercase tracking-wide';
 
@@ -100,7 +100,7 @@ export const GRID_SEC_KPIS = 'grid grid-cols-2 gap-3';
 // ── Skeleton helpers ─────────────────────────────────────────────────────────
 export function SkeletonBlock({ height, className }: { height: number | string; className?: string }) {
   return React.createElement('div', {
-    className: `rounded-md animate-pulse border border-border bg-muted ${className ?? ''}`,
+    className: `rounded-xl animate-pulse border border-border bg-muted ${className ?? ''}`,
     style: { height: typeof height === 'number' ? height : undefined, minHeight: typeof height === 'string' ? height : undefined },
   });
 }
@@ -111,7 +111,7 @@ export function SkeletonKPIGrid({ cols = 3, cardHeight = 36 }: { cols?: 3 | 4 | 
     ...Array.from({ length: cols }, (_, i) =>
       React.createElement('div', {
         key: i,
-        className: 'rounded-md border border-border bg-muted',
+        className: 'rounded-xl border border-border bg-muted',
         style: { height: `${cardHeight * 4}px` },
       })
     )

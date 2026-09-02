@@ -82,7 +82,7 @@ export const DashboardFilters = ({
               key={p.value}
               onClick={() => handlePeriodClick(p.value)}
               className={`
-                h-[30px] px-3 text-xs font-semibold rounded-[4px] border transition-all duration-150
+                h-[30px] px-3 text-xs font-semibold rounded-full border transition-all duration-150
                 ${periodFilter === p.value
                   ? 'bg-foreground text-background border-foreground '
                   : 'bg-card text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
@@ -96,7 +96,7 @@ export const DashboardFilters = ({
           <button
             onClick={() => handlePeriodClick('custom')}
             className={`
-              h-[30px] px-3 text-xs font-semibold rounded-[4px] border transition-all duration-150 flex items-center gap-1.5
+              h-[30px] px-3 text-xs font-semibold rounded-full border transition-all duration-150 flex items-center gap-1.5
               ${periodFilter === 'personalizado'
                 ? 'bg-foreground text-background border-foreground '
                 : 'bg-card text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
@@ -116,7 +116,7 @@ export const DashboardFilters = ({
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">Pipeline</span>
             <Select value={pipelineFilter} onValueChange={onPipelineChange}>
-              <SelectTrigger className="h-[30px] text-xs border-border bg-card text-foreground w-auto min-w-[130px] rounded-[4px] font-medium focus:ring-0">
+              <SelectTrigger className="h-[30px] text-xs border-border bg-card text-foreground w-auto min-w-[130px] rounded-lg font-medium focus:ring-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="z-50">
@@ -143,7 +143,7 @@ export const DashboardFilters = ({
                 key={s}
                 onClick={() => toggleScore(s)}
                 className={`
-                  w-7 h-7 text-xs font-bold rounded-[4px] border transition-all duration-150
+                  w-7 h-7 text-xs font-bold rounded-lg border transition-all duration-150
                   ${scoreFilter.includes(s)
                     ? scoreColor(s) + ' '
                     : 'bg-card text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground'

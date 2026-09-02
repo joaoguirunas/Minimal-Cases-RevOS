@@ -68,13 +68,13 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
   return (
     <div className="space-y-5 max-w-4xl">
       {/* ── Carrinho ─────────────────────────────────────────────────────── */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
             <span className="text-[13px] font-medium text-foreground">Carrinho</span>
             {cart && (
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground/60 border border-border rounded-[2px] px-1.5 py-0.5">
+              <span className="text-[10px] uppercase tracking-wide text-muted-foreground/60 border border-border rounded-full px-1.5 py-0.5">
                 {cart.source === 'yampi' ? 'Yampi' : 'Zoppy (histórico)'}
               </span>
             )}
@@ -88,7 +88,7 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
           <p className="text-[12px] text-muted-foreground">Nenhum carrinho encontrado para este contato.</p>
         ) : (
           <>
-            <div className="divide-y divide-border rounded-[4px] border border-border overflow-hidden">
+            <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
               {cart.items.length === 0 ? (
                 <p className="text-[12px] text-muted-foreground px-3 py-2.5">Itens não disponíveis no payload.</p>
               ) : cart.items.map((it, i) => (
@@ -125,7 +125,7 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
       </div>
 
       {/* ── Timeline ─────────────────────────────────────────────────────── */}
-      <div className="rounded-[4px] border border-border bg-card p-5 space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[13px] font-medium text-foreground">Timeline da esteira</span>
           <span className="text-[11px] text-muted-foreground">
