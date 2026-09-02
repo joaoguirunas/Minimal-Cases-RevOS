@@ -1,12 +1,12 @@
 {
-  "version": "4.99",
-  "major": 4,
-  "minor": 99,
-  "created_at": "2026-09-01T18:56:32.000Z",
-  "git_sha": "0a128318fc8f6c6c3c0d511946f27426b590e95a",
+  "version": "5.7",
+  "major": 5,
+  "minor": 7,
+  "created_at": "2026-09-02T01:40:56.000Z",
+  "git_sha": "5decfff113bfad7999a3e95ed2868af4ece6dffb",
   "migrations": [
-    "supabase/migrations/20260831110000_zoppy_integration.sql"
+    "supabase/migrations/20260831150000_zoppy_pipelines.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(zoppy): integração Zoppy — import da base antiga (clientes, pedidos, carrinhos)|style(login): remove override do botão do dialog de reset|style(login): botões seguem o pill padrão (remove overrides de radius/cor)|style: design do CRM alinhado aos e-mails da Minimal|chore(release): release.json v4.95 [skip ci]"
+  "changelog": "feat(zoppy): pipelines Clientes (stages RFM) e Carrinho Abandonado alimentados pelo import|feat(klaviyo): UI do bootstrap de flows + campos From na aba Klaviyo|feat(klaviyo): bootstrap de métrica + flows via API (KLV-3)|feat(klaviyo): sincronizar templates da biblioteca para o Klaviyo via Templates API|docs: Klaviyo (evento→flow) no README|feat(klaviyo): provider Klaviyo para e-mail e SMS (perfil + evento → flow)|fix: remove favicon zoppy inválido (fallback de iniciais assume)|chore(release): release.json v4.99 [skip ci]"
 }
