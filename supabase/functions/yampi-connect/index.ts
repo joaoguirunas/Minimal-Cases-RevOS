@@ -29,7 +29,7 @@ import {
   YampiAuthError,
 } from '../_shared/yampi-client.ts';
 
-type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess';
+type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts';
 
 interface RequestBody {
   action?: Action;
@@ -37,6 +37,7 @@ interface RequestBody {
   user_token?: string;
   user_secret?: string;
   event_id?: string;
+  days?: number;
 }
 
 function inboundWebhookUrl(supabaseUrl: string, connectionId?: string): string {
@@ -91,7 +92,7 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json().catch(() => ({}))) as RequestBody;
     const action = body.action;
-    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess'].includes(action)) {
+    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts'].includes(action)) {
       return err200('Ação inválida', 'BAD_REQUEST');
     }
 
@@ -238,6 +239,82 @@ Deno.serve(async (req: Request) => {
       }).eq('id', bound.row.id);
       if (error) return err200(`Falha ao desconectar: ${error.message}`, 'DB_ERROR');
       return ok200({ ok: true, status: 'disconnected' });
+    }
+
+    // ── BACKFILL_CARTS (YMP-5): carrinhos abandonados retroativos ───────────
+    // Pagina GET /checkout/carts do período e sintetiza eventos carrinho_abandonado
+    // (dedup backfill:<cart_id>); yampi-process-event cria contato + lead no stage
+    // "Carrinho abandonado" da esteira, e o trigger de stage dispara os follow-ups.
+    if (action === 'backfill_carts') {
+      const days = Math.min(Math.max(Number(body.days ?? 7) || 7, 1), 60);
+      const bound = await createYampiClientForConnection(supabase);
+      if (!bound || bound.row.status !== 'connected') {
+        return err200('Conecte a Yampi antes do backfill', 'NOT_CONNECTED');
+      }
+      const fmt = (d: Date) => d.toISOString().slice(0, 10);
+      const now = new Date();
+      const dateFilter = `created_at:${fmt(new Date(now.getTime() - days * 86400_000))}|${fmt(now)}`;
+
+      const results = { scanned: 0, synthesized: 0, skipped_existing: 0, no_identity: 0, errors: 0 };
+      const MAX_PAGES = 30;
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        let batch: Awaited<ReturnType<typeof bound.client.listRecentCarts>> = [];
+        try {
+          batch = await bound.client.request<{ data: typeof batch }>('GET', '/checkout/carts', {
+            query: {
+              date: dateFilter,
+              customersData: 'true',
+              page: String(page),
+              limit: '50',
+              include: 'items,customer',
+              sort: '-created_at',
+            },
+          }).then((r) => (r as { data?: typeof batch }).data ?? []);
+        } catch (e) {
+          return err200(`Falha ao listar carrinhos: ${(e as Error).message}`, 'API_ERROR', { ...results });
+        }
+        if (batch.length === 0) break;
+
+        for (const cart of batch) {
+          results.scanned++;
+          if (!cart.id) continue;
+          const email = cart.customer?.data?.email ?? cart.tracking_data?.email;
+          const phone = cart.customer?.data?.phone?.full_number;
+          if (!email && !phone) { results.no_identity++; continue; }
+
+          const { data: inserted, error: insertErr } = await supabase
+            .from('yampi_webhook_events')
+            .upsert({
+              connection_id: bound.row.id,
+              trigger: 'carrinho_abandonado',
+              event_type: 'cart.backfill',
+              cart_token: cart.token ?? null,
+              dedup_key: `backfill:${cart.id}`,
+              raw_payload: {
+                event: 'cart.backfill',
+                origin: 'backfill',
+                time: new Date().toISOString(),
+                resource: cart,
+              },
+              signature_valid: true,
+              status: 'received',
+            }, { onConflict: 'connection_id,event_type,dedup_key', ignoreDuplicates: true })
+            .select('id')
+            .maybeSingle() as unknown as { data: { id: string } | null; error: { message: string } | null };
+
+          if (insertErr) { results.errors++; continue; }
+          if (!inserted) { results.skipped_existing++; continue; }
+          results.synthesized++;
+          // Processa em série (respeita o pipeline normal; volume de 1 semana é pequeno).
+          await fetch(`${supabaseUrl}/functions/v1/yampi-process-event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${serviceKey}` },
+            body: JSON.stringify({ event_id: inserted.id }),
+          }).catch(() => { /* yampi-reconcile reprocessa presos */ });
+        }
+        if (batch.length < 50) break;
+      }
+      return ok200({ ok: true, days, ...results });
     }
 
     // ── REPROCESS ───────────────────────────────────────────────────────────
