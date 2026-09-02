@@ -7,11 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Droppable, Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useNavigate } from "react-router-dom";
-import { Building2, MessageCircle, Star, Megaphone, MoreHorizontal, XCircle } from "lucide-react";
+import { Building2, Clock, Mail, MessageCircle, Megaphone, MoreHorizontal, Smartphone, Star, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useMessageCountByLead } from "@/hooks/useMessageCount";
+import { useTouchCountsByLead } from "@/hooks/useEsteiraLead";
 import CursoBadges from "./CursoBadges";
 import TagBadges from "./TagBadges";
 import UnreadBadge from "@/components/common/UnreadBadge";
@@ -71,6 +72,13 @@ const StageColumn = ({
     [negocios]
   );
   const { data: messageCounts = {} } = useMessageCountByLead(leadIds);
+  const { data: touchCounts = {} } = useTouchCountsByLead(leadIds);
+
+  const daysSince = (iso?: string) => {
+    if (!iso) return null;
+    const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+    return Number.isFinite(d) && d >= 0 ? d : null;
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -243,13 +251,48 @@ const StageColumn = ({
                             </span>
                           )}
 
+                          {/* Toques da esteira (follow-ups enviados) por canal */}
+                          {(touchCounts[negocio.id]?.email ?? 0) > 0 && (
+                            <span title="E-mails enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-sky-400 bg-sky-400/10 border-sky-400/20">
+                              <Mail className="h-2.5 w-2.5" strokeWidth={1.5} />
+                              {touchCounts[negocio.id].email}
+                            </span>
+                          )}
+                          {(touchCounts[negocio.id]?.whatsapp ?? 0) > 0 && (
+                            <span title="WhatsApp enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
+                              <MessageCircle className="h-2.5 w-2.5" strokeWidth={1.5} />
+                              {touchCounts[negocio.id].whatsapp}
+                            </span>
+                          )}
+                          {(touchCounts[negocio.id]?.sms ?? 0) > 0 && (
+                            <span title="SMS enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
+                              <Smartphone className="h-2.5 w-2.5" strokeWidth={1.5} />
+                              {touchCounts[negocio.id].sms}
+                            </span>
+                          )}
+
                           <CursoBadges cursos={negocio.pessoa?.cursos} />
 
                           <TagBadges tags={negocio.tags?.map((t: any) => t.tag).filter(Boolean)} />
 
-                          <span className="ml-auto text-[10px] text-muted-foreground/40">
-                            {negocio.created_at && format(new Date(negocio.created_at), 'dd/MM', { locale: ptBR })}
-                          </span>
+                          {(() => {
+                            const d = daysSince(negocio.created_at);
+                            if (d === null) return null;
+                            return (
+                              <span
+                                title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
+                                className={cn(
+                                  "ml-auto inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-[2px] border leading-none",
+                                  d >= 7 ? "text-red-400 bg-red-400/10 border-red-400/20"
+                                    : d >= 3 ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
+                                    : "text-muted-foreground/60 bg-muted border-border",
+                                )}
+                              >
+                                <Clock className="h-2.5 w-2.5" strokeWidth={1.5} />
+                                {d === 0 ? 'hoje' : `${d}d`}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}

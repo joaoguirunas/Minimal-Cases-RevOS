@@ -31,8 +31,8 @@ const corsHeaders = {
 
 /** Janela de varredura (min). Sobreposição intencional — o dedup absorve repetidos. */
 const LOOKBACK_MINUTES = 40;
-/** Eventos 'received' mais velhos que isso são reenfileirados. */
-const STUCK_MINUTES = 10;
+/** Eventos 'received' mais velhos que isso são reenfileirados/drenados (inclui backfill). */
+const STUCK_MINUTES = 1;
 const MAX_CARTS_PER_RUN = 100;
 
 /** Valida claim role=service_role sem comparar com a key (rotation-proof). */
@@ -175,7 +175,7 @@ Deno.serve(async (req: Request) => {
       .eq('status', 'received')
       .lt('created_at', stuckBefore)
       .order('created_at', { ascending: true })
-      .limit(25);
+      .limit(120);
     for (const row of (stuck ?? []) as Array<{ id: string }>) {
       results.stuck_requeued++;
       await invokeProcessEvent(supabaseUrl, serviceRoleKey, row.id);

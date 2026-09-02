@@ -34,6 +34,8 @@ import { AtribuirTimeResponsavel } from "@/components/conversas/AtribuirTimeResp
 import NegocioConversa from "@/components/negocios/NegocioConversa";
 import ConversaErrorBoundary from "@/components/negocios/conversa/ConversaErrorBoundary";
 import NegocioArquivos from "@/components/negocios/NegocioArquivos";
+import NegocioEsteira from "@/components/negocios/NegocioEsteira";
+import { ShoppingCart } from "lucide-react";
 import NegocioNotas from "@/components/negocios/NegocioNotas";
 import NegocioSidebar from "@/components/negocios/NegocioSidebar";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -654,6 +656,7 @@ const NegocioSingle = () => {
                 <TabsList className="flex justify-start bg-transparent p-0 h-[45px] gap-0">
                   {[
                     { value: 'conversas', icon: MessageSquare, label: 'Conversas' },
+                    { value: 'esteira', icon: ShoppingCart, label: 'Esteira' },
                     { value: 'informacoes', icon: UserCheck, label: 'Informações' },
                     { value: 'arquivos', icon: FileText, label: 'Notas' },
                     { value: 'reunioes', icon: Calendar, label: 'Reuniões' },
@@ -686,6 +689,11 @@ const NegocioSingle = () => {
                   <ConversaErrorBoundary>
                     <NegocioConversa negocioId={id!} />
                   </ConversaErrorBoundary>
+                </TabsContent>
+
+                {/* Esteira: carrinho + timeline de toques */}
+                <TabsContent value="esteira" className="mt-0 p-5 overflow-auto">
+                  <NegocioEsteira leadId={id!} peopleId={negocio?.pessoa?.id ?? negocio?.people_id} />
                 </TabsContent>
 
                 {/* Informações */}

@@ -38,6 +38,8 @@ interface RequestBody {
   user_secret?: string;
   event_id?: string;
   days?: number;
+  date_start?: string;
+  date_end?: string;
 }
 
 function inboundWebhookUrl(supabaseUrl: string, connectionId?: string): string {
@@ -246,14 +248,26 @@ Deno.serve(async (req: Request) => {
     // (dedup backfill:<cart_id>); yampi-process-event cria contato + lead no stage
     // "Carrinho abandonado" da esteira, e o trigger de stage dispara os follow-ups.
     if (action === 'backfill_carts') {
-      const days = Math.min(Math.max(Number(body.days ?? 7) || 7, 1), 60);
       const bound = await createYampiClientForConnection(supabase);
       if (!bound || bound.row.status !== 'connected') {
         return err200('Conecte a Yampi antes do backfill', 'NOT_CONNECTED');
       }
       const fmt = (d: Date) => d.toISOString().slice(0, 10);
       const now = new Date();
-      const dateFilter = `created_at:${fmt(new Date(now.getTime() - days * 86400_000))}|${fmt(now)}`;
+      const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+      let start: string;
+      let end: string;
+      if (body.date_start && body.date_end && DATE_RE.test(body.date_start) && DATE_RE.test(body.date_end)) {
+        // Intervalo explícito (ex.: semana retrasada) — não pega carrinhos fora dele.
+        start = body.date_start;
+        end = body.date_end;
+        if (start > end) return err200('date_start não pode ser depois de date_end', 'BAD_REQUEST');
+      } else {
+        const days = Math.min(Math.max(Number(body.days ?? 7) || 7, 1), 60);
+        start = fmt(new Date(now.getTime() - days * 86400_000));
+        end = fmt(now);
+      }
+      const dateFilter = `created_at:${start}|${end}`;
 
       const results = { scanned: 0, synthesized: 0, skipped_existing: 0, no_identity: 0, errors: 0 };
       const MAX_PAGES = 30;
@@ -305,16 +319,13 @@ Deno.serve(async (req: Request) => {
           if (insertErr) { results.errors++; continue; }
           if (!inserted) { results.skipped_existing++; continue; }
           results.synthesized++;
-          // Processa em série (respeita o pipeline normal; volume de 1 semana é pequeno).
-          await fetch(`${supabaseUrl}/functions/v1/yampi-process-event`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${serviceKey}` },
-            body: JSON.stringify({ event_id: inserted.id }),
-          }).catch(() => { /* yampi-reconcile reprocessa presos */ });
+          // O processamento (contato + lead + fups) fica com o yampi-reconcile,
+          // que drena eventos 'received' em lotes — processar aqui em série
+          // estoura o limite de recursos da função com períodos grandes.
         }
         if (batch.length < 50) break;
       }
-      return ok200({ ok: true, days, ...results });
+      return ok200({ ok: true, period: { start, end }, ...results });
     }
 
     // ── REPROCESS ───────────────────────────────────────────────────────────
