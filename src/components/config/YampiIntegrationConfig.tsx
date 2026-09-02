@@ -363,9 +363,10 @@ export default function YampiIntegrationConfig() {
   const [userToken, setUserToken] = useState('');
   const [userSecret, setUserSecret] = useState('');
   const [showSecret, setShowSecret] = useState(false);
-  const [busy, setBusy] = useState<null | 'test' | 'connect' | 'disconnect'>(null);
+  const [busy, setBusy] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<null | { ok: boolean; message: string }>(null);
 
+  const [backfillDays, setBackfillDays] = useState('7');
   const [eventTrigger, setEventTrigger] = useState('all');
   const [eventStatus, setEventStatus] = useState('all');
   const connected = statusData?.connected ?? false;
@@ -407,6 +408,24 @@ export default function YampiIntegrationConfig() {
       refreshStatus();
     } catch (e) {
       toast({ title: 'Falha ao conectar', description: (e as Error).message, variant: 'destructive' });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const runBackfill = async () => {
+    setBusy('backfill');
+    try {
+      const res = await invokeYampi<{ scanned: number; synthesized: number; skipped_existing: number; no_identity: number }>(
+        { action: 'backfill_carts', days: Number(backfillDays) || 7 },
+      );
+      toast({
+        title: 'Backfill concluído',
+        description: `${res.scanned} carrinhos varridos · ${res.synthesized} entraram na esteira · ${res.skipped_existing} já existiam · ${res.no_identity} sem contato`,
+      });
+      setTimeout(() => refetchEvents(), 2000);
+    } catch (e) {
+      toast({ title: 'Falha no backfill', description: (e as Error).message, variant: 'destructive' });
     } finally {
       setBusy(null);
     }
@@ -464,7 +483,7 @@ export default function YampiIntegrationConfig() {
             {statusData?.inbound_url && (
               <CopyableField label="URL de inbound (registrada na Yampi)" value={statusData.inbound_url} />
             )}
-            <div className="pt-1">
+            <div className="pt-1 flex flex-wrap items-center gap-2">
               <Button
                 variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]"
                 disabled={busy !== null} onClick={runDisconnect}
@@ -474,7 +493,28 @@ export default function YampiIntegrationConfig() {
                   : <Unplug className="w-3.5 h-3.5" strokeWidth={1.5} />}
                 Desconectar
               </Button>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <span className="text-[11px] text-muted-foreground">Backfill: últimos</span>
+                <Input
+                  value={backfillDays}
+                  onChange={(e) => setBackfillDays(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                  className="h-8 w-12 text-[12px] text-center"
+                />
+                <span className="text-[11px] text-muted-foreground">dias</span>
+                <Button
+                  size="sm" className="h-8 gap-1.5 text-[12px]"
+                  disabled={busy !== null}
+                  onClick={runBackfill}
+                >
+                  {busy === 'backfill' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                  Puxar carrinhos abandonados
+                </Button>
+              </div>
             </div>
+            <p className="text-[11px] text-muted-foreground">
+              O backfill traz carrinhos abandonados retroativos da Yampi para a esteira — cada um vira lead
+              no stage "Carrinho abandonado" e os follow-ups do stage disparam. Idempotente (não duplica).
+            </p>
           </div>
         )}
 
