@@ -50,6 +50,20 @@ export interface KlaviyoProfileAttrs {
 const MAX_RETRIES = 3;
 
 /** Telefone BR → E.164 (+55DDD9XXXXXXXX). Devolve null se irreconhecível. */
+/**
+ * Trava de segurança de envios (KLV-4): TODO envio via Klaviyo (profile+evento →
+ * flow) fica bloqueado a menos que `sends_locked` esteja EXPLICITAMENTE 'false'
+ * nas credenciais do canal. Fail-safe: credencial recém-configurada = travada.
+ * Sync de templates e bootstrap de flows (rascunho) não são envios — passam.
+ */
+export function isKlaviyoSendLocked(creds: Record<string, unknown> | null | undefined): boolean {
+  const v = creds?.sends_locked;
+  return !(v === false || v === 'false');
+}
+
+export const KLAVIYO_LOCKED_MSG =
+  'Klaviyo: envios TRAVADOS (trava de segurança). Nada foi enviado — destrave o switch "Liberar envios" na aba Klaviyo do canal para enviar de verdade.';
+
 export function toE164BR(phone: string | null | undefined): string | null {
   if (!phone) return null;
   let d = phone.replace(/\D/g, '');

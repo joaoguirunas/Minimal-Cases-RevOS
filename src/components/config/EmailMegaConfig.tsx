@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import ChannelHealthBadge from './ChannelHealthBadge';
 import { EmailTemplatesConfig } from './EmailTemplatesConfig';
+import { KlaviyoSendLockCard, EmailAssetsManager, EMAIL_ASSETS_PUBLIC_BASE } from './KlaviyoExtras';
 
 type EmailProvider = 'smtp' | 'sendgrid' | 'resend' | 'klaviyo' | 'webhook';
 
@@ -282,7 +283,21 @@ export default function EmailMegaConfig() {
                 <Label className="text-[13px]">From Name</Label>
                 <Input placeholder="Minimal Cases" value={credentials.from_name ?? ''} onChange={e => setCredentials(c => ({ ...c, from_name: e.target.value }))} />
               </div>
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[13px]">Base pública das imagens ({'{{asset_base}}'})</Label>
+                <Input placeholder={EMAIL_ASSETS_PUBLIC_BASE} value={credentials.asset_base ?? ''} onChange={e => setCredentials(c => ({ ...c, asset_base: e.target.value }))} className="font-mono text-[12px]" />
+                <p className="text-[11px] text-muted-foreground/70">
+                  Vazio = usa o bucket público do Storage automaticamente. Resolvido no envio e na exportação pro Klaviyo.
+                </p>
+              </div>
             </div>
+
+            <KlaviyoSendLockCard
+              channelLabel="e-mail"
+              locked={credentials.sends_locked !== 'false'}
+              onChange={(locked) => setCredentials(c => ({ ...c, sends_locked: locked ? 'true' : 'false' }))}
+            />
+
             <p className="text-[12px] text-muted-foreground">
               O Klaviyo não envia e-mail direto pela API: o CRM cria/atualiza o profile e dispara um
               <span className="font-medium text-foreground"> evento</span> com essa métrica. No Klaviyo, crie um
@@ -309,9 +324,12 @@ export default function EmailMegaConfig() {
               <p className="text-[11px] text-muted-foreground/70">
                 O bootstrap cria a métrica, o template dinâmico e os flows de e-mail/SMS já configurados —
                 a API do Klaviyo cria flows em rascunho, então o único passo manual é revisar e ligar o Live lá.
+                Com a trava fechada acima, nem flow Live envia pelo CRM.
               </p>
             </div>
           </div>
+
+          <EmailAssetsManager />
         </TabsContent>
 
         <TabsContent value="webhook" className="space-y-5 mt-0">

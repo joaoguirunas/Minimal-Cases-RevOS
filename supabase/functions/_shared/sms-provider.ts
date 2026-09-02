@@ -14,7 +14,7 @@
  * Nunca lança: sempre retorna { success, error? }.
  */
 
-import { KlaviyoClient, toE164BR } from './klaviyo-client.ts';
+import { KlaviyoClient, toE164BR, isKlaviyoSendLocked, KLAVIYO_LOCKED_MSG } from './klaviyo-client.ts';
 import { renderTemplate } from './email-provider.ts';
 
 const DIRECT_SMS_PROVIDERS = ['twilio', 'klaviyo'] as const;
@@ -88,6 +88,7 @@ async function dispatchKlaviyoSms(
   vars: Record<string, string>,
 ): Promise<SmsSendResult> {
   if (!creds.api_key) return { success: false, error: 'Klaviyo: api_key (chave privada) é obrigatória' };
+  if (isKlaviyoSendLocked(creds)) return { success: false, error: KLAVIYO_LOCKED_MSG };
   const phone = toE164BR(to);
   if (!phone) return { success: false, error: `Klaviyo: telefone inválido para E.164: "${to}"` };
   const metric = creds.metric_sms?.trim() || 'CRM SMS Followup';

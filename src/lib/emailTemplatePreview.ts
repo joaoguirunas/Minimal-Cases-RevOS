@@ -6,6 +6,12 @@
  * surrounding whitespace.
  */
 
+import { supabaseUrl } from '@/integrations/supabase/client';
+
+// Base pública das imagens no preview — bucket email-assets do Storage
+// (mesmo default do envio e da exportação pro Klaviyo).
+const ASSET_BASE = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/email-assets`;
+
 export const VARIABLE_TOKEN_RE = /\{\{\s*([\w.]+)\s*\}\}/g;
 
 /** Sample values used to fill variables in the preview. Keyed by full token path. */
@@ -27,7 +33,7 @@ const SAMPLE_VALUES: Record<string, string> = {
   'produto': 'Case iPhone Couro Porta Cartões Magnético',
   'modelo_celular': 'iPhone 17 Pro',
   'modelo_celular_curto': 'IPHONE',
-  'imagem_produto': '/email-assets/prod-couro.jpg',
+  'imagem_produto': `${ASSET_BASE}/prod-couro.jpg`,
   'preco': 'R$ 142,90',
   'preco_com_cupom': 'R$ 128,61',
   'total': 'R$ 142,90',
@@ -38,8 +44,8 @@ const SAMPLE_VALUES: Record<string, string> = {
   'cargo': 'Atendimento & Experiência',
   'link_whatsapp': 'https://wa.me/5511999999999',
   'unsubscribe': '#',
-  'countdown_gif': '/email-assets/countdown-placeholder.png',
-  'asset_base': '/email-assets',
+  'countdown_gif': `${ASSET_BASE}/countdown-placeholder.png`,
+  'asset_base': ASSET_BASE,
 };
 
 /** Returns the deduplicated list of variable names referenced in the given text. */

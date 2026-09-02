@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import NewContactSection from '@/components/config/NewContactSection';
 import ChannelHealthBadge from './ChannelHealthBadge';
+import { KlaviyoSendLockCard } from './KlaviyoExtras';
 
 type SmsProvider = 'twilio' | 'klaviyo' | 'webhook';
 
@@ -161,6 +162,13 @@ export default function SmsMegaConfig() {
                 <Input placeholder="CRM SMS Followup" value={credentials.metric_sms ?? ''} onChange={e => setCredentials(c => ({ ...c, metric_sms: e.target.value }))} className="font-mono" />
               </div>
             </div>
+
+            <KlaviyoSendLockCard
+              channelLabel="SMS"
+              locked={credentials.sends_locked !== 'false'}
+              onChange={(locked) => setCredentials(c => ({ ...c, sends_locked: locked ? 'true' : 'false' }))}
+            />
+
             <p className="text-[12px] text-muted-foreground">
               O CRM dispara um <span className="font-medium text-foreground">evento</span> com essa métrica e o telefone em E.164;
               no Klaviyo, um <span className="font-medium text-foreground">Flow disparado pela métrica</span> envia o SMS com

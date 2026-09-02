@@ -29,6 +29,62 @@ export function toKlaviyoEventSyntax(text: string): string {
       : `{{ event.${key} }}`);
 }
 
+// ── Imagens (EMAIL-3): host público automático ─────────────────────────────────
+// Antes de exportar, TODA imagem do template vira URL pública do bucket
+// email-assets: data-URIs sobem pro Storage (e o template da biblioteca é
+// atualizado com a URL — o base64 sai do banco), caminhos relativos e
+// {{asset_base}} são resolvidos pra base configurada.
+
+const DATA_URI_RE = /src="(data:image\/(png|jpeg|jpg|webp|gif);base64,([A-Za-z0-9+/=]+))"/g;
+
+const EXT_BY_MIME: Record<string, string> = { png: 'png', jpeg: 'jpg', jpg: 'jpg', webp: 'webp', gif: 'gif' };
+
+async function sha1Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-1', bytes.buffer as ArrayBuffer);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function resolveAssetBase(creds: Record<string, string | undefined>, supabaseUrl: string): string {
+  return (creds.asset_base?.trim().replace(/\/+$/, ''))
+    || Deno.env.get('EMAIL_ASSET_BASE')?.replace(/\/+$/, '')
+    || `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/email-assets`;
+}
+
+/**
+ * Sobe data-URIs do HTML pro bucket (nome = hash do conteúdo, idempotente) e
+ * troca o src pela URL pública. Retorna o HTML novo e se houve mudança.
+ */
+async function hostInlineImages(
+  storage: ReturnType<typeof createClient>['storage'],
+  html: string,
+  supabaseUrl: string,
+): Promise<{ html: string; changed: boolean }> {
+  let changed = false;
+  const matches = [...html.matchAll(DATA_URI_RE)];
+  let out = html;
+  for (const m of matches) {
+    const [full, , mime, b64] = m;
+    try {
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const name = `inline-${(await sha1Hex(bytes)).slice(0, 16)}.${EXT_BY_MIME[mime] ?? 'png'}`;
+      const { error } = await storage.from('email-assets')
+        .upload(name, bytes.buffer as ArrayBuffer, { contentType: `image/${mime === 'jpg' ? 'jpeg' : mime}`, upsert: true });
+      if (error) continue;
+      const publicUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/email-assets/${name}`;
+      out = out.replaceAll(full, `src="${publicUrl}"`);
+      changed = true;
+    } catch (_) { /* imagem fica inline — não trava o sync */ }
+  }
+  return { html: out, changed };
+}
+
+/** Resolve {{asset_base}} e caminhos relativos /email-assets/ pra base pública. */
+export function resolveImageUrls(html: string, assetBase: string): string {
+  return html
+    .replaceAll('{{asset_base}}', assetBase)
+    .replaceAll('src="/email-assets/', `src="${assetBase}/`);
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -222,10 +278,19 @@ Deno.serve(async (req: Request) => {
     const rows = (templates ?? []) as Array<{ id: string; name: string; subject: string; html_body: string }>;
     if (rows.length === 0) return ok200({ ok: true, synced: [], message: 'Nenhum template ativo na biblioteca.' });
 
+    const assetBase = resolveAssetBase(creds, supabaseUrl);
     const results: Array<{ name: string; klaviyo_name: string; action: string; error?: string }> = [];
     for (const t of rows) {
       const klaviyoName = `CRM · ${t.name}`.slice(0, 255);
-      const html = toKlaviyoEventSyntax(t.html_body);
+      // 1. Imagens inline (data:) sobem pro bucket e a biblioteca é atualizada
+      //    com a URL pública (o base64 sai do banco de vez).
+      const hosted = await hostInlineImages(supabase.storage, t.html_body, supabaseUrl);
+      if (hosted.changed) {
+        await supabase.from('email_templates').update({ html_body: hosted.html }).eq('id', t.id);
+      }
+      // 2. {{asset_base}} e caminhos relativos viram a base pública configurada
+      //    (o template no Klaviyo precisa de URLs absolutas prontas).
+      const html = toKlaviyoEventSyntax(resolveImageUrls(hosted.html, assetBase));
       try {
         const existing = await client.findTemplateByName(klaviyoName);
         if (existing) {
@@ -242,13 +307,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const failed = results.filter((r) => r.action === 'failed').length;
+    const sendsLocked = !(creds.sends_locked === 'false');
     return ok200({
       ok: true,
       synced: results,
       created: results.filter((r) => r.action === 'created').length,
       updated: results.filter((r) => r.action === 'updated').length,
       failed,
-      hint: 'No Flow (métrica CRM Email Followup), selecione o template "CRM · <nome>" e use {{ event.subject }} no assunto. Lembre: o assunto não faz parte do template no Klaviyo.',
+      asset_base: assetBase,
+      sends_locked: sendsLocked,
+      hint: (sendsLocked ? '🔒 Envios pelo Klaviyo estão TRAVADOS — sincronizar templates não envia nada. ' : '') +
+        'No Flow (métrica CRM Email Followup), selecione o template "CRM · <nome>" e use {{ event.subject }} no assunto. Lembre: o assunto não faz parte do template no Klaviyo.',
     });
   } catch (err) {
     return err200(`Erro interno: ${(err as Error).message}`, 'INTERNAL');

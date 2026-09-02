@@ -184,8 +184,9 @@ async function dispatchKlaviyo(
   vars: Record<string, string>,
 ): Promise<SendResult> {
   if (!creds.api_key) return { success: false, error: 'Klaviyo: api_key (chave privada) é obrigatória' };
+  const { KlaviyoClient, isKlaviyoSendLocked, KLAVIYO_LOCKED_MSG } = await import('./klaviyo-client.ts');
+  if (isKlaviyoSendLocked(creds)) return { success: false, error: KLAVIYO_LOCKED_MSG };
   const metric = creds.metric_email?.trim() || 'CRM Email Followup';
-  const { KlaviyoClient } = await import('./klaviyo-client.ts');
   const client = new KlaviyoClient(creds.api_key);
   try {
     await client.upsertProfile({ email: to });

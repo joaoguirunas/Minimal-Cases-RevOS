@@ -377,10 +377,13 @@ serve(async (req) => {
             'pessoa.whatsapp': pessoa?.whatsapp ?? '',
             'lead.titulo': lead?.title ?? '',
             // Tokens usados pelos templates da esteira Minimal (EMAIL-2.1):
-            // {{nome}} = primeiro nome; {{asset_base}} = base pública das imagens
-            // (env EMAIL_ASSET_BASE, ex. https://crm.suaurl.com/email-assets).
+            // {{nome}} = primeiro nome; {{asset_base}} = base pública das imagens —
+            // configurável na UI (credentials.asset_base do canal e-mail); fallback
+            // env EMAIL_ASSET_BASE e por fim o bucket público email-assets.
             'nome': (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
-            'asset_base': Deno.env.get('EMAIL_ASSET_BASE') ?? '',
+            'asset_base': (emailConfig?.credentials as Record<string, string> | null | undefined)?.asset_base
+              || Deno.env.get('EMAIL_ASSET_BASE')
+              || `${(Deno.env.get('SUPABASE_URL') ?? '').replace(/\/+$/, '')}/storage/v1/object/public/email-assets`,
           };
 
           // {{link_checkout}} → link do carrinho da pessoa, RASTREADO (BI-REC-3):
