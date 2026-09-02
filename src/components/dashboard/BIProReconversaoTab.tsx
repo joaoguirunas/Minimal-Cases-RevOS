@@ -100,7 +100,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
           icon={CheckCircle2} accent
           label="Reconvertidos por nós"
           value={String(data.reconvertidos)}
-          sub={`${data.organicos} compraram sem toque (orgânico) — não contamos`}
+          sub={`🥇 ${data.porNivel.cupom} cupom · 🥈 ${data.porNivel.clique} clique · 🥉 ${data.porNivel.janela} janela — ${data.organicos} orgânicos fora`}
         />
         <KpiCard
           icon={DollarSign}
@@ -223,8 +223,25 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
                   </td>
                   <td className="px-4 py-2.5">
                     {r.attributed ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border text-emerald-500 bg-emerald-500/10 border-emerald-500/20">
-                        <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} /> Reconvertido por nós
+                      <span
+                        title={r.attribution_level === 'cupom'
+                          ? `Usou o nosso cupom ${r.coupon_code ?? ''} — prova forte`
+                          : r.attribution_level === 'clique'
+                            ? 'Clicou em link rastreado nosso antes de pagar'
+                            : 'Recebeu toque antes de pagar (janela de 7 dias)'}
+                        className={cn(
+                          'inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border',
+                          r.attribution_level === 'cupom'
+                            ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30'
+                            : r.attribution_level === 'clique'
+                              ? 'text-sky-400 bg-sky-400/10 border-sky-400/25'
+                              : 'text-amber-500 bg-amber-500/10 border-amber-500/25',
+                        )}
+                      >
+                        <CheckCircle2 className="w-3 h-3" strokeWidth={1.5} />
+                        {r.attribution_level === 'cupom'
+                          ? `Cupom ${r.coupon_code ?? ''}`
+                          : r.attribution_level === 'clique' ? 'Clique rastreado' : 'Janela 7d'}
                       </span>
                     ) : (
                       <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded-[2px] border text-muted-foreground bg-muted border-border">

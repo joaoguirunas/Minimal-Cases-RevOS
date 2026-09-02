@@ -2414,7 +2414,12 @@ async function executeTool(
         const url = cart.unauth_simulate_url ?? cart.simulate_url;
         if (!url) return 'Carrinho encontrado, mas sem link de recuperação disponível. Use yampi_enviar_link_pagamento para gerar um checkout novo.';
 
-        ctx.__pending_purchase_url = url;
+        // BI-REC-3: link rastreado — o clique vira evidência de atribuição.
+        const { createTrackedLink } = await import('../_shared/tracked-links.ts');
+        const tracked = await createTrackedLink(supabase as never, {
+          destination: url, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+        });
+        ctx.__pending_purchase_url = tracked ?? url;
         const itens = (cart.items?.data ?? [])
           .map((i) => i.sku?.data?.title).filter(Boolean).slice(0, 4).join(', ');
         const total = cart.totalizers?.total_formated ?? (cart.totalizers?.total != null ? `R$ ${cart.totalizers.total}` : '');
@@ -2511,7 +2516,11 @@ async function executeTool(
             customer_id: cart?.customer?.data?.id ?? null,
           });
           if (!link.link_url) return 'A Yampi criou o link mas não retornou a URL. Acione um humano.';
-          ctx.__pending_purchase_url = link.link_url;
+          const { createTrackedLink } = await import('../_shared/tracked-links.ts');
+          const tracked = await createTrackedLink(supabase as never, {
+            destination: link.link_url, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+          });
+          ctx.__pending_purchase_url = tracked ?? link.link_url;
           return `Link de pagamento criado${cupom ? ` com o cupom ${cupom} aplicado` : ''}. O link será enviado automaticamente ao cliente em uma mensagem separada. NÃO inclua o link na sua resposta — apenas confirme que ele receberá o link.`;
         } catch (e) {
           return `Erro ao criar link de pagamento na Yampi: ${(e as Error).message}`;
@@ -2563,6 +2572,11 @@ async function executeTool(
             start_at: fmt(now),
             end_at: fmt(end),
           });
+          // BI-REC-3: registrar como cupom NOSSO — pedido pago com ele = prova forte.
+          await supabase.from('crm_coupons').upsert(
+            { code, source: 'agente', people_id: ctx.pessoa_id ?? null },
+            { onConflict: 'code', ignoreDuplicates: true },
+          );
           return JSON.stringify({
             cupom: code,
             percentual,

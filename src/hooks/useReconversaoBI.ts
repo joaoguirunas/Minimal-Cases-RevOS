@@ -26,6 +26,8 @@ export interface ReconversionRow {
   touches_total: number;
   hours_since_last_touch: number | null;
   attributed: boolean;
+  attribution_level: 'cupom' | 'clique' | 'janela' | null;
+  coupon_code: string | null;
   pessoa?: { name: string | null } | null;
 }
 
@@ -35,6 +37,8 @@ export interface ReconversaoBI {
   touchesSent: { email: number; whatsapp: number; sms: number; total: number };
   reconvertidos: number;
   organicos: number;
+  porNivel: { cupom: number; clique: number; janela: number };
+  provaForte: number; // cupom + clique
   taxaReconversao: number | null; // attributed / leads tocados
   receitaRecuperada: number;
   ticketMedio: number | null;
@@ -69,6 +73,11 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
       const all = (recData ?? []) as ReconversionRow[];
       const attributed = all.filter((r) => r.attributed);
       const organicos = all.length - attributed.length;
+      const porNivel = {
+        cupom: attributed.filter((r) => r.attribution_level === 'cupom').length,
+        clique: attributed.filter((r) => r.attribution_level === 'clique').length,
+        janela: attributed.filter((r) => r.attribution_level === 'janela').length,
+      };
 
       // ── Toques enviados no período (por canal) + leads tocados ───────────
       const { data: touchData, error: tErr } = await db
@@ -113,6 +122,8 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
         touchesSent: touches,
         reconvertidos: attributed.length,
         organicos,
+        porNivel,
+        provaForte: porNivel.cupom + porNivel.clique,
         taxaReconversao: pessoasTocadas.size > 0 ? attributed.length / pessoasTocadas.size : null,
         receitaRecuperada: receita,
         ticketMedio: attributed.length > 0 ? receita / attributed.length : null,

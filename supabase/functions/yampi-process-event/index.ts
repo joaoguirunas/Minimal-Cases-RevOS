@@ -23,6 +23,8 @@ import {
   shouldProceed,
   type YampiTrigger,
 } from '../_shared/yampi-events.ts';
+import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
+import { hadTrackedClickBefore } from '../_shared/tracked-links.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -317,7 +319,36 @@ Deno.serve(async (req) => {
           ? (paidAt.getTime() - new Date(lastTouch).getTime()) / 3_600_000
           : null;
         const WINDOW_DAYS = 7;
-        const attributed = rows.length > 0 && hoursSince !== null && hoursSince <= WINDOW_DAYS * 24;
+        const withinWindow = rows.length > 0 && hoursSince !== null && hoursSince <= WINDOW_DAYS * 24;
+
+        // ── Níveis de prova (BI-REC-3): cupom > clique > janela ──────────────
+        // 🥇 cupom NOSSO usado no pedido (payload; fallback: busca o pedido na API).
+        let couponCode = parsed.couponCode;
+        if (!couponCode) {
+          try {
+            const bound = await createYampiClientForConnection(supabase);
+            if (bound) {
+              const order = await bound.client.getOrder(event.order_id, 'promocode') as Record<string, unknown>;
+              const promo = ((order.promocode as Record<string, unknown> | undefined)?.data ??
+                order.promocode) as Record<string, unknown> | undefined;
+              const code = promo?.code;
+              if (typeof code === 'string' && code) couponCode = code.toUpperCase();
+            }
+          } catch (_) { /* sem cupom detectável — segue pros outros níveis */ }
+        }
+        let isOurCoupon = false;
+        if (couponCode) {
+          const { data: cc } = await supabase
+            .from('crm_coupons').select('id').eq('code', couponCode).maybeSingle();
+          isOurCoupon = !!cc;
+        }
+
+        // 🥈 clique em link rastreado nosso antes de pagar (janela 7d).
+        const clicked = isOurCoupon ? false : await hadTrackedClickBefore(supabase, peopleId, paidAt, WINDOW_DAYS);
+
+        const attributionLevel = isOurCoupon ? 'cupom' : clicked ? 'clique' : withinWindow ? 'janela' : null;
+        const attributed = attributionLevel !== null;
+
         await supabase.from('esteira_reconversions').upsert({
           order_id: event.order_id,
           people_id: peopleId,
@@ -332,9 +363,11 @@ Deno.serve(async (req) => {
           touches_total: rows.length,
           hours_since_last_touch: hoursSince,
           attributed,
+          attribution_level: attributionLevel,
+          coupon_code: couponCode,
           attribution_window_days: WINDOW_DAYS,
         }, { onConflict: 'order_id' });
-        log.info('reconversion_recorded', { order_id: event.order_id, attributed, touches: rows.length });
+        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length });
       } catch (e) {
         // Enriquecimento — nunca falha o evento.
         log.error('reconversion_record_failed', { order_id: event.order_id, error: (e as Error).message });

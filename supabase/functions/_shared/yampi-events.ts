@@ -101,6 +101,8 @@ export interface NormalizedYampiEvent {
   itemTitles: string[];
   /** Payload timestamp in epoch ms (webhook `time` / resource dates), or null. */
   eventTs: number | null;
+  /** Cupom usado no pedido (include promocode), quando presente no payload. */
+  couponCode: string | null;
 }
 
 /**
@@ -134,7 +136,11 @@ export function parseYampiPayload(raw: AnyRec): NormalizedYampiEvent {
     asString(asRecord(resource.updated_at)?.date) ?? asString(asRecord(resource.created_at)?.date);
   const tsParsed = tsRaw ? Date.parse(tsRaw.replace(' ', 'T')) : NaN;
 
+  const promo = asRecord(asRecord(resource.promocode)?.data) ?? asRecord(resource.promocode);
+  const couponCode = asString(promo?.code) ?? asString(resource.coupon_code) ?? asString(resource.promocode_code);
+
   return {
+    couponCode: couponCode ? couponCode.toUpperCase() : null,
     orderId: asString(resource.id),
     orderNumber: asString(resource.number),
     cartToken: asString(resource.token),

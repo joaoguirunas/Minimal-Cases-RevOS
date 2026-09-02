@@ -6,6 +6,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
+import { createTrackedLink, resolveCartUrlForPerson } from "../_shared/tracked-links.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
 
@@ -381,6 +382,21 @@ serve(async (req) => {
             'asset_base': Deno.env.get('EMAIL_ASSET_BASE') ?? '',
           };
 
+          // {{link_checkout}} → link do carrinho da pessoa, RASTREADO (BI-REC-3):
+          // clique registrado em tracked_links vira evidência de atribuição.
+          if ((html.includes('{{link_checkout}}') || subject.includes('{{link_checkout}}')) && entry.person_id) {
+            const cartUrl = await resolveCartUrlForPerson(supabase, entry.person_id);
+            if (cartUrl) {
+              const tracked = await createTrackedLink(supabase, {
+                destination: cartUrl,
+                peopleId: entry.person_id,
+                leadId: entry.lead_id,
+                channel: 'email',
+              });
+              vars['link_checkout'] = tracked ?? cartUrl;
+            }
+          }
+
           const result = await sendEmailWithConfig(emailConfig!, { to: toEmail, subject, html, vars });
           success = result.success;
           if (!result.success) {
@@ -404,6 +420,19 @@ serve(async (req) => {
             'lead.titulo': lead?.title ?? '',
             'nome': (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
           };
+
+          if ((entry.message ?? '').includes('{{link_checkout}}') && entry.person_id) {
+            const cartUrl = await resolveCartUrlForPerson(supabase, entry.person_id);
+            if (cartUrl) {
+              const tracked = await createTrackedLink(supabase, {
+                destination: cartUrl,
+                peopleId: entry.person_id,
+                leadId: entry.lead_id,
+                channel: 'sms',
+              });
+              smsVars['link_checkout'] = tracked ?? cartUrl;
+            }
+          }
           const result = await sendSmsWithConfig(smsConfig!, {
             to: toPhone,
             message: entry.message ?? '',

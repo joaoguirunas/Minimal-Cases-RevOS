@@ -142,3 +142,6 @@ verify_jwt = false # Worker de import — invocado por zoppy-connect e por si me
 
 [functions.klaviyo-sync-templates]
 verify_jwt = true # Sincroniza templates da biblioteca para o Klaviyo — JWT do usuário; gate gestor no código
+
+[functions.r]
+verify_jwt = false # Redirect público de link rastreado — clique de cliente, sem JWT
