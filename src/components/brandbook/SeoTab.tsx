@@ -47,7 +47,7 @@ export default function SeoTab() {
             <h3 className="text-[10px] font-mono text-white/30 mb-4 uppercase tracking-[0.08em]">OG Image Preview</h3>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.02] aspect-[1200/630] flex items-center justify-center">
               <div className="text-center">
-                <span className="text-[24px] font-['Outfit'] font-black"><span className="text-white">REV</span><span className="text-[#FF4400]">OS</span></span>
+                <span className="text-[24px] font-sans font-black"><span className="text-white">REV</span><span className="text-[#FF4400]">OS</span></span>
                 <p className="text-[10px] text-white/30 mt-1">1200 × 630px</p>
               </div>
             </div>
@@ -68,7 +68,7 @@ export default function SeoTab() {
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.02] aspect-[1200/600] flex items-center justify-center">
               <div className="text-center">
-                <span className="text-[18px] font-['Outfit'] font-bold text-white/40">Twitter Card</span>
+                <span className="text-[18px] font-sans font-bold text-white/40">Twitter Card</span>
                 <p className="text-[9px] text-white/20 mt-1">1200 × 600px</p>
               </div>
             </div>

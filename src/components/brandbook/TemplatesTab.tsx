@@ -11,7 +11,7 @@ export default function TemplatesTab() {
             {/* Nav */}
             <div className="h-10 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between px-4">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-['Outfit'] font-bold"><span className="text-white">REV</span><span className="text-[#FF4400]">OS</span></span>
+                <span className="text-[10px] font-sans font-bold"><span className="text-white">REV</span><span className="text-[#FF4400]">OS</span></span>
                 <span className="text-[8px] font-mono text-white/20">CRM</span>
               </div>
               <div className="flex gap-3">
@@ -61,7 +61,7 @@ export default function TemplatesTab() {
           <div className="grid grid-cols-4 gap-px bg-white/[0.04] rounded-md overflow-hidden">
             <div className="col-span-3 h-28 bg-[#0a0a0a] p-3 flex flex-col justify-between">
               <span className="text-[8px] font-mono text-[#FF4400]/40">HERO / KPI</span>
-              <span className="text-[20px] font-['Outfit'] font-black text-white/50">R$ 1.2M</span>
+              <span className="text-[20px] font-sans font-black text-white/50">R$ 1.2M</span>
             </div>
             <div className="h-28 bg-[#0a0a0a] p-3">
               <span className="text-[8px] font-mono text-[#3B82F6]/40">STAT</span>

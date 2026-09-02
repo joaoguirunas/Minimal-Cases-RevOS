@@ -72,14 +72,14 @@ function SectionHeader({ num, title, subtitle }: { num: string; title: string; s
     <div className="mb-12">
       <div className="flex items-end gap-5 mb-3">
         <span
-          className="font-['Outfit'] leading-none font-black bg-gradient-to-b from-white/[0.08] to-transparent bg-clip-text text-transparent select-none"
+          className="font-sans leading-none font-black bg-gradient-to-b from-white/[0.08] to-transparent bg-clip-text text-transparent select-none"
           style={{ fontSize: 'clamp(4rem, 8vw, 6rem)' }}
         >
           {num}
         </span>
         <div className="pb-3">
           <h2
-            className="font-['Outfit'] font-bold text-white tracking-tight"
+            className="font-sans font-bold text-white tracking-tight"
             style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}
           >
             {title}
@@ -186,7 +186,7 @@ export default function Brandbook() {
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
           </Button>
           <div className="w-px h-4 bg-white/10" />
-          <span className="font-['Outfit'] text-sm font-bold tracking-tight">
+          <span className="font-sans text-sm font-bold tracking-tight">
             <span className="text-white">João Guirunas</span>
           </span>
           <span className="text-[10px] font-mono text-white/25 tracking-[0.1em] uppercase ml-1">Design System</span>
@@ -205,7 +205,7 @@ export default function Brandbook() {
                 <div className="w-1.5 h-1.5 rounded-full bg-[#B8924B] animate-pulse" />
                 <span className="text-[10px] font-mono text-white/40 tracking-[0.12em] uppercase">Design System v1.0 // Dark Cockpit Edition</span>
               </div>
-              <h1 className="font-['Outfit'] font-black tracking-tighter mb-4" style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)' }}>
+              <h1 className="font-sans font-black tracking-tighter mb-4" style={{ fontSize: 'clamp(3rem, 8vw, 5.5rem)' }}>
                 <span className="text-white">João Guirunas</span>
               </h1>
               <p className="text-white/30 font-light tracking-[0.08em] uppercase text-sm">CRM Intelligence Platform</p>
@@ -276,7 +276,7 @@ export default function Brandbook() {
                 <GlowCard className="md:col-span-3 flex flex-col items-center justify-center py-20" glow="#B8924B">
                   <div className="relative">
                     <div className="absolute -inset-16 bg-[#B8924B]/[0.04] rounded-full blur-[80px] pointer-events-none" />
-                    <h2 className="relative font-['Outfit'] font-black tracking-tighter" style={{ fontSize: 'clamp(3rem, 6vw, 5rem)' }}>
+                    <h2 className="relative font-sans font-black tracking-tighter" style={{ fontSize: 'clamp(3rem, 6vw, 5rem)' }}>
                       <span className="text-white">João Guirunas</span>
                     </h2>
                   </div>
@@ -295,7 +295,7 @@ export default function Brandbook() {
                     ].map(({ bg, color, label, sub, textDark }) => (
                       <div key={label} className={`flex items-center gap-4 p-3 rounded-md ${textDark ? 'bg-white border border-white/20' : 'bg-white/[0.03] border border-white/[0.06]'}`}>
                         <div className={`w-10 h-10 rounded-md ${bg} flex items-center justify-center`}>
-                          <span className="font-['Outfit'] text-sm font-black" style={{ color }}>R</span>
+                          <span className="font-sans text-sm font-black" style={{ color }}>R</span>
                         </div>
                         <div>
                           <p className={`text-[11px] font-semibold ${textDark ? 'text-gray-900' : 'text-white/80'}`}>{label}</p>
@@ -365,7 +365,7 @@ export default function Brandbook() {
                   <div className="absolute top-0 right-0 w-64 h-64 bg-[#B8924B]/[0.03] rounded-full blur-[80px] pointer-events-none" />
                   <div className="relative">
                     <h3 className="text-[11px] font-mono text-[#B8924B]/50 mb-4 tracking-[0.12em] uppercase">Positioning</h3>
-                    <p className="text-[22px] font-['Outfit'] font-bold text-white/80 leading-snug mb-6">
+                    <p className="text-[22px] font-sans font-bold text-white/80 leading-snug mb-6">
                       A plataforma de CRM inteligente que transforma dados em decisões e relacionamentos em receita.
                     </p>
                     <div className="space-y-4">
@@ -531,7 +531,7 @@ export default function Brandbook() {
                       style={{ backgroundColor: `${color}20` }}
                     />
                     <p className="text-[11px] text-white/35 mb-1.5">{label}</p>
-                    <p className="text-[28px] font-bold text-white/85 font-['Outfit'] leading-none">{value}</p>
+                    <p className="text-[28px] font-bold text-white/85 font-sans leading-none">{value}</p>
                     <div className="flex items-center gap-1 mt-3">
                       <ArrowRight className="w-3 h-3 -rotate-45" style={{ color }} />
                       <span className="text-[11px] font-semibold" style={{ color }}>{delta}</span>
@@ -603,8 +603,8 @@ export default function Brandbook() {
                       <p className="text-[10px] font-mono text-white/30 tracking-[0.08em]">DISPLAY — HEADINGS</p>
                     </div>
                   </div>
-                  <p className="text-[40px] font-black text-white/80 leading-tight font-['Outfit'] mb-4">Aa Bb Cc</p>
-                  <p className="text-sm text-white/40 leading-relaxed font-['Outfit']">
+                  <p className="text-[40px] font-black text-white/80 leading-tight font-sans mb-4">Aa Bb Cc</p>
+                  <p className="text-sm text-white/40 leading-relaxed font-sans">
                     ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
                     abcdefghijklmnopqrstuvwxyz<br />
                     0123456789
@@ -642,10 +642,10 @@ export default function Brandbook() {
                 <h3 className="text-[11px] font-mono text-white/40 mb-6 tracking-[0.08em] uppercase">Size Scale</h3>
                 <div className="space-y-4">
                   {[
-                    { size: 48, label: 'Display', cls: "font-['Outfit'] font-black" },
-                    { size: 36, label: 'H1', cls: "font-['Outfit'] font-bold" },
-                    { size: 30, label: 'H2', cls: "font-['Outfit'] font-bold" },
-                    { size: 24, label: 'H3', cls: "font-['Outfit'] font-semibold" },
+                    { size: 48, label: 'Display', cls: "font-sans font-black" },
+                    { size: 36, label: 'H1', cls: "font-sans font-bold" },
+                    { size: 30, label: 'H2', cls: "font-sans font-bold" },
+                    { size: 24, label: 'H3', cls: "font-sans font-semibold" },
                     { size: 20, label: 'H4', cls: 'font-semibold' },
                     { size: 16, label: 'Body', cls: 'font-normal' },
                     { size: 14, label: 'Small', cls: 'font-normal' },
@@ -1058,7 +1058,7 @@ export default function Brandbook() {
                 ].map(({ label, value, change, up, color }) => (
                   <GlowCard key={label} glow={color}>
                     <p className="text-[10px] font-mono text-white/30 mb-2 uppercase tracking-[0.08em]">{label}</p>
-                    <p className="text-[28px] font-['Outfit'] font-black text-white/90 leading-none mb-2">{value}</p>
+                    <p className="text-[28px] font-sans font-black text-white/90 leading-none mb-2">{value}</p>
                     <span className={`text-[11px] font-mono ${up ? 'text-emerald-400' : 'text-rose-400'}`}>{up ? '↑' : '↓'} {change}</span>
                   </GlowCard>
                 ))}
@@ -1644,7 +1644,7 @@ export default function Brandbook() {
                 ].map(({ num, name, dur, desc, type, color }) => (
                   <GlowCard key={num} glow={color}>
                     <div className="flex items-start gap-4">
-                      <span className="text-[28px] font-['Outfit'] font-black text-white/[0.06] leading-none shrink-0">{num}</span>
+                      <span className="text-[28px] font-sans font-black text-white/[0.06] leading-none shrink-0">{num}</span>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-[13px] font-semibold text-white/80">{name}</h3>
@@ -1946,7 +1946,7 @@ export default function Brandbook() {
                   ].map(({ label, value, format, color }) => (
                     <div key={label} className="text-center p-5 rounded-md bg-white/[0.02] border border-white/[0.06]">
                       <p className="text-[10px] font-mono text-white/25 mb-2 uppercase tracking-[0.08em]">{label}</p>
-                      <p className="text-[32px] font-['Outfit'] font-black leading-none mb-2" style={{ color }}>{value}</p>
+                      <p className="text-[32px] font-sans font-black leading-none mb-2" style={{ color }}>{value}</p>
                       <code className="text-[9px] font-mono text-white/15">{format}</code>
                     </div>
                   ))}
@@ -2068,7 +2068,7 @@ export default function Brandbook() {
                 ].map(({ label, value, change, up, color }) => (
                   <GlowCard key={label} glow={color}>
                     <p className="text-[10px] font-mono text-white/30 mb-2 uppercase tracking-[0.08em]">{label}</p>
-                    <p className="text-[28px] font-['Outfit'] font-black text-white/90 leading-none mb-2">{value}</p>
+                    <p className="text-[28px] font-sans font-black text-white/90 leading-none mb-2">{value}</p>
                     <div className="flex items-center gap-1.5">
                       {up !== null && <span className={`text-[11px] font-semibold ${up ? 'text-emerald-400' : 'text-rose-400'}`}>{up ? '↑' : '↓'}</span>}
                       <span className={`text-[11px] font-mono ${up === true ? 'text-emerald-400/70' : up === false ? 'text-rose-400/70' : 'text-white/25'}`}>{change}</span>

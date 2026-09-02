@@ -70,7 +70,7 @@ export default function LpSectionsTab() {
             { value: '94%', label: 'Retention', size: 'text-4xl', color: '#3B82F6' },
           ].map(({ value, label, size, color }) => (
             <GlowCard key={label} glow={color}>
-              <p className={`${size} font-['Outfit'] font-black text-white/90 mb-1`}>{value}</p>
+              <p className={`${size} font-sans font-black text-white/90 mb-1`}>{value}</p>
               <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.1em]">{label}</p>
             </GlowCard>
           ))}
@@ -104,13 +104,13 @@ export default function LpSectionsTab() {
           <div className="rounded-md border border-white/[0.06] overflow-hidden relative">
             {/* Watermark */}
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-              <span className="text-[120px] font-['Outfit'] font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
+              <span className="text-[120px] font-sans font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
             </div>
             <div className="relative p-8 min-h-[280px] flex flex-col justify-end">
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <p className="text-[10px] font-mono text-[#FF4400]/40 mb-2 uppercase tracking-wider">CRM Intelligence</p>
-                  <h2 className="text-[28px] font-['Outfit'] font-black text-white/90 leading-[0.95] mb-4">
+                  <h2 className="text-[28px] font-sans font-black text-white/90 leading-[0.95] mb-4">
                     Eliminate your <span className="text-[#FF4400]">bottleneck</span>
                   </h2>
                   <button className="h-[36px] px-5 rounded-md bg-[#FF4400] text-white text-[10px] font-bold uppercase tracking-wider">See how it works ↗</button>
@@ -150,7 +150,7 @@ export default function LpSectionsTab() {
                   <span className="text-[11px] font-semibold text-white/60">{tier}</span>
                   {popular && <span className="px-2 py-0.5 rounded-full bg-[#FF4400]/10 border border-[#FF4400]/20 text-[8px] font-mono text-[#FF4400] uppercase">Popular</span>}
                 </div>
-                <p className="text-[24px] font-['Outfit'] font-black text-white/80 mb-4">{price}<span className="text-[10px] font-normal text-white/25">/mês</span></p>
+                <p className="text-[24px] font-sans font-black text-white/80 mb-4">{price}<span className="text-[10px] font-normal text-white/25">/mês</span></p>
                 <div className="space-y-2 mb-5">
                   {features.map((f) => (
                     <div key={f} className="flex items-center gap-2">

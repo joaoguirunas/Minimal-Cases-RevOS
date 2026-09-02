@@ -69,7 +69,7 @@ export default function TokenExportTab() {
               { step: '03', title: 'Paste', desc: 'Paste into index.css or globals.css inside @layer base.' },
             ].map(({ step, title, desc }) => (
               <div key={step} className="p-4 rounded-md bg-white/[0.02] border border-white/[0.04]">
-                <span className="text-[24px] font-['Outfit'] font-black text-[#FF4400]/20">{step}</span>
+                <span className="text-[24px] font-sans font-black text-[#FF4400]/20">{step}</span>
                 <h4 className="text-[12px] font-semibold text-white/60 mt-2 mb-1">{title}</h4>
                 <p className="text-[10px] text-white/30">{desc}</p>
               </div>

@@ -33,7 +33,7 @@ export default function FoundationsTab() {
           {sections.map(({ num, title, desc, detail, icon: Icon, color }) => (
             <GlowCard key={num} glow={color} className="group cursor-pointer">
               <div className="flex items-start justify-between mb-6">
-                <span className="text-[32px] font-['Outfit'] font-black text-white/[0.06]">{num}</span>
+                <span className="text-[32px] font-sans font-black text-white/[0.06]">{num}</span>
                 <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{ backgroundColor: `${color}12`, border: `1px solid ${color}20` }}>
                   <Icon className="w-5 h-5" style={{ color }} strokeWidth={1.5} />
                 </div>

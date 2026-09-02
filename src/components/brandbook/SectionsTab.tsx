@@ -10,11 +10,11 @@ export default function SectionsTab() {
         <GlowCard glow="#FF4400">
           <div className="rounded-md border border-white/[0.06] overflow-hidden relative min-h-[240px] flex flex-col justify-end p-6">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-[100px] font-['Outfit'] font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
+              <span className="text-[100px] font-sans font-black text-white/[0.02] tracking-[-0.05em]">REVOS</span>
             </div>
             <div className="relative grid grid-cols-2 gap-6">
               <div>
-                <h2 className="text-[24px] font-['Outfit'] font-black text-white/90 leading-[0.95] mb-3">
+                <h2 className="text-[24px] font-sans font-black text-white/90 leading-[0.95] mb-3">
                   Eliminate your <span className="text-[#FF4400]">[bottleneck]</span>
                 </h2>
                 <p className="text-[10px] text-white/30 mb-4">AI-powered CRM that closes deals while you sleep</p>
@@ -62,7 +62,7 @@ export default function SectionsTab() {
               { value: 'R$ 1.2M', label: 'Revenue generated' },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
-                <p className="text-[28px] font-['Outfit'] font-black text-white/80">{value}</p>
+                <p className="text-[28px] font-sans font-black text-white/80">{value}</p>
                 <p className="text-[10px] font-mono text-white/25 uppercase tracking-[0.08em] mt-1">{label}</p>
               </div>
             ))}

@@ -36,7 +36,7 @@ export default function LeadFiltersStep({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-[18px] font-['Outfit'] font-semibold mb-2">Filtros de Lead</h3>
+          <h3 className="text-[18px] font-sans font-semibold mb-2">Filtros de Lead</h3>
           <p className="text-sm text-muted-foreground">
             Refine a busca com filtros relacionados aos negócios (opcional)
           </p>
@@ -57,7 +57,7 @@ export default function LeadFiltersStep({
             <div className="p-2 rounded-lg bg-blue-500/10">
               <UserCircle className="w-4 h-4 text-blue-600" />
             </div>
-            <h4 className="font-['Outfit'] font-semibold">Responsabilidade</h4>
+            <h4 className="font-sans font-semibold">Responsabilidade</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,7 +97,7 @@ export default function LeadFiltersStep({
             <div className="p-2 rounded-lg bg-green-500/10">
               <DollarSign className="w-4 h-4 text-green-600" />
             </div>
-            <h4 className="font-['Outfit'] font-semibold">Status e Valor</h4>
+            <h4 className="font-sans font-semibold">Status e Valor</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,7 +136,7 @@ export default function LeadFiltersStep({
             <div className="p-2 rounded-lg bg-purple-500/10">
               <Hash className="w-4 h-4 text-purple-600" />
             </div>
-            <h4 className="font-['Outfit'] font-semibold">UTM e Rastreamento</h4>
+            <h4 className="font-sans font-semibold">UTM e Rastreamento</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,7 +190,7 @@ export default function LeadFiltersStep({
             <div className="p-2 rounded-lg bg-orange-500/10">
               <Calendar className="w-4 h-4 text-orange-600" />
             </div>
-            <h4 className="font-['Outfit'] font-semibold">Período</h4>
+            <h4 className="font-sans font-semibold">Período</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

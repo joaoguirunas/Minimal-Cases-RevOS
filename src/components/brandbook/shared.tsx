@@ -5,14 +5,14 @@ export function SectionHeader({ num, title, subtitle }: { num: string; title: st
     <div className="mb-12">
       <div className="flex items-end gap-5 mb-3">
         <span
-          className="font-['Outfit'] leading-none font-black bg-gradient-to-b from-white/[0.08] to-transparent bg-clip-text text-transparent select-none"
+          className="font-sans leading-none font-black bg-gradient-to-b from-white/[0.08] to-transparent bg-clip-text text-transparent select-none"
           style={{ fontSize: 'clamp(4rem, 8vw, 6rem)' }}
         >
           {num}
         </span>
         <div className="pb-3">
           <h2
-            className="font-['Outfit'] font-bold text-white tracking-tight"
+            className="font-sans font-bold text-white tracking-tight"
             style={{ fontSize: 'clamp(1.25rem, 3vw, 1.75rem)' }}
           >
             {title}

@@ -29,7 +29,7 @@ export function ProgressCard({
       transition={{ duration: 0.3, delay }}
     >
       <Card className="p-6 border border-border bg-card rounded-md">
-        <h3 className="text-[18px] font-['Outfit'] font-semibold mb-6 flex items-center gap-2">
+        <h3 className="text-[18px] font-sans font-semibold mb-6 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
           Progresso do Disparo
         </h3>

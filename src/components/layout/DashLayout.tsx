@@ -613,7 +613,7 @@ const DashLayout = () => {
             {/* Page Title with Refresh Button - only show when not showing back button */}
             {!showBackButton && getPageTitle() && (
               <div className="flex items-center gap-3">
-                <h1 className="text-xl font-['Outfit'] font-semibold text-foreground">
+                <h1 className="text-xl font-sans font-semibold text-foreground">
                   {getPageTitle()}
                 </h1>
                 {/* Refresh button specifically for Negócios page */}

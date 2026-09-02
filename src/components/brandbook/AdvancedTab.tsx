@@ -32,7 +32,7 @@ export default function AdvancedTab() {
                   ].map(({ label, value, color }) => (
                     <div key={label} className="p-3 rounded-md bg-white/[0.02] border border-white/[0.04]">
                       <p className="text-[9px] font-mono text-white/20 uppercase tracking-wider">{label}</p>
-                      <p className="text-[20px] font-['Outfit'] font-black mt-1" style={{ color }}>{value}</p>
+                      <p className="text-[20px] font-sans font-black mt-1" style={{ color }}>{value}</p>
                     </div>
                   ))}
                 </div>

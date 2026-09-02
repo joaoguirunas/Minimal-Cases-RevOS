@@ -67,7 +67,7 @@ export function DisparoHeroSection({
           {/* Left: Title & Info */}
           <div className="space-y-3 flex-1">
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-[32px] font-bold font-['Outfit'] tracking-[-0.025em] text-foreground">
+              <h1 className="text-[32px] font-bold font-sans tracking-[-0.025em] text-foreground">
                 {name}
               </h1>
               <Badge className={`${statusInfo.color} border rounded-md px-3 py-1 ${

@@ -99,7 +99,7 @@ export default function CardsTab() {
           ].map(({ label, value, change, up, color }) => (
             <GlowCard key={label} glow={color}>
               <p className="text-[9px] font-mono text-white/25 mb-2 uppercase tracking-[0.08em]">{label}</p>
-              <p className="text-[24px] font-['Outfit'] font-black text-white/90 leading-none mb-1.5">{value}</p>
+              <p className="text-[24px] font-sans font-black text-white/90 leading-none mb-1.5">{value}</p>
               <div className="flex items-center gap-1">
                 <span className={`text-[10px] font-semibold ${up ? 'text-emerald-400' : 'text-rose-400'}`}>{up ? '↑' : '↓'}</span>
                 <span className={`text-[10px] font-mono ${up ? 'text-emerald-400/70' : 'text-rose-400/70'}`}>{change}</span>

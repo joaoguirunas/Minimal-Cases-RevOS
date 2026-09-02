@@ -44,7 +44,7 @@ export function PerformanceCard({
       transition={{ duration: 0.3, delay }}
     >
       <Card className="p-6 border border-border bg-card rounded-md">
-        <h3 className="text-[18px] font-['Outfit'] font-semibold mb-6 flex items-center gap-2">
+        <h3 className="text-[18px] font-sans font-semibold mb-6 flex items-center gap-2">
           <Activity className="w-5 h-5 text-primary" />
           Performance e Timeline
         </h3>

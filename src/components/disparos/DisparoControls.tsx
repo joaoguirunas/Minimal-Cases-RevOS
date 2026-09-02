@@ -102,7 +102,7 @@ export default function DisparoControls({ send }: DisparoControlsProps) {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="text-[18px] font-['Outfit'] font-semibold mb-2">Controles do Disparo</h3>
+              <h3 className="text-[18px] font-sans font-semibold mb-2">Controles do Disparo</h3>
               <p className="text-sm text-muted-foreground">Gerencie a execução e estatísticas</p>
             </div>
             {send.status === 'running' && (

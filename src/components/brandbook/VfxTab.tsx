@@ -17,7 +17,7 @@ export default function VfxTab() {
               <div className="relative h-32 rounded-md bg-gradient-to-br from-[#FF4400]/15 to-[#3B82F6]/15 overflow-hidden mb-3">
                 <div className="absolute inset-0" style={{ opacity, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[14px] font-['Outfit'] font-bold text-white/60">{name}</span>
+                  <span className="text-[14px] font-sans font-bold text-white/60">{name}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -57,7 +57,7 @@ export default function VfxTab() {
           ].map(({ name, blur }) => (
             <GlowCard key={name} glow="#3B82F6">
               <div className="h-24 rounded-md overflow-hidden mb-3 flex items-center justify-center bg-gradient-to-br from-[#FF4400]/20 to-[#6C16F8]/20">
-                <span className="text-[20px] font-['Outfit'] font-bold text-white/60" style={{ filter: `blur(${blur}px)` }}>REVOS</span>
+                <span className="text-[20px] font-sans font-bold text-white/60" style={{ filter: `blur(${blur}px)` }}>REVOS</span>
               </div>
               <p className="text-[10px] font-medium text-white/50">{name}</p>
               <code className="text-[9px] font-mono text-white/20">blur({blur}px)</code>

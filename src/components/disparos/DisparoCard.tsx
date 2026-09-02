@@ -36,7 +36,7 @@ export default function DisparoCard({
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-[18px] font-['Outfit'] font-semibold mb-2">{send.name}</h3>
+            <h3 className="text-[18px] font-sans font-semibold mb-2">{send.name}</h3>
             <div className="flex items-center gap-2 mb-2">
               <StatusBadge status={send.status} size="sm" />
             </div>
