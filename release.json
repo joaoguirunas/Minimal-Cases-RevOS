@@ -2,11 +2,11 @@
   "version": "5.11",
   "major": 5,
   "minor": 11,
-  "created_at": "2026-09-02T08:41:13.000Z",
-  "git_sha": "8a07027a7386abc7ccf723b1d559d61b287b1ea5",
+  "created_at": "2026-09-02T08:51:22.000Z",
+  "git_sha": "998fa3bfe465792e9e69c04ce02cc6ff2a1a6f27",
   "migrations": [
-    "supabase/migrations/20260902100000_esteira_reconversions.sql"
+    "supabase/migrations/20260902130000_attribution_upgrade.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(bi): BI de Reconversão com atribuição exata (BI-REC)|feat(esteira): toques e idade no card do kanban + aba Esteira no lead (EST-UI)|feat(yampi): UI do backfill de carrinhos (dias configurável)|feat(yampi): backfill de carrinhos abandonados retroativos (YMP-5)|chore(release): release.json v5.7 [skip ci]"
+  "changelog": "feat(bi): atribuição em 3 níveis — cupom, clique rastreado e janela (BI-REC-3)"
 }
