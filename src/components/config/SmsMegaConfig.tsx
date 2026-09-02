@@ -142,7 +142,10 @@ export default function SmsMegaConfig() {
 
         <TabsContent value="klaviyo" className="space-y-5 mt-0">
           <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Credenciais Klaviyo</p>
+            <div className="flex items-center gap-2">
+              <img src="/logos/klaviyo.png" alt="Klaviyo" className="w-4 h-4 rounded-sm object-contain" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Credenciais Klaviyo</p>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5">
                 <Label className="text-[13px]">Private API Key</Label>
