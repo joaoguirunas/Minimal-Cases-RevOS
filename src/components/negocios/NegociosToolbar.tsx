@@ -1,14 +1,11 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  LayoutGrid, List, Plus, Calendar, SlidersHorizontal,
-  Users, UserCheck, Megaphone, Search, ChevronDown, ChevronRight, X, RotateCcw, ArrowRightLeft
+  LayoutGrid, List, Plus, Calendar,
+  Users, Search, RotateCcw, ArrowRightLeft
 } from "lucide-react";
 import { Pipeline, Stage } from "@/hooks/usePipelines";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
@@ -23,6 +20,8 @@ import { useWhatsappChannels } from "@/hooks/useWhatsappChannels";
 import { productColor } from "@/components/negocios/CursoBadges";
 import { SearchableSelect } from "@/components/common/SearchableSelect";
 import MoverLeadsEmMassaModal from "@/components/negocios/MoverLeadsEmMassaModal";
+import ActiveFilterChips, { type ActiveFilter } from "@/components/negocios/ActiveFilterChips";
+import MoreFiltersPopover from "@/components/negocios/MoreFiltersPopover";
 import { cn } from "@/lib/utils";
 
 interface NegociosToolbarProps {
@@ -120,11 +119,9 @@ const NegociosToolbar = ({
   usuarios = [],
   currentTenant,
 }: NegociosToolbarProps) => {
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [utmOpen, setUtmOpen] = useState(false);
   const [moverLeadsOpen, setMoverLeadsOpen] = useState(false);
 
-  
+
   const { isManager, canChangeFilters, currentUserName, currentUserId, userTimes } = useUserPermissions();
   const { data: teamMembers = [] } = useTeamMembers('single-tenant', teamFilter);
   const { data: scoreMatrices = [] } = useScoreMatrix();
@@ -152,9 +149,20 @@ const NegociosToolbar = ({
     }
   };
 
+  const getStatusFilterLabel = (value: string) => {
+    switch (value) {
+      case 'todos': return 'Todos';
+      case 'ganho': return 'Ganhos';
+      case 'em-andamento': return 'Em Andamento';
+      case 'perdido': return 'Perdido';
+      case 'sem-perdidos': return 'Exceto Perdido';
+      default: return value;
+    }
+  };
+
   const filteredTimes = isManager ? times : times.filter(time => userTimes.includes(time.id));
 
-  const filteredUsuarios = useMemo(() => {
+  const filteredUsuarios = React.useMemo(() => {
     let filtered = usuariosDoTenant || [];
 
     if (teamFilter && teamMembers.length > 0) {
@@ -186,53 +194,167 @@ const NegociosToolbar = ({
 
   const shouldShowResponsavelFilter = times.length > 0 && filteredUsuarios.length > 0;
 
-  const hasUTMData = canChangeFilters && (
-    (utmValues?.campaigns?.length || 0) > 0 ||
-    (utmValues?.sources?.length || 0) > 0 ||
-    (utmValues?.mediums?.length || 0) > 0 ||
-    (utmValues?.terms?.length || 0) > 0 ||
-    (utmValues?.contents?.length || 0) > 0
-  );
+  // Count active secondary filters (os que moraram no popover "Mais filtros")
+  const secondaryValues: Array<string | null | undefined> = [
+    stageFilter,
+    teamFilter,
+    responsavelFilter,
+    scoreMatrixFilter,
+    productFilter,
+    tagFilter,
+    channelFilter,
+    campanhaFilter,
+    sourceFilter,
+    mediumFilter,
+    termFilter,
+    contentFilter,
+    motivoFilter,
+  ];
+  const secondaryCount = secondaryValues.filter(
+    (value) => value !== null && value !== undefined && value !== '' && value !== 'all' && value !== '__all__'
+  ).length;
 
-  const hasActiveUTM = (campanhaFilter !== '') ||
-    (sourceFilter !== '') ||
-    (mediumFilter !== '') ||
-    (termFilter !== '') ||
-    (contentFilter !== '');
-
-  // Count active secondary filters
-  const secondaryFilterCount = [
-    stageFilter !== null,
-    statusFilter !== null && statusFilter !== 'sem-perdidos',
-    teamFilter !== '',
-    responsavelFilter !== '',
-    scoreMatrixFilter !== '',
-    productFilter !== '',
-    tagFilter !== '',
-    channelFilter !== '',
-    campanhaFilter !== '',
-    sourceFilter !== '',
-    mediumFilter !== '',
-    termFilter !== '',
-    contentFilter !== '',
-  ].filter(Boolean).length;
-
-  const clearSecondaryFilters = () => {
-    onStageFilterChange(null);
-    onStatusFilterChange('sem-perdidos');
-    if (onMotivoFilterChange) onMotivoFilterChange(null);
-    onTeamFilterChange('');
-    onResponsavelFilterChange('');
-    if (onScoreMatrixFilterChange) onScoreMatrixFilterChange('');
-    if (onProductFilterChange) onProductFilterChange('');
-    if (onTagFilterChange) onTagFilterChange('');
-    if (onChannelFilterChange) onChannelFilterChange('');
-    if (onCampanhaFilterChange) onCampanhaFilterChange('');
-    if (onSourceFilterChange) onSourceFilterChange('');
-    if (onMediumFilterChange) onMediumFilterChange('');
-    if (onTermFilterChange) onTermFilterChange('');
-    if (onContentFilterChange) onContentFilterChange('');
+  // Resolução de nomes (id -> rótulo legível) para os chips
+  const stageName = (id: string) => stages.find((s) => s.id === id)?.nome || id;
+  const pipelineName = (id: string) => pipelines.find((p) => p.id === id)?.nome || id;
+  const teamName = (id: string) => {
+    const found = times.find((t) => t.id === id);
+    return found?.name || found?.nome || id;
   };
+  const usuarioName = (id: string) =>
+    filteredUsuarios.find((u) => u.id === id)?.nome ||
+    usuariosDoTenant?.find((u) => u.id === id)?.nome ||
+    id;
+  const scoreName = (id: string) => {
+    const matrix = scoreMatrices.find((m) => m.id === id);
+    return matrix ? `Score ${matrix.score_number}` : id;
+  };
+  const productName = (id: string) => kiwifyProductOptions.find((p) => p.product_id === id)?.product_name || id;
+  const tagName = (id: string) => tagOptions.find((t) => t.id === id)?.name || id;
+  const channelName = (id: string) => channelOptions.find((c) => c.id === id)?.label || id;
+  const motivoName = (id: string) => motivos.find((m) => m.id === id)?.name || id;
+
+  const activeItems: ActiveFilter[] = [];
+
+  if (pipelineFilter) {
+    activeItems.push({
+      key: 'pipeline',
+      label: `Pipeline: ${pipelineName(pipelineFilter)}`,
+      onClear: () => onPipelineFilterChange(null),
+    });
+  }
+  if (searchFilter) {
+    activeItems.push({
+      key: 'search',
+      label: `Busca: "${searchFilter}"`,
+      onClear: () => onSearchFilterChange(''),
+    });
+  }
+  if (statusFilter && statusFilter !== 'sem-perdidos') {
+    activeItems.push({
+      key: 'status',
+      label: `Status: ${getStatusFilterLabel(statusFilter)}`,
+      onClear: () => onStatusFilterChange('sem-perdidos'),
+    });
+  }
+  if (dateFilter && dateFilter !== '3meses') {
+    activeItems.push({
+      key: 'date',
+      label: `Período: ${getDateFilterLabel(dateFilter)}`,
+      onClear: () => onDateFilterChange('3meses'),
+    });
+  }
+  if (stageFilter) {
+    activeItems.push({
+      key: 'stage',
+      label: `Etapa: ${stageName(stageFilter)}`,
+      onClear: () => onStageFilterChange(null),
+    });
+  }
+  if (teamFilter) {
+    activeItems.push({
+      key: 'team',
+      label: `Equipe: ${teamName(teamFilter)}`,
+      onClear: () => onTeamFilterChange(''),
+    });
+  }
+  if (responsavelFilter) {
+    activeItems.push({
+      key: 'responsavel',
+      label: `Responsável: ${usuarioName(responsavelFilter)}`,
+      onClear: () => onResponsavelFilterChange(''),
+    });
+  }
+  if (scoreMatrixFilter) {
+    activeItems.push({
+      key: 'score',
+      label: `Score: ${scoreName(scoreMatrixFilter)}`,
+      onClear: () => onScoreMatrixFilterChange && onScoreMatrixFilterChange(''),
+    });
+  }
+  if (motivoFilter) {
+    activeItems.push({
+      key: 'motivo',
+      label: `Motivo: ${motivoName(motivoFilter)}`,
+      onClear: () => onMotivoFilterChange && onMotivoFilterChange(null),
+    });
+  }
+  if (productFilter) {
+    activeItems.push({
+      key: 'product',
+      label: `Produto: ${productName(productFilter)}`,
+      onClear: () => onProductFilterChange && onProductFilterChange(''),
+    });
+  }
+  if (tagFilter) {
+    activeItems.push({
+      key: 'tag',
+      label: `Tag: ${tagName(tagFilter)}`,
+      onClear: () => onTagFilterChange && onTagFilterChange(''),
+    });
+  }
+  if (channelFilter) {
+    activeItems.push({
+      key: 'channel',
+      label: `Canal: ${channelName(channelFilter)}`,
+      onClear: () => onChannelFilterChange && onChannelFilterChange(''),
+    });
+  }
+  if (campanhaFilter) {
+    activeItems.push({
+      key: 'campanha',
+      label: `Campaign: ${campanhaFilter}`,
+      onClear: () => onCampanhaFilterChange && onCampanhaFilterChange(''),
+    });
+  }
+  if (sourceFilter) {
+    activeItems.push({
+      key: 'source',
+      label: `Source: ${sourceFilter}`,
+      onClear: () => onSourceFilterChange && onSourceFilterChange(''),
+    });
+  }
+  if (mediumFilter) {
+    activeItems.push({
+      key: 'medium',
+      label: `Medium: ${mediumFilter}`,
+      onClear: () => onMediumFilterChange && onMediumFilterChange(''),
+    });
+  }
+  if (termFilter) {
+    activeItems.push({
+      key: 'term',
+      label: `Term: ${termFilter}`,
+      onClear: () => onTermFilterChange && onTermFilterChange(''),
+    });
+  }
+  if (contentFilter) {
+    activeItems.push({
+      key: 'content',
+      label: `Content: ${contentFilter}`,
+      onClear: () => onContentFilterChange && onContentFilterChange(''),
+    });
+  }
 
   return (
     <div className="bg-background border-b border-border" role="toolbar" aria-label="Barra de ferramentas CRM">
@@ -274,15 +396,23 @@ const NegociosToolbar = ({
           </Button>
         </div>
 
-        {/* New Deal Button */}
+        {/* Pipeline Filter */}
         {viewMode !== 'clientes' && (
-          <Button
-            onClick={onCreateNegocio}
-            className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-full"
+          <Select
+            value={pipelineFilter || (activePipelines[0]?.id || "")}
+            onValueChange={onPipelineFilterChange}
           >
-            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
-            Novo Negócio
-          </Button>
+            <SelectTrigger className="w-40 h-[30px] text-xs border-border flex-shrink-0">
+              <SelectValue placeholder="Pipeline" />
+            </SelectTrigger>
+            <SelectContent>
+              {activePipelines.map((pipeline) => (
+                <SelectItem key={pipeline.id} value={pipeline.id}>
+                  {pipeline.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
 
         {/* Search */}
@@ -300,21 +430,21 @@ const NegociosToolbar = ({
           </div>
         )}
 
-        {/* Pipeline Filter */}
+        {/* Status Filter */}
         {viewMode !== 'clientes' && (
           <Select
-            value={pipelineFilter || (activePipelines[0]?.id || "")}
-            onValueChange={onPipelineFilterChange}
+            value={statusFilter || "sem-perdidos"}
+            onValueChange={(value) => onStatusFilterChange(value)}
           >
-            <SelectTrigger className="w-40 h-[30px] text-xs border-border flex-shrink-0">
-              <SelectValue placeholder="Pipeline" />
+            <SelectTrigger className="w-36 h-[30px] text-xs border-border flex-shrink-0">
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              {activePipelines.map((pipeline) => (
-                <SelectItem key={pipeline.id} value={pipeline.id}>
-                  {pipeline.nome}
-                </SelectItem>
-              ))}
+              <SelectItem value="sem-perdidos">Exceto Perdido</SelectItem>
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="ganho">Ganhos</SelectItem>
+              <SelectItem value="em-andamento">Em Andamento</SelectItem>
+              <SelectItem value="perdido">Perdido</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -336,46 +466,12 @@ const NegociosToolbar = ({
           </Select>
         )}
 
-        {/* Secondary Filters Popover */}
-        {viewMode !== 'clientes' && <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "h-[30px] text-xs gap-1.5 border-border flex-shrink-0 rounded-full",
-                secondaryFilterCount > 0 && "border-primary/40 text-primary bg-primary/5 hover:bg-primary/10"
-              )}
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />
-              Filtros
-              {secondaryFilterCount > 0 && (
-                <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-semibold rounded-full bg-primary text-primary-foreground leading-none">
-                  {secondaryFilterCount}
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-72 p-4 space-y-4">
-            {/* Popover header */}
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-medium text-foreground">Filtros</span>
-              {secondaryFilterCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearSecondaryFilters}
-                  className="h-6 px-2 text-[11px] text-muted-foreground/60 hover:text-foreground gap-1"
-                >
-                  <X className="w-3 h-3" strokeWidth={1.5} />
-                  Limpar
-                </Button>
-              )}
-            </div>
-
-            {/* Stage */}
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Etapa</Label>
+        {/* Mais filtros (secundários) */}
+        {viewMode !== 'clientes' && (
+          <MoreFiltersPopover count={secondaryCount}>
+            {/* Etapa */}
+            <div className="space-y-1">
+              <label className="text-[11px] text-muted-foreground">Etapa</label>
               <Select
                 value={stageFilter || "all"}
                 onValueChange={(value) => onStageFilterChange(value === "all" ? null : value)}
@@ -396,30 +492,10 @@ const NegociosToolbar = ({
               </Select>
             </div>
 
-            {/* Status */}
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Status</Label>
-              <Select
-                value={statusFilter || "sem-perdidos"}
-                onValueChange={(value) => onStatusFilterChange(value)}
-              >
-                <SelectTrigger className="h-[30px] text-xs">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sem-perdidos">Exceto Perdido</SelectItem>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="ganho">Ganhos</SelectItem>
-                  <SelectItem value="em-andamento">Em Andamento</SelectItem>
-                  <SelectItem value="perdido">Perdido</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Motivo de Perda — apenas quando filtrando por perdidos */}
             {statusFilter === 'perdido' && onMotivoFilterChange && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Motivo de Perda</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Motivo de Perda</label>
                 <Select
                   value={motivoFilter || "__all__"}
                   onValueChange={(value) => onMotivoFilterChange(value === "__all__" ? null : value)}
@@ -439,10 +515,10 @@ const NegociosToolbar = ({
               </div>
             )}
 
-            {/* Team (managers only) */}
+            {/* Equipe (managers only) */}
             {canChangeFilters && times.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Equipe</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Equipe</label>
                 <Select
                   value={teamFilter || "all"}
                   onValueChange={(value) => {
@@ -467,8 +543,8 @@ const NegociosToolbar = ({
 
             {/* Responsável */}
             {shouldShowResponsavelFilter && canChangeFilters && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Responsável</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Responsável</label>
                 <Select
                   value={responsavelFilter || "all"}
                   onValueChange={(value) => onResponsavelFilterChange(value === "all" ? "" : value)}
@@ -488,10 +564,10 @@ const NegociosToolbar = ({
               </div>
             )}
 
-            {/* Score Matrix */}
+            {/* Score */}
             {onScoreMatrixFilterChange && canChangeFilters && scoreMatrices.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Score</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Score</label>
                 <Select
                   value={scoreMatrixFilter || "all"}
                   onValueChange={(value) => onScoreMatrixFilterChange(value === "all" ? "" : value)}
@@ -513,8 +589,8 @@ const NegociosToolbar = ({
 
             {/* Produto Kiwify */}
             {onProductFilterChange && kiwifyProductOptions.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Produto</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Produto</label>
                 <Select
                   value={productFilter || "all"}
                   onValueChange={(value) => onProductFilterChange(value === "all" ? "" : value)}
@@ -539,8 +615,8 @@ const NegociosToolbar = ({
 
             {/* Tag */}
             {onTagFilterChange && tagOptions.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Tag</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Tag</label>
                 <Select
                   value={tagFilter || "all"}
                   onValueChange={(value) => onTagFilterChange(value === "all" ? "" : value)}
@@ -565,8 +641,8 @@ const NegociosToolbar = ({
 
             {/* Canal WhatsApp (Meta/Evolution) */}
             {onChannelFilterChange && channelOptions.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">Canal</Label>
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Canal</label>
                 <Select
                   value={channelFilter || "all"}
                   onValueChange={(value) => onChannelFilterChange(value === "all" ? "" : value)}
@@ -589,86 +665,79 @@ const NegociosToolbar = ({
               </div>
             )}
 
-            {/* UTM — Avançado (managers only) */}
-            {canChangeFilters && (
-              <Collapsible open={utmOpen} onOpenChange={setUtmOpen}>
-                <CollapsibleTrigger asChild>
-                  <button className="flex items-center gap-1.5 w-full text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-                    {utmOpen
-                      ? <ChevronDown className="w-3 h-3" strokeWidth={1.5} />
-                      : <ChevronRight className="w-3 h-3" strokeWidth={1.5} />
-                    }
-                    <Megaphone className="w-3 h-3" strokeWidth={1.5} />
-                    UTM
-                    {hasActiveUTM && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                    )}
-                  </button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2 mt-2">
-                  {onCampanhaFilterChange && (utmValues?.campaigns?.length || 0) > 0 && (
-                    <SearchableSelect
-                      value={campanhaFilter}
-                      onValueChange={onCampanhaFilterChange}
-                      options={utmValues?.campaigns || []}
-                      placeholder="Campaign"
-                      searchPlaceholder="Buscar campaign..."
-                      emptyMessage="Nenhuma campaign encontrada"
-                      className="w-full"
-                    />
-                  )}
-                  {onSourceFilterChange && (utmValues?.sources?.length || 0) > 0 && (
-                    <SearchableSelect
-                      value={sourceFilter}
-                      onValueChange={onSourceFilterChange}
-                      options={utmValues?.sources || []}
-                      placeholder="Source"
-                      searchPlaceholder="Buscar source..."
-                      emptyMessage="Nenhum source encontrado"
-                      className="w-full"
-                    />
-                  )}
-                  {onMediumFilterChange && (utmValues?.mediums?.length || 0) > 0 && (
-                    <SearchableSelect
-                      value={mediumFilter}
-                      onValueChange={onMediumFilterChange}
-                      options={utmValues?.mediums || []}
-                      placeholder="Medium"
-                      searchPlaceholder="Buscar medium..."
-                      emptyMessage="Nenhum medium encontrado"
-                      className="w-full"
-                    />
-                  )}
-                  {onTermFilterChange && (utmValues?.terms?.length || 0) > 0 && (
-                    <SearchableSelect
-                      value={termFilter}
-                      onValueChange={onTermFilterChange}
-                      options={utmValues?.terms || []}
-                      placeholder="Term"
-                      searchPlaceholder="Buscar term..."
-                      emptyMessage="Nenhum term encontrado"
-                      className="w-full"
-                    />
-                  )}
-                  {onContentFilterChange && (utmValues?.contents?.length || 0) > 0 && (
-                    <SearchableSelect
-                      value={contentFilter}
-                      onValueChange={onContentFilterChange}
-                      options={utmValues?.contents || []}
-                      placeholder="Content"
-                      searchPlaceholder="Buscar content..."
-                      emptyMessage="Nenhum content encontrado"
-                      className="w-full"
-                    />
-                  )}
-                  {!hasUTMData && (
-                    <p className="text-[12px] text-muted-foreground/40">Nenhum dado UTM encontrado</p>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
+            {/* UTM — Campaign, Source, Medium, Term, Content (managers only) */}
+            {canChangeFilters && onCampanhaFilterChange && (utmValues?.campaigns?.length || 0) > 0 && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Campaign</label>
+                <SearchableSelect
+                  value={campanhaFilter}
+                  onValueChange={onCampanhaFilterChange}
+                  options={utmValues?.campaigns || []}
+                  placeholder="Campaign"
+                  searchPlaceholder="Buscar campaign..."
+                  emptyMessage="Nenhuma campaign encontrada"
+                  className="w-full"
+                />
+              </div>
             )}
-          </PopoverContent>
-        </Popover>}
+            {canChangeFilters && onSourceFilterChange && (utmValues?.sources?.length || 0) > 0 && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Source</label>
+                <SearchableSelect
+                  value={sourceFilter}
+                  onValueChange={onSourceFilterChange}
+                  options={utmValues?.sources || []}
+                  placeholder="Source"
+                  searchPlaceholder="Buscar source..."
+                  emptyMessage="Nenhum source encontrado"
+                  className="w-full"
+                />
+              </div>
+            )}
+            {canChangeFilters && onMediumFilterChange && (utmValues?.mediums?.length || 0) > 0 && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Medium</label>
+                <SearchableSelect
+                  value={mediumFilter}
+                  onValueChange={onMediumFilterChange}
+                  options={utmValues?.mediums || []}
+                  placeholder="Medium"
+                  searchPlaceholder="Buscar medium..."
+                  emptyMessage="Nenhum medium encontrado"
+                  className="w-full"
+                />
+              </div>
+            )}
+            {canChangeFilters && onTermFilterChange && (utmValues?.terms?.length || 0) > 0 && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Term</label>
+                <SearchableSelect
+                  value={termFilter}
+                  onValueChange={onTermFilterChange}
+                  options={utmValues?.terms || []}
+                  placeholder="Term"
+                  searchPlaceholder="Buscar term..."
+                  emptyMessage="Nenhum term encontrado"
+                  className="w-full"
+                />
+              </div>
+            )}
+            {canChangeFilters && onContentFilterChange && (utmValues?.contents?.length || 0) > 0 && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-muted-foreground">Content</label>
+                <SearchableSelect
+                  value={contentFilter}
+                  onValueChange={onContentFilterChange}
+                  options={utmValues?.contents || []}
+                  placeholder="Content"
+                  searchPlaceholder="Buscar content..."
+                  emptyMessage="Nenhum content encontrado"
+                  className="w-full"
+                />
+              </div>
+            )}
+          </MoreFiltersPopover>
+        )}
 
         {/* Mover leads em massa */}
         {viewMode !== 'clientes' && stagesDoPipelineAtual.length > 0 && (
@@ -698,7 +767,22 @@ const NegociosToolbar = ({
             <RotateCcw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} strokeWidth={1.5} />
           </Button>
         )}
+
+        {/* New Deal Button */}
+        {viewMode !== 'clientes' && (
+          <Button
+            onClick={onCreateNegocio}
+            className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-full"
+          >
+            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+            Novo Negócio
+          </Button>
+        )}
       </div>
+
+      {viewMode !== 'clientes' && (
+        <ActiveFilterChips items={activeItems} onClearAll={onClearFilters} />
+      )}
 
       {moverLeadsOpen && (
         <MoverLeadsEmMassaModal
