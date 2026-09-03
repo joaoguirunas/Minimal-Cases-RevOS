@@ -23,7 +23,10 @@ function DeltaBadge({ delta }: { delta: StatDelta }) {
   const good = delta.invert ? down : up;
   const bad = delta.invert ? up : down;
   const Icon = up ? ArrowUpRight : down ? ArrowDownRight : Minus;
-  const pct = `${delta.value > 0 ? '+' : ''}${(delta.value * 100).toFixed(0)}%`;
+  // Sinal segue os mesmos booleanos up/down do ícone e da cor: dentro da zona morta
+  // (|value| < 0.005) o texto é exatamente "0%", nunca "+0%" nem "-0%".
+  const magnitude = Math.abs(delta.value * 100).toFixed(0);
+  const pct = up ? `+${magnitude}%` : down ? `-${magnitude}%` : '0%';
   return (
     <span className={cn('inline-flex items-center gap-1 text-[11px] font-medium tabular-nums',
       good ? 'text-emerald-500' : bad ? 'text-red-500' : 'text-muted-foreground')}>
