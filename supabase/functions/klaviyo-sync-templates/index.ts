@@ -174,9 +174,9 @@ Deno.serve(async (req: Request) => {
                   return { tipo: t.type ?? null, metrica: met?.name ?? tid ?? null, integracao: met?.integration ?? null };
                 });
               } catch (_) { gatilhos = 'não foi possível ler a definição'; }
-              return { name: f.name, status: f.status, trigger_type: f.trigger_type, gatilhos };
+              return { id: f.id, name: f.name, status: f.status, trigger_type: f.trigger_type, gatilhos };
             })),
-            draft: flows.filter((f) => !/live/i.test(f.status)).length,
+            draft: flows.filter((f) => !/live/i.test(f.status)).map((f) => ({ id: f.id, name: f.name, status: f.status })),
             colisao_nome_crm: flows.filter((f) => nomesCrm.includes(f.name)).map((f) => ({ name: f.name, status: f.status })),
           },
           templates: { total: templates.length, colisao_nome_crm: colisoes },
