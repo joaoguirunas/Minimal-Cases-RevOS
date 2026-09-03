@@ -171,7 +171,7 @@ const StageColumn = ({
                         role="button"
                         tabIndex={0}
                         aria-label={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${cardData[negocio.id] ? `, ${cardData[negocio.id].sent.total} de ${cardData[negocio.id].total} toques` : ''}`}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/crm/kanban/${negocio.id}`); } }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); navigate(`/crm/kanban/${negocio.id}`); } }}
                         className={cn(
                           "w-full bg-background border border-border rounded-xl p-3 space-y-2 cursor-pointer transition-all duration-300",
                           "hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
@@ -221,7 +221,7 @@ const StageColumn = ({
                               {s && s.total > 0 ? (
                                 <div className="space-y-1 pt-1">
                                   <div className="flex items-center justify-between text-[10.5px] text-muted-foreground">
-                                    <span className="tabular-nums">{s.sent.total} de {s.total} toques</span>
+                                    <span className="tabular-nums">{s.sent.total} de {s.total} toques{s.failed > 0 ? ` · ${s.failed} falhou` : ''}</span>
                                     <span className="truncate ml-2">{next ? `próximo: ${next}` : s.pending === 0 ? 'esteira concluída' : ''}</span>
                                   </div>
                                   <div className="h-1 w-full rounded-full bg-muted overflow-hidden" aria-hidden>
@@ -235,9 +235,8 @@ const StageColumn = ({
                               {/* 4 · estado */}
                               <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-border/60">
                                 {unread > 0 && <Chip tone="danger" icon={MessageCircle} title="Mensagens não lidas">{unread}</Chip>}
-                                {s && s.failed > 0 && <Chip tone="warning" title="Toques com falha">{s.failed} falhou</Chip>}
-                                {tags.slice(0, 2).map((t) => <Chip key={t}>{t}</Chip>)}
-                                {tags.length > 2 && <Chip title={tags.slice(2).join(', ')}>+{tags.length - 2}</Chip>}
+                                {tags.slice(0, 1).map((t) => <Chip key={t}>{t}</Chip>)}
+                                {tags.length > 1 && <Chip title={tags.slice(1).join(', ')}>+{tags.length - 1}</Chip>}
                                 {d !== null && (
                                   <Chip
                                     className="ml-auto"
