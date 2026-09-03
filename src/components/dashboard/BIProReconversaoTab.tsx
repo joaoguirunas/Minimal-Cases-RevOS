@@ -18,6 +18,8 @@ import {
   cardVariants, containerVariants, fmtBRL, SkeletonBlock, TABLE_HEADER,
 } from './bipro-shared';
 import KpiHero from './reconversao/KpiHero';
+import FunnelCard from './reconversao/FunnelCard';
+import AttributionCard from './reconversao/AttributionCard';
 
 // bipro-shared declara os variants como objeto plano; o motion do framer 11 exige Variants.
 const cardV = cardVariants as unknown as Variants;
@@ -88,6 +90,12 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
     <motion.div variants={containerV} initial="hidden" animate="show" className="space-y-5">
       {/* ── KPIs principais ─────────────────────────────────────────────── */}
       <KpiHero agregado={data.agregado} />
+
+      {/* ── Funil e atribuição ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <FunnelCard funil={data.agregado.funil} />
+        <AttributionCard receita={data.agregado.porNivelReceita} topCupons={data.agregado.topCupons} />
+      </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}
       <motion.div variants={cardV} className="rounded-xl border border-border bg-card p-4">
