@@ -20,7 +20,7 @@ export function buildInsights(a: Agregado): string[] {
     const v = Math.round(Math.abs(a.deltas.horas) * 100);
     if (v >= 10) out.push(`Tempo médio até pagar ${a.deltas.horas < 0 ? 'caiu' : 'subiu'} ${v}% vs. período anterior.`);
   }
-  if (out.length < 3 && total >= 3 && a.funil.tocados >= 20 && a.funil.clicaram >= 3) {
+  if (out.length < 3 && a.funil.tocados >= 20 && a.funil.clicaram >= 3) {
     out.push(`${pct(a.funil.clicaram, a.funil.tocados)}% dos tocados clicaram no link; ${pct(a.funil.pagaram, a.funil.clicaram)}% dos que clicaram pagaram.`);
   }
   return out.slice(0, 3);

@@ -21,6 +21,10 @@ describe('buildInsights', () => {
     expect(s.some((x) => x.toLowerCase().includes('e-mail'))).toBe(true);
   });
   it('sem base, não inventa', () => {
-    expect(buildInsights({ ...base, atual: { ...base.atual, reconvertidos: 1 }, porNivel: { cupom: 1, clique: 0, janela: 0 }, porCanalUltimoToque: { email: 1, whatsapp: 0, sms: 0 }, topCupons: [], deltas: { receita: null, reconvertidos: null, taxa: null, horas: null } })).toEqual([]);
+    expect(buildInsights({ ...base, atual: { ...base.atual, reconvertidos: 1 }, funil: { tocados: 10, clicaram: 1, pagaram: 1 }, porNivel: { cupom: 1, clique: 0, janela: 0 }, porCanalUltimoToque: { email: 1, whatsapp: 0, sms: 0 }, topCupons: [], deltas: { receita: null, reconvertidos: null, taxa: null, horas: null } })).toEqual([]);
+  });
+  it('emite a frase do funil quando há volume de toques e cliques, mesmo com poucas conversões', () => {
+    const s = buildInsights({ ...base, atual: { ...base.atual, reconvertidos: 2 }, funil: { tocados: 200, clicaram: 50, pagaram: 2 }, topCupons: [], porCanalUltimoToque: { email: 0, whatsapp: 0, sms: 0 }, deltas: { receita: null, reconvertidos: null, taxa: null, horas: null } });
+    expect(s.some((x) => x.includes('dos tocados clicaram'))).toBe(true);
   });
 });
