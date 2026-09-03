@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, CheckCircle2, Download, Mail, MessageSquare, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -39,6 +39,8 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
   const pages = Math.max(1, Math.ceil(visiveis.length / PAGE));
   const slice = visiveis.slice((page - 1) * PAGE, page * PAGE);
 
+  useEffect(() => { if (page > pages) setPage(1); }, [pages, page]);
+
   const toggle = (by: Ordem['by']) => { setOrdem((o) => ({ by, dir: o.by === by && o.dir === 'desc' ? 'asc' : 'desc' })); setPage(1); };
   const exportar = () => {
     const blob = new Blob(['﻿' + toCsv(visiveis)], { type: 'text/csv;charset=utf-8' });
@@ -50,6 +52,8 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
     { k: 'todos', label: 'Todos' }, { k: 'atribuidos', label: 'Atribuídos' }, { k: 'organicos', label: 'Orgânicos' },
     { k: 'cupom', label: 'Cupom' }, { k: 'clique', label: 'Clique' }, { k: 'janela', label: 'Janela' },
   ];
+
+  const navigateToLead = (leadId: string) => navigate(`/crm/kanban/${leadId}`);
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -75,8 +79,16 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
               <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Cliente</th>
               <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Toques</th>
               <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Último toque → pagou</th>
-              <th className={cn(TABLE_HEADER, 'text-right px-4 py-2 cursor-pointer select-none')} onClick={() => toggle('order_total')}>Valor<SortIcon by="order_total" /></th>
-              <th className={cn(TABLE_HEADER, 'text-left px-4 py-2 cursor-pointer select-none')} onClick={() => toggle('paid_at')}>Pago em<SortIcon by="paid_at" /></th>
+              <th className={cn(TABLE_HEADER, 'text-right px-4 py-2')} aria-sort={ordem.by === 'order_total' ? (ordem.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                <button type="button" onClick={() => toggle('order_total')} className="cursor-pointer select-none">
+                  Valor<SortIcon by="order_total" />
+                </button>
+              </th>
+              <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')} aria-sort={ordem.by === 'paid_at' ? (ordem.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                <button type="button" onClick={() => toggle('paid_at')} className="cursor-pointer select-none">
+                  Pago em<SortIcon by="paid_at" />
+                </button>
+              </th>
               <th className={cn(TABLE_HEADER, 'text-left px-4 py-2')}>Atribuição</th>
             </tr>
           </thead>
@@ -84,7 +96,12 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
             {slice.length === 0 ? (
               <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-[12px]">Nenhum pedido neste filtro.</td></tr>
             ) : slice.map((r) => (
-              <tr key={r.id} onClick={() => r.lead_id && navigate(`/crm/kanban/${r.lead_id}`)}
+              <tr key={r.id}
+                onClick={() => r.lead_id && navigateToLead(r.lead_id)}
+                onKeyDown={r.lead_id ? (e) => { if (e.key === 'Enter') { e.preventDefault(); navigateToLead(r.lead_id as string); } } : undefined}
+                tabIndex={r.lead_id ? 0 : undefined}
+                role={r.lead_id ? 'link' : undefined}
+                aria-label={r.lead_id ? `Abrir lead de ${r.pessoa?.name ?? 'cliente'}` : undefined}
                 className={cn(r.lead_id && 'cursor-pointer hover:bg-muted/40', !r.attributed && 'opacity-70')}>
                 <td className="px-4 py-2.5 text-foreground truncate max-w-[220px]">{r.pessoa?.name ?? '—'}<span className="text-muted-foreground/50 text-[11px] ml-2">#{r.order_id}</span></td>
                 <td className="px-4 py-2.5">
