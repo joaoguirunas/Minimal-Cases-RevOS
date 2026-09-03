@@ -108,8 +108,10 @@ const StageColumn = ({
   const PortalAwareDraggable: React.FC<{
     negocio: NegocioOptimized;
     index: number;
+    ariaLabel: string;
+    onOpen: () => void;
     children: (args: { provided: DraggableProvided; snapshot: DraggableStateSnapshot }) => React.ReactNode;
-  }> = ({ negocio, index, children }) => (
+  }> = ({ negocio, index, ariaLabel, onOpen, children }) => (
     <Draggable draggableId={negocio.id} index={index}>
       {(provided, snapshot) => {
         const child = (
@@ -117,6 +119,9 @@ const StageColumn = ({
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
+            aria-label={ariaLabel}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); onOpen(); } }}
+            className={cn("rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40")}
             style={provided.draggableProps.style}
           >
             {children({ provided, snapshot })}
@@ -163,98 +168,102 @@ const StageColumn = ({
               </div>
             ) : negocios.length > 0 ? (
               <>
-                {displayedNegocios.map((negocio, index) => (
-                  <PortalAwareDraggable key={negocio.id} negocio={negocio} index={index}>
-                    {({ snapshot }) => (
-                      <div
-                        onClick={() => navigate(`/crm/kanban/${negocio.id}`)}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${cardData[negocio.id] ? `, ${cardData[negocio.id].sent.total} de ${cardData[negocio.id].total} toques` : ''}`}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); navigate(`/crm/kanban/${negocio.id}`); } }}
-                        className={cn(
-                          "w-full bg-background border border-border rounded-xl p-3 space-y-2 cursor-pointer transition-all duration-300",
-                          "hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                          snapshot.isDragging && "ring-2 ring-primary/20 z-[9999]",
-                          negocio.status === 'lost' && "bg-[#EF4444]/5 border-[#EF4444]/20",
-                          (negocio.pessoa?.unread_count ?? 0) > 0 && "border-l-2 border-l-[#EF4444]"
-                        )}
-                      >
-                        {(() => {
-                          const s = cardData[negocio.id];
-                          const produto = productFromTitle(negocio.title);
-                          const d = daysSince(negocio.created_at);
-                          const next = s ? nextTouchText(s.nextAt, s.nextChannel) : null;
-                          const pct = s && s.total > 0 ? Math.round((s.sent.total / s.total) * 100) : 0;
-                          const tags = (negocio.tags ?? []).map((t) => t.tag?.name).filter(Boolean) as string[];
-                          const unread = negocio.pessoa?.unread_count ?? 0;
-                          return (
-                            <>
-                              {/* 1 · quem + quanto */}
-                              <div className="flex items-start justify-between gap-2">
-                                <p className="flex-1 min-w-0 text-[13px] font-medium text-foreground truncate leading-tight">
-                                  {negocio.pessoa?.name || 'Sem nome'}
-                                </p>
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                  <p className="text-[13px] font-semibold text-foreground tabular-nums whitespace-nowrap">{formatCurrency(negocio.value || 0)}</p>
-                                  {negocio.status === 'in_progress' && (
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-foreground -mr-1" onClick={(e) => e.stopPropagation()} aria-label="Mais ações">
-                                          <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end" className="w-44">
-                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowLostModal(negocio.id); }} className="text-[13px] gap-2 cursor-pointer text-destructive focus:text-destructive">
-                                          <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} />Marcar como Perdido
-                                        </DropdownMenuItem>
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
+                {displayedNegocios.map((negocio, index) => {
+                  const s = cardData[negocio.id];
+                  const unread = negocio.pessoa?.unread_count ?? 0;
+                  return (
+                    <PortalAwareDraggable
+                      key={negocio.id}
+                      negocio={negocio}
+                      index={index}
+                      ariaLabel={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${s ? `, ${s.sent.total} de ${s.total} toques` : ''}${unread > 0 ? `, ${unread} não lidas` : ''}`}
+                      onOpen={() => navigate(`/crm/kanban/${negocio.id}`)}
+                    >
+                      {({ snapshot }) => (
+                        <div
+                          onClick={() => navigate(`/crm/kanban/${negocio.id}`)}
+                          className={cn(
+                            "w-full bg-background border border-border rounded-xl p-3 space-y-2 cursor-pointer transition-all duration-300",
+                            "hover:border-foreground/20",
+                            snapshot.isDragging && "ring-2 ring-primary/20 z-[9999]",
+                            negocio.status === 'lost' && "bg-[#EF4444]/5 border-[#EF4444]/20",
+                            unread > 0 && "border-l-2 border-l-[#EF4444]"
+                          )}
+                        >
+                          {(() => {
+                            const produto = productFromTitle(negocio.title);
+                            const d = daysSince(negocio.created_at);
+                            const next = s ? nextTouchText(s.nextAt, s.nextChannel) : null;
+                            const pct = s && s.total > 0 ? Math.round((s.sent.total / s.total) * 100) : 0;
+                            const tags = (negocio.tags ?? []).map((t) => t.tag?.name).filter(Boolean) as string[];
+                            return (
+                              <>
+                                {/* 1 · quem + quanto */}
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="flex-1 min-w-0 text-[13px] font-medium text-foreground truncate leading-tight">
+                                    {negocio.pessoa?.name || 'Sem nome'}
+                                  </p>
+                                  <div className="flex items-center gap-1 flex-shrink-0">
+                                    <p className="text-[13px] font-semibold text-foreground tabular-nums whitespace-nowrap">{formatCurrency(negocio.value || 0)}</p>
+                                    {negocio.status === 'in_progress' && (
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-foreground -mr-1" onClick={(e) => e.stopPropagation()} aria-label="Mais ações">
+                                            <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-44">
+                                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowLostModal(negocio.id); }} className="text-[13px] gap-2 cursor-pointer text-destructive focus:text-destructive">
+                                            <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} />Marcar como Perdido
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* 2 · o quê */}
+                                {produto && <p className="text-[11.5px] text-muted-foreground truncate leading-tight">{produto}</p>}
+
+                                {/* 3 · progresso da esteira */}
+                                {s && s.total > 0 ? (
+                                  <div className="space-y-1 pt-1">
+                                    <div className="flex items-center justify-between text-[10.5px] text-muted-foreground">
+                                      <span className="tabular-nums">{s.sent.total} de {s.total} toques{s.failed > 0 ? ` · ${s.failed} falhou` : ''}</span>
+                                      <span className="truncate ml-2">{next ? `próximo: ${next}` : s.pending > 0 ? 'sem data prevista' : s.failed > 0 && s.sent.total === 0 ? 'esteira encerrada com falhas' : s.pending === 0 ? 'esteira concluída' : ''}</span>
+                                    </div>
+                                    <div className="h-1 w-full rounded-full bg-muted overflow-hidden" aria-hidden>
+                                      <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-[10.5px] text-muted-foreground/60 pt-1">sem toques agendados</p>
+                                )}
+
+                                {/* 4 · estado */}
+                                <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-border/60">
+                                  {unread > 0 && <Chip tone="danger" icon={MessageCircle} title="Mensagens não lidas">{unread}</Chip>}
+                                  {tags.slice(0, 1).map((t) => <Chip key={t}>{t}</Chip>)}
+                                  {tags.length > 1 && <Chip title={tags.slice(1).join(', ')}>+{tags.length - 1}</Chip>}
+                                  {d !== null && (
+                                    <Chip
+                                      className="ml-auto"
+                                      icon={Clock}
+                                      tone={d >= 7 ? 'danger' : d >= 3 ? 'warning' : 'neutral'}
+                                      title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
+                                    >
+                                      {d === 0 ? 'hoje' : `${d}d`}
+                                    </Chip>
                                   )}
                                 </div>
-                              </div>
-
-                              {/* 2 · o quê */}
-                              {produto && <p className="text-[11.5px] text-muted-foreground truncate leading-tight">{produto}</p>}
-
-                              {/* 3 · progresso da esteira */}
-                              {s && s.total > 0 ? (
-                                <div className="space-y-1 pt-1">
-                                  <div className="flex items-center justify-between text-[10.5px] text-muted-foreground">
-                                    <span className="tabular-nums">{s.sent.total} de {s.total} toques{s.failed > 0 ? ` · ${s.failed} falhou` : ''}</span>
-                                    <span className="truncate ml-2">{next ? `próximo: ${next}` : s.pending === 0 ? 'esteira concluída' : ''}</span>
-                                  </div>
-                                  <div className="h-1 w-full rounded-full bg-muted overflow-hidden" aria-hidden>
-                                    <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
-                                  </div>
-                                </div>
-                              ) : (
-                                <p className="text-[10.5px] text-muted-foreground/60 pt-1">sem toques agendados</p>
-                              )}
-
-                              {/* 4 · estado */}
-                              <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-border/60">
-                                {unread > 0 && <Chip tone="danger" icon={MessageCircle} title="Mensagens não lidas">{unread}</Chip>}
-                                {tags.slice(0, 1).map((t) => <Chip key={t}>{t}</Chip>)}
-                                {tags.length > 1 && <Chip title={tags.slice(1).join(', ')}>+{tags.length - 1}</Chip>}
-                                {d !== null && (
-                                  <Chip
-                                    className="ml-auto"
-                                    icon={Clock}
-                                    tone={d >= 7 ? 'danger' : d >= 3 ? 'warning' : 'neutral'}
-                                    title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
-                                  >
-                                    {d === 0 ? 'hoje' : `${d}d`}
-                                  </Chip>
-                                )}
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </PortalAwareDraggable>
-                ))}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </PortalAwareDraggable>
+                  );
+                })}
                 {negocios.length > ITEMS_PER_PAGE && displayedItems < negocios.length && (
                   <Button
                     variant="ghost"
