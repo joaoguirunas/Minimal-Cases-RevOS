@@ -44,6 +44,13 @@
     --info: 219 79% 56%;               /* azul de link dos e-mails */
     --info-foreground: 0 0% 98%;
 
+    /* Paleta de gráficos (recharts) — coerente com ink/bone */
+    --chart-1: 0 0% 7%;        /* ink */
+    --chart-2: 40 4% 45%;      /* #77746d */
+    --chart-3: 142 76% 36%;    /* success */
+    --chart-4: 48 96% 53%;     /* warning */
+    --chart-5: 219 79% 56%;    /* info */
+
     --stats-primary: 19 70% 93%;
     --stats-primary-border: 19 70% 78%;
     --stats-primary-text: 19 70% 30%;
@@ -119,6 +126,13 @@
     --warning-foreground: 0 0% 98%;
     --info: 219 79% 65%;
     --info-foreground: 0 0% 98%;
+
+    /* Paleta de gráficos (recharts) — coerente com ink/bone */
+    --chart-1: 40 12% 93%;     /* bone */
+    --chart-2: 40 4% 55%;
+    --chart-3: 142 60% 45%;
+    --chart-4: 48 90% 58%;
+    --chart-5: 219 79% 62%;
 
     --stats-primary: 19 60% 16%;
     --stats-primary-border: 19 60% 28%;
