@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle, CheckCircle2, ChevronDown, Eye, EyeOff, GitBranch, KeyRound, Link2,
-  Loader2, RefreshCw, Save, Send, Ticket, Unplug, Webhook, XCircle,
+  Loader2, RefreshCw, Save, Send, ShieldCheck, Ticket, Unplug, Webhook, XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -349,6 +349,137 @@ function EsteiraMappingSection() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Prontidão da esteira: um painel, todas as travas e ações de go-live ────────
+
+interface Readiness {
+  yampi: { connected: boolean; intake_enabled: boolean };
+  pipeline: { found: boolean; stages: number; leads_waiting: number; pending_queue: number };
+  rules: Array<{ stage: string; type: string; subject: string | null; active: boolean; wa_template_name: string | null; template_id: string | null }>;
+  coupons: Record<string, boolean | null>;
+  email: { configured: boolean; active: boolean; provider: string | null; locked: boolean; from_email: string | null };
+  sms: { configured: boolean; active: boolean; provider: string | null; locked: boolean };
+  whatsapp: { channels: number; active_channel: { id: string; label: string; has_waba: boolean; provider: string | null } | null };
+  wa_templates: Array<{ name: string; status: string }>;
+  agent: { id: string; name: string; active: boolean; llm_provider: string; llm_model: string; llm_key: boolean } | null;
+  business_hours: { enabled: boolean; start_hour: number; end_hour: number } | null;
+}
+
+type Tone = 'ok' | 'warn' | 'off';
+function ReadyRow({ tone, label, detail, action }: { tone: Tone; label: string; detail?: string; action?: React.ReactNode }) {
+  const dot = tone === 'ok' ? 'bg-emerald-500' : tone === 'warn' ? 'bg-amber-500' : 'bg-muted-foreground/40';
+  return (
+    <div className="flex items-center gap-3 px-3 py-2.5">
+      <span className={cn('w-2 h-2 rounded-full shrink-0', dot)} />
+      <div className="flex-1 min-w-0">
+        <span className="text-[12.5px] font-medium text-foreground">{label}</span>
+        {detail && <p className="text-[11px] text-muted-foreground leading-snug truncate">{detail}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+function EsteiraReadinessCard() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['yampi', 'readiness'],
+    queryFn: () => invokeYampi<Readiness>({ action: 'esteira_readiness' }),
+    staleTime: 20_000,
+  });
+
+  const run = async (key: string, body: Record<string, unknown>, okTitle: string, fmt: (r: Record<string, unknown>) => string) => {
+    setBusy(key);
+    try {
+      const r = await invokeYampi<Record<string, unknown>>(body);
+      toast({ title: okTitle, description: fmt(r) });
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['yampi'] });
+    } catch (e) {
+      toast({ title: 'Falhou', description: (e as Error).message, variant: 'destructive' });
+    } finally { setBusy(null); }
+  };
+
+  if (isLoading || !data) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-5 flex items-center gap-2 text-[12px] text-muted-foreground">
+        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verificando prontidão da esteira…
+      </div>
+    );
+  }
+
+  const r = data;
+  const rulesActive = r.rules.filter((x) => x.active).length;
+  const emailRules = r.rules.filter((x) => x.type === 'email' && x.active).length;
+  const smsRules = r.rules.filter((x) => x.type === 'sms' && x.active).length;
+  const waRules = r.rules.filter((x) => x.type === 'whatsapp_template');
+  const waApproved = r.wa_templates.filter((t) => /approved/i.test(t.status)).length;
+  const couponsOk = r.coupons.VOLTA10 === true && r.coupons.ULTIMA15 === true;
+  const emailTone: Tone = !r.email.configured ? 'off' : (!r.email.active || r.email.locked) ? 'warn' : 'ok';
+  const smsTone: Tone = smsRules === 0 ? 'off' : !r.sms.configured ? 'warn' : (!r.sms.active || r.sms.locked) ? 'warn' : 'ok';
+  const waTone: Tone = !r.whatsapp.active_channel ? 'off' : !r.whatsapp.active_channel.has_waba ? 'warn' : waRules.length > 0 && waApproved === 0 ? 'warn' : 'ok';
+  const agentTone: Tone = !r.agent ? 'off' : (!r.agent.active || !r.agent.llm_key) ? 'warn' : 'ok';
+  const readyToFire = emailTone === 'ok' && couponsOk && r.pipeline.leads_waiting > 0;
+
+  const btn = (key: string, label: string, onClick: () => void, variant: 'outline' | 'default' = 'outline') => (
+    <Button variant={variant} size="sm" className="h-7 gap-1.5 text-[11.5px] shrink-0" disabled={busy !== null} onClick={onClick}>
+      {busy === key ? <Loader2 className="w-3 h-3 animate-spin" /> : null}{label}
+    </Button>
+  );
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          <div>
+            <span className="text-[13px] font-medium text-foreground">Prontidão da esteira</span>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              {readyToFire
+                ? 'Tudo verde no essencial — pode disparar pelos leads parados abaixo.'
+                : 'Cada linha é uma trava do go-live. Verde = pronto · âmbar = falta ação · cinza = não configurado.'}
+            </p>
+          </div>
+        </div>
+        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => refetch()}><RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /></Button>
+      </div>
+
+      <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
+        <ReadyRow tone={r.yampi.connected ? 'ok' : 'off'} label="Yampi conectada"
+          detail={r.yampi.connected ? (r.yampi.intake_enabled ? 'Entrada de novos leads LIGADA' : 'Entrada de novos leads desligada (recorte congelado)') : 'Conecte a loja'} />
+        <ReadyRow tone={r.pipeline.found && rulesActive > 0 ? 'ok' : 'warn'} label={`Pipeline e regras da esteira · ${rulesActive} regras ativas`}
+          detail={`${r.pipeline.leads_waiting} leads parados em Carrinho abandonado · ${r.pipeline.pending_queue} toques na fila · janela ${r.business_hours?.enabled ? `${r.business_hours.start_hour}h–${r.business_hours.end_hour}h` : 'desligada'}`} />
+        <ReadyRow tone={couponsOk ? 'ok' : r.coupons.VOLTA10 === null ? 'warn' : 'warn'} label="Cupons VOLTA10 / ULTIMA15 na Yampi"
+          detail={couponsOk ? 'Existem na loja' : r.coupons.VOLTA10 === null ? 'Não verificado (loja desconectada?)' : 'Faltando na loja'}
+          action={!couponsOk ? btn('coupons', 'Criar cupons', () => run('coupons', { action: 'ensure_coupons' }, 'Cupons', (x) => (x.coupons as Array<{ code: string; status: string }>).map((c) => `${c.code}: ${c.status}`).join(' · '))) : undefined} />
+        <ReadyRow tone={emailTone} label={`E-mail · ${emailRules} regras ativas`}
+          detail={!r.email.configured ? 'Canal E-mail sem provider — Configurações → Canais → E-mail (aba Klaviyo)'
+            : !r.email.active ? `Provider ${r.email.provider} configurado, canal INATIVO — ative e salve`
+            : r.email.locked ? `Klaviyo configurado (${r.email.from_email ?? 'sem From Email'}) — trava de envios FECHADA`
+            : `${r.email.provider}${r.email.from_email ? ` · ${r.email.from_email}` : ''} · envios liberados`} />
+        <ReadyRow tone={smsTone} label={`SMS · ${smsRules} regras ativas`}
+          detail={smsRules === 0 ? 'Sem regras de SMS ativas' : !r.sms.configured ? 'Sem provider de SMS — use Twilio (Klaviyo não envia SMS pro Brasil) ou desative as regras SMS'
+            : r.sms.locked ? 'Trava de envios fechada' : !r.sms.active ? 'Canal inativo' : `${r.sms.provider} · liberado`} />
+        <ReadyRow tone={waTone} label={`WhatsApp · ${waRules.filter((x) => x.active).length}/${waRules.length} regras ativas · ${waApproved}/${r.wa_templates.length} templates aprovados`}
+          detail={!r.whatsapp.active_channel ? 'Sem canal WhatsApp ativo — Canais → WhatsApp (API oficial da Meta, com WABA ID)'
+            : !r.whatsapp.active_channel.has_waba ? `Canal "${r.whatsapp.active_channel.label}" sem WABA ID — necessário pra criar templates`
+            : r.wa_templates.length === 0 ? `Canal "${r.whatsapp.active_channel.label}" pronto — crie os templates da esteira na Meta`
+            : waApproved < r.wa_templates.length ? `Aguardando aprovação da Meta (${r.wa_templates.map((t) => `${t.name.replace('minimal_esteira_', '')}: ${t.status}`).join(', ')})`
+            : 'Templates aprovados — regras ativam sozinhas na sincronização'}
+          action={r.whatsapp.active_channel?.has_waba && r.wa_templates.length < waRules.length
+            ? btn('wa', 'Criar templates na Meta', () => run('wa', { action: 'bootstrap_wa_templates' }, 'Templates enviados à Meta', (x) => (x.templates as Array<{ template: string; status: string; detail?: string }>).map((t) => `${t.template.replace('minimal_esteira_', '')}: ${t.status}${t.detail ? ` (${t.detail})` : ''}`).join(' · ')))
+            : undefined} />
+        <ReadyRow tone={agentTone} label={r.agent ? `Agente "${r.agent.name}"` : 'Agente de WhatsApp'}
+          detail={!r.agent ? 'Nenhum agente da esteira encontrado'
+            : !r.agent.active ? 'Agente inativo — ative em Agentes IA'
+            : !r.agent.llm_key ? `Falta a API key do provider ${r.agent.llm_provider} — Agentes IA → Provedores`
+            : `${r.agent.llm_provider} · ${r.agent.llm_model} · responde leads da esteira no WhatsApp`} />
+      </div>
     </div>
   );
 }
@@ -745,7 +876,8 @@ export default function YampiIntegrationConfig() {
       {/* ── Esteira (mapeamento evento → stage) ───────────────────────────── */}
       <EsteiraMappingSection />
 
-      {/* ── Disparo da esteira + cupons ──────────────────────────────────── */}
+      {/* ── Prontidão + disparo da esteira ───────────────────────────────── */}
+      {connected && <EsteiraReadinessCard />}
       {connected && <EsteiraDispatchSection />}
 
       {/* ── Eventos ────────────────────────────────────────────────────────── */}

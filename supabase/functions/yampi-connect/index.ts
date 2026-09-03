@@ -29,7 +29,7 @@ import {
   YampiAuthError,
 } from '../_shared/yampi-client.ts';
 
-type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts' | 'set_lead_intake' | 'ensure_coupons' | 'enqueue_stage';
+type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts' | 'set_lead_intake' | 'ensure_coupons' | 'enqueue_stage' | 'api_probe' | 'esteira_readiness' | 'bootstrap_wa_templates';
 
 interface RequestBody {
   action?: Action;
@@ -43,6 +43,9 @@ interface RequestBody {
   enabled?: boolean;
   stage_id?: string;
   dry_run?: boolean;
+  path?: string;
+  query?: Record<string, string>;
+  channel_id?: string;
 }
 
 function inboundWebhookUrl(supabaseUrl: string, connectionId?: string): string {
@@ -97,7 +100,7 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json().catch(() => ({}))) as RequestBody;
     const action = body.action;
-    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts', 'set_lead_intake', 'ensure_coupons', 'enqueue_stage'].includes(action)) {
+    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts', 'set_lead_intake', 'ensure_coupons', 'enqueue_stage', 'api_probe', 'esteira_readiness', 'bootstrap_wa_templates'].includes(action)) {
       return err200('Ação inválida', 'BAD_REQUEST');
     }
 
@@ -424,6 +427,169 @@ Deno.serve(async (req: Request) => {
       const { data, error } = await supabase.rpc('enqueue_stage_followups', { p_stage_id: stageId, p_dry_run: dryRun });
       if (error) return err200(`Falha ao enfileirar: ${error.message}`, 'DB_ERROR');
       return ok200({ ok: true, ...(data as Record<string, unknown>) });
+    }
+
+    // ── API_PROBE: GET de diagnóstico na API Yampi (gestor; só leitura) ──────
+    if (action === 'api_probe') {
+      const bound = await createYampiClientForConnection(supabase);
+      if (!bound) return err200('Conecte a Yampi antes', 'NOT_CONNECTED');
+      const path = String(body.path ?? '');
+      if (!/^\/[a-z0-9_\-\/]+$/i.test(path)) return err200('path inválido', 'BAD_REQUEST');
+      try {
+        const data = await bound.client.request<unknown>('GET', path, { query: body.query ?? {} });
+        return ok200({ ok: true, data });
+      } catch (e) {
+        return err200((e as Error).message, 'API_ERROR');
+      }
+    }
+
+    // ── ESTEIRA_READINESS: painel único de prontidão pro go-live ─────────────
+    if (action === 'esteira_readiness') {
+      const conn = await loadYampiConnection(supabase);
+      const { data: pipe } = await supabase.from('leads_pipelines').select('id').eq('name', 'Esteira Minimal — Loja').maybeSingle();
+      const pipelineId = (pipe as { id: string } | null)?.id ?? null;
+      const { data: stages } = pipelineId
+        ? await supabase.from('leads_stages').select('id, name, order_index').eq('leads_pipelines_id', pipelineId).order('order_index')
+        : { data: [] as Array<{ id: string; name: string; order_index: number }> };
+      const stageIds = ((stages ?? []) as Array<{ id: string }>).map((s) => s.id);
+      const { data: rules } = stageIds.length
+        ? await supabase.from('leads_stages_followups').select('id, leads_stages_id, type, subject, active, template_id, vars').in('leads_stages_id', stageIds)
+        : { data: [] as never[] };
+      const ruleRows = (rules ?? []) as Array<{ leads_stages_id: string; type: string; subject: string | null; active: boolean; template_id: string | null; vars: Record<string, unknown> | null }>;
+      const stageName = (id: string) => ((stages ?? []) as Array<{ id: string; name: string }>).find((s) => s.id === id)?.name ?? '?';
+
+      const { data: cfgs } = await supabase.from('omni_channel_configs').select('channel, is_active, credentials').in('channel', ['email', 'sms']);
+      const cfgOf = (ch: string) => ((cfgs ?? []) as Array<{ channel: string; is_active: boolean; credentials: Record<string, string> | null }>).find((c) => c.channel === ch);
+      const chanInfo = (ch: string) => {
+        const c = cfgOf(ch); const cr = c?.credentials ?? {};
+        return { configured: !!c && !!cr.provider && cr.provider !== 'webhook', active: !!c?.is_active, provider: cr.provider ?? null,
+          locked: cr.provider === 'klaviyo' ? cr.sends_locked !== 'false' : false, from_email: cr.from_email ?? null, asset_base: cr.asset_base ?? null };
+      };
+
+      const { data: waCh } = await supabase.from('settings_whatsapp_channels').select('id, label, active, waba_id, provider').order('is_default', { ascending: false });
+      const waRows = (waCh ?? []) as Array<{ id: string; label: string; active: boolean; waba_id: string | null; provider: string | null }>;
+      const waActive = waRows.find((c) => c.active && c.waba_id) ?? waRows.find((c) => c.active) ?? null;
+      const { data: waTpls } = await supabase.from('whatsapp_templates').select('name, status, id_template').like('name', 'minimal_esteira_%');
+
+      const { data: agents } = await supabase.from('ai_agents').select('id, name, active, llm_provider, llm_model').eq('is_template', false).contains('channel_types', ['whatsapp']);
+      const agentRows = (agents ?? []) as Array<{ id: string; name: string; active: boolean; llm_provider: string; llm_model: string }>;
+      const esteiraAgent = agentRows.find((a) => /minimal|esteira|recupera/i.test(a.name)) ?? agentRows[0] ?? null;
+      const { data: prov } = esteiraAgent
+        ? await supabase.from('settings_ai_providers').select('api_key, active').eq('provider', esteiraAgent.llm_provider).eq('active', true).limit(1).maybeSingle()
+        : { data: null };
+      const llmKey = !!(prov as { api_key?: string } | null)?.api_key;
+
+      const { data: bh } = await supabase.from('settings_business_hours').select('enabled, start_hour, end_hour').limit(1).maybeSingle();
+      const carrinhoStage = ((stages ?? []) as Array<{ id: string; name: string }>).find((s) => s.name === 'Carrinho abandonado');
+      const { count: waiting } = carrinhoStage
+        ? await supabase.from('leads').select('id', { count: 'exact', head: true }).eq('leads_stages_id', carrinhoStage.id).eq('status', 'in_progress')
+        : { count: 0 };
+      const { count: pendingQ } = await supabase.from('followup_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending');
+
+      let coupons: Record<string, boolean | null> = { VOLTA10: null, ULTIMA15: null };
+      try {
+        const bound = await createYampiClientForConnection(supabase);
+        if (bound) coupons = { VOLTA10: !!(await bound.client.findPromocode('VOLTA10')), ULTIMA15: !!(await bound.client.findPromocode('ULTIMA15')) };
+      } catch (_) { /* fica null = não verificado */ }
+
+      return ok200({
+        ok: true,
+        yampi: { connected: conn?.status === 'connected', intake_enabled: conn?.lead_intake_enabled ?? true },
+        pipeline: { found: !!pipelineId, stages: (stages ?? []).length, leads_waiting: waiting ?? 0, pending_queue: pendingQ ?? 0 },
+        rules: ruleRows.map((r) => ({ stage: stageName(r.leads_stages_id), type: r.type, subject: r.subject, active: r.active,
+          wa_template_name: (r.vars as Record<string, unknown> | null)?.wa_template_name ?? null, template_id: r.template_id })),
+        coupons,
+        email: chanInfo('email'),
+        sms: chanInfo('sms'),
+        whatsapp: { channels: waRows.length, active_channel: waActive ? { id: waActive.id, label: waActive.label, has_waba: !!waActive.waba_id, provider: waActive.provider } : null },
+        wa_templates: (waTpls ?? []),
+        agent: esteiraAgent ? { id: esteiraAgent.id, name: esteiraAgent.name, active: esteiraAgent.active, llm_provider: esteiraAgent.llm_provider, llm_model: esteiraAgent.llm_model, llm_key: llmKey } : null,
+        business_hours: bh ?? null,
+      });
+    }
+
+    // ── BOOTSTRAP_WA_TEMPLATES: cria os templates da esteira na Meta e liga às regras ──
+    // Templates nascem 'pending'; whatsapp-templates-sync ativa as regras quando a
+    // Meta aprovar. Idempotente: template já existente é só religado à regra.
+    if (action === 'bootstrap_wa_templates') {
+      let chQuery = supabase.from('settings_whatsapp_channels').select('id, label, waba_id, access_token, active').eq('active', true);
+      if (body.channel_id) chQuery = chQuery.eq('id', body.channel_id);
+      const { data: chs } = await chQuery.order('is_default', { ascending: false }).limit(5);
+      const ch = ((chs ?? []) as Array<{ id: string; label: string; waba_id: string | null; access_token: string; active: boolean }>).find((c) => c.waba_id && c.access_token);
+      if (!ch) return err200('Nenhum canal WhatsApp (Meta) ativo com WABA ID e token. Conecte o canal em Canais → WhatsApp primeiro.', 'NO_WA_CHANNEL');
+
+      const base = supabaseUrl.replace(/\/+$/, '');
+      const urlBtn = (text: string) => ({ type: 'URL', text, url: `${base}/functions/v1/r?t={{1}}`, example: [`${base}/functions/v1/r?t=abc123XYZ0`] });
+      const specs: Array<{ rule_prefix: string; name: string; category: 'MARKETING' | 'UTILITY'; body: string; examples: string[]; params: string[]; buttons: Array<Record<string, unknown>> }> = [
+        { rule_prefix: 'WA-01', name: 'minimal_esteira_wa01', category: 'MARKETING',
+          body: 'Oi {{1}}, aqui é o {{2}} da Minimal Cases 👋 Vi que você deixou a *{{3}}* separada no carrinho. Ela é pro seu *{{4}}* mesmo? Qualquer dúvida de encaixe, MagSafe ou material, me responde aqui que eu te ajudo em 2 min. Se já estiver tudo certo, é só voltar de onde parou — frete grátis com rastreio já aplicado 😉',
+          examples: ['Gabriella', 'Rafael', 'Case Couro Porta-Cartões Preta', 'iPhone 17 Pro'], params: ['nome', 'remetente', 'produto', 'modelo_celular'],
+          buttons: [urlBtn('Voltar pro meu carrinho'), { type: 'QUICK_REPLY', text: 'Tenho uma dúvida' }] },
+        { rule_prefix: 'WA-02', name: 'minimal_esteira_wa02', category: 'MARKETING',
+          body: 'Oi {{1}}, segurei sua {{2}} no carrinho até amanhã 🫡 Depois disso o sistema libera pra outra pessoa e eu não consigo garantir a cor. Se quiser fechar, é só continuar de onde parou — frete grátis + rastreio já aplicados.',
+          examples: ['Gabriella', 'Case Couro Porta-Cartões Preta'], params: ['nome', 'produto'],
+          buttons: [urlBtn('Finalizar pedido'), { type: 'QUICK_REPLY', text: 'Tenho uma dúvida' }] },
+        { rule_prefix: 'WA-03', name: 'minimal_esteira_wa03', category: 'MARKETING',
+          body: 'Oi {{1}}, última vez que te falo disso, prometo 🙏 Liberei *15% OFF* na sua {{2}} com o cupom *ULTIMA15*. Vale só até {{3}}. Depois disso volta pro preço normal e eu tiro sua case do carrinho. Sem drama 🤝',
+          examples: ['Gabriella', 'Case Couro Porta-Cartões Preta', '05/09 às 23:59'], params: ['nome', 'produto', 'expira_em'],
+          buttons: [urlBtn('Usar ULTIMA15')] },
+        { rule_prefix: 'PIX-WA-01', name: 'minimal_esteira_pix_wa01', category: 'UTILITY',
+          body: 'Oi {{1}}, seu Pix da *{{2}}* está esperando 👀 O código copia-e-cola está na página do pedido. Se preferir, dá pra pagar com cartão em até 3x. Já pagou? Me responde aqui que eu confirmo.',
+          examples: ['Gabriella', 'Case Couro Porta-Cartões Preta'], params: ['nome', 'produto'],
+          buttons: [urlBtn('Ver pedido'), { type: 'QUICK_REPLY', text: 'Já paguei' }] },
+        { rule_prefix: 'PIX-WA-03', name: 'minimal_esteira_pix_wa03', category: 'MARKETING',
+          body: 'Oi {{1}}, última chamada: seu pedido da *{{2}}* ainda dá pra fechar com *10% OFF* (cupom VOLTA10) nas próximas 12h. Depois disso o carrinho é liberado. Sem drama 🤝',
+          examples: ['Gabriella', 'Case Couro Porta-Cartões Preta'], params: ['nome', 'produto'],
+          buttons: [urlBtn('Fechar com VOLTA10')] },
+      ];
+
+      const results: Array<{ template: string; rule: string; status: string; detail?: string }> = [];
+      for (const sp of specs) {
+        let templateId: string | null = null;
+        let status = 'pending';
+        const { data: existing } = await supabase.from('whatsapp_templates').select('id_template, status').eq('name', sp.name).maybeSingle();
+        if (existing) {
+          templateId = (existing as { id_template: string }).id_template;
+          status = String((existing as { status: string }).status ?? 'pending');
+          results.push({ template: sp.name, rule: sp.rule_prefix, status: `já existia (${status})` });
+        } else {
+          const components = [
+            { type: 'BODY', text: sp.body, example: { body_text: [sp.examples] } },
+            { type: 'BUTTONS', buttons: sp.buttons },
+          ];
+          try {
+            const res = await fetch(`https://graph.facebook.com/v22.0/${ch.waba_id}/message_templates`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${ch.access_token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: sp.name, category: sp.category, language: 'pt_BR', components }),
+            });
+            const meta = await res.json() as { id?: string; status?: string; error?: { error_user_msg?: string; message?: string } };
+            if (!res.ok || !meta.id) {
+              results.push({ template: sp.name, rule: sp.rule_prefix, status: 'falhou', detail: meta.error?.error_user_msg ?? meta.error?.message ?? `HTTP ${res.status}` });
+              continue;
+            }
+            templateId = String(meta.id);
+            status = String(meta.status ?? 'PENDING').toLowerCase();
+            await supabase.from('whatsapp_templates').insert({
+              name: sp.name, slug: `${sp.name}|pt_BR`, id_template: templateId, meta_template_name: sp.name,
+              status, system_enabled: false, purpose: 'esteira', provider: 'meta',
+              variables: sp.params, json_data: { category: sp.category, language: 'pt_BR', components },
+            });
+            results.push({ template: sp.name, rule: sp.rule_prefix, status: `criado (${status})` });
+          } catch (e) {
+            results.push({ template: sp.name, rule: sp.rule_prefix, status: 'falhou', detail: (e as Error).message.slice(0, 200) });
+            continue;
+          }
+        }
+        // Liga a regra da esteira: template_id + vars (params/botão). Ativa só se já aprovado.
+        const { data: rule } = await supabase.from('leads_stages_followups').select('id, vars').eq('type', 'whatsapp_template').ilike('subject', `${sp.rule_prefix} ·%`).limit(1).maybeSingle();
+        if (rule && templateId) {
+          const vars = { ...(((rule as { vars?: Record<string, unknown> }).vars) ?? {}), wa_template_name: sp.name, wa_params: sp.params, wa_button_url: true };
+          const approved = status.toLowerCase() === 'approved';
+          await supabase.from('leads_stages_followups').update({ template_id: templateId, vars, ...(approved ? { active: true } : {}) }).eq('id', (rule as { id: string }).id);
+        }
+      }
+      return ok200({ ok: true, channel: ch.label, templates: results, hint: 'Templates aguardam aprovação da Meta (minutos a 24h). Quando aprovarem, a sincronização de templates ativa as regras WA-01/02/03 e PIX-WA sozinha.' });
     }
 
     // ── REPROCESS ───────────────────────────────────────────────────────────

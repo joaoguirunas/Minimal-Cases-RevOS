@@ -236,12 +236,37 @@ Deno.serve(async (req: Request) => {
 
     const submitted = 0; // kept for response shape compatibility
 
+    // ── EST-WA: templates da esteira aprovados pela Meta → ativa as regras de
+    // follow-up correspondentes (criadas inativas pelo bootstrap) e garante o
+    // template_id. Plug-and-play: aprovou, passa a disparar sozinho.
+    let esteiraActivated = 0;
+    try {
+      const { data: approvedEsteira } = await supabase
+        .from('whatsapp_templates')
+        .select('name, id_template')
+        .like('name', 'minimal_esteira_%')
+        .ilike('status', 'approved');
+      for (const t of (approvedEsteira ?? []) as Array<{ name: string; id_template: string }>) {
+        const { data: upd } = await supabase
+          .from('leads_stages_followups')
+          .update({ active: true, template_id: t.id_template })
+          .eq('vars->>wa_template_name', t.name)
+          .eq('active', false)
+          .select('id');
+        esteiraActivated += (upd ?? []).length;
+      }
+      if (esteiraActivated > 0) log.info('esteira_rules_activated', { count: esteiraActivated });
+    } catch (e) {
+      log.warn('esteira_activation_failed', { error: (e as Error).message });
+    }
+
     const result = {
       synced: metaTemplates.length,
       created,
       updated,
       submitted,
       deleted: softDeleted,
+      esteira_rules_activated: esteiraActivated,
     };
 
     log.info('sync_complete', { ...result, duration_ms: log.elapsed(t0) });

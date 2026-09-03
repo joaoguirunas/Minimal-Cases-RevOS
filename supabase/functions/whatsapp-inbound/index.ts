@@ -938,6 +938,20 @@ Deno.serve(async (req) => {
   // Only runs when operator has enabled auto-create in settings_omni_new_contact
   try {
     await maybeCreateNegocio(supabase, person.id, phone, name);
+
+    // ── Esteira (proposta §3): cliente respondeu → pausa os templates de WhatsApp
+    // automáticos por 24h (o agente/humano assume a conversa; nada de template
+    // frio em cima de uma conversa viva). E-mail/SMS seguem a timeline.
+    try {
+      const pauseUntil = new Date(Date.now() + 24 * 3600_000).toISOString();
+      await supabase
+        .from('followup_queue')
+        .update({ scheduled_for: pauseUntil })
+        .eq('person_id', person.id)
+        .eq('status', 'pending')
+        .like('channel', 'whatsapp%')
+        .lt('scheduled_for', pauseUntil);
+    } catch (_) { /* pausa é best-effort */ }
   } catch (err) {
     // Non-fatal: message delivery must not be blocked by CRM automation
     console.error('maybeCreateNegocio error (non-fatal):', (err as Error).message);

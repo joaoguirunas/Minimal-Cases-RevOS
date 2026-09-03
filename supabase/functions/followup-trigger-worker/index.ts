@@ -247,9 +247,11 @@ serve(async (req) => {
           // template `name` from that row instead of sending the numeric ID to Meta.
           const { data: tplRow } = await supabase
             .from('whatsapp_templates')
-            .select('name, json_data')
+            .select('name, json_data, status')
             .eq('id_template', entry.template_id)
             .maybeSingle();
+          // Template ainda não aprovado pela Meta → não tenta (a Meta rejeitaria).
+          const templateNotApproved = !!tplRow?.status && !['approved', 'APPROVED'].includes(String(tplRow.status));
 
           const resolvedTemplateName = tplRow?.name ?? entry.template_id;
 
@@ -263,9 +265,53 @@ serve(async (req) => {
           // Extract param name/index from the header variable: {{nome}} → 'nome', {{1}} → '1'
           const headerParamName = headerComp?.text?.match(/\{\{([^}]+)\}\}/)?.[1] ?? null;
 
-          const msgComponents = headerParamName
+          const msgComponents: Array<Record<string, unknown>> = headerParamName
             ? [{ type: 'header', parameters: [{ type: 'text', text: '', parameter_name: headerParamName }] }]
             : [];
+
+          // ── Esteira (EST-WA): body {{1..n}} + botão URL rastreado a partir de rule.vars ──
+          // vars.wa_params = ["nome","remetente","produto","modelo_celular","expira_em",...]
+          // vars.wa_button_url = true → botão URL com sufixo dinâmico = token do link rastreado.
+          if (entry.followup_id) {
+            const { data: waRule } = await supabase
+              .from('leads_stages_followups')
+              .select('vars')
+              .eq('id', entry.followup_id)
+              .maybeSingle();
+            const rv = ((waRule as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
+            const waParams = Array.isArray(rv.wa_params) ? (rv.wa_params as string[]) : [];
+            if (waParams.length > 0 || rv.wa_button_url) {
+              const waCart = entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
+              const eCredsWa = (emailConfig?.credentials ?? {}) as Record<string, string>;
+              const expiraH = Number(rv.expira_horas ?? '24') || 24;
+              const expiraWa = new Date(Date.now() + expiraH * 3_600_000)
+                .toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+              const waVars: Record<string, string> = {
+                nome: (pessoa?.name ?? '').split(/\s+/)[0] || 'cliente',
+                remetente: eCredsWa.sender_name || eCredsWa.from_name || 'Minimal Cases',
+                produto: waCart?.produto ?? 'sua case Minimal',
+                modelo_celular: waCart?.modeloCelular ?? 'seu celular',
+                preco: formatBRL(waCart?.total ?? null),
+                cupom: String(rv.cupom ?? ''),
+                expira_em: expiraWa,
+              };
+              if (waParams.length > 0) {
+                msgComponents.push({
+                  type: 'body',
+                  parameters: waParams.map((k) => ({ type: 'text', text: waVars[k] ?? String(rv[k] ?? '') })),
+                });
+              }
+              if (rv.wa_button_url && waCart?.url && entry.person_id) {
+                const trackedWa = await createTrackedLink(supabase, {
+                  destination: waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
+                });
+                const tokenWa = trackedWa?.match(/[?&]t=([A-Za-z0-9]+)/)?.[1];
+                if (tokenWa) {
+                  msgComponents.push({ type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: tokenWa }] });
+                }
+              }
+            }
+          }
 
           // Pre-create the messages row so whatsapp-outbound can update it with the
           // wamid/status after sending — otherwise the send happens but leaves no
@@ -293,7 +339,10 @@ serve(async (req) => {
             console.error(`[followup-trigger-worker] Entry ${entry.id}: falha ao criar registro em messages:`, insertMsgError);
           }
 
-          try {
+          if (templateNotApproved) {
+            errorMsg = `Template WhatsApp "${resolvedTemplateName}" ainda não aprovado pela Meta (status ${tplRow?.status})`;
+            console.warn(`[followup-trigger-worker] Entry ${entry.id}: ${errorMsg}`);
+          } else try {
             const waRes = await fetch(
               `${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-outbound`,
               {

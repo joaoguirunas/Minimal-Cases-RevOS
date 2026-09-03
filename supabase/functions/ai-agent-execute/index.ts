@@ -131,6 +131,10 @@ interface ContextData {
   // RETORNO-02 — data/hora corrente em BRT (ISO com offset) + retorno agendado pendente
   agora: string;
   retorno_pendente: string;
+  // EST-AGENT — loja Minimal (Yampi)
+  contexto_loja: string;
+  dias_no_funil: string;
+  remetente: string;
 }
 
 interface LLMMessage {
@@ -547,7 +551,9 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     parameters: {
       type: 'object',
       properties: {
-        cupom: { type: 'string', description: 'Optional existing coupon code to attach (e.g. one created via yampi_criar_cupom).' },
+        cupom: { type: 'string', description: 'Optional existing coupon code to attach (e.g. one created via yampi_criar_cupom, or VOLTA10/ULTIMA15 when the funnel step allows).' },
+        sku_id: { type: 'integer', description: 'Optional Yampi SKU id to sell INSTEAD of the cart items (e.g. the correct variant returned by verificar_compatibilidade).' },
+        quantidade: { type: 'integer', description: 'Quantity for sku_id (default 1).' },
       },
       required: [],
     },
@@ -569,6 +575,19 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'yampi_consultar_pedido',
     description: 'Looks up the contact\'s latest order in the Yampi store: payment status, items, total, and tracking code/URL when shipped. Use when the contact asks about an order they placed ("meu pedido chegou?", "cadê o rastreio", "foi aprovado?").',
     parameters: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'verificar_compatibilidade',
+    description: 'Checks in the Yampi catalog whether the case in the contact\'s cart fits the phone model they mention, and returns the correct variant (same product, same color when possible) with sku_id, price and stock. Use whenever the contact asks "serve no meu celular?", names a different phone model than the cart, or asks for another color/model. If the cart variant does NOT match, call yampi_enviar_link_pagamento with the returned sku_id to send a corrected checkout. Never guess compatibility — always call this.',
+    parameters: {
+      type: 'object',
+      properties: {
+        modelo: { type: 'string', description: 'Phone model as the contact said it (e.g. "iPhone 17 Pro Max", "Galaxy S25 Ultra").' },
+        produto: { type: 'string', description: 'Optional product name to search. Default: the product in the contact\'s latest cart.' },
+        cor: { type: 'string', description: 'Optional color preference. Default: the color in the cart.' },
+      },
+      required: ['modelo'],
+    },
   },
 ];
 
@@ -1121,6 +1140,45 @@ async function loadContext(
   ctx.pipeline_etapas = stages && stages.length > 0
     ? stages.map((s: any) => `${s.name} (${s.id})`).join(' | ')
     : ctx.pipeline_etapas ?? '';
+
+  // ── EST-AGENT: contexto da loja (carrinho/pedido Yampi), dias no funil, remetente ──
+  // Cobre a tool "buscar_cliente" da proposta por injeção direta no prompt:
+  // {{contexto_loja}}, {{dias_no_funil}}, {{remetente}}.
+  ctx.contexto_loja = 'Sem carrinho ou pedido conhecido na loja.';
+  ctx.dias_no_funil = '';
+  ctx.remetente = 'Minimal Cases';
+  try {
+    const criado = Date.parse(String((lead as any)?.created_at ?? ctx.criado_em ?? ''));
+    if (Number.isFinite(criado)) ctx.dias_no_funil = String(Math.max(0, Math.floor((Date.now() - criado) / 86_400_000)));
+    const { data: emailCfg } = await supabase.from('omni_channel_configs').select('credentials').eq('channel', 'email').maybeSingle();
+    const ec = ((emailCfg as any)?.credentials ?? {}) as Record<string, string>;
+    ctx.remetente = ec.sender_name || ec.from_name || 'Minimal Cases';
+    if (ctx.pessoa_id) {
+      const { resolveCartForPerson, formatBRL } = await import('../_shared/tracked-links.ts');
+      const cart = await resolveCartForPerson(supabase as never, ctx.pessoa_id);
+      const { data: evs } = await supabase
+        .from('yampi_webhook_events')
+        .select('trigger, order_id, created_at, raw_payload')
+        .eq('people_id', ctx.pessoa_id)
+        .eq('status', 'processed')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      const linhas: string[] = [];
+      if (cart.produto || cart.url) {
+        linhas.push(`Carrinho abandonado: ${cart.produto ?? 'itens'}${cart.modeloCelular ? ` · modelo ${cart.modeloCelular}` : ''}${cart.total !== null ? ` · total ${formatBRL(cart.total)}` : ''}${cart.itens > 1 ? ` · ${cart.itens} itens` : ''}. Link de recuperação disponível (use yampi_enviar_link_carrinho).`);
+      }
+      const ultimo = ((evs ?? []) as any[])[0];
+      if (ultimo) {
+        const quando = new Date(ultimo.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        linhas.push(`Último evento da loja: ${ultimo.trigger}${ultimo.order_id ? ` (pedido ${ultimo.order_id})` : ''} em ${quando}.`);
+        const pendente = ((evs ?? []) as any[]).find((e) => ['pix_gerado', 'boleto_gerado', 'pedido_criado'].includes(e.trigger));
+        const pago = ((evs ?? []) as any[]).find((e) => e.trigger === 'pedido_pago');
+        if (pendente && (!pago || pago.created_at < pendente.created_at)) linhas.push(`Há pagamento pendente (${pendente.trigger}) do pedido ${pendente.order_id ?? ''} — confirme com yampi_consultar_pix_pendente antes de insistir.`);
+        if (pago && (!pendente || pago.created_at > pendente.created_at)) linhas.push(`Pedido ${pago.order_id ?? ''} já PAGO — não venda de novo; ajude com rastreio/entrega (yampi_consultar_pedido).`);
+      }
+      if (linhas.length > 0) ctx.contexto_loja = linhas.join('\n');
+    }
+  } catch (_) { /* contexto da loja é enriquecimento — nunca derruba o agente */ }
 
   // Batch 2b: Custom field definitions + values for this lead/pipeline
   const pipelineId = lead?.leads_pipelines_id ?? null;
@@ -2411,7 +2469,8 @@ async function executeTool(
         const cart = carts[0];
         if (!cart) return 'Nenhum carrinho abandonado encontrado para este contato na loja.';
 
-        const url = cart.unauth_simulate_url ?? cart.simulate_url;
+        // simulate_url primeiro: carrinho preso a conta de cliente só restaura com customerToken.
+        const url = cart.simulate_url ?? cart.unauth_simulate_url;
         if (!url) return 'Carrinho encontrado, mas sem link de recuperação disponível. Use yampi_enviar_link_pagamento para gerar um checkout novo.';
 
         // BI-REC-3: link rastreado — o clique vira evidência de atribuição.
@@ -2492,9 +2551,14 @@ async function executeTool(
 
         const carts = await findYampiCartsForContact(bound.client, ctx);
         const cart = carts[0];
-        const skus = (cart?.items?.data ?? [])
+        let skus = (cart?.items?.data ?? [])
           .map((i) => ({ id: i.sku?.data?.id, quantity: i.quantity ?? 1 }))
           .filter((s): s is { id: number; quantity: number } => typeof s.id === 'number');
+        // Variante corrigida (verificar_compatibilidade) substitui os itens do carrinho.
+        const skuOverride = Number(args.sku_id ?? 0);
+        if (Number.isFinite(skuOverride) && skuOverride > 0) {
+          skus = [{ id: skuOverride, quantity: Math.max(1, Number(args.quantidade ?? 1) || 1) }];
+        }
         if (skus.length === 0) {
           return 'Nenhum carrinho com itens encontrado para montar o link. Peça ao cliente qual produto ele quer e use yampi_enviar_link_carrinho após ele montar o carrinho, ou acione um humano.';
         }
@@ -2587,6 +2651,66 @@ async function executeTool(
           });
         } catch (e) {
           return `Erro ao criar cupom na Yampi: ${(e as Error).message}`;
+        }
+      }
+
+      case 'verificar_compatibilidade': {
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+        const norm = (v: unknown) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const modeloPedido = String(args.modelo ?? '').trim();
+        if (!modeloPedido) return 'Informe o modelo do celular.';
+        // Produto/cor default: o carrinho mais recente do contato.
+        let produto = String(args.produto ?? '').trim();
+        let cor = String(args.cor ?? '').trim();
+        let cartSkuTitle = '';
+        if (!produto || !cor) {
+          try {
+            const carts = (ctx.email || ctx.whatsapp) ? await findYampiCartsForContact(bound.client, ctx) : [];
+            const first = carts[0]?.items?.data?.[0]?.sku?.data as { title?: string } | undefined;
+            cartSkuTitle = first?.title ?? '';
+            if (cartSkuTitle) {
+              const { splitProductModel } = await import('../_shared/tracked-links.ts');
+              const { produto: p } = splitProductModel(cartSkuTitle);
+              if (!produto) produto = p.replace(/\s+(Azul|Preto|Preta|Branco|Branca|Cinza|Laranja|Marrom|Verde|Rosa|Roxo|Vermelho|Amarelo|Bege|Lilás|Lilas|Grafite|Dourado|Prata)$/i, '').trim();
+              if (!cor) cor = (cartSkuTitle.match(/\b(Azul|Preto|Preta|Branco|Branca|Cinza|Laranja|Marrom|Verde|Rosa|Roxo|Vermelho|Amarelo|Bege|Lilás|Lilas|Grafite|Dourado|Prata)\b/i)?.[1] ?? '');
+            }
+          } catch (_) { /* segue sem carrinho */ }
+        }
+        if (!produto) return 'Não achei o produto do carrinho. Pergunte qual case o cliente quer e chame de novo com `produto`.';
+        try {
+          type Sku = { id: number; title?: string; price_discount?: number; price_sale?: number; total_in_stock?: number; blocked_sale?: boolean; variations?: Array<{ name?: string; value?: string }> };
+          const res = await bound.client.request<{ data?: Sku[] }>('GET', '/catalog/skus', { query: { q: produto, limit: '100' } });
+          const skus = (res.data ?? []).filter((sk) => !sk.blocked_sale);
+          if (skus.length === 0) return `Nenhuma variante encontrada no catálogo para "${produto}".`;
+          const modeloOf = (sk: Sku) => sk.variations?.find((v) => /modelo|aparelho|celular|compat/i.test(v.name ?? ''))?.value ?? '';
+          const corOf = (sk: Sku) => sk.variations?.find((v) => /cor|color/i.test(v.name ?? ''))?.value ?? '';
+          const alvo = norm(modeloPedido);
+          const matchesModelo = skus.filter((sk) => { const m = norm(modeloOf(sk)); return m && (m === alvo || m.endsWith(alvo) || alvo.endsWith(m)); });
+          const modelosDisponiveis = [...new Set(skus.map(modeloOf).filter(Boolean))];
+          if (matchesModelo.length === 0) {
+            return JSON.stringify({ compativel: false, motivo: `"${produto}" não tem versão para ${modeloPedido}.`, modelos_disponiveis: modelosDisponiveis.slice(0, 40) });
+          }
+          const preferida = (cor ? matchesModelo.find((sk) => norm(corOf(sk)) === norm(cor)) : undefined) ?? matchesModelo[0];
+          const carrinhoJaCorreto = !!cartSkuTitle && norm(cartSkuTitle).includes(alvo);
+          const fmt = (sk: Sku) => ({
+            sku_id: sk.id, titulo: sk.title, cor: corOf(sk), modelo: modeloOf(sk),
+            preco: sk.price_discount || sk.price_sale || null,
+            em_estoque: (sk.total_in_stock ?? 0) > 0,
+          });
+          return JSON.stringify({
+            compativel: true,
+            carrinho_ja_e_a_variante_certa: carrinhoJaCorreto,
+            variante_do_carrinho: cartSkuTitle || null,
+            variante_recomendada: fmt(preferida),
+            outras_cores: matchesModelo.filter((sk) => sk.id !== preferida.id).slice(0, 8).map(fmt),
+            instrucao: carrinhoJaCorreto
+              ? 'O carrinho já está na variante certa — confirme e envie o link do carrinho (yampi_enviar_link_carrinho).'
+              : 'O carrinho NÃO está na variante certa — chame yampi_enviar_link_pagamento com sku_id=variante_recomendada.sku_id (mesma cor, mesmo preço) e explique a troca em uma frase.',
+          });
+        } catch (e) {
+          return `Falha ao consultar o catálogo: ${(e as Error).message}`;
         }
       }
 
