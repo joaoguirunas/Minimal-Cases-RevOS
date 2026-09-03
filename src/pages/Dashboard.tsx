@@ -109,9 +109,7 @@ const Dashboard = () => {
   const reconvDateFrom = reconvRange.from.toISOString();
   const reconvDateTo = reconvRange.to.toISOString();
 
-  const biProPeriod   = periodFilter === '30d'
-    ? 'month'
-    : periodFilter !== 'personalizado' ? periodFilter : undefined;
+  const biProPeriod   = periodFilter !== 'personalizado' ? periodFilter : undefined;
   const biProDateFrom = periodFilter === 'personalizado' && customDateRange?.from
     ? customDateRange.from.toISOString() : undefined;
   const biProDateTo   = periodFilter === 'personalizado' && customDateRange?.to

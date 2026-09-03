@@ -1,8 +1,6 @@
 /**
  * useEsteiraLead — dados da esteira de recuperação para cards e página do lead (EST-UI).
  *
- *  - useTouchCountsByLead: nº de toques ENVIADOS (followup_queue.status='sent')
- *    por lead, agrupado por canal — chips do kanban.
  *  - useLeadEsteira: carrinho (Yampi events → fallback Zoppy) + timeline unificada
  *    (eventos da loja + toques da esteira com nome do template/assunto).
  */
@@ -14,41 +12,6 @@ import { summarizeQueue, type LeadQueueSummary, type QueueRow } from '@/lib/este
 
 // Tabelas yampi_*/zoppy_* ainda não estão nos types gerados.
 const db = supabase as unknown as SupabaseClient;
-
-// ── Toques por lead (kanban) ────────────────────────────────────────────────────
-
-export interface TouchCounts {
-  email: number;
-  whatsapp: number;
-  sms: number;
-  total: number;
-}
-
-export function useTouchCountsByLead(leadIds: string[]) {
-  return useQuery({
-    queryKey: ['esteira', 'touches', leadIds],
-    queryFn: async (): Promise<Record<string, TouchCounts>> => {
-      if (leadIds.length === 0) return {};
-      const { data, error } = await db
-        .from('followup_queue')
-        .select('lead_id, channel')
-        .eq('status', 'sent')
-        .in('lead_id', leadIds);
-      if (error) throw error;
-      const out: Record<string, TouchCounts> = {};
-      for (const row of (data ?? []) as Array<{ lead_id: string; channel: string }>) {
-        const t = out[row.lead_id] ?? (out[row.lead_id] = { email: 0, whatsapp: 0, sms: 0, total: 0 });
-        if (row.channel === 'email') t.email++;
-        else if (row.channel === 'sms') t.sms++;
-        else t.whatsapp++;
-        t.total++;
-      }
-      return out;
-    },
-    enabled: leadIds.length > 0,
-    staleTime: 30_000,
-  });
-}
 
 /** Dados da esteira por card do kanban: enviados por canal, pendentes, próximo toque. Uma query por lista. */
 export function useEsteiraCardData(leadIds: string[]) {
