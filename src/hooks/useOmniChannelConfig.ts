@@ -3,6 +3,15 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type OmniChannel = 'whatsapp' | 'instagram' | 'email' | 'sms' | 'telefone';
 
+/** display_name é NOT NULL sem default: rótulo usado ao criar a config do canal. */
+const DISPLAY_NAMES: Record<string, string> = {
+  whatsapp: 'WhatsApp',
+  instagram: 'Instagram',
+  email: 'E-mail',
+  sms: 'SMS',
+  telefone: 'Telefone',
+};
+
 export interface OmniChannelConfig {
   id: string;
   channel: OmniChannel;
@@ -58,9 +67,11 @@ export function useOmniChannelConfig(channel: OmniChannel) {
         .from('omni_channel_configs')
         .select('*')
         .eq('channel', channel)
-        .single();
+        .maybeSingle();
       if (error) throw error;
-      return data as OmniChannelConfig;
+      // Canal ainda não configurado: devolve null em vez de estourar — a tela
+      // de configuração precisa abrir para o usuário criar a primeira config.
+      return (data ?? null) as OmniChannelConfig | null;
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -73,10 +84,14 @@ export function useUpdateOmniChannelConfig() {
 
   return useMutation({
     mutationFn: async ({ channel, updates }: { channel: OmniChannel; updates: ChannelConfigUpdate }) => {
+      // UPSERT, não UPDATE: na primeira vez que um canal é configurado a linha
+      // ainda não existe e um update silenciosamente não gravava nada.
       const { data, error } = await (supabase as any)
         .from('omni_channel_configs')
-        .update(updates)
-        .eq('channel', channel)
+        .upsert(
+          { channel, display_name: DISPLAY_NAMES[channel] ?? channel, ...updates },
+          { onConflict: 'channel' },
+        )
         .select()
         .single();
       if (error) throw error;

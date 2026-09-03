@@ -136,16 +136,28 @@ Deno.serve(async (req: Request) => {
     if (body.action === 'audit') {
       const nomesCrm = ['CRM · Corpo dinâmico (event.html)', 'CRM · Email Followup (auto)', 'CRM · SMS Followup (auto)'];
       try {
-        const [flows, templates, metrics] = await Promise.all([
+        const [flows, templates, metrics, account] = await Promise.all([
           client.listFlows(),
           client.listTemplateNames(),
           client.listMetrics(),
+          client.getAccount().catch(() => null),
         ]);
         const { data: tplRows } = await supabase.from('email_templates').select('name').eq('active', true);
         const nomesDestino = ((tplRows ?? []) as Array<{ name: string }>).map((t) => `CRM · ${t.name}`.slice(0, 255));
         const colisoes = templates.filter((t) => nomesDestino.includes(t.name) || nomesCrm.includes(t.name));
+        // Remetente: o que a conta traz como padrão + o que os flows Live já usam
+        // (esses endereços estão provadamente aprovados para envio).
+        const acc = (account ?? {}) as Record<string, unknown>;
+        const contact = (acc.contact_information ?? {}) as Record<string, unknown>;
         return ok200({
           ok: true,
+          remetente: {
+            organizacao: acc.organization_name ?? contact.organization_name ?? null,
+            default_sender_name: contact.default_sender_name ?? null,
+            default_sender_email: contact.default_sender_email ?? null,
+            endereco_publico: contact.street_address ?? null,
+            dica: 'default_sender_email é o remetente padrão verificado da conta. Se estiver vazio, use um endereço do domínio verificado em Klaviyo → Settings → Domains.',
+          },
           flows: {
             total: flows.length,
             live: flows.filter((f) => /live/i.test(f.status)).map((f) => ({ name: f.name, status: f.status, trigger_type: f.trigger_type })),

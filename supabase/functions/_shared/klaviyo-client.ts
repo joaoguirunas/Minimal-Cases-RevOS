@@ -215,6 +215,18 @@ export class KlaviyoClient {
     return out;
   }
 
+  /**
+   * Dados da conta (GET /api/accounts/) — inclui o e-mail/nome de remetente
+   * padrão e o endereço público. É a resposta para "qual é o meu remetente
+   * verificado" sem caçar no painel. Leitura pura.
+   */
+  async getAccount(): Promise<Record<string, unknown> | null> {
+    const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown> }> }>('GET', '/api/accounts/');
+    const acc = res.data?.[0];
+    if (!acc) return null;
+    return { id: acc.id, ...(acc.attributes ?? {}) };
+  }
+
   /** Lista métricas (nome + integração de origem) — leitura pura. */
   async listMetrics(): Promise<Array<{ id: string; name: string; integration: string | null }>> {
     const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown> }> }>('GET', '/api/metrics/?page[size]=100');
