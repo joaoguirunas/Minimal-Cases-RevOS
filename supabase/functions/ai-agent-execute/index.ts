@@ -1174,7 +1174,13 @@ async function loadContext(
         linhas.push(`Último evento da loja: ${ultimo.trigger}${ultimo.order_id ? ` (pedido ${ultimo.order_id})` : ''} em ${quando}.`);
         const pendente = ((evs ?? []) as any[]).find((e) => ['pix_gerado', 'boleto_gerado', 'pedido_criado'].includes(e.trigger));
         const pago = ((evs ?? []) as any[]).find((e) => e.trigger === 'pedido_pago');
-        if (pendente && (!pago || pago.created_at < pendente.created_at)) linhas.push(`Há pagamento pendente (${pendente.trigger}) do pedido ${pendente.order_id ?? ''} — confirme com yampi_consultar_pix_pendente antes de insistir.`);
+        if (pendente && (!pago || pago.created_at < pendente.created_at)) {
+          const { resolvePendingPaymentForPerson } = await import('../_shared/tracked-links.ts');
+          const pend = await resolvePendingPaymentForPerson(supabase as never, ctx.pessoa_id);
+          const exp = pend?.pixExpira ? pend.pixExpira.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
+          const vencido = !!pend?.pixExpira && pend.pixExpira.getTime() <= Date.now();
+          linhas.push(`Pagamento pendente: pedido ${pend?.numeroPedido ?? pendente.order_id ?? ''} via ${pend?.metodo ?? pendente.trigger}${exp ? ` · Pix ${vencido ? 'VENCIDO' : 'válido até ' + exp}` : ''}${pend?.reorderUrl ? ' · dá pra recriar o carrinho (yampi_consultar_pix_pendente manda o link novo)' : ''}. Use yampi_consultar_pix_pendente para o código/link antes de insistir.`);
+        }
         if (pago && (!pendente || pago.created_at > pendente.created_at)) linhas.push(`Pedido ${pago.order_id ?? ''} já PAGO — não venda de novo; ajude com rastreio/entrega (yampi_consultar_pedido).`);
       }
       if (linhas.length > 0) ctx.contexto_loja = linhas.join('\n');
@@ -2511,7 +2517,31 @@ async function executeTool(
           .maybeSingle();
         if (later && (later as { trigger: string }).trigger === 'pedido_pago') return 'Este pagamento já foi aprovado — não há pendência.';
 
-        // 3. Fresh transaction data from the API (pix code/expiration).
+        // 3a. Dados do próprio webhook (order.created traz pix.data{pix_qr_code,
+        //     pix_expiration_date}, boleto em transactions[], reorder_url) — não depende
+        //     do escopo "Pedidos" da credencial. API só como complemento.
+        {
+          const { resolvePendingPaymentForPerson } = await import('../_shared/tracked-links.ts');
+          const pend = ctx.pessoa_id ? await resolvePendingPaymentForPerson(supabase as never, ctx.pessoa_id) : null;
+          if (pend && pend.orderId === match.order_id) {
+            if (pend.pago) return 'Este pagamento já foi aprovado — não há pendência.';
+            const fmt = (d: Date | null) => d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
+            const expirado = !!pend.pixExpira && pend.pixExpira.getTime() <= Date.now();
+            if (pend.cancelado || expirado) {
+              if (pend.reorderUrl) ctx.__pending_purchase_url = pend.reorderUrl;
+              return JSON.stringify({ situacao: pend.cancelado ? 'pedido_cancelado' : 'pix_expirado', pedido: pend.numeroPedido,
+                acao_sugerida: pend.reorderUrl ? 'Um link de checkout NOVO (mesmos itens) será enviado automaticamente em mensagem separada — diga que o Pix venceu e que mandou o link pra gerar um novo ou pagar com cartão. NÃO escreva o link.' : 'Ofereça gerar um checkout novo com yampi_enviar_link_pagamento.' });
+            }
+            if (pend.metodo === 'pix' && pend.pixCodigo) {
+              return JSON.stringify({ tipo: 'pix', pedido: pend.numeroPedido, valor: pend.total, expira_em: fmt(pend.pixExpira),
+                pix_copia_e_cola: pend.pixCodigo, instrucao: 'Mande o código copia-e-cola em uma mensagem separada, só o código, e diga até que horas vale.' });
+            }
+            if (pend.metodo === 'boleto' && (pend.boletoUrl || pend.boletoCodigo)) {
+              return JSON.stringify({ tipo: 'boleto', pedido: pend.numeroPedido, valor: pend.total, vencimento: pend.boletoVencimento, linha_digitavel: pend.boletoCodigo, url_boleto: pend.boletoUrl });
+            }
+          }
+        }
+        // 3b. Fresh transaction data from the API (pix code/expiration).
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
         if (!bound) return 'Integração Yampi não está conectada.';

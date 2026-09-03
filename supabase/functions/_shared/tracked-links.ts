@@ -143,6 +143,77 @@ export async function resolveCartForPerson(
     modeloCelularCurto: modelo ? modelo.split(/\s+/).slice(0, 2).join(' ') : null, total: z.total, itens: li.length };
 }
 
+export interface PendingPayment {
+  metodo: 'pix' | 'pix_parcelado' | 'boleto' | 'outro';
+  orderId: string | null;
+  numeroPedido: string | null;
+  total: number | null;
+  pixCodigo: string | null;
+  pixExpira: Date | null;
+  boletoUrl: string | null;
+  boletoCodigo: string | null;
+  boletoVencimento: string | null;
+  /** Yampi reorder_url: recria o carrinho com os mesmos itens (novo Pix/cartão). */
+  reorderUrl: string | null;
+  pago: boolean;
+  cancelado: boolean;
+  criadoEm: Date | null;
+}
+
+/** Datas Yampi vêm "YYYY-MM-DD HH:mm:ss" em America/Sao_Paulo (UTC-3 fixo). */
+export function parseYampiDate(v: unknown): Date | null {
+  const raw = typeof v === 'string' ? v : (rec(v).date as string | undefined);
+  if (!raw) return null;
+  const ts = Date.parse(`${raw.replace(' ', 'T').slice(0, 19)}-03:00`);
+  return Number.isFinite(ts) ? new Date(ts) : null;
+}
+
+/**
+ * Último pagamento pendente (Pix/boleto) da pessoa, lido dos webhooks Yampi já
+ * armazenados — não depende do escopo "Pedidos" da credencial. O payload do
+ * order.created traz pix.data{pix_qr_code, pix_expiration_date}, transactions[]
+ * (boleto) e reorder_url.
+ */
+export async function resolvePendingPaymentForPerson(
+  supabase: SupabaseClient,
+  peopleId: string,
+): Promise<PendingPayment | null> {
+  const { data: events } = await supabase
+    .from('yampi_webhook_events')
+    .select('order_id, trigger, raw_payload, created_at')
+    .eq('people_id', peopleId)
+    .in('trigger', ['pix_gerado', 'boleto_gerado', 'pedido_criado', 'pedido_pago', 'pedido_cancelado'])
+    .order('created_at', { ascending: false })
+    .limit(12);
+  const evs = (events ?? []) as Array<{ order_id: string | null; trigger: string; raw_payload: AnyRec; created_at: string }>;
+  const pend = evs.find((e) => ['pix_gerado', 'boleto_gerado', 'pedido_criado'].includes(e.trigger) && e.order_id);
+  if (!pend) return null;
+  const later = evs.filter((e) => e.order_id === pend.order_id && e.created_at > pend.created_at);
+  const pago = later.some((e) => e.trigger === 'pedido_pago');
+  const cancelado = !pago && later.some((e) => e.trigger === 'pedido_cancelado');
+  const resource = rec(pend.raw_payload.resource);
+  const pix = rec(rec(resource.pix).data);
+  const txs = (rec(resource.transactions).data ?? []) as unknown;
+  const tx = (Array.isArray(txs) ? txs.map(rec).find((t) => t.billet_url || t.pix_qr_code) ?? rec((txs as unknown[])[0]) : {}) as AnyRec;
+  const alias = String(rec(rec(tx.payment).data).alias ?? (Array.isArray(resource.payments) ? rec((resource.payments as unknown[])[0]).alias : '') ?? '');
+  const metodo: PendingPayment['metodo'] = alias === 'pix' ? 'pix' : alias === 'pix_in_installments' ? 'pix_parcelado' : alias === 'billet' ? 'boleto' : 'outro';
+  return {
+    metodo,
+    orderId: pend.order_id,
+    numeroPedido: resource.number != null ? String(resource.number) : null,
+    total: typeof resource.value_total === 'number' ? resource.value_total : Number(resource.value_total) || null,
+    pixCodigo: (pix.pix_qr_code as string | undefined) ?? (tx.pix_qr_code as string | undefined) ?? null,
+    pixExpira: parseYampiDate(pix.pix_expiration_date ?? tx.pix_expiration_date),
+    boletoUrl: (tx.billet_url as string | undefined) ?? null,
+    boletoCodigo: (tx.billet_barcode as string | undefined) ?? null,
+    boletoVencimento: typeof tx.billet_date === 'string' ? tx.billet_date : (rec(tx.billet_date).date as string | undefined) ?? null,
+    reorderUrl: (resource.reorder_url as string | undefined) ?? null,
+    pago,
+    cancelado,
+    criadoEm: parseYampiDate(resource.created_at) ?? new Date(pend.created_at),
+  };
+}
+
 /** Link de recuperação mais recente da pessoa (atalho de resolveCartForPerson). */
 export async function resolveCartUrlForPerson(
   supabase: SupabaseClient,

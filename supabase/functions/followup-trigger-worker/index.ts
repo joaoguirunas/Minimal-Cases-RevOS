@@ -6,7 +6,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
-import { createTrackedLink, resolveCartForPerson, formatBRL } from "../_shared/tracked-links.ts";
+import { createTrackedLink, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ const corsHeaders = {
 
 // ── Guarda de estoque (Yampi GET /catalog/skus/{id}) — cache por invocação ──────
 const skuStockCache = new Map<number, boolean>();
-async function isSkuSoldOut(supabase: ReturnType<typeof createClient>, skuId: number): Promise<boolean> {
+async function isSkuSoldOut(supabase: never, skuId: number): Promise<boolean> {
   if (skuStockCache.has(skuId)) return skuStockCache.get(skuId)!;
   let soldOut = false;
   try {
@@ -478,6 +478,9 @@ serve(async (req) => {
             'preco_com_cupom': formatBRL(total !== null && cupomPct > 0 ? total * (1 - cupomPct / 100) : total),
             'cupom': ruleVars.cupom ?? '',
             'etapa_abandono': cart?.etapaAbandono === 'personal_info' ? 'cadastro' : cart?.etapaAbandono === 'shippment' ? 'frete' : cart?.etapaAbandono === 'payment' ? 'pagamento' : '',
+            'dica_etapa': cart?.etapaAbandono === 'personal_info' ? 'Você parou no cadastro — termina em 30 segundos, o carrinho já está montado.'
+              : cart?.etapaAbandono === 'shippment' ? 'O frete grátis com rastreio já está aplicado — sem surpresa no final.'
+              : cart?.etapaAbandono === 'payment' ? 'Faltou só o pagamento: Pix cai na hora, cartão em até 3x.' : '',
             'expira_em': expiraFmt,
             'countdown_gif': `${vars['asset_base']}/countdown-placeholder.png`,
             'remetente': eCreds.sender_name || eCreds.from_name || 'Minimal Cases',
@@ -485,6 +488,33 @@ serve(async (req) => {
             'link_whatsapp': eCreds.link_whatsapp || 'https://minimalcases.com.br/',
             'unsubscribe': eCreds.unsubscribe_url || (eCreds.from_email ? `mailto:${eCreds.from_email}?subject=Descadastro` : 'https://minimalcases.com.br/'),
           }, ruleVars);
+
+          // ── Pagamento pendente (Pix/boleto) lido do webhook — sem escopo "Pedidos" ──
+          // {{pix_codigo}}, {{pix_expira_em}}, {{boleto_*}}, {{numero_pedido}},
+          // {{pagamento_codigo_label|pagamento_codigo|pagamento_vencimento}} (prontos pro
+          // PIX-E1) e {{link_novo_checkout}} (reorder_url: recria o carrinho, novo Pix/cartão).
+          const fmtBR = (d: Date | null) => d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às') : '';
+          const pend = entry.person_id ? await resolvePendingPaymentForPerson(supabase, entry.person_id) : null;
+          const pixValido = !!pend?.pixCodigo && !pend.pago && !pend.cancelado && (!pend.pixExpira || pend.pixExpira.getTime() > Date.now());
+          const pixVencido = !!pend && !pend.pago && (pend.cancelado || (!!pend.pixExpira && pend.pixExpira.getTime() <= Date.now()));
+          Object.assign(vars, {
+            'numero_pedido': pend?.numeroPedido ?? '',
+            'pix_codigo': pixValido ? pend!.pixCodigo! : '',
+            'pix_expira_em': pend?.pixExpira ? fmtBR(pend.pixExpira) : '',
+            'boleto_url': pend?.boletoUrl ?? '',
+            'boleto_codigo': pend?.boletoCodigo ?? '',
+            'boleto_vencimento': pend?.boletoVencimento ? `${pend.boletoVencimento.slice(8, 10)}/${pend.boletoVencimento.slice(5, 7)}` : '',
+            'pagamento_codigo_label': pixValido ? 'PIX COPIA E COLA' : pend?.boletoCodigo ? 'LINHA DIGITÁVEL DO BOLETO' : 'STATUS DO PAGAMENTO',
+            'pagamento_codigo': pixValido ? pend!.pixCodigo! : pend?.boletoCodigo ?? (pend?.pago ? 'PAGO ✓' : pixVencido ? 'PIX VENCIDO — GERE UM NOVO' : 'AGUARDANDO'),
+            'pagamento_vencimento': pixValido && pend?.pixExpira ? `vence ${fmtBR(pend.pixExpira)} · assim que cair, o rastreio chega no seu WhatsApp`
+              : pend?.boletoVencimento ? `vence ${pend.boletoVencimento.slice(8, 10)}/${pend.boletoVencimento.slice(5, 7)} · paga no app do banco`
+              : 'assim que cair, o rastreio chega no seu WhatsApp',
+          });
+          if (pixValido && pend?.pixExpira) vars['expira_em'] = fmtBR(pend.pixExpira);
+          if (pend?.reorderUrl && entry.person_id && (html.includes('{{link_novo_checkout}}') || subject.includes('{{link_novo_checkout}}'))) {
+            const trackedReorder = await createTrackedLink(supabase, { destination: pend.reorderUrl, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'email' });
+            vars['link_novo_checkout'] = trackedReorder ?? pend.reorderUrl;
+          }
 
           // {{link_checkout}} → link do carrinho da pessoa, RASTREADO (BI-REC-3):
           // clique registrado em tracked_links vira evidência de atribuição.
@@ -501,9 +531,11 @@ serve(async (req) => {
             }
           }
 
+          if (!vars['link_novo_checkout']) vars['link_novo_checkout'] = vars['link_checkout'] ?? '';
+
           // Guarda de estoque (Yampi): produto esgotado/bloqueado → não manda "sua case
           // está esperando"; cancela os toques restantes desse lead com motivo claro.
-          const soldOut = cart?.skuId ? await isSkuSoldOut(supabase, cart.skuId) : false;
+          const soldOut = cart?.skuId ? await isSkuSoldOut(supabase as never, cart.skuId) : false;
           if (soldOut) {
             await supabase.from('followup_queue').update({ status: 'cancelled', error_message: 'auto-cancel: produto esgotado/indisponível na loja' })
               .eq('lead_id', entry.lead_id).eq('status', 'pending');
