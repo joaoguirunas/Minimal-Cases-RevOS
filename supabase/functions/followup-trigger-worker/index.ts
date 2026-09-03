@@ -494,7 +494,8 @@ serve(async (req) => {
           // {{pagamento_codigo_label|pagamento_codigo|pagamento_vencimento}} (prontos pro
           // PIX-E1) e {{link_novo_checkout}} (reorder_url: recria o carrinho, novo Pix/cartão).
           const fmtBR = (d: Date | null) => d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às') : '';
-          const pend = entry.person_id ? await resolvePendingPaymentForPerson(supabase, entry.person_id) : null;
+          let pend: Awaited<ReturnType<typeof resolvePendingPaymentForPerson>> = null;
+          try { pend = entry.person_id ? await resolvePendingPaymentForPerson(supabase, entry.person_id) : null; } catch (_) { pend = null; }
           const pixValido = !!pend?.pixCodigo && !pend.pago && !pend.cancelado && (!pend.pixExpira || pend.pixExpira.getTime() > Date.now());
           const pixVencido = !!pend && !pend.pago && (pend.cancelado || (!!pend.pixExpira && pend.pixExpira.getTime() <= Date.now()));
           Object.assign(vars, {
