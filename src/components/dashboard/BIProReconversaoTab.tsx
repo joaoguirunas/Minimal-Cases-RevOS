@@ -11,14 +11,13 @@ import { motion, type Variants } from 'framer-motion';
 import {
   Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
-import {
-  CheckCircle2, Clock, DollarSign, Mail, MessageCircle, Smartphone, Target, Users, Zap,
-} from 'lucide-react';
+import { CheckCircle2, Mail, MessageCircle, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useReconversaoBI, type ReconversionRow } from '@/hooks/useReconversaoBI';
 import {
-  cardVariants, containerVariants, fmtBRL, GRID_KPIS_3, SkeletonBlock, TABLE_HEADER,
+  cardVariants, containerVariants, fmtBRL, SkeletonBlock, TABLE_HEADER,
 } from './bipro-shared';
+import KpiHero from './reconversao/KpiHero';
 
 // bipro-shared declara os variants como objeto plano; o motion do framer 11 exige Variants.
 const cardV = cardVariants as unknown as Variants;
@@ -31,36 +30,12 @@ interface Props {
   dateTo?: string;
 }
 
-const fmtPct = (v: number | null) => (v === null ? '—' : `${(v * 100).toFixed(1)}%`);
 const fmtHoras = (h: number | null) => {
   if (h === null) return '—';
   if (h < 1) return `${Math.round(h * 60)} min`;
   if (h < 48) return `${h.toFixed(1)} h`;
   return `${(h / 24).toFixed(1)} d`;
 };
-
-function KpiCard({ icon: Icon, label, value, sub, accent }: {
-  icon: React.ElementType; label: string; value: string; sub?: string; accent?: boolean;
-}) {
-  return (
-    <motion.div
-      variants={cardV}
-      className={cn(
-        'rounded-xl border bg-card p-4 space-y-1.5',
-        accent ? 'border-primary/40' : 'border-border',
-      )}
-    >
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-        <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
-        {label}
-      </div>
-      <p className={cn('text-[24px] font-semibold leading-none tabular-nums', accent ? 'text-primary' : 'text-foreground')}>
-        {value}
-      </p>
-      {sub && <p className="text-[11px] text-muted-foreground/70">{sub}</p>}
-    </motion.div>
-  );
-}
 
 function TouchIcons({ r }: { r: ReconversionRow }) {
   return (
@@ -95,7 +70,14 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
   if (isLoading || !data) {
     return (
       <div className="space-y-4">
-        <div className={GRID_KPIS_3}><SkeletonBlock height={96} /><SkeletonBlock height={96} /><SkeletonBlock height={96} /></div>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr_1fr] gap-4">
+            <SkeletonBlock height={160} /><SkeletonBlock height={160} /><SkeletonBlock height={160} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <SkeletonBlock height={84} /><SkeletonBlock height={84} /><SkeletonBlock height={84} />
+          </div>
+        </div>
         <SkeletonBlock height={260} />
         <SkeletonBlock height={320} />
       </div>
@@ -105,47 +87,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
   return (
     <motion.div variants={containerV} initial="hidden" animate="show" className="space-y-5">
       {/* ── KPIs principais ─────────────────────────────────────────────── */}
-      <div className={GRID_KPIS_3}>
-        <KpiCard
-          icon={CheckCircle2} accent
-          label="Reconvertidos por nós"
-          value={String(data.reconvertidos)}
-          sub={`🥇 ${data.porNivel.cupom} cupom · 🥈 ${data.porNivel.clique} clique · 🥉 ${data.porNivel.janela} janela — ${data.organicos} orgânicos fora`}
-        />
-        <KpiCard
-          icon={DollarSign}
-          label="Receita recuperada"
-          value={fmtBRL(data.receitaRecuperada)}
-          sub={data.ticketMedio !== null ? `ticket médio ${fmtBRL(data.ticketMedio)}` : undefined}
-        />
-        <KpiCard
-          icon={Target}
-          label="Taxa de reconversão"
-          value={fmtPct(data.taxaReconversao)}
-          sub={`${data.reconvertidos} de ${data.leadsTocados} leads tocados`}
-        />
-      </div>
-
-      <div className={GRID_KPIS_3}>
-        <KpiCard
-          icon={Users}
-          label="Leads tocados"
-          value={String(data.leadsTocados)}
-          sub="pessoas que receberam ≥ 1 toque no período"
-        />
-        <KpiCard
-          icon={Zap}
-          label="Toques enviados"
-          value={String(data.touchesSent.total)}
-          sub={`✉ ${data.touchesSent.email} · WhatsApp ${data.touchesSent.whatsapp} · SMS ${data.touchesSent.sms}`}
-        />
-        <KpiCard
-          icon={Clock}
-          label="Tempo até converter"
-          value={fmtHoras(data.horasMediasAteConverter)}
-          sub="média entre o último toque e o pagamento"
-        />
-      </div>
+      <KpiHero agregado={data.agregado} />
 
       {/* ── Série diária ────────────────────────────────────────────────── */}
       <motion.div variants={cardV} className="rounded-xl border border-border bg-card p-4">
