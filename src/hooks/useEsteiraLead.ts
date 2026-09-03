@@ -182,7 +182,7 @@ function parseZoppyItems(lineItems: unknown): CartItem[] {
   });
 }
 
-const CHANNEL_TITLES: Record<string, string> = {
+export const CHANNEL_TITLES: Record<string, string> = {
   email: 'E-mail',
   sms: 'SMS',
   whatsapp_template: 'WhatsApp',
@@ -289,15 +289,25 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
   });
 }
 
-/** Cancela (pausa) os toques pendentes de um lead na esteira. */
+/**
+ * Cancela (pausa) os toques pendentes de um lead na esteira.
+ *
+ * A policy `fup_queue_write` do `followup_queue` usa um USING independente
+ * da linha (super_admin OU user_type IN admin/manager) — pra quem não tem
+ * a role, o UPDATE não dá erro, só casa zero linhas (error: null, count: 0).
+ * Por isso o mutationFn recebe `expected` (quantos toques deveriam ser
+ * cancelados) e lança um erro sentinela quando count fica 0 mas era esperado
+ * >0, pra distinguir "negado por RLS" de "não havia nada pendente".
+ */
 export function useCancelPendingTouches(leadId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (expected: number) => {
       const { error, count } = await db.from('followup_queue')
         .update({ status: 'cancelled', error_message: 'cancelado pelo operador' }, { count: 'exact' })
         .eq('lead_id', leadId).eq('status', 'pending');
       if (error) throw error;
+      if ((count ?? 0) === 0 && expected > 0) throw new Error('SEM_PERMISSAO');
       return count ?? 0;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['esteira'] }),

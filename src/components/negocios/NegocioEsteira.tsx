@@ -16,7 +16,7 @@ import { Chip } from '@/components/ui/chip';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useCancelPendingTouches, useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
+import { CHANNEL_TITLES, useCancelPendingTouches, useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
 import { groupByDay } from '@/lib/esteira/timeline';
 import { toast } from 'sonner';
 
@@ -31,6 +31,11 @@ const fmtAt = (iso: string) => {
 const fmtTime = (iso: string) => {
   const d = new Date(iso);
   return Number.isFinite(d.getTime()) ? format(d, 'HH:mm') : '—';
+};
+
+const fmtRelative = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime()) ? formatDistanceToNow(d, { locale: ptBR, addSuffix: true }) : null;
 };
 
 // ── Ícone/cor por entrada da timeline ──────────────────────────────────────────
@@ -82,14 +87,19 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
           <p className="text-[11.5px] text-muted-foreground truncate">
-            {next ? `Próximo: ${next.templateName ?? next.title} · ${formatDistanceToNow(new Date(next.at), { locale: ptBR, addSuffix: true })}` : pendingCount === 0 && total > 0 ? 'Esteira concluída' : ''}
+            {(() => {
+              if (!next) return pendingCount === 0 && total > 0 ? 'Esteira concluída' : '';
+              const rel = fmtRelative(next.at);
+              const label = next.templateName ?? next.title;
+              return `Próximo: ${label}${rel ? ` · ${rel}` : ''}`;
+            })()}
           </p>
           {total > 0 && <div className="mt-2 h-1 w-full max-w-[280px] rounded-full bg-muted overflow-hidden" aria-hidden><div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((sentCount / total) * 100)}%` }} /></div>}
         </div>
         {cart?.url && <Button variant="outline" size="sm" className="h-8 text-[12px]" onClick={() => { navigator.clipboard.writeText(cart.url!); toast.success('Link copiado'); }}>Copiar link do carrinho</Button>}
         {pendingCount > 0 && (
           <Button variant="outline" size="sm" className="h-8 text-[12px] text-destructive hover:text-destructive" disabled={cancel.isPending}
-            onClick={() => { if (window.confirm(`Pausar ${pendingCount} toque(s) pendente(s) deste lead? Eles serão cancelados.`)) cancel.mutate(undefined, { onSuccess: (n) => toast.success(`${n} toque(s) cancelado(s)`), onError: (e) => toast.error(/permission|policy|RLS/i.test((e as Error).message) ? 'Sem permissão para pausar — peça a um gestor' : (e as Error).message) }); }}>
+            onClick={() => { if (window.confirm(`Pausar ${pendingCount} toque(s) pendente(s) deste lead? Eles serão cancelados.`)) cancel.mutate(pendingCount, { onSuccess: (n) => toast.success(`${n} toque(s) cancelado(s)`), onError: (e) => { const msg = (e as Error).message; toast.error(msg === 'SEM_PERMISSAO' || /permission|policy|RLS/i.test(msg) ? 'Sem permissão para pausar — peça a um gestor' : msg); } }); }}>
             Pausar toques
           </Button>
         )}
@@ -189,7 +199,9 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
                   <div className="space-y-3">
                     {g.items.map((e) => {
                       const { icon: Icon, cls } = entryVisual(e);
-                      const title = e.kind === 'toque' ? (e.templateName ?? e.title) : e.title;
+                      const title = e.kind === 'toque' && e.templateName
+                        ? `${CHANNEL_TITLES[e.type] ?? e.type} · ${e.templateName}`
+                        : e.title;
                       return (
                         <div key={e.id} className="relative flex items-start gap-3">
                           <span className={cn(
