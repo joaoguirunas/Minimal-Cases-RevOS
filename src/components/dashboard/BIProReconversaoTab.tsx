@@ -13,6 +13,7 @@ import {
   cardVariants, containerVariants, SkeletonBlock,
 } from './bipro-shared';
 import KpiHero from './reconversao/KpiHero';
+import InsightsStrip from './reconversao/InsightsStrip';
 import FunnelCard from './reconversao/FunnelCard';
 import AttributionCard from './reconversao/AttributionCard';
 import DailyChart from './reconversao/DailyChart';
@@ -61,6 +62,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
     <motion.div variants={containerV} initial="hidden" animate="show" className="space-y-5">
       {/* ── KPIs principais ─────────────────────────────────────────────── */}
       <KpiHero agregado={data.agregado} />
+      <InsightsStrip agregado={data.agregado} />
 
       {/* ── Funil e atribuição ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
