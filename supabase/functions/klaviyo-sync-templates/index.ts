@@ -129,6 +129,43 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json().catch(() => ({}))) as { action?: string };
 
+    // ── AUDIT (KLV-5): leitura pura da conta antes de qualquer escrita ───────
+    // Só GETs. Nenhum evento, nenhum perfil, nenhum template, nenhum flow.
+    // Serve para ver o que já roda em produção e detectar colisão de nome
+    // antes de o CRM criar qualquer coisa.
+    if (body.action === 'audit') {
+      const nomesCrm = ['CRM · Corpo dinâmico (event.html)', 'CRM · Email Followup (auto)', 'CRM · SMS Followup (auto)'];
+      try {
+        const [flows, templates, metrics] = await Promise.all([
+          client.listFlows(),
+          client.listTemplateNames(),
+          client.listMetrics(),
+        ]);
+        const { data: tplRows } = await supabase.from('email_templates').select('name').eq('active', true);
+        const nomesDestino = ((tplRows ?? []) as Array<{ name: string }>).map((t) => `CRM · ${t.name}`.slice(0, 255));
+        const colisoes = templates.filter((t) => nomesDestino.includes(t.name) || nomesCrm.includes(t.name));
+        return ok200({
+          ok: true,
+          flows: {
+            total: flows.length,
+            live: flows.filter((f) => /live/i.test(f.status)).map((f) => ({ name: f.name, status: f.status, trigger_type: f.trigger_type })),
+            draft: flows.filter((f) => !/live/i.test(f.status)).length,
+            colisao_nome_crm: flows.filter((f) => nomesCrm.includes(f.name)).map((f) => ({ name: f.name, status: f.status })),
+          },
+          templates: { total: templates.length, colisao_nome_crm: colisoes },
+          metricas: {
+            total: metrics.length,
+            ja_existe_crm_email: metrics.some((m) => m.name === (creds.metric_email?.trim() || 'CRM Email Followup')),
+            amostra: metrics.slice(0, 25).map((m) => ({ name: m.name, integration: m.integration })),
+          },
+          o_que_o_crm_criaria: { templates: nomesDestino, flows: nomesCrm },
+        });
+      } catch (e) {
+        if (e instanceof KlaviyoAuthError) return err200('Klaviyo rejeitou a API key', 'AUTH_ERROR');
+        return err200(`Falha na auditoria: ${(e as Error).message}`, 'API_ERROR');
+      }
+    }
+
     // ── BOOTSTRAP DE FLOWS (KLV-3): cria métrica, template dinâmico e flows ──
     if (body.action === 'bootstrap_flows') {
       const callerEmail = (user.email ?? '').toLowerCase();

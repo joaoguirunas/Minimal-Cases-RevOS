@@ -178,6 +178,53 @@ export class KlaviyoClient {
     return res?.data?.[0] ?? null;
   }
 
+  /** Lista TODOS os flows com status e gatilho — leitura pura, para auditoria. */
+  async listFlows(): Promise<Array<{ id: string; name: string; status: string; trigger_type: string | null; updated: string | null }>> {
+    const out: Array<{ id: string; name: string; status: string; trigger_type: string | null; updated: string | null }> = [];
+    let url: string | null = '/api/flows/?page[size]=50';
+    for (let guard = 0; url && guard < 20; guard++) {
+      const res: { data?: Array<{ id: string; attributes?: Record<string, unknown> }>; links?: { next?: string | null } } =
+        await this.request('GET', url);
+      for (const f of res.data ?? []) {
+        const at = f.attributes ?? {};
+        out.push({
+          id: f.id,
+          name: String(at.name ?? ''),
+          status: String(at.status ?? ''),
+          trigger_type: (at.trigger_type as string | undefined) ?? null,
+          updated: (at.updated as string | undefined) ?? null,
+        });
+      }
+      const next = res.links?.next ?? null;
+      url = next ? next.replace(KLAVIYO_BASE_URL, '') : null;
+    }
+    return out;
+  }
+
+  /** Lista os nomes dos templates — leitura pura, para detectar colisão de nome. */
+  async listTemplateNames(): Promise<Array<{ id: string; name: string }>> {
+    const out: Array<{ id: string; name: string }> = [];
+    let url: string | null = '/api/templates/?page[size]=50';
+    for (let guard = 0; url && guard < 20; guard++) {
+      const res: { data?: Array<{ id: string; attributes?: Record<string, unknown> }>; links?: { next?: string | null } } =
+        await this.request('GET', url);
+      for (const t of res.data ?? []) out.push({ id: t.id, name: String((t.attributes ?? {}).name ?? '') });
+      const next = res.links?.next ?? null;
+      url = next ? next.replace(KLAVIYO_BASE_URL, '') : null;
+    }
+    return out;
+  }
+
+  /** Lista métricas (nome + integração de origem) — leitura pura. */
+  async listMetrics(): Promise<Array<{ id: string; name: string; integration: string | null }>> {
+    const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown> }> }>('GET', '/api/metrics/?page[size]=100');
+    return (res.data ?? []).map((m) => {
+      const at = m.attributes ?? {};
+      const integ = (at.integration as Record<string, unknown> | undefined)?.name;
+      return { id: m.id, name: String(at.name ?? ''), integration: typeof integ === 'string' ? integ : null };
+    });
+  }
+
   /** Cria flow (POST /api/flows). Rate limit apertado: 1/s, 100/dia. */
   createFlow(name: string, definition: Record<string, unknown>): Promise<{ data?: { id: string } }> {
     return this.request('POST', '/api/flows/', {
