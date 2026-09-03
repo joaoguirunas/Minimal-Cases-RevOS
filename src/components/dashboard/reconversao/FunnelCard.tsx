@@ -13,7 +13,7 @@ export default function FunnelCard({ funil }: { funil: Agregado['funil'] }) {
       <div className="space-y-3">
         {steps.map((s, i) => {
           const prev = i > 0 ? steps[i - 1].value : null;
-          const conv = prev ? Math.round((s.value / prev) * 100) : null;
+          const conv = prev ? Math.min(100, Math.round((s.value / prev) * 100)) : null;
           return (
             <div key={s.label} className="space-y-1">
               <div className="flex items-baseline justify-between text-[12px]">
