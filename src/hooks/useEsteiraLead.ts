@@ -10,6 +10,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { summarizeQueue, type LeadQueueSummary, type QueueRow } from '@/lib/esteira/queueSummary';
 
 // Tabelas yampi_*/zoppy_* ainda não estão nos types gerados.
 const db = supabase as unknown as SupabaseClient;
@@ -46,6 +47,25 @@ export function useTouchCountsByLead(leadIds: string[]) {
     },
     enabled: leadIds.length > 0,
     staleTime: 30_000,
+  });
+}
+
+/** Dados da esteira por card do kanban: enviados por canal, pendentes, próximo toque. Uma query por lista. */
+export function useEsteiraCardData(leadIds: string[]) {
+  const key = [...leadIds].sort().join(',');
+  return useQuery({
+    queryKey: ['esteira', 'card-data', key],
+    enabled: leadIds.length > 0,
+    staleTime: 30_000,
+    queryFn: async (): Promise<Record<string, LeadQueueSummary>> => {
+      const { data, error } = await db
+        .from('followup_queue')
+        .select('lead_id, channel, status, scheduled_for, subject')
+        .in('lead_id', leadIds)
+        .in('status', ['sent', 'queued', 'delivered', 'read', 'pending', 'processing', 'failed', 'cancelled']);
+      if (error) throw error;
+      return summarizeQueue((data ?? []) as QueueRow[]);
+    },
   });
 }
 
