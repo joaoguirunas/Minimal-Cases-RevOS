@@ -272,7 +272,7 @@ export class KlaviyoClient {
     return this.request('POST', '/api/templates/', {
       data: {
         type: 'template',
-        attributes: { name, editor_type: 'html', html, ...(text ? { text } : {}) },
+        attributes: { name, editor_type: 'CODE', html, ...(text ? { text } : {}) },
       },
     });
   }
