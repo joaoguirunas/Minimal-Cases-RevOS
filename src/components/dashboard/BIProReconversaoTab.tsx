@@ -8,9 +8,6 @@
  */
 
 import { motion, type Variants } from 'framer-motion';
-import {
-  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
-} from 'recharts';
 import { CheckCircle2, Mail, MessageCircle, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useReconversaoBI, type ReconversionRow } from '@/hooks/useReconversaoBI';
@@ -20,6 +17,7 @@ import {
 import KpiHero from './reconversao/KpiHero';
 import FunnelCard from './reconversao/FunnelCard';
 import AttributionCard from './reconversao/AttributionCard';
+import DailyChart from './reconversao/DailyChart';
 
 // bipro-shared declara os variants como objeto plano; o motion do framer 11 exige Variants.
 const cardV = cardVariants as unknown as Variants;
@@ -98,48 +96,8 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
       </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}
-      <motion.div variants={cardV} className="rounded-xl border border-border bg-card p-4">
-        <p className="text-[13px] font-medium text-foreground mb-3">Reconversões e receita por dia</p>
-        {data.porDia.length === 0 ? (
-          <p className="text-[12px] text-muted-foreground py-8 text-center">
-            Nenhuma reconversão atribuída no período — os números aparecem aqui assim que um lead tocado pagar.
-          </p>
-        ) : (
-          <div className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.porDia} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="recGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis
-                  dataKey="dia"
-                  tickFormatter={(d: string) => format(new Date(`${d}T12:00:00`), 'dd/MM')}
-                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                  axisLine={false} tickLine={false}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                  axisLine={false} tickLine={false} width={28}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))',
-                    borderRadius: 4, fontSize: 12,
-                  }}
-                  formatter={(value: number, name: string) =>
-                    name === 'receita' ? [fmtBRL(value), 'Receita'] : [value, 'Reconversões']}
-                  labelFormatter={(d: string) => format(new Date(`${d}T12:00:00`), "dd 'de' MMMM", { locale: ptBR })}
-                />
-                <Area type="monotone" dataKey="reconversoes" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#recGrad)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+      <motion.div variants={cardV}>
+        <DailyChart porDia={data.agregado.porDia} />
       </motion.div>
 
       {/* ── Tabela de reconvertidos ─────────────────────────────────────── */}
