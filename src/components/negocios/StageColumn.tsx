@@ -7,15 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Droppable, Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useNavigate } from "react-router-dom";
-import { Building2, Clock, Mail, MessageCircle, Megaphone, MoreHorizontal, Smartphone, Star, XCircle } from "lucide-react";
-import { format } from "date-fns";
+import { Clock, MessageCircle, MoreHorizontal, XCircle } from "lucide-react";
+import { format, formatDistanceToNowStrict, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { useMessageCountByLead } from "@/hooks/useMessageCount";
-import { useTouchCountsByLead } from "@/hooks/useEsteiraLead";
-import CursoBadges from "./CursoBadges";
-import TagBadges from "./TagBadges";
-import UnreadBadge from "@/components/common/UnreadBadge";
+import { Chip } from "@/components/ui/chip";
+import { useEsteiraCardData } from "@/hooks/useEsteiraLead";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +22,22 @@ import {
 import MotivoPerdasModal from "./MotivoPerdasModal";
 import { useUpdateNegocio } from "@/hooks/useNegocios";
 import { toast } from "sonner";
+
+/** "Case Couro — Gabriella" → "Case Couro". Títulos sem separador voltam inteiros. */
+export function productFromTitle(title?: string | null): string | null {
+  if (!title) return null;
+  const [produto] = title.split(' — ');
+  return produto.trim() || null;
+}
+
+const CHANNEL_LABEL: Record<string, string> = { email: 'E-mail', whatsapp: 'WhatsApp', sms: 'SMS' };
+
+function nextTouchText(nextAt: string | null, nextChannel: string | null): string | null {
+  if (!nextAt || !nextChannel) return null;
+  const d = new Date(nextAt);
+  const when = isPast(d) ? 'agora' : `em ${formatDistanceToNowStrict(d, { locale: ptBR })}`;
+  return `${CHANNEL_LABEL[nextChannel] ?? nextChannel} ${when}`;
+}
 
 interface StageColumnProps {
   stage: Stage;
@@ -71,8 +84,7 @@ const StageColumn = ({
     () => negocios.map(n => n.id),
     [negocios]
   );
-  const { data: messageCounts = {} } = useMessageCountByLead(leadIds);
-  const { data: touchCounts = {} } = useTouchCountsByLead(leadIds);
+  const { data: cardData = {} } = useEsteiraCardData(leadIds);
 
   const daysSince = (iso?: string) => {
     if (!iso) return null;
@@ -86,13 +98,6 @@ const StageColumn = ({
       currency: 'BRL',
       maximumFractionDigits: 0
     }).format(value);
-  };
-
-  const getScoreColor = (score?: number) => {
-    if (!score) return 'text-muted-foreground/50 bg-muted border-border rounded-full';
-    if (score >= 8) return 'text-[#00D26A] bg-[#00D26A]/10 border-[#00D26A]/20 rounded-full';
-    if (score >= 6) return 'text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20 rounded-full';
-    return 'text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20 rounded-full';
   };
 
   const handleLoadMore = () => {
@@ -163,137 +168,90 @@ const StageColumn = ({
                     {({ snapshot }) => (
                       <div
                         onClick={() => navigate(`/crm/kanban/${negocio.id}`)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${cardData[negocio.id] ? `, ${cardData[negocio.id].sent.total} de ${cardData[negocio.id].total} toques` : ''}`}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/crm/kanban/${negocio.id}`); } }}
                         className={cn(
                           "w-full bg-background border border-border rounded-xl p-3 space-y-2 cursor-pointer transition-all duration-300",
-                          "hover:bg-white/[0.035] hover:border-white/[0.10]",
+                          "hover:border-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                           snapshot.isDragging && "ring-2 ring-primary/20 z-[9999]",
                           negocio.status === 'lost' && "bg-[#EF4444]/5 border-[#EF4444]/20",
                           (negocio.pessoa?.unread_count ?? 0) > 0 && "border-l-2 border-l-[#EF4444]"
                         )}
                       >
-                        {/* Name + value */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-medium text-foreground truncate leading-tight">
-                              {negocio.pessoa?.name || 'Sem nome'}
-                            </p>
-                            {negocio.empresa?.trade_name && (
-                              <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
-                                <Building2 className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} />
-                                <span className="truncate">{negocio.empresa.trade_name}</span>
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <p className="text-[13px] font-semibold text-primary whitespace-nowrap">
-                              {formatCurrency(negocio.value || 0)}
-                            </p>
-                            {negocio.status === 'in_progress' && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-foreground -mr-1"
-                                    onClick={(e) => e.stopPropagation()}
-                                    aria-label="Mais ações"
+                        {(() => {
+                          const s = cardData[negocio.id];
+                          const produto = productFromTitle(negocio.title);
+                          const d = daysSince(negocio.created_at);
+                          const next = s ? nextTouchText(s.nextAt, s.nextChannel) : null;
+                          const pct = s && s.total > 0 ? Math.round((s.sent.total / s.total) * 100) : 0;
+                          const tags = (negocio.tags ?? []).map((t) => t.tag?.name).filter(Boolean) as string[];
+                          const unread = negocio.pessoa?.unread_count ?? 0;
+                          return (
+                            <>
+                              {/* 1 · quem + quanto */}
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="flex-1 min-w-0 text-[13px] font-medium text-foreground truncate leading-tight">
+                                  {negocio.pessoa?.name || 'Sem nome'}
+                                </p>
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <p className="text-[13px] font-semibold text-foreground tabular-nums whitespace-nowrap">{formatCurrency(negocio.value || 0)}</p>
+                                  {negocio.status === 'in_progress' && (
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-foreground -mr-1" onClick={(e) => e.stopPropagation()} aria-label="Mais ações">
+                                          <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end" className="w-44">
+                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowLostModal(negocio.id); }} className="text-[13px] gap-2 cursor-pointer text-destructive focus:text-destructive">
+                                          <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} />Marcar como Perdido
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* 2 · o quê */}
+                              {produto && <p className="text-[11.5px] text-muted-foreground truncate leading-tight">{produto}</p>}
+
+                              {/* 3 · progresso da esteira */}
+                              {s && s.total > 0 ? (
+                                <div className="space-y-1 pt-1">
+                                  <div className="flex items-center justify-between text-[10.5px] text-muted-foreground">
+                                    <span className="tabular-nums">{s.sent.total} de {s.total} toques</span>
+                                    <span className="truncate ml-2">{next ? `próximo: ${next}` : s.pending === 0 ? 'esteira concluída' : ''}</span>
+                                  </div>
+                                  <div className="h-1 w-full rounded-full bg-muted overflow-hidden" aria-hidden>
+                                    <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${pct}%` }} />
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-[10.5px] text-muted-foreground/60 pt-1">sem toques agendados</p>
+                              )}
+
+                              {/* 4 · estado */}
+                              <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-border/60">
+                                {unread > 0 && <Chip tone="danger" icon={MessageCircle} title="Mensagens não lidas">{unread}</Chip>}
+                                {s && s.failed > 0 && <Chip tone="warning" title="Toques com falha">{s.failed} falhou</Chip>}
+                                {tags.slice(0, 2).map((t) => <Chip key={t}>{t}</Chip>)}
+                                {tags.length > 2 && <Chip title={tags.slice(2).join(', ')}>+{tags.length - 2}</Chip>}
+                                {d !== null && (
+                                  <Chip
+                                    className="ml-auto"
+                                    icon={Clock}
+                                    tone={d >= 7 ? 'danger' : d >= 3 ? 'warning' : 'neutral'}
+                                    title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
                                   >
-                                    <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-44">
-                                  <DropdownMenuItem
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setShowLostModal(negocio.id);
-                                    }}
-                                    className="text-[13px] gap-2 cursor-pointer text-destructive focus:text-destructive"
-                                  >
-                                    <XCircle className="h-3.5 w-3.5" strokeWidth={1.5} />
-                                    Marcar como Perdido
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Chips row */}
-                        <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-white/[0.04]">
-                          <UnreadBadge
-                            variant="chip"
-                            count={negocio.pessoa?.unread_count}
-                            since={negocio.pessoa?.first_unread_at}
-                          />
-
-                          {negocio.pessoa?.score_matrix?.name && (
-                            <span className={cn(
-                              "inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none",
-                              getScoreColor(negocio.pessoa.score_matrix.score_number)
-                            )}>
-                              <Star className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {negocio.pessoa.score_matrix.name}
-                            </span>
-                          )}
-
-
-                          {messageCounts[negocio.id] > 0 && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
-                              <MessageCircle className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {messageCounts[negocio.id]} msg
-                            </span>
-                          )}
-
-                          {negocio.utm_source && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20">
-                              <Megaphone className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {negocio.utm_source}
-                            </span>
-                          )}
-
-                          {/* Toques da esteira (follow-ups enviados) por canal */}
-                          {(touchCounts[negocio.id]?.email ?? 0) > 0 && (
-                            <span title="E-mails enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-sky-400 bg-sky-400/10 border-sky-400/20">
-                              <Mail className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {touchCounts[negocio.id].email}
-                            </span>
-                          )}
-                          {(touchCounts[negocio.id]?.whatsapp ?? 0) > 0 && (
-                            <span title="WhatsApp enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
-                              <MessageCircle className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {touchCounts[negocio.id].whatsapp}
-                            </span>
-                          )}
-                          {(touchCounts[negocio.id]?.sms ?? 0) > 0 && (
-                            <span title="SMS enviados" className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none text-violet-400 bg-violet-400/10 border-violet-400/20">
-                              <Smartphone className="h-2.5 w-2.5" strokeWidth={1.5} />
-                              {touchCounts[negocio.id].sms}
-                            </span>
-                          )}
-
-                          <CursoBadges cursos={negocio.pessoa?.cursos} />
-
-                          <TagBadges tags={negocio.tags?.map((t: any) => t.tag).filter(Boolean)} />
-
-                          {(() => {
-                            const d = daysSince(negocio.created_at);
-                            if (d === null) return null;
-                            return (
-                              <span
-                                title={`No funil desde ${format(new Date(negocio.created_at), 'dd/MM/yy', { locale: ptBR })}`}
-                                className={cn(
-                                  "ml-auto inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none",
-                                  d >= 7 ? "text-red-400 bg-red-400/10 border-red-400/20"
-                                    : d >= 3 ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
-                                    : "text-muted-foreground/60 bg-muted border-border",
+                                    {d === 0 ? 'hoje' : `${d}d`}
+                                  </Chip>
                                 )}
-                              >
-                                <Clock className="h-2.5 w-2.5" strokeWidth={1.5} />
-                                {d === 0 ? 'hoje' : `${d}d`}
-                              </span>
-                            );
-                          })()}
-                        </div>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </PortalAwareDraggable>
