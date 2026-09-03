@@ -221,7 +221,10 @@ export class YampiApiClient {
     try {
       const body = await res.json() as Json;
       const msg = (body.message ?? (body.error as Json | undefined)?.message ?? body.error) as unknown;
-      return typeof msg === 'string' ? msg.slice(0, 300) : res.statusText;
+      // 422: a Yampi devolve os campos inválidos em `errors` — sem isso o erro é opaco.
+      const errors = body.errors ?? (body.error as Json | undefined)?.errors;
+      const detail = errors ? ` — ${JSON.stringify(errors).slice(0, 400)}` : '';
+      return (typeof msg === 'string' ? msg.slice(0, 300) : res.statusText) + detail;
     } catch {
       return res.statusText;
     }

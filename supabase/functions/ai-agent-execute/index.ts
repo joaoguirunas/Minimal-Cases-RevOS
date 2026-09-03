@@ -2564,6 +2564,7 @@ async function executeTool(
             discount_type: 'p',
             value: percentual,
             quantity: 1,
+            min_value: 0, // obrigatório na Yampi (422 sem ele)
             once_per_customer: true,
             accumulate: false,
             free_shipment: freteGratis,

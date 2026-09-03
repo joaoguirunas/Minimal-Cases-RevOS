@@ -368,8 +368,14 @@ Deno.serve(async (req: Request) => {
         try {
           const existing = await bound.client.findPromocode(w.code);
           if (existing) { out.push({ code: w.code, status: 'já existia' }); continue; }
+          // Campos obrigatórios da Yampi (422 sem eles): min_value, quantity, start_at, end_at.
+          const fmt = (d: Date) => d.toISOString().slice(0, 10);
+          const start = new Date();
+          const end = new Date(start.getTime() + 365 * 86_400_000);
           await bound.client.createPromocode({
             code: w.code, value: w.value, discount_type: 'p', active: true,
+            min_value: 0, quantity: 100000,
+            start_at: `${fmt(start)} 00:00:00`, end_at: `${fmt(end)} 23:59:59`,
             once_per_customer: true, accumulate: false, abandoned_cart: true,
           });
           out.push({ code: w.code, status: 'criado' });
