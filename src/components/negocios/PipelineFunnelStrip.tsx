@@ -9,7 +9,7 @@ export default function PipelineFunnelStrip({ stages, activeStageId, onSelect }:
   if (total === 0) return null;
   return (
     <div className="px-4 pt-3 pb-1 space-y-1.5">
-      <div className="flex h-2 w-full rounded-full overflow-hidden bg-muted" role="img" aria-label={`Distribuição: ${stages.map((s) => `${s.nome} ${s.count}`).join(', ')}`}>
+      <div className="flex h-2 w-full rounded-full overflow-hidden bg-muted" role="group" aria-label={`Distribuição: ${stages.map((s) => `${s.nome} ${s.count}`).join(', ')}`}>
         {stages.filter((s) => s.count > 0).map((s) => (
           <button
             key={s.id}
@@ -28,11 +28,12 @@ export default function PipelineFunnelStrip({ stages, activeStageId, onSelect }:
             key={s.id}
             type="button"
             onClick={() => onSelect(activeStageId === s.id ? null : s.id)}
+            aria-label={`Filtrar ${s.nome} · ${s.count} leads`}
             className={cn('inline-flex items-center gap-1.5 text-[11px] rounded-full px-1 -mx-1 transition-colors',
               activeStageId === s.id ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground')}
           >
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.cor || 'hsl(var(--muted-foreground))' }} />
-            {s.nome} <span className="tabular-nums">{s.count}</span>
+            {s.nome} · <span className="tabular-nums">{s.count}</span>
           </button>
         ))}
         <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">{total} leads</span>
