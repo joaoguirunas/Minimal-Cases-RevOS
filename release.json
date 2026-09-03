@@ -2,11 +2,11 @@
   "version": "5.21",
   "major": 5,
   "minor": 21,
-  "created_at": "2026-09-02T21:46:50.000Z",
-  "git_sha": "9a14465265e397889ebe98f1df5b1c4ac9f9e840",
+  "created_at": "2026-09-03T03:35:02.000Z",
+  "git_sha": "a37b597b3140ceec7936ebbc0e4173529e89cea1",
   "migrations": [
-    "supabase/migrations/20260903120000_email_assets_bucket.sql"
+    "supabase/migrations/20260903140000_esteira_ready.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(klaviyo): trava de envios fail-safe + imagens dos e-mails em bucket público|fix(esteira): preço efetivo do item e link de recuperação autenticado|fix(design): remove font-['Outfit'] órfã — headers caíam na serifada|fix(esteira): data real do carrinho no lead (badge de dias)|chore(release): release.json v5.17 [skip ci]"
+  "changelog": "feat(esteira): tudo pronto pra rodar conforme a proposta (EST-READY)"
 }
