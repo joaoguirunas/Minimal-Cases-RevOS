@@ -127,12 +127,23 @@ Deno.serve(async (req: Request) => {
     }
     const client = new KlaviyoClient(apiKey);
 
-    const body = (await req.json().catch(() => ({}))) as { action?: string };
+    const body = (await req.json().catch(() => ({}))) as { action?: string; flow_id?: string };
 
     // ── AUDIT (KLV-5): leitura pura da conta antes de qualquer escrita ───────
     // Só GETs. Nenhum evento, nenhum perfil, nenhum template, nenhum flow.
     // Serve para ver o que já roda em produção e detectar colisão de nome
     // antes de o CRM criar qualquer coisa.
+    // ── FLOW_DEF: definição completa de um flow (leitura pura, diagnóstico) ──
+    if (body.action === 'flow_def') {
+      const id = String((body as { flow_id?: string }).flow_id ?? '');
+      if (!id) return err200('flow_id é obrigatório', 'BAD_REQUEST');
+      try {
+        return ok200({ ok: true, def: await client.getFlowDefinition(id) });
+      } catch (e) {
+        return err200(`Falha: ${(e as Error).message}`, 'API_ERROR');
+      }
+    }
+
     if (body.action === 'audit') {
       const nomesCrm = ['CRM · Corpo dinâmico (event.html)', 'CRM · Email Followup (auto)', 'CRM · SMS Followup (auto)'];
       try {
