@@ -320,6 +320,7 @@ const Negocios = () => {
           onStageChange={handleStageChange}
           pipelineId={pipelineFilter || undefined}
           stageFilter={stageFilter}
+          onStageFilterChange={setStageFilter}
           statusFilter={statusFilter}
           teamFilter={teamFilter}
           responsavelFilter={responsavelFilter}

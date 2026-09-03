@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { Stage } from "@/hooks/usePipelines";
 import StageColumn from "./StageColumn";
+import PipelineFunnelStrip from "./PipelineFunnelStrip";
 import { DragDropContext, DropResult } from '@hello-pangea/dnd';
 import { useUpdateNegocioStage } from "@/hooks/useUpdateNegocioStage";
 import { useNegociosByStage } from "@/hooks/useNegociosOptimized";
@@ -15,6 +16,7 @@ interface KanbanBoardProps {
   dataFim?: string;
   pipelineId?: string;
   stageFilter?: string | null;
+  onStageFilterChange?: (id: string | null) => void;
   statusFilter?: string | null;
   teamFilter?: string;
   responsavelFilter?: string;
@@ -37,6 +39,7 @@ const KanbanBoard = ({
   dataFim,
   pipelineId,
   stageFilter,
+  onStageFilterChange,
   statusFilter,
   teamFilter,
   responsavelFilter,
@@ -153,8 +156,13 @@ const KanbanBoard = ({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd} key={displayStages.map(s => s.id).join('-')}>
-      <div className="flex-1 min-h-0 bg-background overflow-hidden relative" role="region" aria-label="Pipeline Kanban">
-        <div className="h-full overflow-x-auto px-4 py-3">
+      <div className="flex-1 min-h-0 bg-background overflow-hidden relative flex flex-col" role="region" aria-label="Pipeline Kanban">
+        <PipelineFunnelStrip
+          stages={stages.map((s) => ({ id: s.id, nome: s.nome, cor: s.cor, count: negociosByStage[s.id]?.length ?? 0 }))}
+          activeStageId={stageFilter ?? null}
+          onSelect={(id) => onStageFilterChange?.(id)}
+        />
+        <div className="flex-1 min-h-0 overflow-x-auto px-4 py-3">
           <div className="flex gap-3 min-w-max h-full" role="list" aria-label="Etapas do pipeline">
             {displayStages.map((stage) => (
               <StageColumn
