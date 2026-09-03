@@ -40,13 +40,13 @@ const Dashboard = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Shared filter state
-  const [periodFilter,     setPeriodFilter]     = useState('today');
+  const [periodFilter,     setPeriodFilter]     = useState('30d');
   const [customDateRange,  setCustomDateRange]  = useState<DateRange | undefined>(undefined);
   const [pipelineFilter,   setPipelineFilter]   = useState('all');
   const [scoreFilter,      setScoreFilter]      = useState<number[]>([]);
 
   const handleClearFilters = () => {
-    setPeriodFilter('today');
+    setPeriodFilter('30d');
     setCustomDateRange(undefined);
     setPipelineFilter('all');
     setScoreFilter([]);
@@ -101,6 +101,7 @@ const Dashboard = () => {
         const end = new Date(start); end.setDate(end.getDate() + 7); return { from: start, to: end };
       }
       case 'month': return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+      case '30d': { const from = startOfDay(now); from.setDate(from.getDate() - 30); return { from, to: now }; }
       case '90d': { const from = startOfDay(now); from.setDate(from.getDate() - 90); return { from, to: now }; }
       default: { const from = startOfDay(now); from.setDate(from.getDate() - 30); return { from, to: now }; }
     }
@@ -108,7 +109,9 @@ const Dashboard = () => {
   const reconvDateFrom = reconvRange.from.toISOString();
   const reconvDateTo = reconvRange.to.toISOString();
 
-  const biProPeriod   = periodFilter !== 'personalizado' ? periodFilter : undefined;
+  const biProPeriod   = periodFilter === '30d'
+    ? 'month'
+    : periodFilter !== 'personalizado' ? periodFilter : undefined;
   const biProDateFrom = periodFilter === 'personalizado' && customDateRange?.from
     ? customDateRange.from.toISOString() : undefined;
   const biProDateTo   = periodFilter === 'personalizado' && customDateRange?.to

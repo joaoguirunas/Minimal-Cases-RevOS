@@ -10,6 +10,7 @@ const PERIODS = [
   { value: 'week',      label: 'Semana' },
   { value: 'last-week', label: 'Sem. passada' },
   { value: 'month',     label: 'Mês' },
+  { value: '30d',       label: 'Últimos 30 dias' },
   { value: '90d',       label: '3 meses' },
 ];
 
