@@ -164,11 +164,16 @@ export class KlaviyoClient {
 
   // ── Metrics & Flows API ─────────────────────────────────────────────────
 
-  /** Busca métrica por nome exato. Métricas só existem após o primeiro evento. */
+  /**
+   * Busca métrica por nome exato. Métricas só existem após o primeiro evento.
+   * `name` NÃO é campo filtrável em /api/metrics (só integration.*), então a
+   * busca é feita na listagem — a conta tem dezenas de métricas, não milhares.
+   */
   async findMetricByName(name: string): Promise<{ id: string } | null> {
-    const filter = encodeURIComponent(`equals(name,"${name.replace(/"/g, '')}")`);
-    const res = await this.request<{ data?: Array<{ id: string }> }>('GET', `/api/metrics/?filter=${filter}`);
-    return res?.data?.[0] ?? null;
+    const alvo = name.trim().toLowerCase();
+    const metrics = await this.listMetrics();
+    const hit = metrics.find((m) => m.name.trim().toLowerCase() === alvo);
+    return hit ? { id: hit.id } : null;
   }
 
   /** Busca flow por nome exato. */
