@@ -420,6 +420,21 @@ Deno.serve(async (req) => {
           attribution_window_days: WINDOW_DAYS,
         }, { onConflict: 'order_id' });
         log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length });
+
+        // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a
+        // recuperação foi nossa — relatórios da Yampi passam a separar "recuperado-crm".
+        if (attributed) {
+          try {
+            const bound = await createYampiClientForConnection(supabase);
+            if (bound) {
+              const tags = ['recuperado-crm', `crm-${attributionLevel}`];
+              await bound.client.request('POST', `/orders/${event.order_id}/tags`, { body: { tags } });
+              const customerId = (parsed as unknown as { customerId?: number | string | null }).customerId
+                ?? ((event.raw_payload as Record<string, unknown>)?.resource as Record<string, unknown> | undefined)?.customer_id;
+              if (customerId) await bound.client.request('POST', `/customers/${customerId}/tags`, { body: { tags: ['recuperado-crm'] } });
+            }
+          } catch (e) { log.warn('yampi_tag_failed', { order_id: event.order_id, error: (e as Error).message }); }
+        }
       } catch (e) {
         // Enriquecimento — nunca falha o evento.
         log.error('reconversion_record_failed', { order_id: event.order_id, error: (e as Error).message });

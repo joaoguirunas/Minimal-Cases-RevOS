@@ -54,6 +54,12 @@ export interface PersonCart {
   imagemProduto: string | null;
   total: number | null;
   itens: number;
+  /** Yampi: id do SKU principal (guarda de estoque, troca de variante). */
+  skuId: number | null;
+  /** Yampi search.data.abandoned_step: personal_info | shippment | payment. */
+  etapaAbandono: string | null;
+  /** Yampi search.data.has_refused_payment. */
+  pagamentoRecusado: boolean;
 }
 
 const MODEL_RE = /\b((?:iPhone|Galaxy|Samsung|Motorola|Moto|Xiaomi|Redmi|Poco|Pixel)\b[^,/|]*?)\s*$/i;
@@ -81,7 +87,7 @@ export async function resolveCartForPerson(
   supabase: SupabaseClient,
   peopleId: string,
 ): Promise<PersonCart> {
-  const empty: PersonCart = { url: null, produto: null, modeloCelular: null, modeloCelularCurto: null, imagemProduto: null, total: null, itens: 0 };
+  const empty: PersonCart = { url: null, produto: null, modeloCelular: null, modeloCelularCurto: null, imagemProduto: null, total: null, itens: 0, skuId: null, etapaAbandono: null, pagamentoRecusado: false };
   const { data: events } = await supabase
     .from('yampi_webhook_events')
     .select('raw_payload')
@@ -107,6 +113,7 @@ export async function resolveCartForPerson(
     const totalizers = rec(resource.totalizers);
     const total = typeof totalizers.total === 'number' ? totalizers.total
       : typeof resource.value_total === 'number' ? resource.value_total as number : null;
+    const search = rec(rec(resource.search).data);
     return {
       url: url ?? null,
       produto: produto || null,
@@ -115,6 +122,9 @@ export async function resolveCartForPerson(
       imagemProduto: imagem,
       total,
       itens: items.length,
+      skuId: typeof sku.id === 'number' ? sku.id : null,
+      etapaAbandono: typeof search.abandoned_step === 'string' ? search.abandoned_step : null,
+      pagamentoRecusado: search.has_refused_payment === true,
     };
   }
   const { data: zcart } = await supabase

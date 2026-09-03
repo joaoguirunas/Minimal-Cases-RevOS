@@ -487,9 +487,30 @@ Deno.serve(async (req: Request) => {
       const { count: pendingQ } = await supabase.from('followup_queue').select('id', { count: 'exact', head: true }).eq('status', 'pending');
 
       let coupons: Record<string, boolean | null> = { VOLTA10: null, ULTIMA15: null };
+      // Escopos da credencial (403 = módulo sem permissão no usuário de API da Yampi) e
+      // recuperação nativa da loja (compete com a esteira se estiver ligada).
+      const scopes: Record<string, 'ok' | 'forbidden' | 'error' | null> = { pedidos: null, carrinhos: null, clientes: null, catalogo: null, cupons: null };
+      let nativeRecovery: Record<string, unknown> | null = null;
       try {
         const bound = await createYampiClientForConnection(supabase);
-        if (bound) coupons = { VOLTA10: !!(await bound.client.findPromocode('VOLTA10')), ULTIMA15: !!(await bound.client.findPromocode('ULTIMA15')) };
+        if (bound) {
+          coupons = { VOLTA10: !!(await bound.client.findPromocode('VOLTA10')), ULTIMA15: !!(await bound.client.findPromocode('ULTIMA15')) };
+          scopes.cupons = 'ok';
+          const probes: Array<[keyof typeof scopes, string]> = [['pedidos', '/orders'], ['carrinhos', '/checkout/carts'], ['clientes', '/customers'], ['catalogo', '/catalog/skus']];
+          for (const [k, p] of probes) {
+            try { await bound.client.request('GET', p, { query: { limit: '1' } }); scopes[k] = 'ok'; }
+            catch (e) { scopes[k] = /403|401/.test((e as Error).message) ? 'forbidden' : 'error'; }
+          }
+          try {
+            const cfg = await bound.client.request<{ data?: Record<string, unknown> } | Record<string, unknown>>('GET', '/config/carts');
+            const row = ((cfg as { data?: unknown }).data ?? cfg) as unknown;
+            const first = Array.isArray(row) ? row[0] : row;
+            if (first && typeof first === 'object') {
+              const c = first as Record<string, unknown>;
+              nativeRecovery = { active: c.active, email_frequency: c.email_frequency, email_hours_delay: c.email_hours_delay, promocode_in_first_email: c.promocode_in_first_email, app_notification_config: c.app_notification_config };
+            }
+          } catch (_) { /* sem permissão de config */ }
+        }
       } catch (_) { /* fica null = não verificado */ }
 
       return ok200({
@@ -505,6 +526,8 @@ Deno.serve(async (req: Request) => {
         wa_templates: (waTpls ?? []),
         agent: esteiraAgent ? { id: esteiraAgent.id, name: esteiraAgent.name, active: esteiraAgent.active, llm_provider: esteiraAgent.llm_provider, llm_model: esteiraAgent.llm_model, llm_key: llmKey } : null,
         business_hours: bh ?? null,
+        api_scopes: scopes,
+        native_recovery: nativeRecovery,
       });
     }
 

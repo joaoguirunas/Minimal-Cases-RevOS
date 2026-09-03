@@ -366,6 +366,8 @@ interface Readiness {
   wa_templates: Array<{ name: string; status: string }>;
   agent: { id: string; name: string; active: boolean; llm_provider: string; llm_model: string; llm_key: boolean } | null;
   business_hours: { enabled: boolean; start_hour: number; end_hour: number } | null;
+  api_scopes?: Record<string, 'ok' | 'forbidden' | 'error' | null>;
+  native_recovery?: { active?: boolean; email_frequency?: number; email_hours_delay?: number; promocode_in_first_email?: boolean } | null;
 }
 
 type Tone = 'ok' | 'warn' | 'off';
@@ -452,6 +454,21 @@ function EsteiraReadinessCard() {
       <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
         <ReadyRow tone={r.yampi.connected ? 'ok' : 'off'} label="Yampi conectada"
           detail={r.yampi.connected ? (r.yampi.intake_enabled ? 'Entrada de novos leads LIGADA' : 'Entrada de novos leads desligada (recorte congelado)') : 'Conecte a loja'} />
+        {r.api_scopes && (() => {
+          const forbidden = Object.entries(r.api_scopes).filter(([, v]) => v === 'forbidden').map(([k]) => k);
+          return (
+            <ReadyRow tone={forbidden.length === 0 ? 'ok' : 'warn'} label="Permissões da credencial de API (Yampi)"
+              detail={forbidden.length === 0
+                ? 'Pedidos, carrinhos, clientes, catálogo e cupons acessíveis'
+                : `Sem acesso a: ${forbidden.join(', ')} — no painel Yampi, dê permissão ao usuário da credencial (Perfil → Usuários → módulo ${forbidden.includes('pedidos') ? '“Pedidos”' : forbidden[0]}). Sem “Pedidos” o agente não consulta pedido/rastreio e a atribuição por cupom fica sem fallback.`} />
+          );
+        })()}
+        {r.native_recovery && (
+          <ReadyRow tone={r.native_recovery.active ? 'warn' : 'ok'} label="Recuperação nativa da Yampi (e-mails da própria loja)"
+            detail={r.native_recovery.active
+              ? `ATIVA: ${r.native_recovery.email_frequency} e-mail(s), o 1º ${r.native_recovery.email_hours_delay}h após o abandono${r.native_recovery.promocode_in_first_email ? ', JÁ COM CUPOM' : ''} — compete com a esteira e entrega desconto antes do dia 3. Desligue em Yampi → Checkout → Recuperação de carrinho (a API não permite desligar).`
+              : 'Desligada — só a esteira do CRM fala com o cliente'} />
+        )}
         <ReadyRow tone={r.pipeline.found && rulesActive > 0 ? 'ok' : 'warn'} label={`Pipeline e regras da esteira · ${rulesActive} regras ativas`}
           detail={`${r.pipeline.leads_waiting} leads parados em Carrinho abandonado · ${r.pipeline.pending_queue} toques na fila · janela ${r.business_hours?.enabled ? `${r.business_hours.start_hour}h–${r.business_hours.end_hour}h` : 'desligada'}`} />
         <ReadyRow tone={couponsOk ? 'ok' : r.coupons.VOLTA10 === null ? 'warn' : 'warn'} label="Cupons VOLTA10 / ULTIMA15 na Yampi"

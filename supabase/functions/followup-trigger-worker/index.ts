@@ -55,6 +55,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// ── Guarda de estoque (Yampi GET /catalog/skus/{id}) — cache por invocação ──────
+const skuStockCache = new Map<number, boolean>();
+async function isSkuSoldOut(supabase: ReturnType<typeof createClient>, skuId: number): Promise<boolean> {
+  if (skuStockCache.has(skuId)) return skuStockCache.get(skuId)!;
+  let soldOut = false;
+  try {
+    const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+    const bound = await createYampiClientForConnection(supabase as never);
+    if (bound) {
+      const res = await bound.client.request<{ data?: { blocked_sale?: boolean; total_in_stock?: number; quantity_managed?: boolean; stock_status?: string } }>('GET', `/catalog/skus/${skuId}`);
+      const sk = res.data ?? (res as unknown as { blocked_sale?: boolean; total_in_stock?: number; quantity_managed?: boolean; stock_status?: string });
+      soldOut = sk.blocked_sale === true || (sk.quantity_managed !== false && (sk.stock_status === 'out_of_stock' || sk.total_in_stock === 0));
+    }
+  } catch (_) { /* API indisponível → não bloqueia o envio */ }
+  skuStockCache.set(skuId, soldOut);
+  return soldOut;
+}
+
 /**
  * followup-trigger-worker
  *
@@ -459,6 +477,7 @@ serve(async (req) => {
             'total': formatBRL(total),
             'preco_com_cupom': formatBRL(total !== null && cupomPct > 0 ? total * (1 - cupomPct / 100) : total),
             'cupom': ruleVars.cupom ?? '',
+            'etapa_abandono': cart?.etapaAbandono === 'personal_info' ? 'cadastro' : cart?.etapaAbandono === 'shippment' ? 'frete' : cart?.etapaAbandono === 'payment' ? 'pagamento' : '',
             'expira_em': expiraFmt,
             'countdown_gif': `${vars['asset_base']}/countdown-placeholder.png`,
             'remetente': eCreds.sender_name || eCreds.from_name || 'Minimal Cases',
@@ -482,7 +501,16 @@ serve(async (req) => {
             }
           }
 
-          const result = await sendEmailWithConfig(emailConfig!, { to: toEmail, subject, html, vars });
+          // Guarda de estoque (Yampi): produto esgotado/bloqueado → não manda "sua case
+          // está esperando"; cancela os toques restantes desse lead com motivo claro.
+          const soldOut = cart?.skuId ? await isSkuSoldOut(supabase, cart.skuId) : false;
+          if (soldOut) {
+            await supabase.from('followup_queue').update({ status: 'cancelled', error_message: 'auto-cancel: produto esgotado/indisponível na loja' })
+              .eq('lead_id', entry.lead_id).eq('status', 'pending');
+            errorMsg = 'Produto do carrinho esgotado/indisponível — toques cancelados';
+            console.warn(`[followup-trigger-worker] Entry ${entry.id}: ${errorMsg}`);
+          }
+          const result = soldOut ? { success: false, error: errorMsg ?? '' } : await sendEmailWithConfig(emailConfig!, { to: toEmail, subject, html, vars });
           success = result.success;
           if (!result.success) {
             errorMsg = result.error ?? 'Falha no envio de e-mail';

@@ -1165,7 +1165,8 @@ async function loadContext(
         .limit(5);
       const linhas: string[] = [];
       if (cart.produto || cart.url) {
-        linhas.push(`Carrinho abandonado: ${cart.produto ?? 'itens'}${cart.modeloCelular ? ` · modelo ${cart.modeloCelular}` : ''}${cart.total !== null ? ` · total ${formatBRL(cart.total)}` : ''}${cart.itens > 1 ? ` · ${cart.itens} itens` : ''}. Link de recuperação disponível (use yampi_enviar_link_carrinho).`);
+        const etapa = cart.etapaAbandono === 'personal_info' ? 'parou no cadastro' : cart.etapaAbandono === 'shippment' ? 'parou na escolha do frete' : cart.etapaAbandono === 'payment' ? 'parou no pagamento' : '';
+        linhas.push(`Carrinho abandonado: ${cart.produto ?? 'itens'}${cart.modeloCelular ? ` · modelo ${cart.modeloCelular}` : ''}${cart.total !== null ? ` · total ${formatBRL(cart.total)}` : ''}${cart.itens > 1 ? ` · ${cart.itens} itens` : ''}${etapa ? ` · ${etapa}` : ''}${cart.pagamentoRecusado ? ' · teve PAGAMENTO RECUSADO (sugira Pix ou outro cartão)' : ''}. Link de recuperação disponível (use yampi_enviar_link_carrinho).`);
       }
       const ultimo = ((evs ?? []) as any[])[0];
       if (ultimo) {
