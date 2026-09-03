@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Droppable, Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useNavigate } from "react-router-dom";
-import { Clock, MessageCircle, MoreHorizontal, XCircle } from "lucide-react";
+import { ChevronsLeft, Clock, MessageCircle, MoreHorizontal, XCircle } from "lucide-react";
 import { format, formatDistanceToNowStrict, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -44,15 +44,34 @@ interface StageColumnProps {
   negocios: NegocioOptimized[];
   totalValue: number;
   isLoading: boolean;
+  totalLeads: number;
+  pipelineId: string;
+}
+
+/** Recolhimento da coluna persistido por pipeline em localStorage. */
+function useCollapsed(pipelineId: string, stageId: string): [boolean, () => void] {
+  const key = `kanban:collapsed:${pipelineId}`;
+  const read = (): string[] => { try { return JSON.parse(localStorage.getItem(key) ?? '[]'); } catch { return []; } };
+  const [collapsed, setCollapsed] = useState<boolean>(() => read().includes(stageId));
+  const toggle = () => {
+    const cur = new Set(read());
+    if (cur.has(stageId)) cur.delete(stageId); else cur.add(stageId);
+    try { localStorage.setItem(key, JSON.stringify([...cur])); } catch { /* storage indisponível */ }
+    setCollapsed(cur.has(stageId));
+  };
+  return [collapsed, toggle];
 }
 
 const StageColumn = ({
   stage,
   negocios,
   totalValue,
-  isLoading
+  isLoading,
+  totalLeads,
+  pipelineId
 }: StageColumnProps) => {
   const navigate = useNavigate();
+  const [collapsed, toggleCollapsed] = useCollapsed(pipelineId, stage.id);
   const [displayedItems, setDisplayedItems] = useState(10);
   const [showLostModal, setShowLostModal] = useState<string | null>(null);
   const updateNegocio = useUpdateNegocio();
@@ -132,21 +151,40 @@ const StageColumn = ({
     </Draggable>
   );
 
+  const share = totalLeads > 0 ? Math.round((negocios.length / totalLeads) * 100) : 0;
+
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        className="w-10 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col items-center py-3 gap-2 hover:border-foreground/20 transition-colors"
+        aria-label={`Expandir etapa ${stage.nome} (${negocios.length})`}
+        title="Expandir"
+      >
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.cor || 'hsl(var(--muted-foreground))' }} />
+        <span className="text-[11px] font-semibold tabular-nums text-foreground">{negocios.length}</span>
+        <span className="text-[11px] text-muted-foreground [writing-mode:vertical-rl] rotate-180 truncate max-h-[200px]">{stage.nome}</span>
+      </button>
+    );
+  }
+
   return (
     <div className="w-72 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col h-full overflow-hidden" role="region" aria-label={`Etapa ${stage.nome} — ${negocios.length} negócios`}>
       {/* Column header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <div
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ backgroundColor: stage.cor || 'hsl(var(--muted-foreground))' }}
-          />
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: stage.cor || 'hsl(var(--muted-foreground))' }} />
           <span className="text-[13px] font-medium text-foreground truncate">{stage.nome}</span>
-          <span className="text-[11px] text-muted-foreground/40 flex-shrink-0">{negocios.length}</span>
+          <span className="text-[11px] text-muted-foreground tabular-nums flex-shrink-0">{negocios.length}</span>
+          {totalLeads > 0 && <span className="text-[10px] text-muted-foreground/60 tabular-nums flex-shrink-0">· {share}%</span>}
         </div>
-        <span className="text-[11px] font-medium text-muted-foreground/60 flex-shrink-0 ml-2">
-          {formatCurrency(totalValue)}
-        </span>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-[11px] font-medium text-muted-foreground tabular-nums">{formatCurrency(totalValue)}</span>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/50 hover:text-foreground" onClick={toggleCollapsed} aria-label={`Recolher etapa ${stage.nome}`} title="Recolher">
+            <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </Button>
+        </div>
       </div>
 
       {/* Cards area */}
@@ -157,13 +195,18 @@ const StageColumn = ({
             {...provided.droppableProps}
             className={cn(
               "p-2 space-y-1.5 flex-1 overflow-y-auto min-h-0",
-              snapshot.isDraggingOver && "bg-accent/5"
+              snapshot.isDraggingOver && "bg-primary/[0.03] ring-1 ring-inset ring-primary/30 rounded-lg"
             )}
           >
             {isLoading ? (
               <div className="space-y-1.5">
                 {[...Array(3)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full rounded-xl" />
+                  <div key={i} className="rounded-xl border border-border bg-background p-3 space-y-2">
+                    <div className="flex justify-between"><Skeleton className="h-3.5 w-28 rounded-full" /><Skeleton className="h-3.5 w-14 rounded-full" /></div>
+                    <Skeleton className="h-3 w-40 rounded-full" />
+                    <Skeleton className="h-1 w-full rounded-full" />
+                    <div className="flex gap-1"><Skeleton className="h-4 w-10 rounded-full" /><Skeleton className="h-4 w-8 rounded-full" /></div>
+                  </div>
                 ))}
               </div>
             ) : negocios.length > 0 ? (

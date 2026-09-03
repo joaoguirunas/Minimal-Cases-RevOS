@@ -149,6 +149,8 @@ const KanbanBoard = ({
     onStageChange(draggableId, destination.droppableId);
   };
 
+  const totalLeads = displayStages.reduce((acc, s) => acc + (negociosByStage[s.id]?.length ?? 0), 0);
+
   return (
     <DragDropContext onDragEnd={handleDragEnd} key={displayStages.map(s => s.id).join('-')}>
       <div className="flex-1 min-h-0 bg-background overflow-hidden relative" role="region" aria-label="Pipeline Kanban">
@@ -161,6 +163,8 @@ const KanbanBoard = ({
                 negocios={negociosByStage[stage.id] || []}
                 totalValue={totalByStage[stage.id] || 0}
                 isLoading={isLoading}
+                totalLeads={totalLeads}
+                pipelineId={pipelineId || ''}
               />
             ))}
           </div>
