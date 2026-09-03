@@ -226,7 +226,7 @@ const Negocios = () => {
     setStageFilter(null);
     setStatusFilter('sem-perdidos');
     setMotivoFilter(null);
-    setDateFilter('3meses');
+    setDateFilter('todos');
     setTeamFilter('');
     setResponsavelFilter('');
     setCampanhaFilter('');

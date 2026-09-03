@@ -257,11 +257,11 @@ const NegociosToolbar = ({
       onClear: () => onStatusFilterChange('sem-perdidos'),
     });
   }
-  if (dateFilter && dateFilter !== '3meses') {
+  if (dateFilter && dateFilter !== 'todos') {
     activeItems.push({
       key: 'date',
       label: `Período: ${getDateFilterLabel(dateFilter)}`,
-      onClear: () => onDateFilterChange('3meses'),
+      onClear: () => onDateFilterChange('todos'),
     });
   }
   if (stageFilter) {

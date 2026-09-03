@@ -13,7 +13,11 @@ type Filtro = 'todos' | 'atribuidos' | 'organicos' | 'cupom' | 'clique' | 'janel
 type Ordem = { by: 'paid_at' | 'order_total'; dir: 'asc' | 'desc' };
 const PAGE = 25;
 
-const csvCell = (v: unknown) => { const s = v === null || v === undefined ? '' : String(v); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v: unknown) => {
+  const s = v === null || v === undefined ? '' : String(v);
+  const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  return /[;"\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
+};
 export function toCsv(rows: ReconversionRow[]): string {
   const head = ['cliente', 'pedido', 'valor', 'pago_em', 'atribuicao', 'cupom', 'toques_email', 'toques_whatsapp', 'toques_sms', 'horas_ultimo_toque'];
   const lines = rows.map((r) => [r.pessoa?.name ?? '', r.order_id, r.order_total ?? '', r.paid_at, r.attributed ? r.attribution_level ?? '' : 'organico', r.coupon_code ?? '', r.touches_email, r.touches_whatsapp, r.touches_sms, r.hours_since_last_touch ?? ''].map(csvCell).join(';'));
