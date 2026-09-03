@@ -181,8 +181,9 @@ export class KlaviyoClient {
   /** Lista TODOS os flows com status e gatilho — leitura pura, para auditoria. */
   async listFlows(): Promise<Array<{ id: string; name: string; status: string; trigger_type: string | null; updated: string | null }>> {
     const out: Array<{ id: string; name: string; status: string; trigger_type: string | null; updated: string | null }> = [];
-    let url: string | null = '/api/flows/?page[size]=50';
-    for (let guard = 0; url && guard < 20; guard++) {
+    // /api/flows aceita page[size] de 1 a 10 apenas.
+    let url: string | null = '/api/flows/?page[size]=10';
+    for (let guard = 0; url && guard < 60; guard++) {
       const res: { data?: Array<{ id: string; attributes?: Record<string, unknown> }>; links?: { next?: string | null } } =
         await this.request('GET', url);
       for (const f of res.data ?? []) {
@@ -204,8 +205,9 @@ export class KlaviyoClient {
   /** Lista os nomes dos templates — leitura pura, para detectar colisão de nome. */
   async listTemplateNames(): Promise<Array<{ id: string; name: string }>> {
     const out: Array<{ id: string; name: string }> = [];
-    let url: string | null = '/api/templates/?page[size]=50';
-    for (let guard = 0; url && guard < 20; guard++) {
+    // /api/templates também limita page[size] a 10.
+    let url: string | null = '/api/templates/?page[size]=10';
+    for (let guard = 0; url && guard < 60; guard++) {
       const res: { data?: Array<{ id: string; attributes?: Record<string, unknown> }>; links?: { next?: string | null } } =
         await this.request('GET', url);
       for (const t of res.data ?? []) out.push({ id: t.id, name: String((t.attributes ?? {}).name ?? '') });
@@ -213,6 +215,17 @@ export class KlaviyoClient {
       url = next ? next.replace(KLAVIYO_BASE_URL, '') : null;
     }
     return out;
+  }
+
+  /**
+   * Definição de um flow (GET /api/flows/{id} com additional-fields[flow]=definition):
+   * revela os gatilhos (métrica/lista/segmento) e as ações. Leitura pura.
+   */
+  async getFlowDefinition(id: string): Promise<Record<string, unknown> | null> {
+    const res = await this.request<{ data?: { attributes?: Record<string, unknown> } }>(
+      'GET', `/api/flows/${id}/?additional-fields[flow]=definition`,
+    );
+    return (res.data?.attributes ?? null) as Record<string, unknown> | null;
   }
 
   /**
@@ -229,7 +242,8 @@ export class KlaviyoClient {
 
   /** Lista métricas (nome + integração de origem) — leitura pura. */
   async listMetrics(): Promise<Array<{ id: string; name: string; integration: string | null }>> {
-    const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown> }> }>('GET', '/api/metrics/?page[size]=100');
+    // /api/metrics não aceita page[size] (400 'not a valid field').
+    const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown> }> }>('GET', '/api/metrics/');
     return (res.data ?? []).map((m) => {
       const at = m.attributes ?? {};
       const integ = (at.integration as Record<string, unknown> | undefined)?.name;

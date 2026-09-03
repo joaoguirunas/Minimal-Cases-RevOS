@@ -160,7 +160,22 @@ Deno.serve(async (req: Request) => {
           },
           flows: {
             total: flows.length,
-            live: flows.filter((f) => /live/i.test(f.status)).map((f) => ({ name: f.name, status: f.status, trigger_type: f.trigger_type })),
+            live: await Promise.all(flows.filter((f) => /live/i.test(f.status)).map(async (f) => {
+              // Gatilho real (nome da métrica) — é o que diz se um flow do cliente
+              // concorre com a esteira do CRM.
+              let gatilhos: unknown = null;
+              try {
+                const def = await client.getFlowDefinition(f.id);
+                const d = (def?.definition ?? {}) as Record<string, unknown>;
+                const trigs = (d.triggers ?? []) as Array<Record<string, unknown>>;
+                gatilhos = trigs.map((t) => {
+                  const tid = (t.id ?? (t.metric_id as unknown)) as string | undefined;
+                  const met = tid ? metrics.find((m) => m.id === tid) : undefined;
+                  return { tipo: t.type ?? null, metrica: met?.name ?? tid ?? null, integracao: met?.integration ?? null };
+                });
+              } catch (_) { gatilhos = 'não foi possível ler a definição'; }
+              return { name: f.name, status: f.status, trigger_type: f.trigger_type, gatilhos };
+            })),
             draft: flows.filter((f) => !/live/i.test(f.status)).length,
             colisao_nome_crm: flows.filter((f) => nomesCrm.includes(f.name)).map((f) => ({ name: f.name, status: f.status })),
           },
