@@ -7,7 +7,7 @@
  *    (eventos da loja + toques da esteira com nome do template/assunto).
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { summarizeQueue, type LeadQueueSummary, type QueueRow } from '@/lib/esteira/queueSummary';
@@ -83,6 +83,9 @@ export interface LeadCart {
   total: number | null;
   url: string | null;
   createdAt: string | null;
+  image: string | null;
+  variations: Array<{ name: string; value: string }>;
+  etapaAbandono: 'cadastro' | 'frete' | 'pagamento' | null;
 }
 
 export interface TimelineEntry {
@@ -94,6 +97,7 @@ export interface TimelineEntry {
   title: string;
   detail?: string;
   status?: string; // toques: sent | pending | failed | cancelled
+  templateName?: string | null;
 }
 
 const TRIGGER_TITLES: Record<string, string> = {
@@ -111,12 +115,24 @@ const TRIGGER_TITLES: Record<string, string> = {
 type AnyRec = Record<string, unknown>;
 const rec = (v: unknown): AnyRec => (v && typeof v === 'object' && !Array.isArray(v) ? v as AnyRec : {});
 
-function parseYampiCart(raw: AnyRec): { items: CartItem[]; total: number | null; url: string | null } {
+const ABANDONED_STEP: Record<string, 'cadastro' | 'frete' | 'pagamento'> = {
+  personal_info: 'cadastro',
+  shippment: 'frete',
+  payment: 'pagamento',
+};
+
+function parseYampiCart(raw: AnyRec): {
+  items: CartItem[]; total: number | null; url: string | null;
+  image: string | null; variations: Array<{ name: string; value: string }>;
+  etapaAbandono: 'cadastro' | 'frete' | 'pagamento' | null;
+} {
   const resource = rec(raw.resource);
   const itemsData = (rec(resource.items).data ?? resource.items) as unknown;
   const items: CartItem[] = [];
+  let image: string | null = null;
+  let variations: Array<{ name: string; value: string }> = [];
   if (Array.isArray(itemsData)) {
-    for (const it of itemsData) {
+    itemsData.forEach((it, idx) => {
       const item = rec(it);
       const sku = rec(rec(item.sku).data);
       // Preço efetivo: item.price é o valor cobrado; price_sale pode vir 0 no
@@ -128,7 +144,18 @@ function parseYampiCart(raw: AnyRec): { items: CartItem[]; total: number | null;
         quantity: Number(item.quantity ?? 1) || 1,
         price,
       });
-    }
+      if (idx === 0) {
+        const skuImages = rec(sku.images);
+        const firstImage = Array.isArray(skuImages.data) ? rec(skuImages.data[0]) : {};
+        const imgUrl = (firstImage.url ?? firstImage.src) as string | undefined;
+        image = typeof imgUrl === 'string' ? imgUrl : null;
+        const rawVariations = Array.isArray(sku.variations) ? sku.variations : [];
+        variations = rawVariations
+          .map((v) => rec(v))
+          .filter((v) => typeof v.name === 'string' && typeof v.value === 'string')
+          .map((v) => ({ name: String(v.name), value: String(v.value) }));
+      }
+    });
   }
   const totalizers = rec(resource.totalizers);
   const total = typeof totalizers.total === 'number' ? totalizers.total
@@ -137,7 +164,10 @@ function parseYampiCart(raw: AnyRec): { items: CartItem[]; total: number | null;
   // customerToken — a versão unauth (forceLogout=1) derruba a sessão e a Yampi
   // devolve carrinho vazio (caso Ari Chaves). Pra convidado, ambas funcionam.
   const url = (resource.simulate_url ?? resource.unauth_simulate_url ?? null) as string | null;
-  return { items, total, url };
+  const abandonedStepRaw = rec(resource.search).data;
+  const abandonedStep = rec(abandonedStepRaw).abandoned_step as string | undefined;
+  const etapaAbandono = abandonedStep ? (ABANDONED_STEP[abandonedStep] ?? null) : null;
+  return { items, total, url, image, variations, etapaAbandono };
 }
 
 function parseZoppyItems(lineItems: unknown): CartItem[] {
@@ -190,6 +220,7 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
           title: `${canal} · ${label}`,
           detail: status === 'pending' ? 'agendado' : status === 'sent' ? 'enviado' : status,
           status,
+          templateName: tplName ?? null,
         });
       }
 
@@ -244,6 +275,9 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
               total: typeof z.total === 'number' ? z.total : null,
               url: (z.url as string | null) ?? null,
               createdAt: (z.zoppy_created_at as string | null) ?? null,
+              image: null,
+              variations: [],
+              etapaAbandono: null,
             };
           }
         }
@@ -252,5 +286,20 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
       timeline.sort((a, b) => (a.at < b.at ? 1 : -1));
       return { cart, timeline };
     },
+  });
+}
+
+/** Cancela (pausa) os toques pendentes de um lead na esteira. */
+export function useCancelPendingTouches(leadId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error, count } = await db.from('followup_queue')
+        .update({ status: 'cancelled', error_message: 'cancelado pelo operador' }, { count: 'exact' })
+        .eq('lead_id', leadId).eq('status', 'pending');
+      if (error) throw error;
+      return count ?? 0;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['esteira'] }),
   });
 }

@@ -12,10 +12,12 @@ import {
   Mail, MessageSquare, ShoppingCart, Smartphone, XCircle, Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
+import { Chip } from '@/components/ui/chip';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
+import { useCancelPendingTouches, useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
+import { groupByDay } from '@/lib/esteira/timeline';
 import { toast } from 'sonner';
 
 const money = (v: number | null) =>
@@ -24,6 +26,11 @@ const money = (v: number | null) =>
 const fmtAt = (iso: string) => {
   const d = new Date(iso);
   return Number.isFinite(d.getTime()) ? format(d, "dd/MM/yy 'às' HH:mm", { locale: ptBR }) : '—';
+};
+
+const fmtTime = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isFinite(d.getTime()) ? format(d, 'HH:mm') : '—';
 };
 
 // ── Ícone/cor por entrada da timeline ──────────────────────────────────────────
@@ -56,6 +63,9 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
   const timeline = data?.timeline ?? [];
   const sentCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'sent').length;
   const pendingCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').length;
+  const next = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').sort((a, b) => (a.at < b.at ? -1 : 1))[0];
+  const total = sentCount + pendingCount + timeline.filter((t) => t.kind === 'toque' && t.status === 'failed').length;
+  const cancel = useCancelPendingTouches(leadId);
 
   if (isLoading) {
     return (
@@ -67,20 +77,53 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
 
   return (
     <div className="space-y-5 max-w-4xl">
+      {/* ── Cabeçalho: progresso + ações ─────────────────────────────────── */}
+      <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
+          <p className="text-[11.5px] text-muted-foreground truncate">
+            {next ? `Próximo: ${next.templateName ?? next.title} · ${formatDistanceToNow(new Date(next.at), { locale: ptBR, addSuffix: true })}` : pendingCount === 0 && total > 0 ? 'Esteira concluída' : ''}
+          </p>
+          {total > 0 && <div className="mt-2 h-1 w-full max-w-[280px] rounded-full bg-muted overflow-hidden" aria-hidden><div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((sentCount / total) * 100)}%` }} /></div>}
+        </div>
+        {cart?.url && <Button variant="outline" size="sm" className="h-8 text-[12px]" onClick={() => { navigator.clipboard.writeText(cart.url!); toast.success('Link copiado'); }}>Copiar link do carrinho</Button>}
+        {pendingCount > 0 && (
+          <Button variant="outline" size="sm" className="h-8 text-[12px] text-destructive hover:text-destructive" disabled={cancel.isPending}
+            onClick={() => { if (window.confirm(`Pausar ${pendingCount} toque(s) pendente(s) deste lead? Eles serão cancelados.`)) cancel.mutate(undefined, { onSuccess: (n) => toast.success(`${n} toque(s) cancelado(s)`), onError: (e) => toast.error(/permission|policy|RLS/i.test((e as Error).message) ? 'Sem permissão para pausar — peça a um gestor' : (e as Error).message) }); }}>
+            Pausar toques
+          </Button>
+        )}
+      </div>
+
       {/* ── Carrinho ─────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
-            <span className="text-[13px] font-medium text-foreground">Carrinho</span>
-            {cart && (
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground/60 border border-border rounded-full px-1.5 py-0.5">
-                {cart.source === 'yampi' ? 'Yampi' : 'Zoppy (histórico)'}
-              </span>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {cart?.image && (
+              <img src={cart.image} alt="" className="w-14 h-14 rounded-lg object-cover bg-muted shrink-0" />
             )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+                <span className="text-[13px] font-medium text-foreground">Carrinho</span>
+                {cart && (
+                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground/60 border border-border rounded-full px-1.5 py-0.5">
+                    {cart.source === 'yampi' ? 'Yampi' : 'Zoppy (histórico)'}
+                  </span>
+                )}
+              </div>
+              {cart && (cart.variations.length > 0 || cart.etapaAbandono) && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                  {cart.variations.map((v) => (
+                    <Chip key={v.name}>{v.name}: {v.value}</Chip>
+                  ))}
+                  {cart.etapaAbandono && <Chip tone="warning">parou em: {cart.etapaAbandono}</Chip>}
+                </div>
+              )}
+            </div>
           </div>
           {cart?.createdAt && (
-            <span className="text-[11px] text-muted-foreground/60">{fmtAt(cart.createdAt)}</span>
+            <span className="text-[11px] text-muted-foreground/60 whitespace-nowrap">{fmtAt(cart.createdAt)}</span>
           )}
         </div>
 
@@ -139,39 +182,47 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
         ) : (
           <div className="relative pl-5">
             <div className="absolute left-[9px] top-1 bottom-1 w-px bg-border" />
-            <div className="space-y-3">
-              {timeline.map((e) => {
-                const { icon: Icon, cls } = entryVisual(e);
-                return (
-                  <div key={e.id} className="relative flex items-start gap-3">
-                    <span className={cn(
-                      'absolute -left-5 mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border',
-                      cls,
-                    )}>
-                      <Icon className="h-3 w-3" strokeWidth={1.75} />
-                    </span>
-                    <div className="flex-1 min-w-0 pl-2">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className={cn(
-                          'text-[12.5px] truncate',
-                          e.kind === 'toque' ? 'text-foreground' : 'font-medium text-foreground',
-                        )}>
-                          {e.title}
-                        </span>
-                        <span className="text-[10.5px] text-muted-foreground/60 whitespace-nowrap">{fmtAt(e.at)}</span>
-                      </div>
-                      {e.detail && (
-                        <span className={cn(
-                          'text-[11px]',
-                          e.status === 'failed' ? 'text-red-500' : 'text-muted-foreground/70',
-                        )}>
-                          {e.detail}
-                        </span>
-                      )}
-                    </div>
+            <div className="space-y-4">
+              {groupByDay(timeline).map((g) => (
+                <div key={g.label}>
+                  <p className="text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-2 mt-1">{g.label}</p>
+                  <div className="space-y-3">
+                    {g.items.map((e) => {
+                      const { icon: Icon, cls } = entryVisual(e);
+                      const title = e.kind === 'toque' ? (e.templateName ?? e.title) : e.title;
+                      return (
+                        <div key={e.id} className="relative flex items-start gap-3">
+                          <span className={cn(
+                            'absolute -left-5 mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border',
+                            cls,
+                          )}>
+                            <Icon className="h-3 w-3" strokeWidth={1.75} />
+                          </span>
+                          <div className="flex-1 min-w-0 pl-2">
+                            <div className="flex items-baseline justify-between gap-3">
+                              <span className={cn(
+                                'text-[12.5px] truncate',
+                                e.kind === 'toque' ? 'text-foreground' : 'font-medium text-foreground',
+                              )}>
+                                {title}
+                              </span>
+                              <span className="text-[10.5px] text-muted-foreground/60 whitespace-nowrap">{fmtTime(e.at)}</span>
+                            </div>
+                            {e.detail && (
+                              <span className={cn(
+                                'text-[11px]',
+                                e.status === 'failed' ? 'text-red-500' : 'text-muted-foreground/70',
+                              )}>
+                                {e.detail}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         )}
