@@ -132,7 +132,9 @@ export const useNegociosPipeline = (pipelineId: string, filters?: NegocioFilters
       };
 
       if (filters?.stageId) query = query.eq('leads_stages_id', filters.stageId);
-      if (filters?.status === 'sem-perdidos') query = query.neq('status', 'lost');
+      // 'sem-perdidos' esconde perdidos E arquivados — arquivar um lead precisa
+      // tirá-lo do kanban (antes só 'lost' saía, e os arquivados continuavam à vista).
+      if (filters?.status === 'sem-perdidos') query = query.not('status', 'in', '("lost","archived")');
       else if (filters?.status && filters.status !== 'todos') {
         query = query.eq('status', statusDbMap[filters.status] ?? filters.status);
       }
