@@ -13,7 +13,14 @@ const FALLBACK_URL = 'https://minimalcases.com.br/';
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
-  const token = url.searchParams.get('t');
+  // Templates anexam query ao {{link_checkout}} ("…?discount=VOLTA10&utm_…"), que
+  // vira "r?t=TOKEN?discount=…" — o token é só o trecho até o primeiro '?', e
+  // tudo o mais (inclusive outros params da URL) é repassado ao destino.
+  const rawT = url.searchParams.get('t') ?? '';
+  const [token, ...tailParts] = rawT.split('?');
+  const extra = new URLSearchParams(tailParts.join('?'));
+  for (const [k, v] of url.searchParams) if (k !== 't') extra.append(k, v);
+  const extraQs = extra.toString();
 
   let destination = FALLBACK_URL;
   if (token && /^[A-Za-z0-9]{4,32}$/.test(token)) {
@@ -46,6 +53,10 @@ Deno.serve(async (req) => {
         }
       }
     } catch (_) { /* redirect sempre acontece */ }
+  }
+
+  if (extraQs && destination !== FALLBACK_URL) {
+    destination += (destination.includes('?') ? '&' : '?') + extraQs;
   }
 
   return new Response(null, {

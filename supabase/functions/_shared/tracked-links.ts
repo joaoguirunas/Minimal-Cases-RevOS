@@ -43,11 +43,45 @@ export async function createTrackedLink(
 type AnyRec = Record<string, unknown>;
 const rec = (v: unknown): AnyRec => (v && typeof v === 'object' && !Array.isArray(v) ? v as AnyRec : {});
 
-/** Link de recuperação mais recente da pessoa: carrinho Yampi → fallback Zoppy. */
-export async function resolveCartUrlForPerson(
+export interface PersonCart {
+  url: string | null;
+  /** Título do produto sem o sufixo de modelo (ex.: "Case Anti Impacto … Azul"). */
+  produto: string | null;
+  /** Modelo do aparelho extraído da variante (ex.: "iPhone 17 Pro Max"). */
+  modeloCelular: string | null;
+  /** Versão curta (ex.: "iPhone 17"). */
+  modeloCelularCurto: string | null;
+  imagemProduto: string | null;
+  total: number | null;
+  itens: number;
+}
+
+const MODEL_RE = /\b((?:iPhone|Galaxy|Samsung|Motorola|Moto|Xiaomi|Redmi|Poco|Pixel)\b[^,/|]*?)\s*$/i;
+
+/** Separa "Case … Azul iPhone 17 Pro Max" em produto + modelo (best-effort). */
+export function splitProductModel(title: string): { produto: string; modelo: string | null } {
+  const m = title.match(MODEL_RE);
+  if (!m) return { produto: title.trim(), modelo: null };
+  const modelo = m[1].trim();
+  const produto = title.slice(0, m.index).trim().replace(/[-–—]\s*$/, '').trim();
+  return { produto: produto || title.trim(), modelo };
+}
+
+export function formatBRL(v: number | null | undefined): string {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return '';
+  return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+/**
+ * Carrinho mais recente da pessoa com dados pra personalização dos templates:
+ * link de recuperação (simulate_url com customerToken > unauth), produto, modelo,
+ * imagem, total. Yampi (eventos carrinho_abandonado/checkout_iniciado) → Zoppy.
+ */
+export async function resolveCartForPerson(
   supabase: SupabaseClient,
   peopleId: string,
-): Promise<string | null> {
+): Promise<PersonCart> {
+  const empty: PersonCart = { url: null, produto: null, modeloCelular: null, modeloCelularCurto: null, imagemProduto: null, total: null, itens: 0 };
   const { data: events } = await supabase
     .from('yampi_webhook_events')
     .select('raw_payload')
@@ -60,16 +94,51 @@ export async function resolveCartUrlForPerson(
     // simulate_url primeiro: carrinho preso a conta de cliente só restaura com o
     // customerToken; a unauth (forceLogout=1) faz a Yampi devolver carrinho vazio.
     const url = (resource.simulate_url ?? resource.unauth_simulate_url) as string | undefined;
-    if (url) return url;
+    const itemsData = (rec(resource.items).data ?? resource.items) as unknown;
+    const items = Array.isArray(itemsData) ? itemsData as Array<AnyRec> : [];
+    if (!url && items.length === 0) continue;
+    const first = rec(items[0]);
+    const sku = rec(rec(first.sku).data);
+    const title = String(sku.title ?? first.title ?? '').trim();
+    const { produto, modelo } = title ? splitProductModel(title) : { produto: '', modelo: null };
+    const imgs = (rec(sku.images).data ?? sku.images) as unknown;
+    const img = Array.isArray(imgs) ? rec(imgs[0]) : {};
+    const imagem = (img.url ?? img.src ?? img.large?.toString?.() ?? null) as string | null;
+    const totalizers = rec(resource.totalizers);
+    const total = typeof totalizers.total === 'number' ? totalizers.total
+      : typeof resource.value_total === 'number' ? resource.value_total as number : null;
+    return {
+      url: url ?? null,
+      produto: produto || null,
+      modeloCelular: modelo,
+      modeloCelularCurto: modelo ? modelo.split(/\s+/).slice(0, 2).join(' ') : null,
+      imagemProduto: imagem,
+      total,
+      itens: items.length,
+    };
   }
   const { data: zcart } = await supabase
     .from('zoppy_abandoned_carts')
-    .select('url')
+    .select('url, total, line_items')
     .eq('people_id', peopleId)
     .order('zoppy_created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  return ((zcart as { url: string | null } | null)?.url) ?? null;
+  const z = zcart as { url: string | null; total: number | null; line_items: unknown } | null;
+  if (!z) return empty;
+  const li = Array.isArray(z.line_items) ? z.line_items as Array<AnyRec> : [];
+  const zt = String(rec(rec(li[0]).product).name ?? rec(li[0]).name ?? '').trim();
+  const { produto, modelo } = zt ? splitProductModel(zt) : { produto: '', modelo: null };
+  return { ...empty, url: z.url, produto: produto || null, modeloCelular: modelo,
+    modeloCelularCurto: modelo ? modelo.split(/\s+/).slice(0, 2).join(' ') : null, total: z.total, itens: li.length };
+}
+
+/** Link de recuperação mais recente da pessoa (atalho de resolveCartForPerson). */
+export async function resolveCartUrlForPerson(
+  supabase: SupabaseClient,
+  peopleId: string,
+): Promise<string | null> {
+  return (await resolveCartForPerson(supabase, peopleId)).url;
 }
 
 /** true se a pessoa clicou em algum link rastreado nosso antes de `before`, dentro da janela. */

@@ -12,7 +12,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle, CheckCircle2, ChevronDown, Eye, EyeOff, GitBranch, KeyRound, Link2,
-  Loader2, RefreshCw, Save, Unplug, Webhook, XCircle,
+  Loader2, RefreshCw, Save, Send, Ticket, Unplug, Webhook, XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -353,6 +353,102 @@ function EsteiraMappingSection() {
   );
 }
 
+// ── Disparar esteira: enfileira os follow-ups pros leads JÁ parados num stage ──
+//
+// A fila só é alimentada na troca de stage — quem já estava lá (backfill dos 297)
+// precisa deste disparo. Simular conta sem gravar; Disparar grava e respeita
+// as guardas do backend (canal ativo, trava Klaviyo aberta).
+
+function EsteiraDispatchSection() {
+  const { toast } = useToast();
+  const { data: pipelines = [] } = usePipelines();
+  const { data: stages = [] } = useStages();
+  const esteira = pipelines.find((p) => /esteira/i.test(p.name)) ?? pipelines[0];
+  const esteiraStages = stages.filter((s) => s.leads_pipelines_id === esteira?.id || s.pipeline_id === esteira?.id);
+  const [stageId, setStageId] = useState('');
+  const [busy, setBusy] = useState<'sim' | 'go' | 'coupons' | null>(null);
+  const [sim, setSim] = useState<{ leads: number; entries: number } | null>(null);
+
+  useEffect(() => {
+    if (!stageId && esteiraStages.length > 0) setStageId(esteiraStages[0].id);
+  }, [esteiraStages, stageId]);
+
+  const simulate = async () => {
+    setBusy('sim');
+    try {
+      const r = await invokeYampi<{ leads: number; entries: number }>({ action: 'enqueue_stage', stage_id: stageId, dry_run: true });
+      setSim({ leads: r.leads, entries: r.entries });
+    } catch (e) {
+      toast({ title: 'Falha na simulação', description: (e as Error).message, variant: 'destructive' });
+    } finally { setBusy(null); }
+  };
+
+  const dispatch = async () => {
+    const stageName = esteiraStages.find((s) => s.id === stageId)?.name ?? 'stage';
+    if (!window.confirm(`Disparar a esteira pros leads parados em "${stageName}"?\n\nIsso agenda TODOS os toques ativos do stage (e-mail/SMS) com os horários da proposta. Os envios saem pelo canal configurado.`)) return;
+    setBusy('go');
+    try {
+      const r = await invokeYampi<{ leads: number; inserted: number }>({ action: 'enqueue_stage', stage_id: stageId, dry_run: false });
+      toast({ title: 'Esteira disparada', description: `${r.inserted} toques agendados para ${r.leads} leads. O worker envia cada um no horário (09h–20h).` });
+      setSim(null);
+    } catch (e) {
+      toast({ title: 'Não disparei', description: (e as Error).message, variant: 'destructive' });
+    } finally { setBusy(null); }
+  };
+
+  const ensureCoupons = async () => {
+    setBusy('coupons');
+    try {
+      const r = await invokeYampi<{ coupons: Array<{ code: string; status: string; detail?: string }> }>({ action: 'ensure_coupons' });
+      toast({ title: 'Cupons na Yampi', description: r.coupons.map((c) => `${c.code}: ${c.status}${c.detail ? ` (${c.detail})` : ''}`).join(' · ') });
+    } catch (e) {
+      toast({ title: 'Falha nos cupons', description: (e as Error).message, variant: 'destructive' });
+    } finally { setBusy(null); }
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+      <div className="flex items-center gap-2.5">
+        <Send className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+        <div>
+          <span className="text-[13px] font-medium text-foreground">Disparar esteira</span>
+          <p className="text-[12px] text-muted-foreground mt-0.5">
+            Agenda os follow-ups do stage pros leads que <span className="font-medium text-foreground">já estão parados</span> nele
+            (quem entra depois já recebe automaticamente). Simule antes: nada é gravado.
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={stageId} onValueChange={(v) => { setStageId(v); setSim(null); }}>
+          <SelectTrigger className="h-8 w-[240px] text-[12px]"><SelectValue placeholder="Stage" /></SelectTrigger>
+          <SelectContent>
+            {esteiraStages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]" disabled={!stageId || busy !== null} onClick={simulate}>
+          {busy === 'sim' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} />}
+          Simular
+        </Button>
+        <Button size="sm" className="h-8 gap-1.5 text-[12px]" disabled={!stageId || busy !== null || !sim || sim.entries === 0} onClick={dispatch}>
+          {busy === 'go' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" strokeWidth={1.5} />}
+          Disparar agora
+        </Button>
+        <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px] ml-auto" disabled={busy !== null} onClick={ensureCoupons}>
+          {busy === 'coupons' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Ticket className="w-3.5 h-3.5" strokeWidth={1.5} />}
+          Garantir cupons VOLTA10 / ULTIMA15 na Yampi
+        </Button>
+      </div>
+      {sim && (
+        <p className={cn('text-[12px]', sim.entries === 0 ? 'text-muted-foreground' : 'text-foreground')}>
+          {sim.entries === 0
+            ? 'Nada a agendar — sem leads elegíveis ou já enfileirados.'
+            : <>Simulação: <span className="font-medium">{sim.leads} leads</span> · <span className="font-medium">{sim.entries} toques</span> seriam agendados. O botão “Disparar agora” grava de verdade.</>}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function YampiIntegrationConfig() {
@@ -648,6 +744,9 @@ export default function YampiIntegrationConfig() {
 
       {/* ── Esteira (mapeamento evento → stage) ───────────────────────────── */}
       <EsteiraMappingSection />
+
+      {/* ── Disparo da esteira + cupons ──────────────────────────────────── */}
+      {connected && <EsteiraDispatchSection />}
 
       {/* ── Eventos ────────────────────────────────────────────────────────── */}
       <Collapsible defaultOpen={connected}>

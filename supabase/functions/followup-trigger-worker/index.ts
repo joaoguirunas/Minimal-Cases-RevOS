@@ -6,7 +6,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
-import { createTrackedLink, resolveCartUrlForPerson } from "../_shared/tracked-links.ts";
+import { createTrackedLink, resolveCartForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
@@ -348,12 +348,18 @@ serve(async (req) => {
           let subject = entry.subject ?? '';
           let html = entry.message ?? '';
 
+          let ruleVars: Record<string, string> = {};
           if (entry.followup_id) {
             const { data: rule } = await supabase
               .from('leads_stages_followups')
-              .select('email_template_id')
+              .select('email_template_id, vars')
               .eq('id', entry.followup_id)
               .maybeSingle();
+            // Vars estáticas da regra (ex.: {"cupom":"VOLTA10","cupom_pct":"10"}).
+            const rv = (rule as { vars?: Record<string, unknown> } | null)?.vars;
+            if (rv && typeof rv === 'object') {
+              ruleVars = Object.fromEntries(Object.entries(rv).map(([k, v]) => [k, String(v ?? '')]));
+            }
 
             if (rule?.email_template_id) {
               const { data: tpl } = await supabase
@@ -386,10 +392,36 @@ serve(async (req) => {
               || `${(Deno.env.get('SUPABASE_URL') ?? '').replace(/\/+$/, '')}/storage/v1/object/public/email-assets`,
           };
 
+          // ── Personalização da esteira (EST-VARS): produto, modelo, preço, cupom… ──
+          // Tudo que os templates da proposta usam, montado a partir do carrinho
+          // Yampi/Zoppy da pessoa + credenciais do canal + vars da regra.
+          const eCreds = (emailConfig?.credentials ?? {}) as Record<string, string>;
+          const cart = entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
+          const cupomPct = Number(ruleVars.cupom_pct ?? '0') || 0;
+          const total = cart?.total ?? null;
+          const expira = new Date(Date.now() + (Number(ruleVars.expira_horas ?? '24') || 24) * 3_600_000);
+          const expiraFmt = expira.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+          Object.assign(vars, {
+            'produto': cart?.produto ?? 'sua case Minimal',
+            'modelo_celular': cart?.modeloCelular ?? 'seu celular',
+            'modelo_celular_curto': cart?.modeloCelularCurto ?? cart?.modeloCelular ?? 'seu celular',
+            'imagem_produto': cart?.imagemProduto ?? `${vars['asset_base']}/prod-fosca.jpg`,
+            'preco': formatBRL(total),
+            'total': formatBRL(total),
+            'preco_com_cupom': formatBRL(total !== null && cupomPct > 0 ? total * (1 - cupomPct / 100) : total),
+            'cupom': ruleVars.cupom ?? '',
+            'expira_em': expiraFmt,
+            'countdown_gif': `${vars['asset_base']}/countdown-placeholder.png`,
+            'remetente': eCreds.sender_name || eCreds.from_name || 'Minimal Cases',
+            'cargo': eCreds.sender_role || 'Atendimento & Experiência',
+            'link_whatsapp': eCreds.link_whatsapp || 'https://minimalcases.com.br/',
+            'unsubscribe': eCreds.unsubscribe_url || (eCreds.from_email ? `mailto:${eCreds.from_email}?subject=Descadastro` : 'https://minimalcases.com.br/'),
+          }, ruleVars);
+
           // {{link_checkout}} → link do carrinho da pessoa, RASTREADO (BI-REC-3):
           // clique registrado em tracked_links vira evidência de atribuição.
           if ((html.includes('{{link_checkout}}') || subject.includes('{{link_checkout}}')) && entry.person_id) {
-            const cartUrl = await resolveCartUrlForPerson(supabase, entry.person_id);
+            const cartUrl = cart?.url ?? null;
             if (cartUrl) {
               const tracked = await createTrackedLink(supabase, {
                 destination: cartUrl,
@@ -425,8 +457,11 @@ serve(async (req) => {
             'nome': (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
           };
 
+          const smsCart = entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
+          smsVars['produto'] = smsCart?.produto ?? 'sua case Minimal';
+          smsVars['modelo_celular'] = smsCart?.modeloCelular ?? 'seu celular';
           if ((entry.message ?? '').includes('{{link_checkout}}') && entry.person_id) {
-            const cartUrl = await resolveCartUrlForPerson(supabase, entry.person_id);
+            const cartUrl = smsCart?.url ?? null;
             if (cartUrl) {
               const tracked = await createTrackedLink(supabase, {
                 destination: cartUrl,

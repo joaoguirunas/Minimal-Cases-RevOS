@@ -29,7 +29,7 @@ import {
   YampiAuthError,
 } from '../_shared/yampi-client.ts';
 
-type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts' | 'set_lead_intake';
+type Action = 'test' | 'connect' | 'status' | 'disconnect' | 'reprocess' | 'backfill_carts' | 'set_lead_intake' | 'ensure_coupons' | 'enqueue_stage';
 
 interface RequestBody {
   action?: Action;
@@ -41,6 +41,8 @@ interface RequestBody {
   date_start?: string;
   date_end?: string;
   enabled?: boolean;
+  stage_id?: string;
+  dry_run?: boolean;
 }
 
 function inboundWebhookUrl(supabaseUrl: string, connectionId?: string): string {
@@ -95,7 +97,7 @@ Deno.serve(async (req: Request) => {
 
     const body = (await req.json().catch(() => ({}))) as RequestBody;
     const action = body.action;
-    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts', 'set_lead_intake'].includes(action)) {
+    if (!action || !['test', 'connect', 'status', 'disconnect', 'reprocess', 'backfill_carts', 'set_lead_intake', 'ensure_coupons', 'enqueue_stage'].includes(action)) {
       return err200('Ação inválida', 'BAD_REQUEST');
     }
 
@@ -349,6 +351,73 @@ Deno.serve(async (req: Request) => {
         if (batch.length < 50) break;
       }
       return ok200({ ok: true, period: { start, end }, ...results });
+    }
+
+    // ── ENSURE_COUPONS (EST-READY): garante os cupons da esteira na Yampi ──
+    // VOLTA10 (10%) e ULTIMA15 (15%) — os e-mails E4/E5 e os SMS prometem esses
+    // códigos; sem eles na loja o cliente chega no checkout e o cupom falha.
+    if (action === 'ensure_coupons') {
+      const bound = await createYampiClientForConnection(supabase);
+      if (!bound || bound.row.status !== 'connected') return err200('Conecte a Yampi antes', 'NOT_CONNECTED');
+      const wanted = [
+        { code: 'VOLTA10', value: 10 },
+        { code: 'ULTIMA15', value: 15 },
+      ];
+      const out: Array<{ code: string; status: string; detail?: string }> = [];
+      for (const w of wanted) {
+        try {
+          const existing = await bound.client.findPromocode(w.code);
+          if (existing) { out.push({ code: w.code, status: 'já existia' }); continue; }
+          await bound.client.createPromocode({
+            code: w.code, value: w.value, discount_type: 'p', active: true,
+            once_per_customer: true, accumulate: false, abandoned_cart: true,
+          });
+          out.push({ code: w.code, status: 'criado' });
+        } catch (e) {
+          out.push({ code: w.code, status: 'falhou', detail: (e as Error).message.slice(0, 200) });
+        }
+        await supabase.from('crm_coupons').upsert({ code: w.code, source: 'esteira' }, { onConflict: 'code', ignoreDuplicates: true });
+      }
+      return ok200({ ok: true, coupons: out });
+    }
+
+    // ── ENQUEUE_STAGE (EST-READY): dispara a esteira pros leads JÁ parados ──
+    // A fila só é alimentada na troca de stage — quem já estava lá (backfill)
+    // precisa deste disparo. dry_run=true só conta. Guardas: nenhum canal
+    // necessário pode estar inativo/travado, senão os toques nasceriam falhando.
+    if (action === 'enqueue_stage') {
+      const stageId = body.stage_id;
+      if (!stageId) return err200('stage_id é obrigatório', 'BAD_REQUEST');
+      const dryRun = body.dry_run !== false;
+
+      if (!dryRun) {
+        const { data: rules } = await supabase
+          .from('leads_stages_followups').select('type').eq('leads_stages_id', stageId).eq('active', true);
+        const types = new Set(((rules ?? []) as Array<{ type: string }>).map((r) => r.type));
+        const { data: cfgs } = await supabase
+          .from('omni_channel_configs').select('channel, is_active, credentials').in('channel', ['email', 'sms']);
+        const byChannel = new Map(((cfgs ?? []) as Array<{ channel: string; is_active: boolean; credentials: Record<string, string> | null }>)
+          .map((c) => [c.channel, c]));
+        const problems: string[] = [];
+        for (const ch of ['email', 'sms'] as const) {
+          if (!types.has(ch)) continue;
+          const cfg = byChannel.get(ch);
+          const creds = cfg?.credentials ?? {};
+          if (!cfg?.is_active || !creds.provider || creds.provider === 'webhook') problems.push(`canal ${ch} inativo ou sem provider`);
+          else if (creds.provider === 'klaviyo' && creds.sends_locked !== 'false') problems.push(`envios de ${ch} pelo Klaviyo travados`);
+        }
+        if (types.has('whatsapp_template')) {
+          const { count } = await supabase.from('settings_whatsapp_channels').select('id', { count: 'exact', head: true }).eq('active', true);
+          if ((count ?? 0) === 0) problems.push('regras de WhatsApp ativas sem canal WhatsApp ativo');
+        }
+        if (problems.length > 0) {
+          return err200(`Não disparei: ${problems.join(' · ')}. Resolva e tente de novo (ou rode a simulação).`, 'NOT_READY');
+        }
+      }
+
+      const { data, error } = await supabase.rpc('enqueue_stage_followups', { p_stage_id: stageId, p_dry_run: dryRun });
+      if (error) return err200(`Falha ao enfileirar: ${error.message}`, 'DB_ERROR');
+      return ok200({ ok: true, ...(data as Record<string, unknown>) });
     }
 
     // ── REPROCESS ───────────────────────────────────────────────────────────
