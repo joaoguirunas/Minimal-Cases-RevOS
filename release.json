@@ -1,12 +1,13 @@
 {
-  "version": "5.21",
+  "version": "5.23",
   "major": 5,
-  "minor": 21,
-  "created_at": "2026-09-03T03:35:02.000Z",
-  "git_sha": "a37b597b3140ceec7936ebbc0e4173529e89cea1",
+  "minor": 23,
+  "created_at": "2026-09-03T03:50:17.000Z",
+  "git_sha": "ebbb766d4fdad38fa48de1d0e84e8888e44c2e45",
   "migrations": [
-    "supabase/migrations/20260903140000_esteira_ready.sql"
+    "supabase/migrations/20260903140000_esteira_ready.sql",
+    "supabase/migrations/20260903160000_esteira_agent_seed.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): tudo pronto pra rodar conforme a proposta (EST-READY)"
+  "changelog": "feat(esteira): agente de WhatsApp do roteiro + prontidão plug-and-play (EST-AGENT/EST-WA)|fix(yampi): cupons com campos obrigatórios (min_value/quantity/start_at/end_at) + erro 422 legível|chore(release): release.json v5.21 [skip ci]|feat(esteira): tudo pronto pra rodar conforme a proposta (EST-READY)"
 }
