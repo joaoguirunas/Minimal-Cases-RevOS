@@ -9,6 +9,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { aggregateReconversao, type Agregado, type RecRow, type TouchRow, type ClickRow } from '@/lib/bi/reconversao';
 
 const db = supabase as unknown as SupabaseClient;
 
@@ -47,6 +48,8 @@ export interface ReconversaoBI {
   porDia: Array<{ dia: string; reconversoes: number; receita: number }>;
   // Tabela
   rows: ReconversionRow[];
+  // Agregação pura (período anterior, funil, níveis, top cupons)
+  agregado: Agregado;
 }
 
 function isoDay(d: string): string {
@@ -92,21 +95,57 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
       // ── Toques enviados no período (por canal) + leads tocados ───────────
       const { data: touchData, error: tErr } = await db
         .from('followup_queue')
-        .select('channel, person_id')
+        .select('channel, person_id, fired_at')
         .eq('status', 'sent')
         .gte('fired_at', from)
         .lte('fired_at', to)
         .limit(10000);
       if (tErr) throw tErr;
+      const touchRows = (touchData ?? []) as TouchRow[];
       const touches = { email: 0, whatsapp: 0, sms: 0, total: 0 };
       const pessoasTocadas = new Set<string>();
-      for (const t of (touchData ?? []) as Array<{ channel: string; person_id: string | null }>) {
+      for (const t of touchRows) {
         if (t.channel === 'email') touches.email++;
         else if (t.channel === 'sms') touches.sms++;
         else touches.whatsapp++;
         touches.total++;
         if (t.person_id) pessoasTocadas.add(t.person_id);
       }
+
+      // ── Período anterior (mesma duração, imediatamente antes) + cliques ──
+      const spanMs = new Date(to).getTime() - new Date(from).getTime();
+      const prevFrom = new Date(new Date(from).getTime() - spanMs).toISOString();
+      const prevTo = from;
+
+      const [prevRecRes, prevTouchRes, clicksRes] = await Promise.all([
+        db
+          .from('esteira_reconversions')
+          .select('*')
+          .gte('paid_at', prevFrom)
+          .lte('paid_at', prevTo)
+          .limit(500),
+        db
+          .from('followup_queue')
+          .select('channel, person_id, fired_at')
+          .eq('status', 'sent')
+          .gte('fired_at', prevFrom)
+          .lte('fired_at', prevTo)
+          .limit(10000),
+        db
+          .from('tracked_links')
+          .select('people_id, first_clicked_at')
+          .gte('first_clicked_at', from)
+          .lte('first_clicked_at', to)
+          .limit(10000),
+      ]);
+      if (prevRecRes.error) throw prevRecRes.error;
+      if (prevTouchRes.error) throw prevTouchRes.error;
+      if (clicksRes.error) throw clicksRes.error;
+      const prevRows = (prevRecRes.data ?? []) as RecRow[];
+      const prevTouches = (prevTouchRes.data ?? []) as TouchRow[];
+      const clicks = (clicksRes.data ?? []) as ClickRow[];
+
+      const agregado = aggregateReconversao({ rows: all, touches: touchRows, clicks, prevRows, prevTouches });
 
       // ── Agregados ────────────────────────────────────────────────────────
       const receita = attributed.reduce((acc, r) => acc + (r.order_total ?? 0), 0);
@@ -140,6 +179,7 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
         horasMediasAteConverter: horasMedias,
         porDia,
         rows: all,
+        agregado,
       };
     },
   });
