@@ -65,6 +65,13 @@ describe('aggregateAbTest', () => {
     expect(confidence.z).not.toBeNull();
   });
 
+  it('lift é null (não Infinity) quando a taxa do controle é zero e o desafiante converte', () => {
+    const input = buildInput(10, 0, 3);
+    const { confidence } = aggregateAbTest(input);
+    expect(confidence.melhor).toBe('B');
+    expect(confidence.lift).toBeNull();
+  });
+
   it('marca insuficiente e z null quando alguma variante tem poucos leads', () => {
     const input = buildInput(10, 3, 4);
     const { confidence } = aggregateAbTest(input);

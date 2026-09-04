@@ -1,4 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// Isola o teste do requisito de env vars (VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY) que
+// `@/integrations/supabase/client` exige em runtime — o módulo sob teste só usa `supabaseUrl`
+// para montar ASSET_BASE, então um stub mínimo basta.
+vi.mock('@/integrations/supabase/client', () => ({ supabaseUrl: 'https://test.supabase.co', supabase: {} }));
+
 import { buildPreviewDocument, previewVarsFromLead } from './emailTemplatePreview';
 
 describe('buildPreviewDocument', () => {
