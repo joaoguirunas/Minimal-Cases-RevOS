@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type RefObject } from 'react';
 import { Chip } from '@/components/ui/chip';
 import FollowupModal from './FollowupModal';
 import TimelineMarker from './TimelineMarker';
@@ -45,6 +45,18 @@ interface StageTimelineCardProps {
 /** Um stage do pipeline: régua de tempo + uma raia por lane (comum/A/B/variante encerrada). */
 const StageTimelineCard = ({ stage, followups, templates, clickRates, variants }: StageTimelineCardProps) => {
   const [modal, setModal] = useState<ModalState>({ open: false, followup: null });
+
+  // Um ref por raia (o elemento do TRILHO, não o wrapper ~28px do marcador) — o
+  // TimelineMarker mede esse elemento para calcular a posição do drag.
+  const trackRefsRef = useRef<Map<string, RefObject<HTMLDivElement>>>(new Map());
+  const getTrackRef = (key: string): RefObject<HTMLDivElement> => {
+    let ref = trackRefsRef.current.get(key);
+    if (!ref) {
+      ref = { current: null };
+      trackRefsRef.current.set(key, ref);
+    }
+    return ref;
+  };
 
   const followupById = useMemo(() => new Map(followups.map((f) => [f.id, f])), [followups]);
   const knownVariantIds = useMemo(() => new Set(variants.map((v) => v.id)), [variants]);
@@ -115,31 +127,36 @@ const StageTimelineCard = ({ stage, followups, templates, clickRates, variants }
       </div>
 
       <div className="divide-y divide-border/50">
-        {allLanes.map((lane) => (
-          <div key={lane.key} className={cn('relative flex min-h-[72px] items-center', lane.key === 'orfa' && 'opacity-60')}>
-            <div className="w-24 flex-shrink-0 pr-2">
-              <Chip tone={variantTone(lane.key)}>{laneLabel(lane)}</Chip>
+        {allLanes.map((lane) => {
+          const trackRef = getTrackRef(lane.key);
+          return (
+            <div key={lane.key} className={cn('relative flex min-h-[72px] items-center', lane.key === 'orfa' && 'opacity-60')}>
+              <div className="w-24 flex-shrink-0 pr-2">
+                <Chip tone={variantTone(lane.key)}>{laneLabel(lane)}</Chip>
+              </div>
+              <div
+                ref={trackRef}
+                className="absolute inset-y-0 left-24 right-4 cursor-pointer"
+                onClick={(e) => handleTrackClick(e, lane)}
+              >
+                <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-px bg-border" />
+                {lane.rules.map((rule, i) => (
+                  <TimelineMarker
+                    key={rule.id}
+                    rule={rule}
+                    followup={followupById.get(rule.id) as StageFollowup}
+                    index={i + 1}
+                    scaleMax={maxOffsetMin}
+                    trackRef={trackRef}
+                    lanes={lanes}
+                    templates={templates}
+                    onEdit={(f) => setModal({ open: true, followup: f })}
+                  />
+                ))}
+              </div>
             </div>
-            <div
-              className="absolute inset-y-0 left-24 right-4 cursor-pointer"
-              onClick={(e) => handleTrackClick(e, lane)}
-            >
-              <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-px bg-border" />
-              {lane.rules.map((rule, i) => (
-                <TimelineMarker
-                  key={rule.id}
-                  rule={rule}
-                  followup={followupById.get(rule.id) as StageFollowup}
-                  index={i + 1}
-                  scaleMax={maxOffsetMin}
-                  lanes={lanes}
-                  templates={templates}
-                  onEdit={(f) => setModal({ open: true, followup: f })}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <FollowupModal

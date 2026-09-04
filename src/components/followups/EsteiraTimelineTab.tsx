@@ -24,7 +24,7 @@ const db = supabase as unknown as SupabaseClient;
 /** Aba "Timeline" de /followups: toques por stage no tempo + painel do teste A/B do pipeline. */
 const EsteiraTimelineTab = () => {
   const { pipelines, stages: allStages, isLoading } = usePipelines();
-  const { data: allFollowups = [] } = useAllFollowups();
+  const { data: allFollowups = [], isSuccess: followupsLoaded } = useAllFollowups();
   const { data: templates = [] } = useWhatsappTemplates();
   const { data: channels = [] } = useWhatsappChannels();
   const { isManager } = useUserPermissions();
@@ -52,9 +52,11 @@ const EsteiraTimelineTab = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Seleciona por padrão o pipeline ativo com mais regras de follow-up.
+  // Seleciona por padrão o pipeline ativo com mais regras de follow-up. Só decide
+  // (e trava) depois que useAllFollowups realmente carregou — antes disso
+  // allFollowups é sempre [] e "mais regras" viraria sempre "o primeiro ativo".
   useEffect(() => {
-    if (initialized.current || activePipelines.length === 0) return;
+    if (initialized.current || activePipelines.length === 0 || !followupsLoaded) return;
     initialized.current = true;
     const counts = new Map<string, number>();
     for (const p of activePipelines) counts.set(p.id, 0);
@@ -71,7 +73,7 @@ const EsteiraTimelineTab = () => {
       if (c > bestCount) { bestCount = c; best = p; }
     }
     setPipelineId(best.id);
-  }, [activePipelines, allFollowups, allStages]);
+  }, [activePipelines, allFollowups, allStages, followupsLoaded]);
 
   const selectedPipeline = activePipelines.find((p) => p.id === pipelineId);
 

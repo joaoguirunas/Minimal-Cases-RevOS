@@ -190,7 +190,7 @@ const AbExperimentPanel = ({ pipelineId, followupsDoPipeline }: AbExperimentPane
 
       {current.status === 'paused' && pausedRuleCount > 0 && (
         <p className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-500">
-          {pausedRuleCount} regra{pausedRuleCount !== 1 ? 's' : ''} de variante não vão disparar enquanto o teste estiver pausado.
+          {pausedRuleCount} regra{pausedRuleCount !== 1 ? 's' : ''} de variante não {pausedRuleCount !== 1 ? 'vão' : 'vai'} disparar enquanto o teste estiver pausado.
         </p>
       )}
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type RefObject } from 'react';
 import { Mail, MessageCircle, Smartphone, Phone, MoreHorizontal } from 'lucide-react';
 import { Chip } from '@/components/ui/chip';
 import {
@@ -44,6 +44,8 @@ interface TimelineMarkerProps {
   followup: StageFollowup;
   index: number;
   scaleMax: number;
+  /** Elemento do trilho (raia) — usado para medir a posição do drag, NÃO o wrapper do marcador. */
+  trackRef: RefObject<HTMLDivElement>;
   /** Outras raias (sem a "Variante encerrada"), para duplicar/mover. */
   lanes: Lane[];
   templates: WhatsappTemplate[];
@@ -51,7 +53,7 @@ interface TimelineMarkerProps {
 }
 
 /** Marcador da timeline: botão de 28px arrastável (pointer events, sem lib de drag). */
-const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onEdit }: TimelineMarkerProps) => {
+const TimelineMarker = ({ rule, followup, index, scaleMax, trackRef, lanes, templates, onEdit }: TimelineMarkerProps) => {
   const [dragPct, setDragPct] = useState<number | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -73,7 +75,10 @@ const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onE
   const statusMeta = TEMPLATE_STATUS_META[rule.templateStatus];
   const needsAttention = rule.templateStatus === 'rejeitado' || rule.templateStatus === 'sem_template';
 
-  const otherLanes = lanes.filter((l) => l.variantId !== rule.variantId);
+  // Usa followup.ab_variant_id (o valor real, não o de rule — que fica null para regras
+  // órfãs, já que a raia "Variante encerrada" zera ab_variant_id só para reaproveitar
+  // buildStageTimeline). Assim uma órfã sempre oferece "Comum" entre os destinos.
+  const otherLanes = lanes.filter((l) => l.variantId !== followup.ab_variant_id);
 
   const waTemplate = rule.canal === 'whatsapp'
     ? (templates.find((t) => t.id === followup.whatsapp_template_id) ?? templates.find((t) => t.id_template === followup.template_id) ?? null)
@@ -92,7 +97,9 @@ const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onE
     const dx = e.clientX - dragStartX.current;
     if (!moved.current && Math.abs(dx) < 4) return;
     moved.current = true;
-    const track = e.currentTarget.parentElement as HTMLElement | null;
+    // Mede o TRILHO (a raia inteira), não o wrapper de ~28px do próprio marcador —
+    // e.currentTarget.parentElement é o wrapper do marcador, não o trilho.
+    const track = trackRef.current;
     if (!track) return;
     const rect = track.getBoundingClientRect();
     const next = rect.width > 0 ? Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width)) : 0;
@@ -112,6 +119,17 @@ const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onE
     } else {
       setDragPct(null);
     }
+  };
+
+  // Cancelamento do navegador (menu de contexto, gesto interrompido) — só reseta se
+  // ainda estávamos em drag (dragStartX !== null); handlePointerUp já zera dragStartX
+  // antes de soltar a captura, então o lostpointercapture disparado por ele mesmo é
+  // um no-op aqui e não atropela o `moved` que handleClick ainda precisa ler.
+  const handlePointerCancel = () => {
+    if (dragStartX.current === null) return;
+    dragStartX.current = null;
+    moved.current = false;
+    setDragPct(null);
   };
 
   const handleClick = () => {
@@ -149,10 +167,13 @@ const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onE
       className="group/marker absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
       style={{ left: `${pct}%` }}
     >
-      {/* Rótulo — acima/abaixo conforme colisão com o vizinho */}
+      {/* Rótulo — acima/abaixo conforme colisão com o vizinho. Clicável (mesma ação
+          de editar do botão) para não deixar o clique vazar pro trilho e criar uma
+          regra nova em cima da existente. */}
       <div
+        onClick={() => onEdit(followup)}
         className={cn(
-          'pointer-events-none absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-0.5 whitespace-nowrap',
+          'absolute left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-0.5 whitespace-nowrap',
           rule.placement === 'above' ? 'bottom-full mb-1.5' : 'top-full mt-1.5',
         )}
       >
@@ -176,6 +197,8 @@ const TimelineMarker = ({ rule, followup, index, scaleMax, lanes, templates, onE
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        onLostPointerCapture={handlePointerCancel}
         onClick={handleClick}
         className={cn(
           'relative flex h-7 w-7 touch-none items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-opacity',
