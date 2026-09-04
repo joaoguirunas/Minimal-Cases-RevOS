@@ -590,6 +590,14 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
       required: ['modelo'],
     },
   },
+  {
+    name: 'consultar_produto',
+    description: 'Fetches the full product sheet from the Yampi catalog (description, material, available colors and phone models, price range, stock per variant). Default: the product in the contact\'s latest cart. Use when the contact asks about material, what comes in the box, colors, models, warranty or anything the CONTEXT block "Produto do carrinho" does not answer. Never invent specs.',
+    parameters: { type: 'object', properties: {
+      product_id: { type: 'integer', description: 'Optional Yampi product id. Default: product of the latest cart.' },
+      force: { type: 'boolean', description: 'Optional. Refresh the cache (price/stock changed).' },
+    }, required: [] },
+  },
 ];
 
 // ── RETORNO-02 — Tools condicionais de retorno agendado (ADR-RETORNO-01 D2/D3) ──
@@ -1169,6 +1177,11 @@ async function loadContext(
       if (cart.produto || cart.url) {
         const etapa = cart.etapaAbandono === 'personal_info' ? 'parou no cadastro' : cart.etapaAbandono === 'shippment' ? 'parou na escolha do frete' : cart.etapaAbandono === 'payment' ? 'parou no pagamento' : '';
         linhas.push(`Carrinho abandonado: ${cart.produto ?? 'itens'}${cart.modeloCelular ? ` · modelo ${cart.modeloCelular}` : ''}${cart.total !== null ? ` · total ${formatBRL(cart.total)}` : ''}${cart.itens > 1 ? ` · ${cart.itens} itens` : ''}${etapa ? ` · ${etapa}` : ''}${cart.pagamentoRecusado ? ' · teve PAGAMENTO RECUSADO (sugira Pix ou outro cartão)' : ''}. Link de recuperação disponível (use yampi_enviar_link_carrinho).`);
+        if (cart.productId) {
+          const { resolveProductSummary, describeProductForAgent } = await import('../_shared/yampi-product.ts');
+          const ps = await resolveProductSummary(supabase as never, cart.productId);
+          if (ps) linhas.push(describeProductForAgent(ps));
+        }
       }
       const ultimo = ((evs ?? []) as any[])[0];
       if (ultimo) {
@@ -2786,6 +2799,20 @@ async function executeTool(
         } catch (e) {
           return `Falha ao consultar o catálogo: ${(e as Error).message}`;
         }
+      }
+
+      case 'consultar_produto': {
+        const { resolveProductSummary } = await import('../_shared/yampi-product.ts');
+        let pid = Number(args.product_id ?? 0) || 0;
+        if (!pid && ctx.pessoa_id) {
+          const { resolveCartForPerson } = await import('../_shared/tracked-links.ts');
+          pid = (await resolveCartForPerson(supabase as never, ctx.pessoa_id)).productId ?? 0;
+        }
+        if (!pid) return 'Não achei o produto do carrinho. Pergunte qual case o cliente quer (verificar_compatibilidade ajuda a localizar) ou informe product_id.';
+        const ps = await resolveProductSummary(supabase as never, pid, { force: args.force === true });
+        if (!ps) return 'Não consegui consultar o catálogo agora. Responda com o que está no CONTEXTO e ofereça confirmar depois.';
+        const { variantesDetalhe, ...resto } = ps;
+        return JSON.stringify({ ...resto, variantes_detalhe: variantesDetalhe.slice(0, 12) });
       }
 
       case 'yampi_consultar_pedido': {
