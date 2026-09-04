@@ -128,12 +128,16 @@ export function useCreateAbExperiment() {
         position: index,
       }));
       const { error: varError } = await db.from('esteira_ab_variants').insert(variantsPayload);
-      if (varError) throw varError;
+      if (varError) {
+        await db.from('esteira_ab_experiments').delete().eq('id', (experiment as { id: string }).id);
+        throw varError;
+      }
 
       return experiment;
     },
-    onSuccess: () => { invalidateAbExperiments(qc); toast.success('Teste criado'); },
+    onSuccess: () => toast.success('Teste criado'),
     onError: () => toast.error('Erro ao criar teste'),
+    onSettled: () => invalidateAbExperiments(qc),
   });
 }
 
@@ -214,7 +218,12 @@ export function useFinishAbExperiment() {
       const { error } = await db.rpc('finish_ab_experiment', { p_experiment_id: experimentId });
       if (error) throw error;
     },
-    onSuccess: () => { invalidateAbExperiments(qc); toast.success('Teste encerrado'); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['ab-experiments'] });
+      qc.invalidateQueries({ queryKey: ['all-followups'] });
+      qc.invalidateQueries({ queryKey: ['stage-followups'] });
+      toast.success('Teste encerrado');
+    },
     onError: () => toast.error('Erro ao encerrar teste'),
   });
 }

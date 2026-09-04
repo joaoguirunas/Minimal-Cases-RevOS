@@ -6,7 +6,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 import { EMAIL_ASSETS_PUBLIC_BASE } from '@/components/config/KlaviyoExtras';
 
@@ -55,6 +54,5 @@ export function useUploadEmailAsset() {
       return { url: `${EMAIL_ASSETS_PUBLIC_BASE}/${path}` };
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['email-assets'] }); },
-    onError: () => toast.error('Erro ao enviar imagem'),
   });
 }
