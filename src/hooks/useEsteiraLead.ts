@@ -8,7 +8,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { summarizeQueue, type LeadQueueSummary, type QueueRow } from '@/lib/esteira/queueSummary';
+import { summarizeQueue, emptyQueueSummary, type LeadQueueSummary, type QueueRow } from '@/lib/esteira/queueSummary';
+import { clicksToTimeline, summarizeLinkClicks, type TrackedClickRow, type TrackedLinkRow } from '@/lib/esteira/clicks';
 
 // Tabelas yampi_*/zoppy_* ainda não estão nos types gerados.
 const db = supabase as unknown as SupabaseClient;
@@ -21,13 +22,22 @@ export function useEsteiraCardData(leadIds: string[]) {
     enabled: leadIds.length > 0,
     staleTime: 30_000,
     queryFn: async (): Promise<Record<string, LeadQueueSummary>> => {
-      const { data, error } = await db
-        .from('followup_queue')
-        .select('lead_id, channel, status, scheduled_for, subject')
-        .in('lead_id', leadIds)
-        .in('status', ['sent', 'queued', 'delivered', 'read', 'pending', 'processing', 'failed', 'cancelled']);
-      if (error) throw error;
-      return summarizeQueue((data ?? []) as QueueRow[]);
+      const [queueRes, linksRes] = await Promise.all([
+        db.from('followup_queue')
+          .select('lead_id, channel, status, scheduled_for, subject')
+          .in('lead_id', leadIds)
+          .in('status', ['sent', 'queued', 'delivered', 'read', 'pending', 'processing', 'failed', 'cancelled']),
+        db.from('tracked_links')
+          .select('id, lead_id, source, label, template_name, channel, clicks, first_clicked_at, last_clicked_at')
+          .in('lead_id', leadIds)
+          .gt('clicks', 0),
+      ]);
+      if (queueRes.error) throw queueRes.error;
+      if (linksRes.error) throw linksRes.error;
+      const out = summarizeQueue((queueRes.data ?? []) as QueueRow[]);
+      const clicks = summarizeLinkClicks((linksRes.data ?? []) as TrackedLinkRow[]);
+      for (const [leadId, c] of Object.entries(clicks)) (out[leadId] ??= emptyQueueSummary()).clicks = c;
+      return out;
     },
   });
 }
@@ -186,6 +196,23 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
           templateName: tplName ?? null,
         });
       }
+
+      // ── Cliques em links rastreados do lead (humanos, não duplicados) ─────────
+      const [linksRes, clicksRes] = await Promise.all([
+        db.from('tracked_links')
+          .select('id, lead_id, source, label, template_name, channel, clicks, first_clicked_at, last_clicked_at, message_id')
+          .eq('lead_id', leadId)
+          .order('created_at', { ascending: false })
+          .limit(50),
+        db.from('tracked_link_clicks')
+          .select('id, tracked_link_id, lead_id, clicked_at, device')
+          .eq('lead_id', leadId)
+          .eq('is_bot', false)
+          .eq('is_duplicate', false)
+          .order('clicked_at', { ascending: false })
+          .limit(100),
+      ]);
+      timeline.push(...clicksToTimeline((linksRes.data ?? []) as TrackedLinkRow[], (clicksRes.data ?? []) as TrackedClickRow[]));
 
       if (peopleId) {
         // ── Eventos da loja (Yampi) ───────────────────────────────────────────
