@@ -61,13 +61,13 @@ export function minToParts(min: number): { dias: number; horas: number; minutos:
 /**
  * Arredonda um offset (em minutos) para a granularidade da escala visual.
  * Escalas curtas (≤360min) usam grade de 5min; médias (≤2880min) grade de 15min;
- * escalas longas usam grade de 60min arredondada para cima (evita que o toque
- * "recue" no tempo ao ser posicionado numa grade grossa). Nunca < 5, nunca negativo.
+ * escalas longas usam grade de 60min. Nunca < 5, nunca negativo.
  */
 export function snapOffset(min: number, scaleMax: number): number {
   const step = scaleMax <= 360 ? 5 : scaleMax <= 2880 ? 15 : 60;
   const clamped = Math.max(0, min);
-  const snapped = step >= 60 ? Math.ceil(clamped / step) * step : Math.round(clamped / step) * step;
+  // sempre o ponto mais próximo — o exemplo 5040 do plano era erro
+  const snapped = Math.round(clamped / step) * step;
   return Math.max(5, snapped);
 }
 

@@ -22,8 +22,8 @@ describe('snapOffset', () => {
     expect(snapOffset(1000, 2000)).toBe(1005);
   });
 
-  it('escala longa (>2880) → grade de 60', () => {
-    expect(snapOffset(5000, 9000)).toBe(5040);
+  it('escala longa (>2880) → grade de 60, sempre o ponto mais próximo', () => {
+    expect(snapOffset(5000, 9000)).toBe(4980);
   });
 });
 
