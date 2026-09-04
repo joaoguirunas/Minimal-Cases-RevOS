@@ -12,6 +12,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Chip } from '@/components/ui/chip';
 import { FileText, MessageSquare, Mail, Smartphone, Clock, ChevronDown, Code2, Type } from 'lucide-react';
 import { useCreateFollowup, useUpdateFollowup, type StageFollowup, type FollowupCanal } from '@/hooks/useFollowups';
 import { useEmailTemplates } from '@/hooks/useEmailTemplates';
@@ -64,13 +65,6 @@ const WA_VAR_LABELS: Record<(typeof WA_VAR_OPTIONS)[number], string> = {
   preco: 'Preço',
   cupom: 'Cupom',
   expira_em: 'Expira em',
-};
-
-const waTemplateStatusChip = (status: string | null | undefined): { label: string; cls: string } => {
-  const s = (status ?? '').toLowerCase();
-  if (s === 'approved') return { label: 'Aprovado', cls: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/8 border-emerald-200/30' };
-  if (s === 'rejected') return { label: 'Rejeitado', cls: 'text-red-600 dark:text-red-400 bg-red-500/8 border-red-200/30' };
-  return { label: 'Em análise', cls: 'text-amber-600 dark:text-amber-400 bg-amber-500/8 border-amber-200/30' };
 };
 
 interface FormState {
@@ -169,6 +163,7 @@ const FollowupModal = ({
   const waPlaceholders = bodyPlaceholders(comps);
   const hasDynamicButton = buttonHasDynamicUrl(comps);
   const headerKind = templateHeaderKind(comps);
+  const waStatus = (tpl?.status ?? '').toLowerCase();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -243,7 +238,10 @@ const FollowupModal = ({
       control:              form.control ?? null,
       business_hours_only:  form.business_hours_only,
       bh_only_last:         form.bh_only_last,
-      vars:                 serializeRuleVars(form.vars, followup?.vars),
+      vars:                 serializeRuleVars(
+        { ...form.vars, waParams: form.vars.waParams.slice(0, waPlaceholders.length) },
+        followup?.vars,
+      ),
       ab_variant_id:        form.ab_variant_id,
     };
 
@@ -379,12 +377,9 @@ const FollowupModal = ({
                 <div className="flex items-center gap-2">
                   <Label className="text-[12px]">Template WhatsApp <span className="text-destructive">*</span></Label>
                   {tpl && (
-                    <span className={cn(
-                      'inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none',
-                      waTemplateStatusChip(tpl.status).cls,
-                    )}>
-                      {waTemplateStatusChip(tpl.status).label}
-                    </span>
+                    <Chip tone={waStatus === 'approved' ? 'success' : waStatus === 'rejected' ? 'danger' : 'warning'}>
+                      {waStatus === 'approved' ? 'Aprovado' : waStatus === 'rejected' ? 'Rejeitado' : 'Em análise'}
+                    </Chip>
                   )}
                 </div>
                 <Button
@@ -803,7 +798,26 @@ const FollowupModal = ({
         <WhatsappTemplatePickerModal
           isOpen={isTemplatePickerOpen}
           onClose={() => setTplPicker(false)}
-          onSelect={(id, name, uuid) => { upd({ template_id: id, template_name: name, whatsapp_template_id: uuid }); setTplPicker(false); }}
+          onSelect={(id, name, uuid) => {
+            const novoTemplate = whatsappTemplates.find(t => t.id_template === id);
+            const novoComps = novoTemplate?.json_data?.components;
+            const n = bodyPlaceholders(novoComps).length;
+            const novoHeaderKind = templateHeaderKind(novoComps);
+            setForm(prev => ({
+              ...prev,
+              template_id: id,
+              template_name: name,
+              whatsapp_template_id: uuid,
+              vars: {
+                ...prev.vars,
+                waParams: Array.from({ length: n }, (_, i) => prev.vars.waParams[i] ?? ''),
+                waButtonUrl: buttonHasDynamicUrl(novoComps) ? prev.vars.waButtonUrl : false,
+                waHeaderMode: novoHeaderKind === 'image' ? prev.vars.waHeaderMode : null,
+                waHeaderImage: novoHeaderKind === 'image' ? prev.vars.waHeaderImage : null,
+              },
+            }));
+            setTplPicker(false);
+          }}
           selectedTemplateId={form.template_id}
         />
 
