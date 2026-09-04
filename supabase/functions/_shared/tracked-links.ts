@@ -272,7 +272,7 @@ export async function resolveCartUrlForPerson(
 
 export interface TrackedClickBefore { linkId: string; source: string; templateName: string | null; label: string | null; clickedAt: string }
 
-/** Link nosso mais recentemente clicado (humano) pela pessoa antes de `before`, dentro da janela. */
+/** Clique humano mais recente ANTES de `before` (lê tracked_link_clicks; o link pode ter sido reaberto depois do pagamento). */
 export async function findTrackedClickBefore(
   supabase: SupabaseClient,
   peopleId: string,
@@ -281,17 +281,19 @@ export async function findTrackedClickBefore(
 ): Promise<TrackedClickBefore | null> {
   const windowStart = new Date(before.getTime() - windowDays * 86_400_000).toISOString();
   const { data } = await supabase
-    .from('tracked_links')
-    .select('id, source, template_name, label, last_clicked_at')
+    .from('tracked_link_clicks')
+    .select('clicked_at, tracked_link:tracked_links(id, source, template_name, label)')
     .eq('people_id', peopleId)
-    .gt('clicks', 0)
-    .gte('last_clicked_at', windowStart)
-    .lte('last_clicked_at', before.toISOString())
-    .order('last_clicked_at', { ascending: false })
+    .eq('is_bot', false)
+    .eq('is_duplicate', false)
+    .gte('clicked_at', windowStart)
+    .lte('clicked_at', before.toISOString())
+    .order('clicked_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  const r = data as { id: string; source: string; template_name: string | null; label: string | null; last_clicked_at: string } | null;
-  return r ? { linkId: r.id, source: r.source, templateName: r.template_name, label: r.label, clickedAt: r.last_clicked_at } : null;
+  const r = data as { clicked_at: string; tracked_link: { id: string; source: string; template_name: string | null; label: string | null } | null } | null;
+  if (!r?.tracked_link) return null;
+  return { linkId: r.tracked_link.id, source: r.tracked_link.source, templateName: r.tracked_link.template_name, label: r.tracked_link.label, clickedAt: r.clicked_at };
 }
 
 /** true se a pessoa clicou em algum link rastreado nosso antes de `before`, dentro da janela. */

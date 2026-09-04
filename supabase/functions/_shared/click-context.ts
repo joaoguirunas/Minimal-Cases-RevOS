@@ -35,7 +35,7 @@ export function relativePt(from: Date, now: Date): string {
 
 export function describeClicksForAgent(links: ClickContextLink[], now = new Date()): string {
   const clicked = links.filter((l) => l.clicks > 0 && l.last_clicked_at)
-    .sort((a, b) => (a.last_clicked_at! < b.last_clicked_at! ? 1 : -1)).slice(0, 3);
+    .sort((a, b) => Date.parse(b.last_clicked_at!) - Date.parse(a.last_clicked_at!)).slice(0, 3);
   if (clicked.length === 0) return 'Cliques em links nossos: nenhum até agora.';
   const partes = clicked.map((l) => {
     const rel = relativePt(new Date(l.last_clicked_at!), now);
