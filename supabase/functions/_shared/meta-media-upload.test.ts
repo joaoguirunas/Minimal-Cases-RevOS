@@ -9,7 +9,7 @@
  */
 
 import { assertEquals, assertRejects } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { guessImageMime, uploadHeaderHandle } from './meta-media-upload.ts';
+import { defaultAllowedHosts, guessImageMime, uploadHeaderHandle } from './meta-media-upload.ts';
 
 const ALLOWED = { allowedHosts: ['x'] };
 
@@ -267,4 +267,55 @@ Deno.test('uploadHeaderHandle: falha de download não vaza o status HTTP upstrea
     Error,
     'Não foi possível baixar a imagem do header.',
   );
+});
+
+Deno.test('uploadHeaderHandle: allowlist vazia falha FECHADA (rejeita antes de qualquer fetch)', async () => {
+  let called = false;
+  const fetchImpl = (() => {
+    called = true;
+    return Promise.resolve(new Response(new Uint8Array(10)));
+  }) as typeof fetch;
+
+  await assertRejects(
+    () =>
+      uploadHeaderHandle(
+        { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' },
+        { fetchImpl, allowedHosts: [] },
+      ),
+    Error,
+    'Allowlist de hosts do header vazia',
+  );
+  assertEquals(called, false);
+});
+
+// ── defaultAllowedHosts ──────────────────────────────────────────────────────
+
+Deno.test('defaultAllowedHosts: combina host do SUPABASE_URL (lowercased pelo parser) com WA_HEADER_IMAGE_HOSTS (lowercased explicitamente)', () => {
+  const prevSupabaseUrl = Deno.env.get('SUPABASE_URL');
+  const prevExtraHosts = Deno.env.get('WA_HEADER_IMAGE_HOSTS');
+  try {
+    Deno.env.set('SUPABASE_URL', 'https://Abc.Supabase.co');
+    Deno.env.set('WA_HEADER_IMAGE_HOSTS', 'CDN.Shopify.com, x.y');
+    assertEquals(defaultAllowedHosts(), ['abc.supabase.co', 'cdn.shopify.com', 'x.y']);
+  } finally {
+    if (prevSupabaseUrl === undefined) Deno.env.delete('SUPABASE_URL');
+    else Deno.env.set('SUPABASE_URL', prevSupabaseUrl);
+    if (prevExtraHosts === undefined) Deno.env.delete('WA_HEADER_IMAGE_HOSTS');
+    else Deno.env.set('WA_HEADER_IMAGE_HOSTS', prevExtraHosts);
+  }
+});
+
+Deno.test('defaultAllowedHosts: sem SUPABASE_URL nem WA_HEADER_IMAGE_HOSTS retorna lista vazia', () => {
+  const prevSupabaseUrl = Deno.env.get('SUPABASE_URL');
+  const prevExtraHosts = Deno.env.get('WA_HEADER_IMAGE_HOSTS');
+  try {
+    Deno.env.delete('SUPABASE_URL');
+    Deno.env.delete('WA_HEADER_IMAGE_HOSTS');
+    assertEquals(defaultAllowedHosts(), []);
+  } finally {
+    if (prevSupabaseUrl === undefined) Deno.env.delete('SUPABASE_URL');
+    else Deno.env.set('SUPABASE_URL', prevSupabaseUrl);
+    if (prevExtraHosts === undefined) Deno.env.delete('WA_HEADER_IMAGE_HOSTS');
+    else Deno.env.set('WA_HEADER_IMAGE_HOSTS', prevExtraHosts);
+  }
 });

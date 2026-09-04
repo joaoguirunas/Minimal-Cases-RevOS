@@ -46,11 +46,12 @@ export function guessImageMime(url: string, contentType?: string | null): 'image
 }
 
 /** Hosts permitidos por padrão quando `UploadDeps.allowedHosts` não é passado. */
-function defaultAllowedHosts(): string[] {
+export function defaultAllowedHosts(): string[] {
   const hosts: string[] = [];
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   if (supabaseUrl) {
     try {
+      // `URL.host` já vem ASCII-lowercased pelo parser (WHATWG URL) — sem normalização extra aqui.
       hosts.push(new URL(supabaseUrl).host);
     } catch {
       // SUPABASE_URL malformada — ignora, não derruba o cálculo dos demais hosts.
@@ -58,7 +59,7 @@ function defaultAllowedHosts(): string[] {
   }
   const extra = Deno.env.get('WA_HEADER_IMAGE_HOSTS') ?? '';
   for (const h of extra.split(',')) {
-    const trimmed = h.trim();
+    const trimmed = h.trim().toLowerCase();
     if (trimmed) hosts.push(trimmed);
   }
   return hosts;
@@ -135,7 +136,12 @@ export async function uploadHeaderHandle(
   if (parsed.protocol !== 'https:') {
     throw new Error('URL da imagem deve usar https://');
   }
-  if (allowedHosts.length > 0 && !allowedHosts.includes(parsed.host)) {
+  if (allowedHosts.length === 0) {
+    // Falha FECHADA: lista vazia (SUPABASE_URL e WA_HEADER_IMAGE_HOSTS ausentes/vazios, ou
+    // allowedHosts: [] passado explicitamente) bloqueia tudo em vez de deixar qualquer host passar.
+    throw new Error('Allowlist de hosts do header vazia — configure SUPABASE_URL ou WA_HEADER_IMAGE_HOSTS.');
+  }
+  if (!allowedHosts.includes(parsed.host)) {
     throw new Error('URL da imagem fora dos domínios permitidos (use uma imagem do bucket email-assets).');
   }
 
