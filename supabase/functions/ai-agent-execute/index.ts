@@ -135,6 +135,7 @@ interface ContextData {
   contexto_loja: string;
   dias_no_funil: string;
   remetente: string;
+  contexto_cliques: string;
 }
 
 interface LLMMessage {
@@ -1147,6 +1148,7 @@ async function loadContext(
   ctx.contexto_loja = 'Sem carrinho ou pedido conhecido na loja.';
   ctx.dias_no_funil = '';
   ctx.remetente = 'Minimal Cases';
+  ctx.contexto_cliques = 'Cliques em links nossos: nenhum até agora.';
   try {
     const criado = Date.parse(String((lead as any)?.created_at ?? ctx.criado_em ?? ''));
     if (Number.isFinite(criado)) ctx.dias_no_funil = String(Math.max(0, Math.floor((Date.now() - criado) / 86_400_000)));
@@ -1184,6 +1186,19 @@ async function loadContext(
         if (pago && (!pendente || pago.created_at > pendente.created_at)) linhas.push(`Pedido ${pago.order_id ?? ''} já PAGO — não venda de novo; ajude com rastreio/entrega (yampi_consultar_pedido).`);
       }
       if (linhas.length > 0) ctx.contexto_loja = linhas.join('\n');
+
+      // LINKS-V2: o agente sabe se a pessoa abriu algum link nosso (e qual) — evita reenviar o link
+      // pra quem já viu o carrinho e permite perguntar o que travou.
+      const { data: clickLinks } = await supabase
+        .from('tracked_links')
+        .select('source, label, template_name, channel, clicks, first_clicked_at, last_clicked_at')
+        .eq('people_id', ctx.pessoa_id)
+        .gt('clicks', 0)
+        .order('last_clicked_at', { ascending: false })
+        .limit(3);
+      const { describeClicksForAgent } = await import('../_shared/click-context.ts');
+      ctx.contexto_cliques = describeClicksForAgent((clickLinks ?? []) as never, new Date());
+      ctx.contexto_loja = `${ctx.contexto_loja}\n${ctx.contexto_cliques}`;
     }
   } catch (_) { /* contexto da loja é enriquecimento — nunca derruba o agente */ }
 
@@ -2408,7 +2423,10 @@ async function executeTool(
         const produto = String(args.produto ?? '');
         const url = CHECKOUT_LINKS[produto];
         if (!url) return `Error: produto inválido "${produto}". Use squad_social, squad_dev, squad_sites ou mentoria.`;
-        ctx.__pending_purchase_url = url;
+        const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+        const trackedCompra = await createTrackedLinkDetailed(supabase as never, { destination: url, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp', source: 'agente', label: 'enviar_link_compra', executionId: ctx.__execution_id || null });
+        ctx.__pending_purchase_url = trackedCompra?.url ?? url;
+        ctx.__pending_purchase_link_id = trackedCompra?.id ?? '';
         return 'Link de compra gerado. O link será enviado automaticamente ao cliente em uma mensagem separada. NÃO inclua o link na sua resposta — apenas confirme ao cliente que ele receberá o link.';
       }
 
@@ -2492,11 +2510,13 @@ async function executeTool(
         if (!url) return 'Carrinho encontrado, mas sem link de recuperação disponível. Use yampi_enviar_link_pagamento para gerar um checkout novo.';
 
         // BI-REC-3: link rastreado — o clique vira evidência de atribuição.
-        const { createTrackedLink } = await import('../_shared/tracked-links.ts');
-        const tracked = await createTrackedLink(supabase as never, {
+        const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+        const tracked = await createTrackedLinkDetailed(supabase as never, {
           destination: url, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+          source: 'agente', label: 'yampi_enviar_link_carrinho', executionId: ctx.__execution_id || null,
         });
-        ctx.__pending_purchase_url = tracked ?? url;
+        ctx.__pending_purchase_url = tracked?.url ?? url;
+        ctx.__pending_purchase_link_id = tracked?.id ?? '';
         const itens = (cart.items?.data ?? [])
           .map((i) => i.sku?.data?.title).filter(Boolean).slice(0, 4).join(', ');
         const total = cart.totalizers?.total_formated ?? (cart.totalizers?.total != null ? `R$ ${cart.totalizers.total}` : '');
@@ -2622,11 +2642,13 @@ async function executeTool(
             customer_id: cart?.customer?.data?.id ?? null,
           });
           if (!link.link_url) return 'A Yampi criou o link mas não retornou a URL. Acione um humano.';
-          const { createTrackedLink } = await import('../_shared/tracked-links.ts');
-          const tracked = await createTrackedLink(supabase as never, {
+          const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+          const tracked = await createTrackedLinkDetailed(supabase as never, {
             destination: link.link_url, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+            source: 'agente', label: 'yampi_enviar_link_pagamento', executionId: ctx.__execution_id || null,
           });
-          ctx.__pending_purchase_url = tracked ?? link.link_url;
+          ctx.__pending_purchase_url = tracked?.url ?? link.link_url;
+          ctx.__pending_purchase_link_id = tracked?.id ?? '';
           return `Link de pagamento criado${cupom ? ` com o cupom ${cupom} aplicado` : ''}. O link será enviado automaticamente ao cliente em uma mensagem separada. NÃO inclua o link na sua resposta — apenas confirme que ele receberá o link.`;
         } catch (e) {
           return `Erro ao criar link de pagamento na Yampi: ${(e as Error).message}`;
@@ -3686,6 +3708,7 @@ Deno.serve(async (req: Request) => {
       .select('id')
       .single();
     executionId = execLog?.id ?? null;
+    ctx.__execution_id = executionId ?? '';
     // RETORNO-02: rastreabilidade da origem do retorno (ai_scheduled_callbacks.created_by_execution_id)
     if (callbackConfig?.enabled && executionId) {
       (ctx as unknown as Record<string, string>).__callback_execution_id = executionId;
@@ -4012,7 +4035,7 @@ Deno.serve(async (req: Request) => {
       const waPhoneIdForPurchase = inboundWaPhoneNumberId ?? agent.wa_phone_number_id ?? null;
       const purchaseChannel = inboundChannelType === 'instagram' ? 'instagram' : 'whatsapp';
       const isWaPurchase = purchaseChannel === 'whatsapp';
-      const { error: purchaseInsertError } = await supabase.from('messages').insert({
+      const { data: purchaseInserted, error: purchaseInsertError } = await supabase.from('messages').insert({
         people_id: peopleId,
         lead_id: leadId,
         content: isWaPurchase ? 'É só continuar de onde você parou 👇' : ctx.__pending_purchase_url,
@@ -4026,11 +4049,17 @@ Deno.serve(async (req: Request) => {
           : null,
         execution_id: executionId,
         wa_phone_number_id: waPhoneIdForPurchase,
-      });
+      }).select('id').single();
       if (purchaseInsertError) {
         log.error('purchase_url_insert_failed', { error: purchaseInsertError.message });
       } else {
         log.info('purchase_url_sent', { url: ctx.__pending_purchase_url });
+        const linkId = ctx.__pending_purchase_link_id;
+        const msgId = (purchaseInserted as { id?: number } | null)?.id;
+        if (linkId && msgId) {
+          const { attachTrackedLinkMessage } = await import('../_shared/tracked-links.ts');
+          await attachTrackedLinkMessage(supabase as never, linkId, msgId);
+        }
       }
     }
 
