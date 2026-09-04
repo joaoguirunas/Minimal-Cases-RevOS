@@ -45,7 +45,75 @@ interface DeletePayload {
   template_name: string;
 }
 
-type ActionPayload = CreatePayload | DeletePayload;
+interface ProbePayload {
+  action: 'probe';
+  channel_id: string;
+}
+
+interface SubscribePayload {
+  action: 'subscribe';
+  channel_id: string;
+}
+
+type ActionPayload = CreatePayload | DeletePayload | ProbePayload | SubscribePayload;
+
+/**
+ * PROBE (leitura pura): responde duas perguntas antes de mexer em qualquer coisa —
+ *   1. quais apps já estão inscritos nesta WABA (prova que ninguém foi derrubado
+ *      e mostra se Reportana/Zoppy estão nela);
+ *   2. qualidade e tier de envio de cada número (o número com volume real tem
+ *      tier acima do inicial; um número novo aparece como não usado).
+ * Só GETs — nada é criado, movido ou registrado.
+ */
+async function handleProbe(
+  supabase: never,
+  payload: ProbePayload,
+  log: ReturnType<typeof createLogger>,
+) {
+  const { waba_id, access_token } = await getChannelCredentials(supabase, payload.channel_id);
+  const g = async (path: string) => {
+    const res = await fetch(`https://graph.facebook.com/${GRAPH_API_VERSION}/${path}`, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    const body = await res.json().catch(() => ({}));
+    return res.ok ? body : { erro: body?.error?.message ?? `HTTP ${res.status}` };
+  };
+  const [apps, numeros] = await Promise.all([
+    g(`${waba_id}/subscribed_apps`),
+    g(`${waba_id}/phone_numbers?fields=display_phone_number,verified_name,quality_rating,messaging_limit_tier,platform_type,status`),
+  ]);
+  log.info('probe_done', { waba_id });
+  return jsonResponse({
+    waba_id,
+    apps_inscritos: (apps?.data ?? apps),
+    numeros: (numeros?.data ?? numeros),
+    leitura: 'Nenhuma alteração foi feita — apenas GETs.',
+  });
+}
+
+/** SUBSCRIBE: inscreve ESTE app na WABA. Não desinscreve ninguém. */
+async function handleSubscribe(
+  supabase: never,
+  payload: SubscribePayload,
+  log: ReturnType<typeof createLogger>,
+) {
+  const { waba_id, access_token } = await getChannelCredentials(supabase, payload.channel_id);
+  const res = await fetch(`https://graph.facebook.com/${GRAPH_API_VERSION}/${waba_id}/subscribed_apps`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${access_token}` },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    log.error('subscribe_failed', { waba_id, status: res.status });
+    return jsonResponse({ error: body?.error?.error_user_msg ?? body?.error?.message ?? `HTTP ${res.status}` });
+  }
+  // Relê a lista para provar quem continua inscrito.
+  const after = await fetch(`https://graph.facebook.com/${GRAPH_API_VERSION}/${waba_id}/subscribed_apps`, {
+    headers: { Authorization: `Bearer ${access_token}` },
+  }).then((r) => r.json()).catch(() => ({}));
+  log.info('subscribe_ok', { waba_id });
+  return jsonResponse({ success: true, waba_id, apps_inscritos_agora: after?.data ?? after });
+}
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -257,6 +325,10 @@ Deno.serve(async (req: Request) => {
         return await handleCreate(supabase, payload as CreatePayload, log);
       case 'delete':
         return await handleDelete(supabase, payload as DeletePayload, log);
+      case 'probe':
+        return await handleProbe(supabase as never, payload as ProbePayload, log);
+      case 'subscribe':
+        return await handleSubscribe(supabase as never, payload as SubscribePayload, log);
       default:
         return jsonResponse({ error: `Ação inválida: ${(payload as any).action}` });
     }
