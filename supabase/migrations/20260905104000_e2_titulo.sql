@@ -12,5 +12,6 @@ UPDATE public.email_templates
          'Pode derrubar. <span style="color:#9b9b9b;">A gente aguenta o tombo.</span>'),
        updated_at = now()
  WHERE id = '52e679cf-375e-4f6b-98d4-79311abe6702'
-   AND subject = 'Celular voando na praia. E a gente rindo.';
+   AND subject = 'Celular voando na praia. E a gente rindo.'
+   AND html_body LIKE '%Celular voando na praia%';
 COMMIT;

@@ -117,6 +117,14 @@ REVOKE ALL ON FUNCTION public.assign_esteira_variant(uuid) FROM PUBLIC, anon, au
 CREATE OR REPLACE FUNCTION public.promote_ab_winner(p_experiment_id uuid, p_winner uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 BEGIN
+  IF auth.role() <> 'service_role' AND NOT EXISTS (
+       SELECT 1 FROM public.settings_users su
+        WHERE su.auth_user_id = auth.uid() AND su.active = true AND su.deleted_at IS NULL
+          AND (su.super_admin = true OR su.user_type = 'manager'))
+  THEN RAISE EXCEPTION 'sem permissão para encerrar experimentos'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.esteira_ab_experiments WHERE id = p_experiment_id AND status IN ('running','paused')) THEN
+    RAISE EXCEPTION 'experimento % não existe ou não está em andamento', p_experiment_id;
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM public.esteira_ab_variants WHERE id = p_winner AND experiment_id = p_experiment_id) THEN
     RAISE EXCEPTION 'variante % não pertence ao experimento %', p_winner, p_experiment_id;
   END IF;
@@ -130,11 +138,19 @@ END $fn$;
 CREATE OR REPLACE FUNCTION public.finish_ab_experiment(p_experiment_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 BEGIN
+  IF auth.role() <> 'service_role' AND NOT EXISTS (
+       SELECT 1 FROM public.settings_users su
+        WHERE su.auth_user_id = auth.uid() AND su.active = true AND su.deleted_at IS NULL
+          AND (su.super_admin = true OR su.user_type = 'manager'))
+  THEN RAISE EXCEPTION 'sem permissão para encerrar experimentos'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.esteira_ab_experiments WHERE id = p_experiment_id AND status IN ('running','paused')) THEN
+    RAISE EXCEPTION 'experimento % não existe ou não está em andamento', p_experiment_id;
+  END IF;
   UPDATE public.leads_stages_followups SET active = false, updated_at = now()
    WHERE ab_variant_id IN (SELECT id FROM public.esteira_ab_variants WHERE experiment_id = p_experiment_id);
   UPDATE public.esteira_ab_experiments SET status = 'finished', finished_at = now(), updated_at = now() WHERE id = p_experiment_id;
 END $fn$;
--- managers podem chamar as duas (RLS das tabelas não se aplica dentro de SECURITY DEFINER; a checagem de papel é aqui)
+-- managers podem chamar as duas (RLS das tabelas não se aplica dentro de SECURITY DEFINER; a checagem de papel está dentro de cada função)
 REVOKE ALL ON FUNCTION public.promote_ab_winner(uuid, uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.finish_ab_experiment(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.promote_ab_winner(uuid, uuid) TO authenticated;
@@ -145,9 +161,12 @@ CREATE OR REPLACE FUNCTION public.enqueue_stage_followups(p_stage_id uuid, p_dry
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 DECLARE v_leads int := 0; v_pairs int := 0; v_inserted int := 0;
 BEGIN
+  -- dry run nunca grava atribuição (evita inflar denominador do BI e congelar leads nos pesos antigos);
+  -- pra contagem seca ainda aproximar a realidade, cai pra atribuição já existente (se houver) quando não vai gravar.
   CREATE TEMP TABLE _esteira_cand ON COMMIT DROP AS
   WITH lv AS (
-    SELECT l.id AS lead_id, l.people_id, l.control, public.assign_esteira_variant(l.id) AS variant_id
+    SELECT l.id AS lead_id, l.people_id, l.control,
+           CASE WHEN p_dry_run THEN NULL ELSE public.assign_esteira_variant(l.id) END AS variant_id
     FROM public.leads l
     WHERE l.leads_stages_id = p_stage_id AND l.status = 'in_progress' AND coalesce(l.control, '') <> 'sem_fup'
   )
@@ -158,7 +177,7 @@ BEGIN
   LEFT JOIN public.clients_people p ON p.id = lv.people_id
   WHERE (f.control IS NULL OR f.control = lv.control)
     AND (f.score_matrix_id IS NULL OR f.score_matrix_id = p.score_matrix_id)
-    AND (f.ab_variant_id IS NULL OR f.ab_variant_id = lv.variant_id)
+    AND (f.ab_variant_id IS NULL OR f.ab_variant_id = COALESCE(lv.variant_id, (SELECT a.variant_id FROM public.esteira_ab_assignments a JOIN public.esteira_ab_experiments e ON e.id = a.experiment_id WHERE a.lead_id = lv.lead_id AND e.status = 'running' LIMIT 1)))
     AND NOT EXISTS (SELECT 1 FROM public.followup_queue q WHERE q.lead_id = lv.lead_id AND q.followup_id = f.id AND q.status <> 'cancelled');
 
   SELECT count(DISTINCT lead_id), count(*) INTO v_leads, v_pairs FROM _esteira_cand;
