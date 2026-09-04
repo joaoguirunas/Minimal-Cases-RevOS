@@ -181,9 +181,8 @@ async function handleCreate(
   // Header de imagem: envia a imagem pela Resumable Upload API da Meta para obter o
   // header_handle exigido no example do componente HEADER/IMAGE.
   if (header_image_url) {
-    if (!header_image_url.startsWith('https://')) {
-      return jsonResponse({ error: 'A URL da imagem do header deve começar com https://' });
-    }
+    // Protocolo/host da URL são validados dentro de uploadHeaderHandle (allowlist
+    // contra SSRF) — a mensagem de erro dela já é legível e é repassada abaixo.
     if (components.some((c) => c.type === 'HEADER')) {
       return jsonResponse({ error: 'Escolha header de texto OU imagem' });
     }

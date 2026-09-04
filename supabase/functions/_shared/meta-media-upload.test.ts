@@ -4,10 +4,14 @@
  * Run: deno test --allow-env supabase/functions/_shared/meta-media-upload.test.ts
  *
  * No real network: `fetchImpl` é injetado como fake com respostas em sequência.
+ * Todos os testes de `uploadHeaderHandle` passam `allowedHosts` explicitamente
+ * (host `x`, das URLs de teste) para não depender de SUPABASE_URL do ambiente.
  */
 
 import { assertEquals, assertRejects } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { guessImageMime, uploadHeaderHandle } from './meta-media-upload.ts';
+
+const ALLOWED = { allowedHosts: ['x'] };
 
 // ── guessImageMime ───────────────────────────────────────────────────────────
 
@@ -23,6 +27,18 @@ Deno.test('guessImageMime: content-type prevalece sobre extensão', () => {
   assertEquals(guessImageMime('https://x/a.png', 'image/jpeg'), 'image/jpeg');
   assertEquals(guessImageMime('https://x/a.jpg', 'image/png'), 'image/png');
   assertEquals(guessImageMime('https://x/a.jpg', 'image/gif'), null);
+});
+
+Deno.test('guessImageMime: normaliza charset e caixa do content-type', () => {
+  assertEquals(guessImageMime('https://x/a', 'image/jpeg; charset=binary'), 'image/jpeg');
+  assertEquals(guessImageMime('https://x/a', 'Image/PNG'), 'image/png');
+  assertEquals(guessImageMime('https://x/a', 'IMAGE/JPG'), 'image/jpeg');
+});
+
+Deno.test('guessImageMime: content-type que não é image/* cai pra extensão', () => {
+  assertEquals(guessImageMime('https://x/a.jpg', 'application/octet-stream'), 'image/jpeg');
+  assertEquals(guessImageMime('https://x/a.png', 'binary/octet-stream'), 'image/png');
+  assertEquals(guessImageMime('https://x/a.gif', 'application/octet-stream'), null);
 });
 
 // ── uploadHeaderHandle ───────────────────────────────────────────────────────
@@ -52,7 +68,7 @@ Deno.test('uploadHeaderHandle: caminho feliz — 3 fetches na sequência correta
 
   const result = await uploadHeaderHandle(
     { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' },
-    { fetchImpl },
+    { fetchImpl, ...ALLOWED },
   );
 
   assertEquals(result, { handle: '2:abc', bytes: 10, mime: 'image/jpeg' });
@@ -60,6 +76,7 @@ Deno.test('uploadHeaderHandle: caminho feliz — 3 fetches na sequência correta
 
   // Call 1: GET da imagem
   assertEquals(calls[0].input, 'https://x/a.jpg');
+  assertEquals(calls[0].init?.redirect, 'manual');
 
   // Call 2: POST de início de upload
   const url2 = String(calls[1].input);
@@ -85,13 +102,13 @@ Deno.test('uploadHeaderHandle: formato não suportado (gif) — throw legível',
     Promise.resolve(new Response(new Uint8Array(10), { headers: { 'content-type': 'image/gif' } }))) as typeof fetch;
 
   await assertRejects(
-    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.gif' }, { fetchImpl }),
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.gif' }, { fetchImpl, ...ALLOWED }),
     Error,
     'Formato não suportado (use JPEG ou PNG)',
   );
 });
 
-Deno.test('uploadHeaderHandle: imagem grande demais (> maxBytes) — throw', async () => {
+Deno.test('uploadHeaderHandle: imagem grande demais (> maxBytes, detectado no stream) — throw', async () => {
   const bigBytes = new Uint8Array(20);
   const fetchImpl = ((_input: RequestInfo | URL) =>
     Promise.resolve(new Response(bigBytes, { headers: { 'content-type': 'image/jpeg' } }))) as typeof fetch;
@@ -100,10 +117,33 @@ Deno.test('uploadHeaderHandle: imagem grande demais (> maxBytes) — throw', asy
     () =>
       uploadHeaderHandle(
         { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' },
-        { fetchImpl, maxBytes: 10 },
+        { fetchImpl, maxBytes: 10, ...ALLOWED },
       ),
     Error,
   );
+});
+
+Deno.test('uploadHeaderHandle: content-length declarado acima do limite — rejeita SEM ler o corpo', async () => {
+  let bodyAccessed = false;
+  const fetchImpl = ((_input: RequestInfo | URL) => {
+    const res = new Response(new Uint8Array(10), {
+      headers: { 'content-type': 'image/jpeg', 'content-length': String(6 * 1024 * 1024) },
+    });
+    const realBody = res.body;
+    Object.defineProperty(res, 'body', {
+      get() {
+        bodyAccessed = true;
+        return realBody;
+      },
+    });
+    return Promise.resolve(res);
+  }) as typeof fetch;
+
+  await assertRejects(
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
+    Error,
+  );
+  assertEquals(bodyAccessed, false);
 });
 
 Deno.test('uploadHeaderHandle: Meta retorna 400 no início do upload — throw com error.message da Meta', async () => {
@@ -119,7 +159,7 @@ Deno.test('uploadHeaderHandle: Meta retorna 400 no início do upload — throw c
   }) as typeof fetch;
 
   await assertRejects(
-    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl }),
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
     Error,
     'Invalid OAuth access token',
   );
@@ -139,7 +179,7 @@ Deno.test('uploadHeaderHandle: Meta retorna 400 no segundo passo (upload dos byt
   }) as typeof fetch;
 
   await assertRejects(
-    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl }),
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
     Error,
     'Session has expired',
   );
@@ -151,8 +191,80 @@ Deno.test('uploadHeaderHandle: mime default do MEME veio da resposta da imagem, 
 
   const result = await uploadHeaderHandle(
     { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/imagem-sem-extensao' },
-    { fetchImpl },
+    { fetchImpl, ...ALLOWED },
   );
 
   assertEquals(result.mime, 'image/jpeg');
+});
+
+// ── SSRF: protocolo, allowlist de host, redirect ─────────────────────────────
+
+Deno.test('uploadHeaderHandle: rejeita URL http:// (não https)', async () => {
+  let called = false;
+  const fetchImpl = (() => {
+    called = true;
+    return Promise.resolve(new Response(new Uint8Array(10)));
+  }) as typeof fetch;
+
+  await assertRejects(
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'http://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
+    Error,
+  );
+  assertEquals(called, false);
+});
+
+Deno.test('uploadHeaderHandle: host fora da allowlist é rejeitado ANTES de qualquer fetch', async () => {
+  let called = false;
+  const fetchImpl = (() => {
+    called = true;
+    return Promise.resolve(new Response(new Uint8Array(10)));
+  }) as typeof fetch;
+
+  await assertRejects(
+    () =>
+      uploadHeaderHandle(
+        { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://attacker.example/a.jpg' },
+        { fetchImpl, allowedHosts: ['x'] },
+      ),
+    Error,
+    'URL da imagem fora dos domínios permitidos',
+  );
+  assertEquals(called, false);
+});
+
+Deno.test('uploadHeaderHandle: host permitido passa a validação de allowlist', async () => {
+  const calls: Array<{ input: RequestInfo | URL; init?: RequestInit }> = [];
+  const fetchImpl = makeFakeFetch(calls);
+
+  const result = await uploadHeaderHandle(
+    { appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' },
+    { fetchImpl, allowedHosts: ['x'] },
+  );
+
+  assertEquals(result.handle, '2:abc');
+});
+
+Deno.test('uploadHeaderHandle: resposta 302 (redirect) é rejeitada, não seguida', async () => {
+  const fetchImpl = ((_input: RequestInfo | URL, init?: RequestInit) => {
+    assertEquals(init?.redirect, 'manual');
+    return Promise.resolve(
+      new Response(null, { status: 302, headers: { location: 'http://169.254.169.254/latest/meta-data' } }),
+    );
+  }) as typeof fetch;
+
+  await assertRejects(
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
+    Error,
+    'não pode redirecionar',
+  );
+});
+
+Deno.test('uploadHeaderHandle: falha de download não vaza o status HTTP upstream na mensagem', async () => {
+  const fetchImpl = (() => Promise.resolve(new Response('forbidden', { status: 403 }))) as typeof fetch;
+
+  await assertRejects(
+    () => uploadHeaderHandle({ appId: 'APP', accessToken: 'TOKEN', imageUrl: 'https://x/a.jpg' }, { fetchImpl, ...ALLOWED }),
+    Error,
+    'Não foi possível baixar a imagem do header.',
+  );
 });
