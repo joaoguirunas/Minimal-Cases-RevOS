@@ -54,7 +54,7 @@ export interface LeadCart {
 export interface TimelineEntry {
   id: string;
   at: string;
-  kind: 'evento' | 'toque';
+  kind: 'evento' | 'toque' | 'clique';
   /** evento: trigger yampi/zoppy; toque: canal */
   type: string;
   title: string;

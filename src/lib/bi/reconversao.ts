@@ -1,3 +1,5 @@
+import { aggregateClickRates, overallClickRate, type ClickRateRow } from './clicks';
+
 export type Nivel = 'cupom' | 'clique' | 'janela';
 export interface RecRow { order_total: number | null; paid_at: string; attributed: boolean; attribution_level: Nivel | null; people_id: string | null; hours_since_last_touch: number | null; touches_email: number; touches_whatsapp: number; touches_sms: number; coupon_code: string | null }
 export interface TouchRow { channel: string; person_id: string | null; fired_at: string | null }
@@ -12,6 +14,8 @@ export interface Agregado {
   porCanalUltimoToque: Record<'email' | 'whatsapp' | 'sms', number>;
   porDia: Array<{ dia: string; reconversoes: number; receita: number }>;
   topCupons: Array<{ code: string; pedidos: number; receita: number }>;
+  cliquesPorToque: ClickRateRow[];
+  ctrGeral: { enviados: number; clicados: number; ctr: number | null };
 }
 
 const canal = (c: string) => (c === 'email' ? 'email' : c === 'sms' ? 'sms' : 'whatsapp') as 'email' | 'whatsapp' | 'sms';
@@ -40,8 +44,8 @@ export function delta(cur: number | null, prev: number | null): number | null {
   return (cur - prev) / prev;
 }
 
-export function aggregateReconversao(input: { rows: RecRow[]; touches: TouchRow[]; clicks: ClickRow[]; prevRows: RecRow[]; prevTouches: TouchRow[] }): Agregado {
-  const { rows, touches, clicks, prevRows, prevTouches } = input;
+export function aggregateReconversao(input: { rows: RecRow[]; touches: TouchRow[]; clicks: ClickRow[]; prevRows: RecRow[]; prevTouches: TouchRow[]; links?: Parameters<typeof aggregateClickRates>[0] }): Agregado {
+  const { rows, touches, clicks, prevRows, prevTouches, links } = input;
   const atual = kpis(rows, touches);
   const anterior = kpis(prevRows, prevTouches);
   const attributed = rows.filter((r) => r.attributed);
@@ -93,5 +97,7 @@ export function aggregateReconversao(input: { rows: RecRow[]; touches: TouchRow[
     porNivel, porNivelReceita,
     funil: { tocados: atual.leadsTocados, clicaram, pagaram: atual.reconvertidos },
     porCanalUltimoToque, porDia, topCupons,
+    cliquesPorToque: aggregateClickRates(links ?? []),
+    ctrGeral: overallClickRate(links ?? []),
   };
 }

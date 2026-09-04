@@ -11,6 +11,7 @@ const base: Agregado = {
   funil: { tocados: 100, clicaram: 20, pagaram: 7 },
   porCanalUltimoToque: { email: 5, whatsapp: 2, sms: 0 },
   porDia: [], topCupons: [{ code: 'VOLTA10', pedidos: 4, receita: 620 }],
+  cliquesPorToque: [], ctrGeral: { enviados: 0, clicados: 0, ctr: null },
 };
 
 describe('buildInsights', () => {
