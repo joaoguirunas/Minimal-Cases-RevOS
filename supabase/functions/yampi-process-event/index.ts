@@ -414,6 +414,10 @@ Deno.serve(async (req) => {
         const attributionLevel = isOurCoupon ? 'cupom' : clicked ? 'clique' : withinWindow ? 'janela' : null;
         const attributed = attributionLevel !== null;
 
+        const { data: abRow } = leadId
+          ? await supabase.from('esteira_ab_assignments').select('experiment_id, variant_id').eq('lead_id', leadId).order('assigned_at', { ascending: false }).limit(1).maybeSingle()
+          : { data: null };
+
         await supabase.from('esteira_reconversions').upsert({
           order_id: event.order_id,
           people_id: peopleId,
@@ -434,8 +438,10 @@ Deno.serve(async (req) => {
           attributed_link_id: clickBefore?.linkId ?? null,
           attributed_link_source: clickBefore?.source ?? null,
           attributed_template_name: clickBefore?.templateName ?? clickBefore?.label ?? null,
+          ab_experiment_id: (abRow as { experiment_id?: string } | null)?.experiment_id ?? null,
+          ab_variant_id: (abRow as { variant_id?: string } | null)?.variant_id ?? null,
         }, { onConflict: 'order_id' });
-        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length });
+        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none' });
 
         // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a
         // recuperação foi nossa — relatórios da Yampi passam a separar "recuperado-crm".
