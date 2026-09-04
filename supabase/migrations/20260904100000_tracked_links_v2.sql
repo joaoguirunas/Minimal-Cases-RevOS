@@ -21,7 +21,7 @@ ALTER TABLE public.tracked_links
   ADD COLUMN IF NOT EXISTS nudge_scheduled_at timestamptz;
 
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tracked_links_source_check') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tracked_links_source_check' AND conrelid = 'public.tracked_links'::regclass) THEN
     ALTER TABLE public.tracked_links ADD CONSTRAINT tracked_links_source_check
       CHECK (source = ANY (ARRAY['esteira_email','esteira_whatsapp','esteira_sms','agente','manual','outro']));
   END IF;
@@ -30,7 +30,7 @@ END $$;
 COMMENT ON COLUMN public.tracked_links.source IS 'Quem criou o link: esteira_email | esteira_whatsapp | esteira_sms | agente | manual | outro (legado).';
 COMMENT ON COLUMN public.tracked_links.label IS 'Slot do link: link_checkout | link_novo_checkout | wa_button_url | yampi_enviar_link_carrinho | yampi_enviar_link_pagamento | enviar_link_compra.';
 COMMENT ON COLUMN public.tracked_links.template_name IS 'Nome do template Meta / template de e-mail / subject do toque que carregou o link.';
-COMMENT ON COLUMN public.tracked_links.clicks IS 'Cliques HUMANOS não duplicados (robôs em bot_hits; detalhe em tracked_link_clicks).';
+COMMENT ON COLUMN public.tracked_links.clicks IS 'Cliques HUMANOS não duplicados (robôs em bot_hits; detalhe em tracked_link_clicks). Contadores anteriores a 2026-09-04 foram zerados nesta migration.';
 
 -- Legado: e-mail e SMS só nasciam da esteira. WhatsApp pode ser esteira ou agente → fica 'outro'.
 UPDATE public.tracked_links SET source = 'esteira_email' WHERE source = 'outro' AND channel = 'email';
@@ -58,6 +58,12 @@ CREATE TABLE IF NOT EXISTS public.tracked_link_clicks (
 );
 COMMENT ON TABLE public.tracked_link_clicks IS
   'Cada GET no link rastreado. is_bot=true (crawler de preview/scanner/prefetch) e is_duplicate=true (mesmo link+ip em <10s) NÃO contam em tracked_links.clicks. user_agent/ip_hash/referer são apagados após 90 dias (purge_tracked_click_pii). ip_hash = sha256(salt|dia|ip) — nunca IP puro.';
+
+-- Legado: contadores antigos incluíam crawlers de preview (o /r antigo não filtrava).
+-- A partir daqui clicks/first/last significam "humano não duplicado"; zera o que veio antes
+-- (em produção há 1 link, de teste). Os hits novos ficam em tracked_link_clicks.
+UPDATE public.tracked_links SET clicks = 0, first_clicked_at = NULL, last_clicked_at = NULL
+ WHERE NOT EXISTS (SELECT 1 FROM public.tracked_link_clicks c WHERE c.tracked_link_id = tracked_links.id);
 
 CREATE INDEX IF NOT EXISTS tlc_link_idx         ON public.tracked_link_clicks (tracked_link_id, clicked_at DESC);
 CREATE INDEX IF NOT EXISTS tlc_lead_human_idx   ON public.tracked_link_clicks (lead_id, clicked_at DESC)   WHERE is_bot = false AND is_duplicate = false AND lead_id IS NOT NULL;
@@ -101,7 +107,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   l         public.tracked_links%ROWTYPE;
@@ -149,12 +155,15 @@ COMMENT ON FUNCTION public.record_tracked_click IS 'Edge fn r: registra o hit, c
 
 -- ── LGPD: minimização — apaga UA/hash/referer com mais de 90 dias ────────────
 CREATE OR REPLACE FUNCTION public.purge_tracked_click_pii()
-RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path = public, pg_temp AS $$
   UPDATE public.tracked_link_clicks
      SET user_agent = NULL, ip_hash = NULL, referer = NULL
    WHERE clicked_at < now() - interval '90 days'
      AND (user_agent IS NOT NULL OR ip_hash IS NOT NULL OR referer IS NOT NULL);
 $$;
+
+REVOKE ALL ON FUNCTION public.purge_tracked_click_pii() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.purge_tracked_click_pii() TO service_role;
 
 DO $$ BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
