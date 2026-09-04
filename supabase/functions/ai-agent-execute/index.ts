@@ -604,7 +604,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
 //
 // NÃO fazem parte de TOOL_DEFINITIONS: só são concatenadas por buildToolDefinitions()
 // quando existe ai_agent_callback_configs.enabled = true para o agente/step corrente.
-// As 22 tools estáticas permanecem inalteradas.
+// As tools estáticas permanecem inalteradas.
 
 interface CallbackTemplate {
   id: string;
@@ -2812,7 +2812,16 @@ async function executeTool(
         const ps = await resolveProductSummary(supabase as never, pid, { force: args.force === true });
         if (!ps) return 'Não consegui consultar o catálogo agora. Responda com o que está no CONTEXTO e ofereça confirmar depois.';
         const { variantesDetalhe, ...resto } = ps;
-        return JSON.stringify({ ...resto, variantes_detalhe: variantesDetalhe.slice(0, 12) });
+        const truncado = resto.cores.length > 12 || resto.modelos.length > 20 || resto.categorias.length > 8 || resto.semEstoque.length > 12 || variantesDetalhe.length > 12;
+        return JSON.stringify({
+          ...resto,
+          cores: resto.cores.slice(0, 12),
+          modelos: resto.modelos.slice(0, 20),
+          categorias: resto.categorias.slice(0, 8),
+          semEstoque: resto.semEstoque.slice(0, 12),
+          variantes_detalhe: variantesDetalhe.slice(0, 12),
+          truncado,
+        });
       }
 
       case 'yampi_consultar_pedido': {
