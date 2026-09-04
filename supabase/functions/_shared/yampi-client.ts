@@ -285,6 +285,38 @@ export class YampiApiClient {
 
   // ── Orders ────────────────────────────────────────────────────────────────
 
+  // ── Catalog ─────────────────────────────────────────────────────────────
+
+  /**
+   * Imagens de um produto e de cada SKU dele. O webhook de carrinho NÃO traz
+   * imagem (o sku vem só com image_reference_sku_id/product_id), então quem
+   * precisa da foto real busca aqui. Prefere `medium` (500px) — 128px de
+   * exibição em retina; cai pra thumb/original se faltar.
+   */
+  async getProductImages(productId: number | string): Promise<{ productImage: string | null; skuImages: Record<string, string> }> {
+    const res = await this.request<{ data?: Json }>('GET', `/catalog/products/${productId}`, {
+      query: { include: 'images,skus.images' },
+    });
+    const d = (res?.data ?? {}) as Json;
+    const pick = (img: unknown): string | null => {
+      const i = (img ?? {}) as Record<string, unknown>;
+      const m = i.medium as Record<string, unknown> | undefined;
+      const t = i.thumb as Record<string, unknown> | undefined;
+      const l = i.large as Record<string, unknown> | undefined;
+      const url = (m?.url ?? l?.url ?? t?.url ?? i.url ?? i.name) as string | undefined;
+      return typeof url === 'string' && /^https?:\/\//.test(url) ? url : null;
+    };
+    const productImgs = ((d.images as Json | undefined)?.data ?? []) as unknown[];
+    const productImage = productImgs.length ? pick(productImgs[0]) : null;
+    const skuImages: Record<string, string> = {};
+    for (const s of (((d.skus as Json | undefined)?.data ?? []) as Array<Json>)) {
+      const imgs = ((s.images as Json | undefined)?.data ?? []) as unknown[];
+      const u = imgs.length ? pick(imgs[0]) : null;
+      if (u && s.id != null) skuImages[String(s.id)] = u;
+    }
+    return { productImage, skuImages };
+  }
+
   async getOrder(id: number | string, include = 'transactions,items,status,customer'): Promise<Json> {
     const res = await this.request<{ data: Json }>('GET', `/orders/${id}`, { query: { include } });
     return (res.data ?? res) as Json;

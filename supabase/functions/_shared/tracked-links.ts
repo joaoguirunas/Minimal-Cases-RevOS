@@ -131,6 +131,41 @@ export function formatBRL(v: number | null | undefined): string {
   return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+// ── Foto real do SKU (catálogo Yampi + cache) ────────────────────────────────
+
+const SKU_IMAGE_TTL_MS = 7 * 86_400_000;
+
+/**
+ * Foto do SKU pelo catálogo da Yampi, com cache em yampi_sku_images. Prefere a
+ * imagem do SKU (cor exata); cai pra imagem do produto. `null` também é
+ * cacheado (produto sem foto) pra não bater na API a cada toque.
+ */
+export async function resolveSkuImage(
+  supabase: SupabaseClient,
+  skuId: number,
+  productId: number | null,
+): Promise<string | null> {
+  const { data: cached } = await supabase
+    .from('yampi_sku_images')
+    .select('url, fetched_at')
+    .eq('sku_id', skuId)
+    .maybeSingle();
+  const c = cached as { url: string | null; fetched_at: string } | null;
+  if (c && Date.now() - new Date(c.fetched_at).getTime() < SKU_IMAGE_TTL_MS) return c.url;
+
+  if (productId == null) return c?.url ?? null;
+  const { createYampiClientForConnection } = await import('./yampi-client.ts');
+  const bound = await createYampiClientForConnection(supabase);
+  if (!bound) return c?.url ?? null;
+  const { productImage, skuImages } = await bound.client.getProductImages(productId);
+  const url = skuImages[String(skuId)] ?? productImage ?? null;
+  await supabase.from('yampi_sku_images').upsert(
+    { sku_id: skuId, product_id: productId, url, fetched_at: new Date().toISOString() },
+    { onConflict: 'sku_id' },
+  );
+  return url;
+}
+
 /**
  * Carrinho mais recente da pessoa com dados pra personalização dos templates:
  * link de recuperação (simulate_url com customerToken > unauth), produto, modelo,
@@ -162,7 +197,15 @@ export async function resolveCartForPerson(
     const { produto, modelo } = title ? splitProductModel(title) : { produto: '', modelo: null };
     const imgs = (rec(sku.images).data ?? sku.images) as unknown;
     const img = Array.isArray(imgs) ? rec(imgs[0]) : {};
-    const imagem = (img.url ?? img.src ?? img.large?.toString?.() ?? null) as string | null;
+    let imagem = (img.url ?? img.src ?? img.large?.toString?.() ?? null) as string | null;
+    // O webhook de carrinho da Yampi não traz imagem — busca a foto real do SKU
+    // (cor exata) no catálogo, com cache. Nunca derruba o toque: sem foto → null
+    // e o template cai no placeholder.
+    if (!imagem && typeof sku.id === 'number') {
+      try {
+        imagem = await resolveSkuImage(supabase, sku.id, typeof sku.product_id === 'number' ? sku.product_id : null);
+      } catch (_) { /* placeholder */ }
+    }
     const totalizers = rec(resource.totalizers);
     const total = typeof totalizers.total === 'number' ? totalizers.total
       : typeof resource.value_total === 'number' ? resource.value_total as number : null;
