@@ -10,16 +10,25 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { FileText, MessageSquare, Mail, Smartphone, Clock } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { FileText, MessageSquare, Mail, Smartphone, Clock, ChevronDown, Code2, Type } from 'lucide-react';
 import { useCreateFollowup, useUpdateFollowup, type StageFollowup, type FollowupCanal } from '@/hooks/useFollowups';
 import { useEmailTemplates } from '@/hooks/useEmailTemplates';
 import { useOmniChannelConfig } from '@/hooks/useOmniChannelConfig';
 import { usePipelines } from '@/hooks/usePipelines';
 import { useWhatsappTemplates } from '@/hooks/useWhatsappTemplates';
+import { useLiveAbExperiment } from '@/hooks/useAbExperiments';
 import { ScoreMatrixSelector } from './ScoreMatrixSelector';
 import WhatsappTemplatePickerModal from './WhatsappTemplatePickerModal';
 import { VariablePicker, insertAtTextareaCursor } from './VariablePicker';
 import { FollowupEmailEditor } from './FollowupEmailEditor';
+import { AssetPicker } from '@/components/config/AssetPicker';
+import {
+  WA_VAR_OPTIONS, parseRuleVars, serializeRuleVars, bodyPlaceholders,
+  templateHeaderKind, buttonHasDynamicUrl, type RuleVars,
+} from '@/lib/followups/waRuleVars';
+import { minToParts } from '@/lib/followups/timeline';
 import { cn } from '@/lib/utils';
 
 interface FollowupModalProps {
@@ -28,6 +37,8 @@ interface FollowupModalProps {
   stageId?: string;
   scoreMatrixId?: string;
   followup?: StageFollowup | null;
+  initialOffsetMin?: number;
+  initialVariantId?: string | null;
 }
 
 // WhatsApp always = template. Canais disponíveis:
@@ -44,6 +55,23 @@ const ORIGENS: { value: number | null; label: string }[] = [
   { value: 3,   label: 'Evento / Campanha' },
   { value: 4,   label: 'Network' },
 ];
+
+const WA_VAR_LABELS: Record<(typeof WA_VAR_OPTIONS)[number], string> = {
+  nome: 'Primeiro nome',
+  remetente: 'Remetente',
+  produto: 'Produto',
+  modelo_celular: 'Modelo do celular',
+  preco: 'Preço',
+  cupom: 'Cupom',
+  expira_em: 'Expira em',
+};
+
+const waTemplateStatusChip = (status: string | null | undefined): { label: string; cls: string } => {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'approved') return { label: 'Aprovado', cls: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/8 border-emerald-200/30' };
+  if (s === 'rejected') return { label: 'Rejeitado', cls: 'text-red-600 dark:text-red-400 bg-red-500/8 border-red-200/30' };
+  return { label: 'Em análise', cls: 'text-amber-600 dark:text-amber-400 bg-amber-500/8 border-amber-200/30' };
+};
 
 interface FormState {
   leads_stages_id: string;
@@ -64,28 +92,40 @@ interface FormState {
   control: number | undefined;
   business_hours_only: boolean;
   bh_only_last: boolean;
+  vars: RuleVars;
+  ab_variant_id: string | null;
 }
 
-const defaultForm = (stageId = '', scoreId?: string): FormState => ({
-  leads_stages_id:      stageId,
-  canal:                'whatsapp_template',
-  template_id:          '',
-  template_name:        '',
-  whatsapp_template_id: '',
-  as_queue_id:          '',
-  email_template_id:    '',
-  mensagem:             '',
-  assunto:              '',
-  dias:                 0,
-  horas:                1,
-  minutos:              0,
-  ativo:                true,
-  score_matrix_id:      scoreId,
-  target_stage_id:      undefined,
-  control:              undefined,
-  business_hours_only:  false,
-  bh_only_last:         true,
-});
+const defaultForm = (
+  stageId = '',
+  scoreId?: string,
+  initialOffsetMin?: number,
+  initialVariantId?: string | null,
+): FormState => {
+  const timing = initialOffsetMin !== undefined ? minToParts(initialOffsetMin) : { dias: 0, horas: 1, minutos: 0 };
+  return {
+    leads_stages_id:      stageId,
+    canal:                'whatsapp_template',
+    template_id:          '',
+    template_name:        '',
+    whatsapp_template_id: '',
+    as_queue_id:          '',
+    email_template_id:    '',
+    mensagem:             '',
+    assunto:              '',
+    dias:                 timing.dias,
+    horas:                timing.horas,
+    minutos:              timing.minutos,
+    ativo:                true,
+    score_matrix_id:      scoreId,
+    target_stage_id:      undefined,
+    control:              undefined,
+    business_hours_only:  false,
+    bh_only_last:         true,
+    vars:                 parseRuleVars(undefined),
+    ab_variant_id:        initialVariantId ?? null,
+  };
+};
 
 const FollowupModal = ({
   isOpen,
@@ -93,10 +133,15 @@ const FollowupModal = ({
   stageId,
   scoreMatrixId,
   followup,
+  initialOffsetMin,
+  initialVariantId,
 }: FollowupModalProps) => {
-  const [form, setForm]                      = useState<FormState>(defaultForm(stageId, scoreMatrixId));
+  const [form, setForm]                      = useState<FormState>(defaultForm(stageId, scoreMatrixId, initialOffsetMin, initialVariantId));
   const [isTemplatePickerOpen, setTplPicker] = useState(false);
+  const [isAssetPickerOpen, setAssetPicker]  = useState(false);
+  const [emailRawMode, setEmailRawMode]      = useState(false);
   const mensagemRef = useRef<HTMLTextAreaElement>(null);
+  const emailRawRef = useRef<HTMLTextAreaElement>(null);
 
   const createFollowup = useCreateFollowup();
   const updateFollowup = useUpdateFollowup();
@@ -109,6 +154,21 @@ const FollowupModal = ({
   const activeStages    = (allStages ?? []).filter(s => s.ativo || s.active);
 
   const upd = (patch: Partial<FormState>) => setForm(prev => ({ ...prev, ...patch }));
+
+  // Derive selected stage / pipeline for display + A/B lookup
+  const selectedStage = activeStages.find(s => s.id === form.leads_stages_id);
+  const selectedPipelineForStage = selectedStage
+    ? activePipelines.find(p => p.id === selectedStage.leads_pipelines_id)
+    : null;
+  const stagePipelineId = selectedStage?.leads_pipelines_id;
+  const { data: live } = useLiveAbExperiment(stagePipelineId);
+
+  // WhatsApp template lookup — usado no bloco de parâmetros e na validação do submit
+  const tpl = whatsappTemplates.find(t => t.id_template === form.template_id);
+  const comps = tpl?.json_data?.components;
+  const waPlaceholders = bodyPlaceholders(comps);
+  const hasDynamicButton = buttonHasDynamicUrl(comps);
+  const headerKind = templateHeaderKind(comps);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -135,17 +195,24 @@ const FollowupModal = ({
         control:              followup.control ?? undefined,
         business_hours_only:  followup.business_hours_only ?? false,
         bh_only_last:         followup.bh_only_last ?? true,
+        vars:                 parseRuleVars(followup.vars),
+        ab_variant_id:        followup.ab_variant_id ?? null,
       });
+      setEmailRawMode(false);
     } else {
-      setForm(defaultForm(stageId, scoreMatrixId));
+      setForm(defaultForm(stageId, scoreMatrixId, initialOffsetMin, initialVariantId));
+      setEmailRawMode(false);
     }
-  }, [followup, isOpen, stageId, scoreMatrixId, whatsappTemplates]);
+  }, [followup, isOpen, stageId, scoreMatrixId, initialOffsetMin, initialVariantId, whatsappTemplates]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.leads_stages_id) { toast.error('Selecione uma etapa.'); return; }
     if (form.canal === 'whatsapp_template' && !form.template_id) {
       toast.error('Selecione um template WhatsApp.'); return;
+    }
+    if (form.canal === 'whatsapp_template' && waPlaceholders.length > 0 && waPlaceholders.some(n => !form.vars.waParams[n - 1])) {
+      toast.error('Preencha todos os parâmetros do template.'); return;
     }
     if (form.canal === 'sms' && !form.mensagem.trim()) {
       toast.error('Digite o conteúdo da mensagem.'); return;
@@ -176,6 +243,8 @@ const FollowupModal = ({
       control:              form.control ?? null,
       business_hours_only:  form.business_hours_only,
       bh_only_last:         form.bh_only_last,
+      vars:                 serializeRuleVars(form.vars, followup?.vars),
+      ab_variant_id:        form.ab_variant_id,
     };
 
     try {
@@ -190,12 +259,6 @@ const FollowupModal = ({
 
   const canalInfo = CANAIS.find(c => c.value === form.canal) ?? CANAIS[0];
   const isPending = createFollowup.isPending || updateFollowup.isPending;
-
-  // Derive selected stage label for display
-  const selectedStage = activeStages.find(s => s.id === form.leads_stages_id);
-  const selectedPipelineForStage = selectedStage
-    ? activePipelines.find(p => p.id === selectedStage.leads_pipelines_id)
-    : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -285,23 +348,152 @@ const FollowupModal = ({
             />
           </div>
 
+          {/* Variante do teste A/B — só quando o pipeline da etapa tem teste rodando/pausado */}
+          {live && (
+            <div className="space-y-1.5">
+              <Label className="text-[12px]">Variante do teste A/B</Label>
+              <Select
+                value={form.ab_variant_id ?? '_comum'}
+                onValueChange={v => upd({ ab_variant_id: v === '_comum' ? null : v })}
+              >
+                <SelectTrigger className="h-8 text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  <SelectItem value="_comum">Comum (todas as variantes)</SelectItem>
+                  {live.variants.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.key} · {v.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground/50">
+                Regras comuns disparam para todo mundo; regras de variante só para leads atribuídos a ela.
+              </p>
+            </div>
+          )}
+
           {/* Conteúdo — condicional por canal */}
           {form.canal === 'whatsapp_template' && (
-            <div className="space-y-1.5">
-              <Label className="text-[12px]">Template WhatsApp <span className="text-destructive">*</span></Label>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full justify-start h-[30px] text-[13px]"
-                onClick={() => setTplPicker(true)}
-              >
-                <FileText className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
-                {form.template_name || form.template_id || 'Selecionar template aprovado'}
-              </Button>
-              {!form.template_id && (
-                <p className="text-[11px] text-muted-foreground/50">
-                  Somente templates aprovados pelo WhatsApp Business podem ser enviados em follow-ups.
-                </p>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Label className="text-[12px]">Template WhatsApp <span className="text-destructive">*</span></Label>
+                  {tpl && (
+                    <span className={cn(
+                      'inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded-full border leading-none',
+                      waTemplateStatusChip(tpl.status).cls,
+                    )}>
+                      {waTemplateStatusChip(tpl.status).label}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start h-[30px] text-[13px]"
+                  onClick={() => setTplPicker(true)}
+                >
+                  <FileText className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                  {form.template_name || form.template_id || 'Selecionar template aprovado'}
+                </Button>
+                {!form.template_id && (
+                  <p className="text-[11px] text-muted-foreground/50">
+                    Somente templates aprovados pelo WhatsApp Business podem ser enviados em follow-ups.
+                  </p>
+                )}
+              </div>
+
+              {waPlaceholders.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label className="text-[12px]">Parâmetros do corpo</Label>
+                  <div className="space-y-1.5">
+                    {waPlaceholders.map(n => (
+                      <div key={n} className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted-foreground/60 w-8 shrink-0">{`{{${n}}}`}</span>
+                        <Select
+                          value={form.vars.waParams[n - 1] || '_none'}
+                          onValueChange={v => {
+                            const next = [...form.vars.waParams];
+                            while (next.length < n) next.push('');
+                            next[n - 1] = v === '_none' ? '' : v;
+                            upd({ vars: { ...form.vars, waParams: next } });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 text-[13px] flex-1">
+                            <SelectValue placeholder="Selecione a variável" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background">
+                            <SelectItem value="_none">— vazio —</SelectItem>
+                            {WA_VAR_OPTIONS.map(opt => (
+                              <SelectItem key={opt} value={opt}>{WA_VAR_LABELS[opt]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                  {waPlaceholders.some(n => !form.vars.waParams[n - 1]) && (
+                    <p className="text-[11px] text-amber-500/80">
+                      A Meta rejeita o envio com parâmetro faltando.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {hasDynamicButton && (
+                <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+                  <div>
+                    <p className="text-[12px] font-medium text-foreground">Botão com link rastreado do carrinho</p>
+                    <p className="text-[11px] text-muted-foreground/60">Preenche a URL dinâmica do botão com o link de checkout do carrinho.</p>
+                  </div>
+                  <Switch
+                    checked={form.vars.waButtonUrl}
+                    onCheckedChange={v => upd({ vars: { ...form.vars, waButtonUrl: v } })}
+                  />
+                </div>
+              )}
+
+              {headerKind === 'image' && (
+                <div className="space-y-1.5">
+                  <Label className="text-[12px]">Imagem do cabeçalho</Label>
+                  <RadioGroup
+                    value={form.vars.waHeaderMode ?? 'sku'}
+                    onValueChange={v => upd({ vars: { ...form.vars, waHeaderMode: v as 'sku' | 'fixa' } })}
+                    className="gap-1.5"
+                  >
+                    <label htmlFor="wa-header-sku" className="flex items-center gap-2 text-[12px] cursor-pointer">
+                      <RadioGroupItem value="sku" id="wa-header-sku" />
+                      Foto do produto do carrinho (SKU)
+                    </label>
+                    <label htmlFor="wa-header-fixa" className="flex items-center gap-2 text-[12px] cursor-pointer">
+                      <RadioGroupItem value="fixa" id="wa-header-fixa" />
+                      Imagem fixa
+                    </label>
+                  </RadioGroup>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-[11px]"
+                      onClick={() => setAssetPicker(true)}
+                    >
+                      Escolher imagem
+                    </Button>
+                    {form.vars.waHeaderImage && (
+                      <img
+                        src={form.vars.waHeaderImage}
+                        alt=""
+                        className="w-16 h-16 rounded-lg border border-border object-cover"
+                      />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/50">
+                    {form.vars.waHeaderMode === 'fixa'
+                      ? 'Imagem fixa usada em todos os envios deste follow-up.'
+                      : 'Usada como imagem de fallback quando o carrinho não tiver foto do produto.'}
+                  </p>
+                </div>
               )}
             </div>
           )}
@@ -392,16 +584,88 @@ const FollowupModal = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-[12px]">Corpo do e-mail <span className="text-destructive">*</span></Label>
-                    <FollowupEmailEditor
-                      content={form.mensagem}
-                      onChange={html => upd({ mensagem: html })}
-                    />
+                    <div className="flex items-center justify-between">
+                      <Label className="text-[12px]">Corpo do e-mail <span className="text-destructive">*</span></Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEmailRawMode(m => !m)}
+                        className="h-7 gap-1.5 text-[11px]"
+                      >
+                        {emailRawMode
+                          ? <><Type className="w-3 h-3" strokeWidth={1.5} /> Editor</>
+                          : <><Code2 className="w-3 h-3" strokeWidth={1.5} /> Código HTML</>}
+                      </Button>
+                    </div>
+                    {emailRawMode ? (
+                      // TODO(Task 15): trocar por HtmlCodeEditor
+                      <Textarea
+                        ref={emailRawRef}
+                        value={form.mensagem}
+                        onChange={e => upd({ mensagem: e.target.value })}
+                        placeholder="<div>Olá {{nome}}...</div>"
+                        className="font-mono text-[12px] min-h-[200px] resize-y"
+                      />
+                    ) : (
+                      <FollowupEmailEditor
+                        content={form.mensagem}
+                        onChange={html => upd({ mensagem: html })}
+                      />
+                    )}
                   </div>
                 </>
               )}
             </>
           )}
+
+          {/* Variáveis da regra — todos os canais */}
+          <Collapsible>
+            <div className="rounded-xl border border-border bg-card">
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2.5">
+                <span className="text-[12px] font-medium text-foreground">Variáveis da regra</span>
+                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.5} />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-3 pb-3 space-y-3">
+                  <p className="text-[11px] text-muted-foreground/50">
+                    Usadas em {'{{cupom}}'}, {'{{cupom_pct}}'} e {'{{expira_em}}'} dos templates.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-[11px]">Cupom</Label>
+                      <Input
+                        value={form.vars.cupom}
+                        onChange={e => upd({ vars: { ...form.vars, cupom: e.target.value } })}
+                        placeholder="BEMVINDO10"
+                        className="h-8 text-[13px]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[11px]">Cupom %</Label>
+                      <Input
+                        type="number"
+                        value={form.vars.cupomPct}
+                        onChange={e => upd({ vars: { ...form.vars, cupomPct: e.target.value } })}
+                        placeholder="10"
+                        className="h-8 text-[13px]"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px]">Expira em (horas)</Label>
+                    <Input
+                      type="number"
+                      value={form.vars.expiraHoras}
+                      onChange={e => upd({ vars: { ...form.vars, expiraHoras: e.target.value } })}
+                      placeholder="24"
+                      className="h-8 text-[13px]"
+                    />
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
 
           {/* Timing */}
           <div className="space-y-1.5">
@@ -541,6 +805,13 @@ const FollowupModal = ({
           onClose={() => setTplPicker(false)}
           onSelect={(id, name, uuid) => { upd({ template_id: id, template_name: name, whatsapp_template_id: uuid }); setTplPicker(false); }}
           selectedTemplateId={form.template_id}
+        />
+
+        <AssetPicker
+          open={isAssetPickerOpen}
+          onOpenChange={setAssetPicker}
+          onSelect={url => upd({ vars: { ...form.vars, waHeaderImage: url } })}
+          prefix="wa-headers/"
         />
       </DialogContent>
     </Dialog>
