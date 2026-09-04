@@ -33,9 +33,9 @@ export function useEsteiraCardData(leadIds: string[]) {
           .gt('clicks', 0),
       ]);
       if (queueRes.error) throw queueRes.error;
-      if (linksRes.error) throw linksRes.error;
+      if (linksRes.error) console.warn('[esteira] tracked_links indisponível', linksRes.error.message);
       const out = summarizeQueue((queueRes.data ?? []) as QueueRow[]);
-      const clicks = summarizeLinkClicks((linksRes.data ?? []) as TrackedLinkRow[]);
+      const clicks = summarizeLinkClicks((linksRes.error ? [] : (linksRes.data ?? [])) as TrackedLinkRow[]);
       for (const [leadId, c] of Object.entries(clicks)) (out[leadId] ??= emptyQueueSummary()).clicks = c;
       return out;
     },

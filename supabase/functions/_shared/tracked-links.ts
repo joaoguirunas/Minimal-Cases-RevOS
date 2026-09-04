@@ -74,7 +74,11 @@ export async function createTrackedLinkDetailed(
     message_id: opts.messageId ?? null,
     execution_id: opts.executionId ?? null,
   }).select('id').single();
-  if (error || !data) return null;
+  if (error || !data) {
+    // Único sinal se a function for deployada antes da migration (colunas novas) ou se uma coluna mudar.
+    console.warn('[tracked-links] insert falhou', { source: opts.source ?? 'outro', label: opts.label ?? null, error: error?.message ?? 'sem linha' });
+    return null;
+  }
   return { id: (data as { id: string }).id, token, url: buildTrackedUrl(trackedLinkBaseUrl(), token) };
 }
 
@@ -85,7 +89,8 @@ export async function createTrackedLink(supabase: SupabaseClient, opts: CreateTr
 
 /** Liga o link à linha de `messages` criada depois dele (template WA, botão do agente). */
 export async function attachTrackedLinkMessage(supabase: SupabaseClient, linkId: string, messageId: number): Promise<void> {
-  await supabase.from('tracked_links').update({ message_id: messageId }).eq('id', linkId).is('message_id', null);
+  const { error } = await supabase.from('tracked_links').update({ message_id: messageId }).eq('id', linkId).is('message_id', null);
+  if (error) console.warn('[tracked-links] attach falhou', { linkId, messageId, error: error.message });
 }
 
 type AnyRec = Record<string, unknown>;

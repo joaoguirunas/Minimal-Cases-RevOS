@@ -42,7 +42,7 @@ const fmtRelative = (iso: string) => {
 // ── Ícone/cor por entrada da timeline ──────────────────────────────────────────
 
 function entryVisual(e: TimelineEntry): { icon: React.ElementType; cls: string } {
-  if (e.kind === 'clique') return { icon: MousePointerClick, cls: 'text-sky-500' };
+  if (e.kind === 'clique') return { icon: MousePointerClick, cls: 'text-sky-500 border-sky-500/30 bg-sky-500/10' };
   if (e.kind === 'toque') {
     const icon = e.type === 'email' ? Mail : e.type === 'sms' ? Smartphone : MessageSquare;
     if (e.status === 'sent') return { icon, cls: 'text-emerald-500 border-emerald-500/30 bg-emerald-500/10' };

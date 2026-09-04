@@ -8,6 +8,7 @@ import { Chip } from '@/components/ui/chip';
 import { cn } from '@/lib/utils';
 import { fmtBRL, TABLE_HEADER } from '@/components/dashboard/bipro-shared';
 import type { ReconversionRow } from '@/hooks/useReconversaoBI';
+import { describeLinkOrigin } from '@/lib/esteira/clicks';
 
 type Filtro = 'todos' | 'atribuidos' | 'organicos' | 'cupom' | 'clique' | 'janela';
 type Ordem = { by: 'paid_at' | 'order_total'; dir: 'asc' | 'desc' };
@@ -122,8 +123,8 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
                 <td className="px-4 py-2.5">
                   {r.attributed ? (
                     <Chip size="md" icon={CheckCircle2} tone={r.attribution_level === 'cupom' ? 'success' : r.attribution_level === 'clique' ? 'info' : 'warning'}
-                      title={r.attribution_level === 'cupom' ? `Usou o nosso cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clicou em link nosso (${r.attributed_template_name ?? 'toque não identificado'}) antes de pagar` : 'Recebeu toque antes de pagar (janela de 7 dias)'}>
-                      {r.attribution_level === 'cupom' ? `Cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clique · ${r.attributed_template_name ?? r.attributed_link_source ?? 'link'}` : 'Janela 7d'}
+                      title={r.attribution_level === 'cupom' ? `Usou o nosso cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clicou em link nosso (${r.attributed_template_name ?? (r.attributed_link_source ? describeLinkOrigin({ source: r.attributed_link_source, label: null, template_name: null, channel: null }) : 'toque não identificado')}) antes de pagar` : 'Recebeu toque antes de pagar (janela de 7 dias)'}>
+                      {r.attribution_level === 'cupom' ? `Cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clique · ${r.attributed_template_name ?? (r.attributed_link_source ? describeLinkOrigin({ source: r.attributed_link_source, label: null, template_name: null, channel: null }) : 'link')}` : 'Janela 7d'}
                     </Chip>
                   ) : <Chip size="md">Orgânico</Chip>}
                 </td>
