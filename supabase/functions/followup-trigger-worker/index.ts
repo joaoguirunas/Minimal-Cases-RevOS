@@ -8,6 +8,7 @@ import {
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
+import { buildEsteiraWaComponents, resolveHeaderImage, templateHeaderKind, type TplComponent } from "../_shared/wa-template-render.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
 
@@ -273,64 +274,46 @@ serve(async (req) => {
 
           const resolvedTemplateName = tplRow?.name ?? entry.template_id;
 
-          type TplComponent = { type: string; format?: string; text?: string };
-          const tplComponents: TplComponent[] =
-            ((tplRow?.json_data as Record<string, unknown>)?.components as TplComponent[]) ?? [];
-
-          const headerComp = tplComponents.find(
-            (c) => c.type === 'HEADER' && c.format === 'TEXT' && c.text?.includes('{{'),
-          );
-          // Extract param name/index from the header variable: {{nome}} → 'nome', {{1}} → '1'
-          const headerParamName = headerComp?.text?.match(/\{\{([^}]+)\}\}/)?.[1] ?? null;
-
-          const msgComponents: Array<Record<string, unknown>> = headerParamName
-            ? [{ type: 'header', parameters: [{ type: 'text', text: '', parameter_name: headerParamName }] }]
-            : [];
-
-          // ── Esteira (EST-WA): body {{1..n}} + botão URL rastreado a partir de rule.vars ──
-          // vars.wa_params = ["nome","remetente","produto","modelo_celular","expira_em",...]
-          // vars.wa_button_url = true → botão URL com sufixo dinâmico = token do link rastreado.
+          const tplComponents = (((tplRow?.json_data as Record<string, unknown>)?.components as TplComponent[]) ?? []);
+          const headerKind = templateHeaderKind(tplComponents);
           let waLink: { id: string; token: string; url: string } | null = null;
-          if (entry.followup_id) {
-            const { data: waRule } = await supabase
-              .from('leads_stages_followups')
-              .select('vars')
-              .eq('id', entry.followup_id)
-              .maybeSingle();
+          let msgComponents: Array<Record<string, unknown>> = [];
+          let headerImageUrl: string | null = null;
+          {
+            const { data: waRule } = entry.followup_id
+              ? await supabase.from('leads_stages_followups').select('vars').eq('id', entry.followup_id).maybeSingle()
+              : { data: null };
             const rv = ((waRule as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
             const waParams = Array.isArray(rv.wa_params) ? (rv.wa_params as string[]) : [];
-            if (waParams.length > 0 || rv.wa_button_url) {
-              const waCart = entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
-              const eCredsWa = (emailConfig?.credentials ?? {}) as Record<string, string>;
-              const expiraH = Number(rv.expira_horas ?? '24') || 24;
-              const expiraWa = new Date(Date.now() + expiraH * 3_600_000)
-                .toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
-              const waVars: Record<string, string> = {
-                nome: (pessoa?.name ?? '').split(/\s+/)[0] || 'cliente',
-                remetente: eCredsWa.sender_name || eCredsWa.from_name || 'Minimal Cases',
-                produto: waCart?.produto ?? 'sua case Minimal',
-                modelo_celular: waCart?.modeloCelular ?? 'seu celular',
-                preco: formatBRL(waCart?.total ?? null),
-                cupom: String(rv.cupom ?? ''),
-                expira_em: expiraWa,
-              };
-              if (waParams.length > 0) {
-                msgComponents.push({
-                  type: 'body',
-                  parameters: waParams.map((k) => ({ type: 'text', text: waVars[k] ?? String(rv[k] ?? '') })),
-                });
-              }
-              if (rv.wa_button_url && waCart?.url && entry.person_id) {
-                waLink = await createTrackedLinkDetailed(supabase, {
-                  destination: waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
-                  source: 'esteira_whatsapp', label: 'wa_button_url', templateName: resolvedTemplateName, followupQueueId: entry.id,
-                });
-                // Botão URL do template: sufixo dinâmico = só o token (a base fixa está aprovada na Meta).
-                if (waLink) {
-                  msgComponents.push({ type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: waLink.token }] });
-                }
-              }
+            const needsCart = waParams.length > 0 || !!rv.wa_button_url || headerKind === 'image';
+            const waCart = needsCart && entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
+            const eCredsWa = (emailConfig?.credentials ?? {}) as Record<string, string>;
+            const expiraH = Number(rv.expira_horas ?? '24') || 24;
+            const expiraWa = new Date(Date.now() + expiraH * 3_600_000)
+              .toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+            const waVars: Record<string, string> = {
+              nome: (pessoa?.name ?? '').split(/\s+/)[0] || 'cliente',
+              remetente: eCredsWa.sender_name || eCredsWa.from_name || 'Minimal Cases',
+              produto: waCart?.produto ?? 'sua case Minimal',
+              modelo_celular: waCart?.modeloCelular ?? 'seu celular',
+              preco: formatBRL(waCart?.total ?? null),
+              cupom: String(rv.cupom ?? ''),
+              expira_em: expiraWa,
+            };
+            if (rv.wa_button_url && waCart?.url && entry.person_id) {
+              waLink = await createTrackedLinkDetailed(supabase, {
+                destination: waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
+                source: 'esteira_whatsapp', label: 'wa_button_url', templateName: resolvedTemplateName, followupQueueId: entry.id,
+                abVariantId: (entry as { ab_variant_id?: string | null }).ab_variant_id ?? null,
+              });
             }
+            // WA-IMG: template com header de imagem SEMPRE recebe um link (Meta rejeita header vazio).
+            const headerFallback = Deno.env.get('WA_HEADER_FALLBACK_IMAGE')
+              || `${Deno.env.get('SUPABASE_URL')}/storage/v1/object/public/email-assets/prod-fosca.jpg`;
+            headerImageUrl = headerKind === 'image' ? resolveHeaderImage(rv, waCart, headerFallback) : null;
+            msgComponents = buildEsteiraWaComponents({
+              templateComponents: tplComponents, waParams, waVars, ruleVars: rv, buttonToken: waLink?.token ?? null, headerImageUrl,
+            });
           }
 
           // Pre-create the messages row so whatsapp-outbound can update it with the
@@ -351,6 +334,7 @@ serve(async (req) => {
               status:        'pending',
               source_type:   'followup',
               whatsapp_template_id: resolvedTemplateName,
+              ...(headerImageUrl ? { media_url: headerImageUrl } : {}),
             })
             .select('id')
             .single();
@@ -523,7 +507,7 @@ serve(async (req) => {
           });
           if (pixValido && pend?.pixExpira) vars['expira_em'] = fmtBR(pend.pixExpira);
           if (pend?.reorderUrl && entry.person_id && (html.includes('{{link_novo_checkout}}') || subject.includes('{{link_novo_checkout}}'))) {
-            const trackedReorder = await createTrackedLink(supabase, { destination: pend.reorderUrl, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'email', source: 'esteira_email', label: 'link_novo_checkout', templateName: emailTemplateName ?? subject, followupQueueId: entry.id });
+            const trackedReorder = await createTrackedLink(supabase, { destination: pend.reorderUrl, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'email', source: 'esteira_email', label: 'link_novo_checkout', templateName: emailTemplateName ?? subject, followupQueueId: entry.id, abVariantId: (entry as { ab_variant_id?: string | null }).ab_variant_id ?? null });
             vars['link_novo_checkout'] = trackedReorder ?? pend.reorderUrl;
           }
 
@@ -541,6 +525,7 @@ serve(async (req) => {
                 label: 'link_checkout',
                 templateName: emailTemplateName ?? subject,
                 followupQueueId: entry.id,
+                abVariantId: (entry as { ab_variant_id?: string | null }).ab_variant_id ?? null,
               });
               vars['link_checkout'] = tracked ?? cartUrl;
             }
@@ -596,6 +581,7 @@ serve(async (req) => {
                 label: 'link_checkout',
                 templateName: entry.subject ?? null,
                 followupQueueId: entry.id,
+                abVariantId: (entry as { ab_variant_id?: string | null }).ab_variant_id ?? null,
               });
               smsVars['link_checkout'] = tracked ?? cartUrl;
             }
