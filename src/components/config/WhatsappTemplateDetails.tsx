@@ -17,12 +17,15 @@ export const WhatsappTemplateDetails: React.FC<WhatsappTemplateDetailsProps> = (
     const comps = template.json_data?.components;
     if (!comps || !Array.isArray(comps)) return [];
 
-    const result: Array<{ type: string; text?: string; buttons?: Array<{ text: string; type: string }> }> = [];
+    const result: Array<{ type: string; text?: string; url?: string; buttons?: Array<{ text: string; type: string }> }> = [];
 
     for (const c of comps) {
       const type = (c.type as string)?.toUpperCase();
 
-      if (type === 'HEADER' && c.text) {
+      if (type === 'HEADER' && (c.format as string)?.toUpperCase() === 'IMAGE') {
+        const url = (template.json_data?.header_image_url as string | undefined) ?? undefined;
+        result.push({ type: 'HEADER_IMAGE', url });
+      } else if (type === 'HEADER' && c.text) {
         result.push({ type: 'HEADER', text: c.text as string });
       } else if (type === 'BODY' && c.text) {
         result.push({ type: 'BODY', text: c.text as string });

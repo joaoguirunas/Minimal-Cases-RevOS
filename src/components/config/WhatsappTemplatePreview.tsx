@@ -1,10 +1,12 @@
 import React from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, ImageIcon } from 'lucide-react';
 
 interface TemplateComponent {
   type: string;
   text?: string;
   format?: string;
+  image_url?: string;
+  url?: string;
   buttons?: Array<{
     text: string;
     type: string;
@@ -49,6 +51,26 @@ export const WhatsappTemplatePreview: React.FC<WhatsappTemplatePreviewProps> = (
           <div className="px-[7px] pt-[6px] pb-[8px]">
             <div className="space-y-[3px]">
               {components.map((component, index) => {
+                if ((component.type === 'HEADER' && component.format === 'IMAGE') || component.type === 'HEADER_IMAGE') {
+                  const src = component.image_url ?? component.url;
+                  return (
+                    <div key={index} className="mb-[2px]">
+                      {src ? (
+                        <img
+                          src={src}
+                          alt="Imagem do cabeçalho"
+                          className="rounded-lg aspect-[1.91/1] object-cover w-full"
+                        />
+                      ) : (
+                        <div className="rounded-lg aspect-[1.91/1] w-full bg-black/5 flex flex-col items-center justify-center gap-1 text-[#667781]">
+                          <ImageIcon className="h-5 w-5" strokeWidth={1.5} />
+                          <span className="text-[11px]">Imagem do cabeçalho</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 if (component.type === 'HEADER' && component.text) {
                   return (
                     <div key={index} className="font-semibold text-[14.2px] text-[#111B21] mb-[2px] leading-[19px]">
