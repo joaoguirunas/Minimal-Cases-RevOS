@@ -9,6 +9,7 @@
 
 import { motion, type Variants } from 'framer-motion';
 import { useReconversaoBI } from '@/hooks/useReconversaoBI';
+import { useTrackedClicksRealtime } from '@/hooks/useTrackedLinks';
 import {
   cardVariants, containerVariants, SkeletonBlock,
 } from './bipro-shared';
@@ -16,6 +17,7 @@ import KpiHero from './reconversao/KpiHero';
 import InsightsStrip from './reconversao/InsightsStrip';
 import FunnelCard from './reconversao/FunnelCard';
 import AttributionCard from './reconversao/AttributionCard';
+import ClickRateCard from './reconversao/ClickRateCard';
 import DailyChart from './reconversao/DailyChart';
 import ReconversionsTable from './reconversao/ReconversionsTable';
 
@@ -30,6 +32,7 @@ interface Props {
 
 export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
   const { data, isLoading, isError, error, refetch } = useReconversaoBI(dateFrom, dateTo);
+  useTrackedClicksRealtime();
 
   if (isError) {
     return (
@@ -64,10 +67,11 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
       <KpiHero agregado={data.agregado} />
       <InsightsStrip agregado={data.agregado} />
 
-      {/* ── Funil e atribuição ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* ── Funil, atribuição e clique por toque ─────────────────────────── */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <FunnelCard funil={data.agregado.funil} />
         <AttributionCard receita={data.agregado.porNivelReceita} topCupons={data.agregado.topCupons} />
+        <ClickRateCard linhas={data.agregado.cliquesPorToque} geral={data.agregado.ctrGeral} />
       </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}

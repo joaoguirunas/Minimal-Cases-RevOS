@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, User, Bot, MessageCircle, MoreHorizontal, AlertCircle } from "lucide-react";
+import { ArrowLeft, Send, User, Bot, MessageCircle, MoreHorizontal, AlertCircle, MousePointerClick } from "lucide-react";
 import { useMensagensPorPessoa } from "@/hooks/useMensagensPorPessoa";
 import { useEnviarMensagem } from "@/hooks/useConversas";
 import { useCanSendMessage } from "@/hooks/useCanSendMessage";
 import { useSettings } from "@/hooks/useSettings";
+import { useTrackedLinksByPerson, useTrackedClicksRealtime } from "@/hooks/useTrackedLinks";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageStatusTicks } from "./MessageStatusTicks";
 import { WhatsappTemplateModal } from "./WhatsappTemplateModal";
@@ -33,6 +34,8 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
   const { data: mensagens = [], isLoading, isError, error, refetch } = useMensagensPorPessoa(pessoaId, 'single-tenant');
   const { data: settings } = useSettings();
   const enviarMensagem = useEnviarMensagem();
+  const { data: linksByMessage } = useTrackedLinksByPerson(pessoaId);
+  useTrackedClicksRealtime();
 
   // Fetch pessoa data with all fields for template variable substitution
   const { data: pessoa } = useQuery({
@@ -256,6 +259,19 @@ const ConversaDetalhes = ({ pessoaId, onVoltar }: ConversaDetalhesProps) => {
                             <MessageStatusTicks status={message.status} />
                           </>
                         )}
+                        {!isFromClient && (() => {
+                          const link = linksByMessage?.get(Number(message.id));
+                          if (!link || link.clicks <= 0 || !link.first_clicked_at) return null;
+                          return (
+                            <>
+                              <span>•</span>
+                              <span className="inline-flex items-center gap-1" title={`Abriu o link ${link.clicks}x · último ${format(new Date(link.last_clicked_at ?? link.first_clicked_at), 'dd/MM HH:mm')}`}>
+                                <MousePointerClick className="h-3 w-3" aria-hidden />
+                                Link aberto {format(new Date(link.first_clicked_at), 'HH:mm')}{link.clicks > 1 ? ` (${link.clicks}x)` : ''}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

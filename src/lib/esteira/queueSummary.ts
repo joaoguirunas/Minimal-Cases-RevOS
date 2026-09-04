@@ -8,10 +8,12 @@
 
 export interface QueueRow { lead_id: string; channel: string; status: string; scheduled_for: string | null; subject?: string | null }
 export type Channel = 'email' | 'whatsapp' | 'sms';
+export interface LeadClickSummary { total: number; links: number; firstAt: string | null; lastAt: string | null }
 export interface LeadQueueSummary {
   sent: Record<Channel, number> & { total: number };
   pending: number; failed: number; cancelled: number; total: number;
   nextAt: string | null; nextChannel: Channel | null; nextLabel: string | null;
+  clicks: LeadClickSummary;
 }
 
 export function channelOf(raw: string): Channel {
@@ -22,14 +24,14 @@ export function channelOf(raw: string): Channel {
 
 const SENT = new Set(['sent', 'queued', 'delivered', 'read']);
 
-function empty(): LeadQueueSummary {
-  return { sent: { email: 0, whatsapp: 0, sms: 0, total: 0 }, pending: 0, failed: 0, cancelled: 0, total: 0, nextAt: null, nextChannel: null, nextLabel: null };
+export function emptyQueueSummary(): LeadQueueSummary {
+  return { sent: { email: 0, whatsapp: 0, sms: 0, total: 0 }, pending: 0, failed: 0, cancelled: 0, total: 0, nextAt: null, nextChannel: null, nextLabel: null, clicks: { total: 0, links: 0, firstAt: null, lastAt: null } };
 }
 
 export function summarizeQueue(rows: QueueRow[]): Record<string, LeadQueueSummary> {
   const out: Record<string, LeadQueueSummary> = {};
   for (const r of rows) {
-    const s = (out[r.lead_id] ??= empty());
+    const s = (out[r.lead_id] ??= emptyQueueSummary());
     const ch = channelOf(r.channel);
     if (SENT.has(r.status)) { s.sent[ch]++; s.sent.total++; s.total++; }
     else if (r.status === 'pending' || r.status === 'processing') {

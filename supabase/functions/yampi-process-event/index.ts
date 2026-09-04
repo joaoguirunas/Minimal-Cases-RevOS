@@ -24,7 +24,7 @@ import {
   type YampiTrigger,
 } from '../_shared/yampi-events.ts';
 import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
-import { hadTrackedClickBefore } from '../_shared/tracked-links.ts';
+import { findTrackedClickBefore } from '../_shared/tracked-links.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -345,6 +345,18 @@ Deno.serve(async (req) => {
       if (!cancelErr) log.info('pending_fups_cancelled', { lead_id: leadId, trigger });
     }
 
+    // LINKS-V2: qualquer sinal de pagamento em andamento/concluído cancela o retorno reativo
+    // "clicou e não comprou" que ainda não disparou.
+    if (['pix_gerado', 'boleto_gerado', 'pedido_criado', 'pedido_pago', 'pedido_cancelado'].includes(trigger) && leadId) {
+      const { error: nudgeErr } = await supabase
+        .from('ai_scheduled_callbacks')
+        .update({ status: 'cancelled', cancelled_at: new Date().toISOString(), cancel_reason: `auto-cancel: ${trigger}` })
+        .eq('lead_id', leadId)
+        .eq('status', 'pending')
+        .eq('reason', 'clique_sem_compra');
+      if (!nudgeErr) log.info('click_nudge_cancelled', { lead_id: leadId, trigger });
+    }
+
     // ── BI-REC-1: captura exata de reconversão no pedido pago ───────────────
     // Foto dos toques da esteira no momento do pagamento; attributed=true quando
     // houve toque enviado antes de pagar, dentro da janela de 7 dias.
@@ -396,7 +408,8 @@ Deno.serve(async (req) => {
         }
 
         // 🥈 clique em link rastreado nosso antes de pagar (janela 7d).
-        const clicked = isOurCoupon ? false : await hadTrackedClickBefore(supabase, peopleId, paidAt, WINDOW_DAYS);
+        const clickBefore = isOurCoupon ? null : await findTrackedClickBefore(supabase, peopleId, paidAt, WINDOW_DAYS);
+        const clicked = !!clickBefore;
 
         const attributionLevel = isOurCoupon ? 'cupom' : clicked ? 'clique' : withinWindow ? 'janela' : null;
         const attributed = attributionLevel !== null;
@@ -418,6 +431,9 @@ Deno.serve(async (req) => {
           attribution_level: attributionLevel,
           coupon_code: couponCode,
           attribution_window_days: WINDOW_DAYS,
+          attributed_link_id: clickBefore?.linkId ?? null,
+          attributed_link_source: clickBefore?.source ?? null,
+          attributed_template_name: clickBefore?.templateName ?? clickBefore?.label ?? null,
         }, { onConflict: 'order_id' });
         log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length });
 

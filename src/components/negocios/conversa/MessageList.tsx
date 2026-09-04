@@ -1,10 +1,11 @@
 import React, { RefObject, useMemo } from 'react';
 import {
-  Bot, MessageCircle, Instagram, Mail, Phone, CornerUpLeft as ReplyIcon,
+  Bot, MessageCircle, Instagram, Mail, Phone, CornerUpLeft as ReplyIcon, MousePointerClick,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { MessageStatusTicks } from '@/components/conversas/MessageStatusTicks';
 import { MessageContent } from '@/components/conversas/MessageContent';
+import { useTrackedLinksByPerson, useTrackedClicksRealtime } from '@/hooks/useTrackedLinks';
 
 // ── Inline helpers ───────────────────────────────────────────────────────────
 
@@ -77,6 +78,9 @@ const MessageList: React.FC<MessageListProps> = ({
   messagesEndRef,
   textareaRef,
 }) => {
+  const { data: linksByMessage } = useTrackedLinksByPerson(pessoaAtual?.id ?? null);
+  useTrackedClicksRealtime();
+
   // Lookup pra renderizar o trecho citado quando uma mensagem tem parent_message_id (quote reply)
   const mensagensPorId = useMemo(() => {
     const map = new Map<number, { message: string; senderLabel: string }>();
@@ -345,6 +349,19 @@ const MessageList: React.FC<MessageListProps> = ({
                     {isOutgoing && conversa.status && !isOptimistic && (
                       <MessageStatusTicks status={conversa.status} />
                     )}
+                    {isOutgoing && (() => {
+                      const link = linksByMessage?.get(Number(conversa.id));
+                      if (!link || link.clicks <= 0 || !link.first_clicked_at) return null;
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] ${footerCls}`}
+                          title={`Abriu o link ${link.clicks}x · último ${format(new Date(link.last_clicked_at ?? link.first_clicked_at), 'dd/MM HH:mm')}`}
+                        >
+                          <MousePointerClick className="h-3 w-3" aria-hidden />
+                          Link aberto {format(new Date(link.first_clicked_at), 'HH:mm')}{link.clicks > 1 ? ` (${link.clicks}x)` : ''}
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {/* Failed message retry */}

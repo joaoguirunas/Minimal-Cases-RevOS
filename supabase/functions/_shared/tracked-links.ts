@@ -22,22 +22,75 @@ function shortToken(len = 10): string {
   return out;
 }
 
-export async function createTrackedLink(
+export type TrackedLinkSource = 'esteira_email' | 'esteira_whatsapp' | 'esteira_sms' | 'agente' | 'manual' | 'outro';
+
+export interface CreateTrackedLinkOpts {
+  destination: string;
+  peopleId?: string | null;
+  leadId?: string | null;
+  channel?: string | null;
+  /** Quem criou o link. Default 'outro' (legado). */
+  source?: TrackedLinkSource;
+  /** Slot: link_checkout | link_novo_checkout | wa_button_url | <nome da tool do agente>. */
+  label?: string | null;
+  /** Nome do template Meta / template de e-mail / subject do toque. */
+  templateName?: string | null;
+  followupQueueId?: string | null;
+  messageId?: number | null;
+  executionId?: string | null;
+}
+
+export interface TrackedLinkCreated { id: string; token: string; url: string }
+
+/** Base pública do redirect. Domínio curto (decisão da cliente) entra por env sem tocar código. */
+export function trackedLinkBaseUrl(): string {
+  const custom = (Deno.env.get('TRACKED_LINK_BASE_URL') ?? '').trim().replace(/\/+$/, '');
+  if (custom) return custom;
+  return `${(Deno.env.get('SUPABASE_URL') ?? '').replace(/\/+$/, '')}/functions/v1/r`;
+}
+
+/** Base terminada em "/r" → "?t=<token>" (formato dos templates Meta aprovados); senão "/<token>". */
+export function buildTrackedUrl(base: string, token: string): string {
+  const b = base.replace(/\/+$/, '');
+  return b.endsWith('/r') ? `${b}?t=${token}` : `${b}/${token}`;
+}
+
+export async function createTrackedLinkDetailed(
   supabase: SupabaseClient,
-  opts: { destination: string; peopleId?: string | null; leadId?: string | null; channel?: string | null },
-): Promise<string | null> {
+  opts: CreateTrackedLinkOpts,
+): Promise<TrackedLinkCreated | null> {
   if (!opts.destination || !/^https?:\/\//i.test(opts.destination)) return null;
   const token = shortToken();
-  const { error } = await supabase.from('tracked_links').insert({
+  const { data, error } = await supabase.from('tracked_links').insert({
     token,
     destination: opts.destination,
     people_id: opts.peopleId ?? null,
     lead_id: opts.leadId ?? null,
     channel: opts.channel ?? null,
-  });
-  if (error) return null;
-  const base = (Deno.env.get('SUPABASE_URL') ?? '').replace(/\/+$/, '');
-  return `${base}/functions/v1/r?t=${token}`;
+    source: opts.source ?? 'outro',
+    label: opts.label ?? null,
+    template_name: opts.templateName ?? null,
+    followup_queue_id: opts.followupQueueId ?? null,
+    message_id: opts.messageId ?? null,
+    execution_id: opts.executionId ?? null,
+  }).select('id').single();
+  if (error || !data) {
+    // Único sinal se a function for deployada antes da migration (colunas novas) ou se uma coluna mudar.
+    console.warn('[tracked-links] insert falhou', { source: opts.source ?? 'outro', label: opts.label ?? null, error: error?.message ?? 'sem linha' });
+    return null;
+  }
+  return { id: (data as { id: string }).id, token, url: buildTrackedUrl(trackedLinkBaseUrl(), token) };
+}
+
+/** Compat: devolve só a URL. Prefira createTrackedLinkDetailed quando precisar do token/id. */
+export async function createTrackedLink(supabase: SupabaseClient, opts: CreateTrackedLinkOpts): Promise<string | null> {
+  return (await createTrackedLinkDetailed(supabase, opts))?.url ?? null;
+}
+
+/** Liga o link à linha de `messages` criada depois dele (template WA, botão do agente). */
+export async function attachTrackedLinkMessage(supabase: SupabaseClient, linkId: string, messageId: number): Promise<void> {
+  const { error } = await supabase.from('tracked_links').update({ message_id: messageId }).eq('id', linkId).is('message_id', null);
+  if (error) console.warn('[tracked-links] attach falhou', { linkId, messageId, error: error.message });
 }
 
 type AnyRec = Record<string, unknown>;
@@ -222,22 +275,33 @@ export async function resolveCartUrlForPerson(
   return (await resolveCartForPerson(supabase, peopleId)).url;
 }
 
-/** true se a pessoa clicou em algum link rastreado nosso antes de `before`, dentro da janela. */
-export async function hadTrackedClickBefore(
+export interface TrackedClickBefore { linkId: string; source: string; templateName: string | null; label: string | null; clickedAt: string }
+
+/** Clique humano mais recente ANTES de `before` (lê tracked_link_clicks; o link pode ter sido reaberto depois do pagamento). */
+export async function findTrackedClickBefore(
   supabase: SupabaseClient,
   peopleId: string,
   before: Date,
   windowDays: number,
-): Promise<boolean> {
+): Promise<TrackedClickBefore | null> {
   const windowStart = new Date(before.getTime() - windowDays * 86_400_000).toISOString();
   const { data } = await supabase
-    .from('tracked_links')
-    .select('id')
+    .from('tracked_link_clicks')
+    .select('clicked_at, tracked_link:tracked_links(id, source, template_name, label)')
     .eq('people_id', peopleId)
-    .gt('clicks', 0)
-    .gte('last_clicked_at', windowStart)
-    .lte('last_clicked_at', before.toISOString())
+    .eq('is_bot', false)
+    .eq('is_duplicate', false)
+    .gte('clicked_at', windowStart)
+    .lte('clicked_at', before.toISOString())
+    .order('clicked_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  return !!data;
+  const r = data as { clicked_at: string; tracked_link: { id: string; source: string; template_name: string | null; label: string | null } | null } | null;
+  if (!r?.tracked_link) return null;
+  return { linkId: r.tracked_link.id, source: r.tracked_link.source, templateName: r.tracked_link.template_name, label: r.tracked_link.label, clickedAt: r.clicked_at };
+}
+
+/** true se a pessoa clicou em algum link rastreado nosso antes de `before`, dentro da janela. */
+export async function hadTrackedClickBefore(supabase: SupabaseClient, peopleId: string, before: Date, windowDays: number): Promise<boolean> {
+  return !!(await findTrackedClickBefore(supabase, peopleId, before, windowDays));
 }

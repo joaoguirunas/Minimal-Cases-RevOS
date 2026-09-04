@@ -253,6 +253,19 @@ async function processCallback(deps: ProcessDeps): Promise<Outcome> {
     return finish({ status: 'skipped', error_message: `lead ${leadStatus}` }, 'skipped');
   }
 
+  // LINKS-V2: retorno reativo "clicou e não comprou" — não incomoda quem já está pagando/pagou/perdeu.
+  if (row.reason === 'clique_sem_compra') {
+    const { data: leadStageRow } = await supabase.from('leads').select('leads_stages_id').eq('id', row.lead_id).maybeSingle();
+    const stageId = (leadStageRow as { leads_stages_id?: string | null } | null)?.leads_stages_id ?? null;
+    if (stageId) {
+      const { data: st } = await supabase.from('leads_stages').select('name').eq('id', stageId).maybeSingle();
+      const stageName = String((st as { name?: string } | null)?.name ?? '');
+      if (['Pagamento pendente', 'Recuperado', 'Perdido'].includes(stageName)) {
+        return finish({ status: 'skipped', error_message: `clique_sem_compra: lead em "${stageName}"` }, 'skipped');
+      }
+    }
+  }
+
   // Conversa em andamento neste exato instante → adia +2 min (máx. MAX_RETRIES).
   const { data: pendingBuffer } = await supabase
     .from('message_buffer')
@@ -353,7 +366,8 @@ async function processCallback(deps: ProcessDeps): Promise<Outcome> {
         body: JSON.stringify({
           people_id: row.people_id,
           stage_trigger: true,
-          direct_message: buildAgentDirectMessage(row.reason, content.freePrompt),
+          // Nudge de clique não tem agent/step config: a instrução vem em message_text.
+          direct_message: buildAgentDirectMessage(row.reason, content.freePrompt ?? (row.reason === 'clique_sem_compra' ? row.message_text : null)),
         }),
         signal: controller.signal,
       });
@@ -370,6 +384,7 @@ async function processCallback(deps: ProcessDeps): Promise<Outcome> {
         const NO_OP_STATUSES = new Set([
           'lock_not_acquired', 'nothing_to_process', 'ai_disabled_for_person',
           'no_agent_configured', 'score_matrix_not_matched', 'origem_lista_not_matched',
+          'no_outreach_from_us',
         ]);
         let parsedStatus: string | undefined;
         try { parsedStatus = JSON.parse(body)?.status; } catch { /* corpo não é JSON — segue como sent */ }
