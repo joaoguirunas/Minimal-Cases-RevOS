@@ -19,8 +19,8 @@ const csvCell = (v: unknown) => {
   return /[;"\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 export function toCsv(rows: ReconversionRow[]): string {
-  const head = ['cliente', 'pedido', 'valor', 'pago_em', 'atribuicao', 'cupom', 'toques_email', 'toques_whatsapp', 'toques_sms', 'horas_ultimo_toque'];
-  const lines = rows.map((r) => [r.pessoa?.name ?? '', r.order_id, r.order_total ?? '', r.paid_at, r.attributed ? r.attribution_level ?? '' : 'organico', r.coupon_code ?? '', r.touches_email, r.touches_whatsapp, r.touches_sms, r.hours_since_last_touch ?? ''].map(csvCell).join(';'));
+  const head = ['cliente', 'pedido', 'valor', 'pago_em', 'atribuicao', 'cupom', 'toques_email', 'toques_whatsapp', 'toques_sms', 'horas_ultimo_toque', 'toque_do_clique'];
+  const lines = rows.map((r) => [r.pessoa?.name ?? '', r.order_id, r.order_total ?? '', r.paid_at, r.attributed ? r.attribution_level ?? '' : 'organico', r.coupon_code ?? '', r.touches_email, r.touches_whatsapp, r.touches_sms, r.hours_since_last_touch ?? '', r.attributed_template_name ?? ''].map(csvCell).join(';'));
   return [head.join(';'), ...lines].join('\n');
 }
 
@@ -122,8 +122,8 @@ export default function ReconversionsTable({ rows }: { rows: ReconversionRow[] }
                 <td className="px-4 py-2.5">
                   {r.attributed ? (
                     <Chip size="md" icon={CheckCircle2} tone={r.attribution_level === 'cupom' ? 'success' : r.attribution_level === 'clique' ? 'info' : 'warning'}
-                      title={r.attribution_level === 'cupom' ? `Usou o nosso cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? 'Clicou em link rastreado nosso antes de pagar' : 'Recebeu toque antes de pagar (janela de 7 dias)'}>
-                      {r.attribution_level === 'cupom' ? `Cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? 'Clique rastreado' : 'Janela 7d'}
+                      title={r.attribution_level === 'cupom' ? `Usou o nosso cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clicou em link nosso (${r.attributed_template_name ?? 'toque não identificado'}) antes de pagar` : 'Recebeu toque antes de pagar (janela de 7 dias)'}>
+                      {r.attribution_level === 'cupom' ? `Cupom ${r.coupon_code ?? ''}` : r.attribution_level === 'clique' ? `Clique · ${r.attributed_template_name ?? r.attributed_link_source ?? 'link'}` : 'Janela 7d'}
                     </Chip>
                   ) : <Chip size="md">Orgânico</Chip>}
                 </td>

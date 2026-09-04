@@ -29,6 +29,8 @@ export interface ReconversionRow {
   attributed: boolean;
   attribution_level: 'cupom' | 'clique' | 'janela' | null;
   coupon_code: string | null;
+  attributed_link_source?: string | null;
+  attributed_template_name?: string | null;
   pessoa?: { name: string | null } | null;
 }
 
@@ -117,7 +119,7 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
       const prevFrom = new Date(new Date(from).getTime() - spanMs).toISOString();
       const prevTo = from;
 
-      const [prevRecRes, prevTouchRes, clicksRes] = await Promise.all([
+      const [prevRecRes, prevTouchRes, clicksRes, linksRes] = await Promise.all([
         db
           .from('esteira_reconversions')
           .select('*')
@@ -137,15 +139,22 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
           .gte('first_clicked_at', from)
           .lte('first_clicked_at', to)
           .limit(10000),
+        db.from('tracked_links')
+          .select('source, label, template_name, channel, clicks')
+          .gte('created_at', from)
+          .lte('created_at', to)
+          .limit(10000),
       ]);
       if (prevRecRes.error) throw prevRecRes.error;
       if (prevTouchRes.error) throw prevTouchRes.error;
       if (clicksRes.error) throw clicksRes.error;
+      if (linksRes.error) throw linksRes.error;
       const prevRows = (prevRecRes.data ?? []) as RecRow[];
       const prevTouches = (prevTouchRes.data ?? []) as TouchRow[];
       const clicks = (clicksRes.data ?? []) as ClickRow[];
+      const links = (linksRes.data ?? []) as never;
 
-      const agregado = aggregateReconversao({ rows: all, touches: touchRows, clicks, prevRows, prevTouches });
+      const agregado = aggregateReconversao({ rows: all, touches: touchRows, clicks, prevRows, prevTouches, links });
 
       // ── Agregados ────────────────────────────────────────────────────────
       const receita = attributed.reduce((acc, r) => acc + (r.order_total ?? 0), 0);
