@@ -98,6 +98,33 @@ Deno.test('stripHtml remove tags', () => {
   assertEquals(stripHtml('<p>Couro <b>legítimo</b>…</p><img src=x>'), 'Couro legítimo…');
 });
 
+Deno.test('stripHtml remove <script>/<style> (com conteúdo) e decodifica entidades', () => {
+  assertEquals(
+    stripHtml('<style>x{}</style><p>Couro &amp; Metal &quot;premium&quot;</p>'),
+    'Couro & Metal "premium"',
+  );
+  assertEquals(
+    stripHtml('<script>alert(1)</script><p>Tamanho &lt;10cm&gt; &nbsp;&#39;ok&#39;</p>'),
+    "Tamanho <10cm> 'ok'",
+  );
+});
+
+Deno.test('summarizeProduct: price_discount 0 (sem promoção) não vira "preço R$ 0,00" — cai pro price_sale', () => {
+  const raw = {
+    id: 2,
+    name: 'Case Simples',
+    skus: [
+      { id: 21, title: 'Case Simples Preto', price_sale: 149.9, price_discount: 0, total_in_stock: 1, variations: [{ name: 'Cor', value: 'Preto' }] },
+      { id: 22, title: 'Case Simples Azul', price_sale: 129.9, price_discount: 99.9, total_in_stock: 1, variations: [{ name: 'Cor', value: 'Azul' }] },
+    ],
+  };
+  const s = summarizeProduct(raw);
+  if (!s) throw new Error('summary null');
+  assertEquals(s.variantesDetalhe.find((v) => v.skuId === 21)?.preco, 149.9);
+  assertEquals(s.precoMin, 99.9);
+  assertEquals(s.precoMax, 149.9);
+});
+
 Deno.test('truncateAtSentence corta na última frase que cabe', () => {
   assertEquals(truncateAtSentence('A b. C d. E', 8), 'A b.');
 });

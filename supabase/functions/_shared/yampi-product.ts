@@ -60,11 +60,36 @@ function list(v: unknown): unknown[] {
 const COLOR_RE = /cor|color/i;
 const MODEL_RE = /modelo|aparelho|celular|compat/i;
 
-/** Remove tags HTML (mantém o texto entre elas); espaços colapsados. */
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  '#39': "'",
+  apos: "'",
+  nbsp: ' ',
+};
+
+/** Decodifica `&amp; &lt; &gt; &quot; &#39; &apos; &nbsp;` e numéricas (`&#NNN;`/`&#xHH;`). */
+function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z0-9]+);/gi, (m, code: string) => {
+    if (code[0] === '#') {
+      const isHex = code[1]?.toLowerCase() === 'x';
+      const cp = isHex ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return Number.isFinite(cp) ? String.fromCodePoint(cp) : m;
+    }
+    const key = code.toLowerCase();
+    return NAMED_ENTITIES[key] ?? m;
+  });
+}
+
+/** Remove `<script>`/`<style>` (com conteúdo) e demais tags HTML; decodifica entidades; espaços colapsados. */
 export function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replace(/&nbsp;/g, ' ')
+  return decodeEntities(
+    html
+      .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+      .replace(/<[^>]*>/g, ''),
+  )
     .replace(/[ \t]+/g, ' ')
     .replace(/\s*\n\s*/g, '\n')
     .trim();
@@ -136,7 +161,11 @@ export function summarizeProduct(raw: unknown): ProductSummary | null {
 
     const priceSale = typeof sku.price_sale === 'number' ? sku.price_sale : null;
     const priceDiscount = typeof sku.price_discount === 'number' ? sku.price_discount : null;
-    const preco = priceDiscount ?? priceSale;
+    // Yampi manda price_discount: 0 em SKUs sem promoção — 0 não é um preço válido,
+    // cai pro price_sale (e null se nenhum dos dois for > 0).
+    const preco = (priceDiscount !== null && priceDiscount > 0)
+      ? priceDiscount
+      : (priceSale !== null && priceSale > 0 ? priceSale : null);
     if (typeof preco === 'number') {
       precoMin = precoMin === null ? preco : Math.min(precoMin, preco);
       precoMax = precoMax === null ? preco : Math.max(precoMax, preco);
