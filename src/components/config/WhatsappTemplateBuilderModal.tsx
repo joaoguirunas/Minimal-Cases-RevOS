@@ -1137,6 +1137,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
       onOpenChange={setImagePickerOpen}
       onSelect={setHeaderImageUrl}
       prefix="wa-headers/"
+      accept="image/jpeg,image/png"
     />
     </>
   );

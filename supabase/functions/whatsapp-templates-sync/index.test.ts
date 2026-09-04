@@ -21,6 +21,7 @@ import {
   type MetaApiError,
   type MetaPageResponse,
   type MetaTemplate,
+  mergeHeaderImageUrl,
   resolveTemplateMatch,
   shouldSoftDelete,
   type TemplateLookupClient,
@@ -268,4 +269,32 @@ Deno.test('match: sem correspondência retorna none (insert path)', async () => 
   const match = await resolveTemplateMatch(fakeLookup([]), tpl);
   assertEquals(match.kind, 'none');
   assertEquals(match.id, null);
+});
+
+// ── mergeHeaderImageUrl ────────────────────────────────────────────────────────
+
+Deno.test('mergeHeaderImageUrl: preserva header_image_url existente quando o novo payload não tem', () => {
+  const merged = mergeHeaderImageUrl(
+    { category: 'MARKETING', language: 'pt_BR', components: [] },
+    { header_image_url: 'https://cdn/example.png', category: 'MARKETING' },
+  );
+  assertEquals(merged.header_image_url, 'https://cdn/example.png');
+});
+
+Deno.test('mergeHeaderImageUrl: novo payload com header_image_url próprio prevalece', () => {
+  const merged = mergeHeaderImageUrl(
+    { header_image_url: 'https://cdn/new.png', components: [] },
+    { header_image_url: 'https://cdn/old.png' },
+  );
+  assertEquals(merged.header_image_url, 'https://cdn/new.png');
+});
+
+Deno.test('mergeHeaderImageUrl: sem valor existente e sem novo, não adiciona a chave', () => {
+  const merged = mergeHeaderImageUrl({ components: [] }, null);
+  assertEquals('header_image_url' in merged, false);
+});
+
+Deno.test('mergeHeaderImageUrl: sem json_data existente (row nova), não quebra', () => {
+  const merged = mergeHeaderImageUrl({ components: [] }, undefined);
+  assertEquals(merged, { components: [] });
 });

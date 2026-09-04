@@ -1,6 +1,7 @@
 import type { StageFollowup } from '@/hooks/useFollowups';
 import type { WhatsappTemplate } from '@/hooks/useWhatsappTemplates';
 import type { ClickRateRow } from '@/lib/bi/clicks';
+import { templateHeaderKind } from './waRuleVars';
 
 export type TemplateStatus = 'aprovado' | 'em_analise' | 'rejeitado' | 'sem_template' | 'nao_aplica';
 export type Canal = 'email' | 'whatsapp' | 'sms' | 'outro';
@@ -144,6 +145,18 @@ export function buildStageTimeline(
     const vars = f.vars ?? null;
     const tracked = vars?.wa_button_url === true || /\{\{link_(novo_)?checkout\}\}/.test(body);
     const rate = templateName ? ctrByTemplate.get(templateName) : undefined;
+    const matchedTpl =
+      f.tipo === 'whatsapp_template'
+        ? templates.find(
+            (t) =>
+              (f.whatsapp_template_id && t.id_template === f.whatsapp_template_id) ||
+              (f.whatsapp_template_name && (t.nome === f.whatsapp_template_name || t.meta_template_name === f.whatsapp_template_name)),
+          )
+        : undefined;
+    // headerImage: true quando o template resolvido tem header de imagem (mesmo sem
+    // `wa_header_mode` escolhido — a regra ainda envia a imagem de fallback), OU
+    // quando o usuário explicitamente escolheu um modo de header por toque.
+    const hasImageHeaderTemplate = templateHeaderKind(matchedTpl?.json_data?.components) === 'image';
 
     const list = byStage.get(f.leads_stages_id) ?? [];
     list.push({
@@ -155,7 +168,7 @@ export function buildStageTimeline(
       templateStatus: templateStatusOf(f, templates),
       templateName,
       tracked,
-      headerImage: Boolean(vars?.wa_header_mode),
+      headerImage: hasImageHeaderTemplate || Boolean(vars?.wa_header_mode),
       variantId: f.ab_variant_id ?? null,
       ctr: rate ? { enviados: rate.enviados, clicados: rate.clicados, ctr: rate.ctr } : null,
       placement: 'above',

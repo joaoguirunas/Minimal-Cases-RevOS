@@ -117,7 +117,7 @@ REVOKE ALL ON FUNCTION public.assign_esteira_variant(uuid) FROM PUBLIC, anon, au
 CREATE OR REPLACE FUNCTION public.promote_ab_winner(p_experiment_id uuid, p_winner uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 BEGIN
-  IF auth.role() <> 'service_role' AND NOT EXISTS (
+  IF coalesce(auth.role(), '') <> 'service_role' AND NOT EXISTS (
        SELECT 1 FROM public.settings_users su
         WHERE su.auth_user_id = auth.uid() AND su.active = true AND su.deleted_at IS NULL
           AND (su.super_admin = true OR su.user_type = 'manager'))
@@ -138,7 +138,7 @@ END $fn$;
 CREATE OR REPLACE FUNCTION public.finish_ab_experiment(p_experiment_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$
 BEGIN
-  IF auth.role() <> 'service_role' AND NOT EXISTS (
+  IF coalesce(auth.role(), '') <> 'service_role' AND NOT EXISTS (
        SELECT 1 FROM public.settings_users su
         WHERE su.auth_user_id = auth.uid() AND su.active = true AND su.deleted_at IS NULL
           AND (su.super_admin = true OR su.user_type = 'manager'))

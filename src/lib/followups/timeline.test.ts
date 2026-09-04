@@ -44,6 +44,10 @@ describe('labelPlacement', () => {
 const tpl = [
   { id_template: '111', nome: 'minimal_esteira_wa01', meta_template_name: 'minimal_esteira_wa01', status: 'APPROVED' },
   { id_template: '222', nome: 'minimal_esteira_wa02', meta_template_name: null, status: 'PENDING' },
+  {
+    id_template: '333', nome: 'minimal_esteira_wa03', meta_template_name: null, status: 'APPROVED',
+    json_data: { components: [{ type: 'HEADER', format: 'IMAGE' }] },
+  },
 ] as never[];
 
 const base = {
@@ -99,5 +103,13 @@ describe('buildStageTimeline', () => {
     const [s] = buildStageTimeline(rules, tpl, [], variants);
     expect(s.lanes[0].rules.map((r) => r.placement)).toEqual(['above', 'below', 'above']);
     expect(s.lanes[2].rules.map((r) => r.placement)).toEqual(['above']);
+  });
+
+  it('headerImage é true quando o template resolvido tem header IMAGE, mesmo sem wa_header_mode escolhido', () => {
+    const rulesImgTpl = [
+      { ...base, id: 'w3', dias: 0, horas: 1, minutos: 0, tipo: 'whatsapp_template', whatsapp_template_id: '333', vars: {} },
+    ] as never[];
+    const [s] = buildStageTimeline(rulesImgTpl, tpl, [], variants);
+    expect(s.lanes[0].rules[0]).toMatchObject({ id: 'w3', headerImage: true });
   });
 });

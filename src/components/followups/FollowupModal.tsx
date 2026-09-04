@@ -206,6 +206,9 @@ const FollowupModal = ({
     if (form.canal === 'whatsapp_template' && !form.template_id) {
       toast.error('Selecione um template WhatsApp.'); return;
     }
+    if (form.canal === 'whatsapp_template' && form.template_id && !tpl) {
+      toast.error('Aguarde os templates carregarem para salvar este toque.'); return;
+    }
     if (form.canal === 'whatsapp_template' && waPlaceholders.length > 0 && waPlaceholders.some(n => !form.vars.waParams[n - 1])) {
       toast.error('Preencha todos os parâmetros do template.'); return;
     }
@@ -239,7 +242,7 @@ const FollowupModal = ({
       business_hours_only:  form.business_hours_only,
       bh_only_last:         form.bh_only_last,
       vars:                 serializeRuleVars(
-        { ...form.vars, waParams: form.vars.waParams.slice(0, waPlaceholders.length) },
+        { ...form.vars, waParams: tpl ? form.vars.waParams.slice(0, waPlaceholders.length) : form.vars.waParams },
         followup?.vars,
       ),
       ab_variant_id:        form.ab_variant_id,
@@ -826,6 +829,7 @@ const FollowupModal = ({
           onOpenChange={setAssetPicker}
           onSelect={url => upd({ vars: { ...form.vars, waHeaderImage: url } })}
           prefix="wa-headers/"
+          accept="image/jpeg,image/png"
         />
       </DialogContent>
     </Dialog>

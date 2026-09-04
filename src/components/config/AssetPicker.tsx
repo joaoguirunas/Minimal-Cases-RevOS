@@ -13,6 +13,20 @@ import { useEmailAssets, useUploadEmailAsset } from '@/hooks/useEmailAssets';
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
+const MIME_LABELS: Record<string, string> = {
+  'image/jpeg': 'JPEG',
+  'image/png': 'PNG',
+  'image/gif': 'GIF',
+  'image/webp': 'WebP',
+};
+
+/** Converte um `accept` HTML (ex.: "image/jpeg,image/png") na lista de MIME types aceitos. */
+function parseAcceptedTypes(accept?: string): string[] {
+  if (!accept) return ACCEPTED_TYPES;
+  const parsed = accept.split(',').map(s => s.trim()).filter(Boolean);
+  return parsed.length > 0 ? parsed : ACCEPTED_TYPES;
+}
+
 interface AssetPickerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,8 +44,10 @@ export function AssetPicker({ open, onOpenChange, onSelect, prefix = '', accept 
   const handleFileChange = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file) return;
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      toast.error('Formato não suportado. Use JPEG, PNG, GIF ou WebP.');
+    const acceptedTypes = parseAcceptedTypes(accept);
+    if (!acceptedTypes.includes(file.type)) {
+      const labels = acceptedTypes.map(t => MIME_LABELS[t] ?? t).join(', ');
+      toast.error(`Formato não suportado. Use ${labels}.`);
       if (fileRef.current) fileRef.current.value = '';
       return;
     }
