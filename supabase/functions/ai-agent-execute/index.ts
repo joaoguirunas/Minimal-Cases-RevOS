@@ -1194,6 +1194,8 @@ async function loadContext(
         .select('source, label, template_name, channel, clicks, first_clicked_at, last_clicked_at')
         .eq('people_id', ctx.pessoa_id)
         .gt('clicks', 0)
+        // só cliques dos últimos 30 dias — mais velho que isso não é "já viu o carrinho"
+        .gte('last_clicked_at', new Date(Date.now() - 30 * 86_400_000).toISOString())
         .order('last_clicked_at', { ascending: false })
         .limit(3);
       const { describeClicksForAgent } = await import('../_shared/click-context.ts');
@@ -2559,7 +2561,15 @@ async function executeTool(
             const fmt = (d: Date | null) => d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
             const expirado = !!pend.pixExpira && pend.pixExpira.getTime() <= Date.now();
             if (pend.cancelado || expirado) {
-              if (pend.reorderUrl) ctx.__pending_purchase_url = pend.reorderUrl;
+              if (pend.reorderUrl) {
+                const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+                const trackedReorder = await createTrackedLinkDetailed(supabase as never, {
+                  destination: pend.reorderUrl, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+                  source: 'agente', label: 'yampi_consultar_pix_pendente', executionId: ctx.__execution_id || null,
+                });
+                ctx.__pending_purchase_url = trackedReorder?.url ?? pend.reorderUrl;
+                ctx.__pending_purchase_link_id = trackedReorder?.id ?? '';
+              }
               return JSON.stringify({ situacao: pend.cancelado ? 'pedido_cancelado' : 'pix_expirado', pedido: pend.numeroPedido,
                 acao_sugerida: pend.reorderUrl ? 'Um link de checkout NOVO (mesmos itens) será enviado automaticamente em mensagem separada — diga que o Pix venceu e que mandou o link pra gerar um novo ou pagar com cartão. NÃO escreva o link.' : 'Ofereça gerar um checkout novo com yampi_enviar_link_pagamento.' });
             }
