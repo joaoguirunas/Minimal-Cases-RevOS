@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
       const salt = Deno.env.get('TRACKED_LINKS_SALT') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'tracked-links';
       const ipHash = await hashIp(extractClientIp(req.headers), salt);
 
-      const { data } = await supabase.rpc('record_tracked_click', {
+      const { data, error } = await supabase.rpc('record_tracked_click', {
         p_token: token,
         p_is_bot: cls.isBot,
         p_bot_reason: cls.reason,
@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
         p_referer: (req.headers.get('referer') ?? '').slice(0, 512) || null,
         p_device: cls.device,
       });
+      if (error) console.warn('[r] rpc record_tracked_click falhou', { token, error: error.message });
       const row = (Array.isArray(data) ? data[0] : data) as ClickResult | undefined;
 
       if (row?.destination) {
@@ -75,26 +76,41 @@ Deno.serve(async (req) => {
           background = runInBackground((async () => {
             // Progressão da esteira (YMP-7): clique humano = engajamento → "Engajou" (forward-only).
             if (row.lead_id) {
-              try { await progressEsteiraStage(supabase, row.lead_id, 'Engajou'); } catch (_) { /* segue */ }
+              try { await progressEsteiraStage(supabase, row.lead_id, 'Engajou'); } catch (e) { console.warn('[r] progressEsteiraStage falhou', { lead_id: row.lead_id, error: String(e) }); }
             }
             // Retorno reativo só no PRIMEIRO clique humano do link (config decide se agenda).
             if (row.first_human) {
-              try { await scheduleClickNudge(supabase, { linkId: row.tracked_link_id, leadId: row.lead_id, peopleId: row.people_id }); } catch (_) { /* segue */ }
+              try {
+                const nudge = await scheduleClickNudge(supabase, { linkId: row.tracked_link_id, leadId: row.lead_id, peopleId: row.people_id });
+                console.log('[r] nudge', { link_id: row.tracked_link_id, ...nudge });
+              } catch (e) { console.warn('[r] scheduleClickNudge falhou', { link_id: row.tracked_link_id, error: String(e) }); }
             }
           })());
         }
       }
-    } catch (_) { /* redirect sempre acontece */ }
+    } catch (e) { console.warn('[r] hot path falhou', { token, error: String(e) }); }
   }
 
   if (extraQs && destination !== FALLBACK_URL) {
     destination += (destination.includes('?') ? '&' : '?') + extraQs;
   }
 
-  const res = new Response(null, {
-    status: 302,
-    headers: { 'Location': destination, 'Cache-Control': 'no-store' },
-  });
-  if (background) await background; // só quando não há waitUntil (ambiente local)
+  let res: Response;
+  try {
+    res = new Response(null, {
+      status: 302,
+      headers: { 'Location': destination, 'Cache-Control': 'no-store' },
+    });
+  } catch (_e) {
+    console.warn('[r] destino inválido', { destination });
+    res = new Response(null, {
+      status: 302,
+      headers: { 'Location': FALLBACK_URL, 'Cache-Control': 'no-store' },
+    });
+  }
+  // aqui o await ATRASA a resposta (a Response só é enviada quando o handler resolve);
+  // aceitável só porque o Edge Runtime da Supabase sempre expõe EdgeRuntime — só quando não há
+  // waitUntil (ambiente local) caímos neste caminho.
+  if (background) await background;
   return res;
 });
