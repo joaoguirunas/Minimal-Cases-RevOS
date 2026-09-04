@@ -6,7 +6,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
-import { createTrackedLink, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
+import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
@@ -290,6 +290,7 @@ serve(async (req) => {
           // ── Esteira (EST-WA): body {{1..n}} + botão URL rastreado a partir de rule.vars ──
           // vars.wa_params = ["nome","remetente","produto","modelo_celular","expira_em",...]
           // vars.wa_button_url = true → botão URL com sufixo dinâmico = token do link rastreado.
+          let waLink: { id: string; token: string; url: string } | null = null;
           if (entry.followup_id) {
             const { data: waRule } = await supabase
               .from('leads_stages_followups')
@@ -320,12 +321,13 @@ serve(async (req) => {
                 });
               }
               if (rv.wa_button_url && waCart?.url && entry.person_id) {
-                const trackedWa = await createTrackedLink(supabase, {
+                waLink = await createTrackedLinkDetailed(supabase, {
                   destination: waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
+                  source: 'esteira_whatsapp', label: 'wa_button_url', templateName: resolvedTemplateName, followupQueueId: entry.id,
                 });
-                const tokenWa = trackedWa?.match(/[?&]t=([A-Za-z0-9]+)/)?.[1];
-                if (tokenWa) {
-                  msgComponents.push({ type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: tokenWa }] });
+                // Botão URL do template: sufixo dinâmico = só o token (a base fixa está aprovada na Meta).
+                if (waLink) {
+                  msgComponents.push({ type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: waLink.token }] });
                 }
               }
             }
@@ -355,6 +357,12 @@ serve(async (req) => {
 
           if (insertMsgError) {
             console.error(`[followup-trigger-worker] Entry ${entry.id}: falha ao criar registro em messages:`, insertMsgError);
+          }
+
+          if (insertedMsg) {
+            // Liga link ↔ mensagem (inbox mostra "link aberto") e fila ↔ mensagem (coluna já existia, nunca era preenchida).
+            if (waLink) await attachTrackedLinkMessage(supabase, waLink.id, insertedMsg.id);
+            await supabase.from('followup_queue').update({ message_id: insertedMsg.id }).eq('id', entry.id);
           }
 
           if (templateNotApproved) {
@@ -414,6 +422,7 @@ serve(async (req) => {
           // senão usa o conteúdo inline da fila (subject + message HTML).
           let subject = entry.subject ?? '';
           let html = entry.message ?? '';
+          let emailTemplateName: string | null = null;
 
           let ruleVars: Record<string, string> = {};
           if (entry.followup_id) {
@@ -431,12 +440,13 @@ serve(async (req) => {
             if (rule?.email_template_id) {
               const { data: tpl } = await supabase
                 .from('email_templates')
-                .select('subject, html_body, active')
+                .select('name, subject, html_body, active')
                 .eq('id', rule.email_template_id)
                 .maybeSingle();
               if (tpl && tpl.active !== false) {
                 subject = tpl.subject ?? subject;
                 html = tpl.html_body ?? html;
+                emailTemplateName = (tpl as { name?: string }).name ?? null;
               }
             }
           }
@@ -513,7 +523,7 @@ serve(async (req) => {
           });
           if (pixValido && pend?.pixExpira) vars['expira_em'] = fmtBR(pend.pixExpira);
           if (pend?.reorderUrl && entry.person_id && (html.includes('{{link_novo_checkout}}') || subject.includes('{{link_novo_checkout}}'))) {
-            const trackedReorder = await createTrackedLink(supabase, { destination: pend.reorderUrl, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'email' });
+            const trackedReorder = await createTrackedLink(supabase, { destination: pend.reorderUrl, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'email', source: 'esteira_email', label: 'link_novo_checkout', templateName: emailTemplateName ?? subject, followupQueueId: entry.id });
             vars['link_novo_checkout'] = trackedReorder ?? pend.reorderUrl;
           }
 
@@ -527,6 +537,10 @@ serve(async (req) => {
                 peopleId: entry.person_id,
                 leadId: entry.lead_id,
                 channel: 'email',
+                source: 'esteira_email',
+                label: 'link_checkout',
+                templateName: emailTemplateName ?? subject,
+                followupQueueId: entry.id,
               });
               vars['link_checkout'] = tracked ?? cartUrl;
             }
@@ -578,6 +592,10 @@ serve(async (req) => {
                 peopleId: entry.person_id,
                 leadId: entry.lead_id,
                 channel: 'sms',
+                source: 'esteira_sms',
+                label: 'link_checkout',
+                templateName: entry.subject ?? null,
+                followupQueueId: entry.id,
               });
               smsVars['link_checkout'] = tracked ?? cartUrl;
             }
