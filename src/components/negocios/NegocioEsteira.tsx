@@ -18,6 +18,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { CHANNEL_TITLES, useCancelPendingTouches, useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
 import { useTrackedClicksRealtime } from '@/hooks/useTrackedLinks';
+import { variantTone } from '@/lib/followups/ab';
 import { groupByDay } from '@/lib/esteira/timeline';
 import { toast } from 'sonner';
 
@@ -69,6 +70,7 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
   const { data, isLoading } = useLeadEsteira(leadId, peopleId);
   const cart = data?.cart ?? null;
   const timeline = data?.timeline ?? [];
+  const abVariant = data?.abVariant ?? null;
   const sentCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'sent').length;
   const pendingCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').length;
   const next = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').sort((a, b) => (a.at < b.at ? -1 : 1))[0];
@@ -88,7 +90,14 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
       {/* ── Cabeçalho: progresso + ações ─────────────────────────────────── */}
       <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
+            {abVariant && (
+              <Chip tone={variantTone(abVariant.key)} title={abVariant.experiment}>
+                Teste A/B · Variante {abVariant.key}
+              </Chip>
+            )}
+          </div>
           <p className="text-[11.5px] text-muted-foreground truncate">
             {(() => {
               if (!next) return pendingCount === 0 && total > 0 ? 'Esteira concluída' : '';

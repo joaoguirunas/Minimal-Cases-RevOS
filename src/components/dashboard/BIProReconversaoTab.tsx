@@ -18,6 +18,7 @@ import InsightsStrip from './reconversao/InsightsStrip';
 import FunnelCard from './reconversao/FunnelCard';
 import AttributionCard from './reconversao/AttributionCard';
 import ClickRateCard from './reconversao/ClickRateCard';
+import AbTestCard from './reconversao/AbTestCard';
 import DailyChart from './reconversao/DailyChart';
 import ReconversionsTable from './reconversao/ReconversionsTable';
 
@@ -72,6 +73,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
         <FunnelCard funil={data.agregado.funil} />
         <AttributionCard receita={data.agregado.porNivelReceita} topCupons={data.agregado.topCupons} />
         <ClickRateCard linhas={data.agregado.cliquesPorToque} geral={data.agregado.ctrGeral} />
+        <AbTestCard />
       </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}

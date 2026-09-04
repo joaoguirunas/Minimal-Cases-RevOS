@@ -94,7 +94,7 @@ const ABANDONED_STEP: Record<string, 'cadastro' | 'frete' | 'pagamento'> = {
   payment: 'pagamento',
 };
 
-function parseYampiCart(raw: AnyRec): {
+export function parseYampiCart(raw: AnyRec): {
   items: CartItem[]; total: number | null; url: string | null;
   image: string | null; variations: Array<{ name: string; value: string }>;
   etapaAbandono: 'cadastro' | 'frete' | 'pagamento' | null;
@@ -155,6 +155,12 @@ function parseZoppyItems(lineItems: unknown): CartItem[] {
   });
 }
 
+export interface LeadAbVariant {
+  key: string;
+  name: string;
+  experiment: string;
+}
+
 export const CHANNEL_TITLES: Record<string, string> = {
   email: 'E-mail',
   sms: 'SMS',
@@ -168,7 +174,7 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
     queryKey: ['esteira', 'lead', leadId, peopleId],
     enabled: !!leadId,
     staleTime: 20_000,
-    queryFn: async (): Promise<{ cart: LeadCart | null; timeline: TimelineEntry[] }> => {
+    queryFn: async (): Promise<{ cart: LeadCart | null; timeline: TimelineEntry[]; abVariant: LeadAbVariant | null }> => {
       const timeline: TimelineEntry[] = [];
       let cart: LeadCart | null = null;
 
@@ -198,7 +204,7 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
       }
 
       // ── Cliques em links rastreados do lead (humanos, não duplicados) ─────────
-      const [linksRes, clicksRes] = await Promise.all([
+      const [linksRes, clicksRes, abRes] = await Promise.all([
         db.from('tracked_links')
           .select('id, lead_id, source, label, template_name, channel, clicks, first_clicked_at, last_clicked_at, message_id')
           .eq('lead_id', leadId)
@@ -211,8 +217,24 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
           .eq('is_duplicate', false)
           .order('clicked_at', { ascending: false })
           .limit(100),
+        db.from('esteira_ab_assignments')
+          .select('variant:esteira_ab_variants(key, name, experiment:esteira_ab_experiments(name))')
+          .eq('lead_id', leadId)
+          .order('assigned_at', { ascending: false })
+          .limit(1),
       ]);
       timeline.push(...clicksToTimeline((linksRes.data ?? []) as TrackedLinkRow[], (clicksRes.data ?? []) as TrackedClickRow[]));
+
+      // ── Variante do teste A/B (se o lead foi atribuído a algum experimento) ───
+      let abVariant: LeadAbVariant | null = null;
+      if (!abRes.error) {
+        const row = ((abRes.data ?? [])[0] ?? null) as AnyRec | null;
+        const variant = rec(row?.variant);
+        const experiment = rec(variant.experiment);
+        if (typeof variant.key === 'string' && typeof variant.name === 'string' && typeof experiment.name === 'string') {
+          abVariant = { key: variant.key, name: variant.name, experiment: experiment.name };
+        }
+      }
 
       if (peopleId) {
         // ── Eventos da loja (Yampi) ───────────────────────────────────────────
@@ -274,7 +296,7 @@ export function useLeadEsteira(leadId?: string, peopleId?: string) {
       }
 
       timeline.sort((a, b) => (a.at < b.at ? 1 : -1));
-      return { cart, timeline };
+      return { cart, timeline, abVariant };
     },
   });
 }
