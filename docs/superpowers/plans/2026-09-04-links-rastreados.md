@@ -56,6 +56,7 @@
 | Modify `src/components/negocios/NegocioEsteira.tsx` | Entrada de clique na timeline + realtime |
 | Modify `src/components/conversas/ConversaDetalhes.tsx`, `src/components/negocios/conversa/MessageList.tsx` | "Link aberto HH:mm" na bolha |
 | Modify `src/hooks/useReconversaoBI.ts`, `src/components/dashboard/BIProReconversaoTab.tsx`, `src/components/dashboard/reconversao/ReconversionsTable.tsx` · Create `src/components/dashboard/reconversao/ClickRateCard.tsx` | Taxa de clique por toque; "Clique · WA-01" na tabela |
+| Create `src/lib/followups/timeline.ts` (+ `.test.ts`), `src/components/followups/EsteiraTimelineTab.tsx` · Modify `src/pages/Followups.tsx` | Aba "Timeline" em Follow-ups: sequência de toques por stage, status do template Meta, CTR (adendo §9 da spec) |
 
 **Ordem e paralelismo**
 
@@ -64,7 +65,7 @@ Task 0 (migration, só escrever)
   ├─ Grupo A (paralelo): Task 1 · Task 2 · Task 3 · Task 9
   ├─ Grupo B (paralelo, após A): Task 4 (1,2,3) · Task 5 (2) · Task 6 (2) · Task 7 (2) · Task 8 (—)
   ├─ Task 10 (após 9)
-  ├─ Grupo C (paralelo, após 10): Task 11 · Task 12 · Task 13
+  ├─ Grupo C (paralelo, após 10): Task 11 · Task 12 · Task 13 · Task 13b (só precisa da 9)
   └─ Task 14 (migration + deploy + QA) — por último, um executor só
 ```
 
@@ -1786,6 +1787,150 @@ git commit -m "feat(bi): taxa de clique por toque e qual toque gerou a atribuiç
 
 ---
 
+### Task 13b: Follow-ups — aba "Timeline" da esteira (sequência de toques + status do template + CTR)
+
+**Files:**
+- Create: `src/lib/followups/timeline.ts`, `src/lib/followups/timeline.test.ts`
+- Create: `src/components/followups/EsteiraTimelineTab.tsx`
+- Modify: `src/pages/Followups.tsx` (3ª aba)
+- Modify (se faltar `vars`): `src/hooks/useFollowups.ts`
+
+Depende de: Task 9 (`aggregateClickRates`). Pode rodar em paralelo com 11–13. Só leitura — nenhuma mudança de schema/edge function.
+
+**Interfaces:**
+```ts
+export type TemplateStatus = 'aprovado' | 'em_analise' | 'rejeitado' | 'sem_template' | 'nao_aplica';
+export interface TimelineRule {
+  id: string; offsetMin: number; label: string; canal: 'email' | 'whatsapp' | 'sms' | 'outro';
+  ativo: boolean; templateStatus: TemplateStatus; templateName: string | null; tracked: boolean;
+  ctr: { enviados: number; clicados: number; ctr: number | null } | null;
+}
+export interface StageTimeline { stageId: string; rules: TimelineRule[]; maxOffsetMin: number }
+export function templateStatusOf(rule: Pick<StageFollowup, 'tipo' | 'whatsapp_template_id' | 'whatsapp_template_name'>, templates: Array<Pick<WhatsappTemplate, 'id_template' | 'nome' | 'meta_template_name' | 'status'>>): TemplateStatus
+export function buildStageTimeline(followups: Array<StageFollowup & { vars?: Record<string, unknown> | null }>, templates: WhatsappTemplate[], clickRates: ClickRateRow[]): StageTimeline[]
+```
+
+- [ ] **Step 1: `vars` no hook** — `grep -n "vars" src/hooks/useFollowups.ts`. Se `StageFollowup`/`DbFollowup` não expõem `vars`, adicione `vars: Record<string, unknown> | null` nos dois e no mapeamento (a coluna existe em `leads_stages_followups`; o trigger-worker lê `vars.wa_button_url`).
+
+- [ ] **Step 2: Teste (falha)**
+
+```ts
+// src/lib/followups/timeline.test.ts
+import { describe, expect, it } from 'vitest';
+import { buildStageTimeline, templateStatusOf } from './timeline';
+
+const tpl = [{ id_template: '111', nome: 'minimal_esteira_wa01', meta_template_name: 'minimal_esteira_wa01', status: 'APPROVED' }, { id_template: '222', nome: 'minimal_esteira_wa02', meta_template_name: null, status: 'PENDING' }] as never[];
+const base = { leads_stages_id: 's1', score_matrix_id: null, target_stage_id: null, mensagem: null, assunto: null, arquivo_audio: null, template_id: null, whatsapp_template_id: null, whatsapp_template_name: null, email_template_id: null, email_template_name: null, as_queue_id: null, ativo: true, control: null, business_hours_only: false, bh_only_last: false, created_at: '', updated_at: '', vars: null };
+const rules = [
+  { ...base, id: 'e1', dias: 0, horas: 0, minutos: 30, tipo: 'email', email_template_name: 'E1 · Esqueceu algo?', mensagem: '<a href="{{link_checkout}}">voltar</a>' },
+  { ...base, id: 'w1', dias: 0, horas: 2, minutos: 0, tipo: 'whatsapp_template', whatsapp_template_id: '111', whatsapp_template_name: 'minimal_esteira_wa01', vars: { wa_button_url: true } },
+  { ...base, id: 'w2', dias: 1, horas: 0, minutos: 0, tipo: 'whatsapp_template', whatsapp_template_id: '222', vars: {} },
+  { ...base, id: 'x', dias: 2, horas: 0, minutos: 0, tipo: 'whatsapp_template', whatsapp_template_id: '999' },
+] as never[];
+
+describe('templateStatusOf', () => {
+  it('aprovado / em análise / sem template / não se aplica', () => {
+    expect(templateStatusOf(rules[1], tpl)).toBe('aprovado');
+    expect(templateStatusOf(rules[2], tpl)).toBe('em_analise');
+    expect(templateStatusOf(rules[3], tpl)).toBe('sem_template');
+    expect(templateStatusOf(rules[0], tpl)).toBe('nao_aplica');
+  });
+});
+
+describe('buildStageTimeline', () => {
+  it('ordena por offset, marca link rastreado e casa CTR por template', () => {
+    const [s] = buildStageTimeline(rules, tpl, [{ key: 'esteira_whatsapp|minimal_esteira_wa01', source: 'esteira_whatsapp', label: '', enviados: 10, clicados: 4, cliques: 5, ctr: 0.4 }]);
+    expect(s.stageId).toBe('s1');
+    expect(s.rules.map((r) => r.id)).toEqual(['e1', 'w1', 'w2', 'x']);
+    expect(s.rules[0]).toMatchObject({ offsetMin: 30, canal: 'email', tracked: true, label: 'E1 · Esqueceu algo?' });
+    expect(s.rules[1]).toMatchObject({ offsetMin: 120, canal: 'whatsapp', tracked: true, templateStatus: 'aprovado', ctr: { enviados: 10, clicados: 4, ctr: 0.4 } });
+    expect(s.rules[2].tracked).toBe(false);
+    expect(s.maxOffsetMin).toBe(2880);
+  });
+});
+```
+
+- [ ] **Step 3: Implementar `src/lib/followups/timeline.ts`**
+
+```ts
+import type { StageFollowup } from '@/hooks/useFollowups';
+import type { WhatsappTemplate } from '@/hooks/useWhatsappTemplates';
+import type { ClickRateRow } from '@/lib/bi/clicks';
+
+export type TemplateStatus = 'aprovado' | 'em_analise' | 'rejeitado' | 'sem_template' | 'nao_aplica';
+export interface TimelineRule {
+  id: string; offsetMin: number; label: string; canal: 'email' | 'whatsapp' | 'sms' | 'outro';
+  ativo: boolean; templateStatus: TemplateStatus; templateName: string | null; tracked: boolean;
+  ctr: { enviados: number; clicados: number; ctr: number | null } | null;
+}
+export interface StageTimeline { stageId: string; rules: TimelineRule[]; maxOffsetMin: number }
+
+type Rule = StageFollowup & { vars?: Record<string, unknown> | null };
+type Tpl = Pick<WhatsappTemplate, 'id_template' | 'nome' | 'meta_template_name' | 'status'>;
+
+const canalOf = (tipo: string): TimelineRule['canal'] => tipo === 'email' ? 'email' : tipo === 'sms' ? 'sms' : tipo.startsWith('whatsapp') ? 'whatsapp' : 'outro';
+
+export function templateStatusOf(rule: Pick<Rule, 'tipo' | 'whatsapp_template_id' | 'whatsapp_template_name'>, templates: Tpl[]): TemplateStatus {
+  if (rule.tipo !== 'whatsapp_template') return 'nao_aplica';
+  const t = templates.find((x) => (rule.whatsapp_template_id && x.id_template === rule.whatsapp_template_id)
+    || (rule.whatsapp_template_name && (x.nome === rule.whatsapp_template_name || x.meta_template_name === rule.whatsapp_template_name)));
+  if (!t) return 'sem_template';
+  const s = String(t.status ?? '').toLowerCase();
+  if (s === 'approved') return 'aprovado';
+  if (s === 'rejected') return 'rejeitado';
+  return 'em_analise';
+}
+
+export function buildStageTimeline(followups: Rule[], templates: WhatsappTemplate[], clickRates: ClickRateRow[]): StageTimeline[] {
+  const ctrByTemplate = new Map(clickRates.map((r) => [r.key.split('|')[1], r]));
+  const byStage = new Map<string, TimelineRule[]>();
+  for (const f of followups) {
+    if (!f.leads_stages_id) continue;
+    const templateName = f.tipo === 'whatsapp_template'
+      ? (templates.find((t) => t.id_template === f.whatsapp_template_id)?.nome ?? f.whatsapp_template_name ?? null)
+      : (f.email_template_name ?? null);
+    const label = f.email_template_name ?? f.whatsapp_template_name ?? templateName ?? f.assunto ?? 'Follow-up';
+    const body = `${f.mensagem ?? ''} ${f.assunto ?? ''}`;
+    const tracked = f.vars?.wa_button_url === true || /\{\{link_(novo_)?checkout\}\}/.test(body);
+    const rate = templateName ? ctrByTemplate.get(templateName) : undefined;
+    (byStage.get(f.leads_stages_id) ?? byStage.set(f.leads_stages_id, []).get(f.leads_stages_id)!).push({
+      id: f.id,
+      offsetMin: f.dias * 1440 + f.horas * 60 + (f.minutos || 0),
+      label, canal: canalOf(f.tipo), ativo: f.ativo,
+      templateStatus: templateStatusOf(f, templates), templateName, tracked,
+      ctr: rate ? { enviados: rate.enviados, clicados: rate.clicados, ctr: rate.ctr } : null,
+    });
+  }
+  return [...byStage.entries()].map(([stageId, rules]) => {
+    rules.sort((a, b) => a.offsetMin - b.offsetMin);
+    return { stageId, rules, maxOffsetMin: rules.at(-1)?.offsetMin ?? 0 };
+  });
+}
+```
+
+- [ ] **Step 4: Rodar** — `npm test` → 2 novos passam.
+
+- [ ] **Step 5: Componente `EsteiraTimelineTab.tsx`**
+  - Dados: `usePipelines()` (pipelines + stages), `useAllFollowups()`, `useWhatsappTemplates()`, e uma query `['tracked-links','rates']` em `tracked_links` (`select('source, label, template_name, channel, clicks')`, últimos 30 dias por `created_at`, limit 10000) → `aggregateClickRates`. `useTrackedClicksRealtime()`.
+  - `Select` de pipeline (default: pipeline ativo com mais regras). Para cada stage do pipeline (ordem `order_index`) com regras, um card `rounded-xl border border-border bg-card p-5`: cabeçalho com nome do stage + `n toques`; **trilho** `relative h-px bg-border my-8` com marcadores posicionados em `left: ${(offsetMin / Math.max(maxOffsetMin, 60)) * 100}%` (mínimo de espaçamento: se dois marcadores ficarem < 6% um do outro, alterne a etiqueta acima/abaixo do trilho). Marcador: botão redondo 28 px com ícone do canal (`Mail`, `MessageCircle`, `Smartphone` de lucide), `aria-label` "E1 · e-mail · 30 min"; abaixo, `text-[11px]` com `formatTempo` (reutilize a lógica de `StageFollowupsCard` — extraia `formatTempo` para `src/lib/followups/timeline.ts` e importe nos dois lugares) e o rótulo truncado; chips (`Chip`): Ativo/Inativo (neutral/danger), status do template (`aprovado`→success "Aprovado", `em_analise`→warning "Em análise", `rejeitado`→danger "Rejeitado", `sem_template`→danger "Sem template"), `tracked`→info "link rastreado", `ctr`→ `${clicados}/${enviados} · ${pct}` (neutral).
+  - Clique no marcador → abre `FollowupModal` com a regra (mesmas props que `StageFollowupsCard` usa: veja como ele instancia `FollowupModal` e replique).
+  - Botão "Sincronizar templates com a Meta" no topo: replique a chamada que `WhatsappTemplatesConfig.tsx` faz para `whatsapp-templates-sync` (`supabase.functions.invoke('whatsapp-templates-sync', { body: { channel_id } })`, canal default de `useWhatsappChannels`) e invalide `['whatsapp-templates']`. Só visível para admin/manager (mesma condição do componente de origem).
+  - Estado vazio: "Nenhum toque configurado neste pipeline. Configure em Etapas CRM."
+
+- [ ] **Step 6: Aba** — em `src/pages/Followups.tsx` (~linhas 263–273) adicione `<TabsTrigger value="timeline" …>Timeline</TabsTrigger>` e `<TabsContent value="timeline" className="mt-0"><EsteiraTimelineTab /></TabsContent>`.
+
+- [ ] **Step 7: Verificar e commitar**
+
+Run: `npm test && npx tsc -p tsconfig.app.json --noEmit 2>&1 | grep -E "followups/timeline|EsteiraTimelineTab|pages/Followups|useFollowups"; echo TSC-OK; npx eslint src/components/followups/EsteiraTimelineTab.tsx src/lib/followups`
+Visual: `/followups` → Timeline → esteira com E1/SMS/WA em ordem de tempo, chips de status do template, CTR quando houver dados.
+
+```bash
+git add src/lib/followups src/components/followups/EsteiraTimelineTab.tsx src/pages/Followups.tsx src/hooks/useFollowups.ts
+git commit -m "feat(followups): aba Timeline — sequência de toques por stage com status do template e CTR"
+```
+
+---
+
 ### Task 14: Migration, deploy, QA manual e push
 
 **Files:** nenhum novo (só verificação). Um executor, por último.
@@ -1843,7 +1988,7 @@ Pré-condição (já configurada pela operação; **não** alterar aqui): `omni_
   4. Mandar um `pix_gerado`/`pedido_pago` de teste (ou mover o lead para "Pagamento pendente" e aguardar) → callback `cancelled`/`skipped`.
   5. **Desligar:** `update omni_channel_configs set settings = settings - 'click_nudge_enabled' - 'click_nudge_delay_minutes' where channel='whatsapp';`
 
-- [ ] **Step 8: Checklist visual** (claro/escuro, 1280 px): chip "Clicou" `tone="info"` sem quebrar a linha; timeline com ícone de cursor; indicador no inbox em `text-xs`; card do BI com barras `bg-sky-500`; nenhum canto reto novo; nenhum emoji em rótulo.
+- [ ] **Step 8: Checklist visual** (claro/escuro, 1280 px): chip "Clicou" `tone="info"` sem quebrar a linha; timeline com ícone de cursor; indicador no inbox em `text-xs`; card do BI com barras `bg-sky-500`; `/followups` → Timeline mostra a esteira em ordem de tempo com status do template (Aprovado/Em análise) e abre o `FollowupModal` ao clicar; nenhum canto reto novo; nenhum emoji em rótulo.
 
 - [ ] **Step 9: Push**
 
@@ -1855,7 +2000,7 @@ git pull -q --rebase origin main && npm test && npm run build && git push origin
 
 ## Self-review (feito pelo autor do plano)
 
-- **Cobertura da spec:** O1 origem (Tasks 0, 2, 5, 6) · O2 eventos (0, 4) · O3 antibot (1, 4) · O4 redirect rápido (0, 4) · O5 UI + realtime (9–13) · O6 agente + nudge (2, 3, 6, 7, 8) · O7 base configurável (2) · atribuição "qual link" (7, 13) · LGPD (0, 4) · QA real com allowlist e crawler (14).
+- **Cobertura da spec:** O1 origem (Tasks 0, 2, 5, 6) · O2 eventos (0, 4) · O3 antibot (1, 4) · O4 redirect rápido (0, 4) · O5 UI + realtime (9–13) · O6 agente + nudge (2, 3, 6, 7, 8) · O7 base configurável (2) · atribuição "qual link" (7, 13) · LGPD (0, 4) · adendo §9 aba Timeline em Follow-ups (13b) · QA real com allowlist e crawler (14).
 - **Travas:** nenhuma tarefa lê ou escreve `sends_locked`, `test_allowlist`, `agent_requires_outreach`, nem toca `whatsapp-send-lock.ts` ou o bloco de trava do `whatsapp-outbound`. O nudge só insere em `ai_scheduled_callbacks`; o caminho de envio é o existente.
 - **Consistência de nomes:** `createTrackedLinkDetailed`/`attachTrackedLinkMessage`/`buildTrackedUrl`/`trackedLinkBaseUrl`/`findTrackedClickBefore` (Task 2 → 5, 6, 7); `classifyClick`/`clickInfoFromRequest`/`extractClientIp`/`hashIp` (1 → 4); `scheduleClickNudge`/`parseClickNudgeSettings`/`decideNudge` (3 → 4); `record_tracked_click` (0 → 4); `describeClicksForAgent` (2 → 6); `summarizeLinkClicks`/`clicksToTimeline`/`describeLinkOrigin`/`emptyQueueSummary`/`LeadClickSummary` (9 → 10, 11); `aggregateClickRates`/`overallClickRate`/`cliquesPorToque`/`ctrGeral` (9 → 13); `useTrackedLinksByPerson`/`useTrackedClicksRealtime` (10 → 11, 12, 13); `kind: 'clique'` (9 → 10, 11).
 - **Sem placeholders:** DDL, RPC, classificador, `r`, hooks e componentes trazem o código; passos de integração apontam arquivo, âncora (linha aproximada + trecho) e o que trocar.

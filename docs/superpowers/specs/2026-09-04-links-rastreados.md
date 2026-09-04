@@ -157,3 +157,15 @@ GET /r?t=TOKEN[?extra]   → parse token · classifyClick(headers) · hashIp
 2. **Gatilho reativo ligado?** `click_nudge_enabled` (padrão desligado), `click_nudge_delay_minutes` (sugestão 30), e — para alcançar quem clicou mas não respondeu — um **template Meta "clicou e não comprou"** (`click_nudge_template_name`), com copy da cliente e aprovação da Meta.
 3. **Retenção de UA/hash** (90 dias) e frase na política de privacidade.
 4. **Texto do chip/indicador** ("Clicou" vs "Abriu o link") — default "Clicou" no card, "Link aberto" na bolha.
+
+## 9. Adendo (04/09) — aba "Timeline" em Follow-ups
+
+**Pedido:** "onde na UI que consigo configurar os toques, tipo uma timeline etc — precisamos dessa aba dentro dos followups, visão em timeline".
+
+**Hoje:** a configuração dos toques fica em **`/followups` → aba "Etapas CRM"** → expandir o pipeline "Esteira Minimal — Loja" → card de cada stage (`StageFollowupsCard`) lista as regras (`leads_stages_followups`) ordenadas por `dias/horas/minutos`, com canal, template e Ativo/Inativo; "+ Follow-up"/lápis abre o `FollowupModal`. É lista por stage — não há visão da sequência inteira no tempo, nem o status de aprovação do template Meta ao lado do toque (isso está em Configurações → Canais → WhatsApp → Templates, `WhatsappTemplatesConfig`, com o botão que chama `whatsapp-templates-sync`).
+
+**Proposta (Task 13b do plano):** terceira aba **"Timeline"** em `/followups`:
+- Seletor de pipeline (default: o que tiver mais regras — a esteira). Para cada stage com regras, uma **linha do tempo horizontal** a partir de "entrou no stage": um marcador por regra na posição do offset (`dias*1440+horas*60+minutos`, escala por stage), ícone do canal, rótulo = template/assunto (`E1`, `WA-01`, `SMS-01`), chips: Ativo/Inativo · **status do template Meta** (Aprovado / Em análise / Rejeitado / Sem template — casado por `whatsapp_template_name` ou `id_template`) · "link rastreado" quando a regra tem `vars.wa_button_url` ou `{{link_checkout}}` no corpo · **CTR do toque** (enviados/clicados por `template_name` em `tracked_links`, quando a feature de links estiver no ar).
+- Clique no marcador abre o `FollowupModal` existente (editar); botão "Sincronizar templates com a Meta" reaproveita a ação do `WhatsappTemplatesConfig`.
+- Lógica pura e testada: `buildStageTimeline(followups, templates, clickRates)` em `src/lib/followups/timeline.ts`.
+- Não muda schema nem edge functions; só leitura de `leads_stages_followups`, `whatsapp_templates`, `tracked_links`.
