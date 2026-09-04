@@ -1,13 +1,12 @@
 {
-  "version": "5.43",
+  "version": "5.45",
   "major": 5,
-  "minor": 43,
-  "created_at": "2026-09-04T05:19:05.000Z",
-  "git_sha": "b86e97ad2e75ed919d0fa508e53d19aeb74a204c",
+  "minor": 45,
+  "created_at": "2026-09-04T10:38:57.000Z",
+  "git_sha": "022498ced0d7d0514c776981bce78ef73d9b4d18",
   "migrations": [
-    "supabase/migrations/20260904100000_tracked_links_v2.sql",
-    "supabase/migrations/20260904110000_esteira_agent_click_rule.sql"
+    "supabase/migrations/20260904150000_yampi_sku_images_cache.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "Merge feat/links-rastreados: links rastreados v2 (origem por toque, cliques humano/robô, UI, agente, BI)|fix(links): tinta do marcador de clique, log nas falhas de link, kanban degrada sem tracked_links, COALESCE na regra do agente, origem legível na tabela|test(bi): atualiza header do CSV de reconversões com a coluna toque_do_clique|feat(bi): taxa de clique por toque e qual toque gerou a atribuição por clique|fix(agente): link de novo checkout do pix pendente rastreado e ligado à mensagem certa; janela de 30d no contexto de cliques|feat(inbox): indicador 'Link aberto HH:mm' nas mensagens com link rastreado|fix(r): log de falha da RPC e do background; guard no Response; comentário do fallback|feat(links): hooks — cliques no card e na timeline, links por mensagem, realtime de cliques|feat(agente): links das tools com origem/execução, ligação à mensagem enviada e contexto de cliques no prompt|feat(esteira): links com origem (regra, template, mensagem) nos toques de WhatsApp, e-mail e SMS|feat(bi): reconversão guarda qual link/toque converteu; evento de pagamento cancela nudge pendente|feat(r): classifica humano/robô, 1 RPC antes do 302, progressão e nudge em background|fix(links): findTrackedClickBefore lê tracked_link_clicks; sort por Date.parse; teste da base padrão|fix(links): migration v2 — REVOKE no purge, zera contadores legados, hardening de search_path/guard|feat(links): agregações puras de cliques (card, timeline, CTR por toque) com testes|fix(callback): no_outreach_from_us é no-op; guard de stage e instrução do retorno por clique|feat(links): createTrackedLinkDetailed com origem, attach à mensagem, base configurável e contexto de cliques pro agente|feat(links): agendamento do retorno reativo (clicou e não comprou) via ai_scheduled_callbacks — desligado por padrão|feat(links): classificador humano/robô do clique (função pura + testes)|feat(links): migration v2 — origem por toque, tracked_link_clicks, RPC record_tracked_click, purge LGPD"
+  "changelog": "feat(esteira): foto real do SKU nos e-mails — catálogo Yampi com cache (yampi_sku_images)|docs(plano): adendo do planejador — spec §9 e Task 13b (aba Timeline em /followups), ainda não implementada|chore(release): release.json v5.43 [skip ci]"
 }
