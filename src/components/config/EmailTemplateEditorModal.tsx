@@ -153,7 +153,7 @@ export const EmailTemplateEditorModal = ({
     setLeadPopoverOpen(false);
     setViewingVersion(null);
     setHistoryOpen(false);
-    setTestEmail(localStorage.getItem('email-test-to') ?? '');
+    try { setTestEmail(localStorage.getItem('email-test-to') ?? ''); } catch { /* storage indisponível */ }
   }, [open, template]);
 
   // Busca leads (clients_people) por nome ou e-mail — debounced.
@@ -315,6 +315,10 @@ export const EmailTemplateEditorModal = ({
   };
 
   const handleSendTest = async () => {
+    if (viewingVersion) {
+      toast.error('Você está vendo uma versão antiga. Clique em "Voltar" para enviar um teste do rascunho atual.');
+      return;
+    }
     const email = testEmail.trim();
     if (!email) { toast.error('Informe o e-mail de teste.'); return; }
     setSendingTest(true);
@@ -328,7 +332,7 @@ export const EmailTemplateEditorModal = ({
       if (error) throw error;
       const result = data as TestSendResponse;
       if (!result?.success) { toast.error(result?.error || 'Erro ao enviar teste.'); return; }
-      localStorage.setItem('email-test-to', email);
+      try { localStorage.setItem('email-test-to', email); } catch { /* storage indisponível */ }
       toast.success(`Teste enviado para ${email}.`);
       setTestPopoverOpen(false);
     } catch (err) {
@@ -593,9 +597,16 @@ export const EmailTemplateEditorModal = ({
                   </p>
                 ) : <span />}
 
-                <Popover open={testPopoverOpen} onOpenChange={setTestPopoverOpen}>
+                <Popover open={testPopoverOpen && !viewingVersion} onOpenChange={setTestPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-[11px] shrink-0">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 gap-1.5 text-[11px] shrink-0"
+                      disabled={!!viewingVersion}
+                      title={viewingVersion ? 'Volte para o rascunho para enviar um teste.' : undefined}
+                    >
                       <Send className="w-3.5 h-3.5" strokeWidth={1.5} /> Enviar teste
                     </Button>
                   </PopoverTrigger>
