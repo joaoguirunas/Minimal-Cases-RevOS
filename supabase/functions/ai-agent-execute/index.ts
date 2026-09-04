@@ -1790,15 +1790,26 @@ async function callOpenAICompat(
   tools: ToolDefinition[],
   toolChoice: 'auto' | 'required' = 'auto',
 ): Promise<LLMResponse> {
-  // GPT-5.x+ models require max_completion_tokens instead of max_tokens
-  const useNewTokenParam = model.startsWith('gpt-5') || model.startsWith('o1') || model.startsWith('o3') || model.startsWith('o4');
+  // GPT-5.x+ e da familia o* usam max_completion_tokens no lugar de max_tokens,
+  // e so aceitam a temperatura padrao (1): mandar 0.4 devolve
+  // 400 "Unsupported value: 'temperature' does not support 0.4 with this model".
+  // Por isso o campo e omitido nesses modelos em vez de enviado com o valor do agente.
+  const isNewGen = model.startsWith('gpt-5') || model.startsWith('o1') || model.startsWith('o3') || model.startsWith('o4');
+  // Luna + function tools em /v1/chat/completions exige reasoning_effort 'none':
+  // sem isso a API devolve 400 "Function tools with reasoning_effort are not
+  // supported ... set reasoning_effort to 'none'". O agente sempre manda tools,
+  // entao a chamada morria antes de qualquer resposta.
+  // Restrito ao Luna de proposito: o gpt-5 comum funciona sem o campo e REJEITA
+  // 'none' ("Supported values are: 'minimal', 'low', 'medium', 'high'").
+  const needsNoReasoning = model.includes('luna');
   const body: Record<string, unknown> = {
     model,
-    temperature,
+    ...(isNewGen ? {} : { temperature }),
+    ...(needsNoReasoning ? { reasoning_effort: 'none' } : {}),
     messages,
     tools: toOpenAITools(tools),
     tool_choice: toolChoice,
-    ...(useNewTokenParam ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
+    ...(isNewGen ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
   };
 
   const abort = new AbortController();
@@ -3992,18 +4003,27 @@ Deno.serve(async (req: Request) => {
     }
 
     // 10c. Send purchase URL as a separate message (same rationale as 10b — bypasses LLM text)
+    //
+    // No WhatsApp vai como botao (interactive cta_url): o cliente toca em
+    // "Voltar ao carrinho" em vez de receber uma URL crua pra copiar. O
+    // omni-delivery-engine le media_metadata.cta_url e escolhe esse formato;
+    // no Instagram (sem equivalente) o proprio link continua sendo o texto.
     if (ctx.__pending_purchase_url) {
       const waPhoneIdForPurchase = inboundWaPhoneNumberId ?? agent.wa_phone_number_id ?? null;
       const purchaseChannel = inboundChannelType === 'instagram' ? 'instagram' : 'whatsapp';
+      const isWaPurchase = purchaseChannel === 'whatsapp';
       const { error: purchaseInsertError } = await supabase.from('messages').insert({
         people_id: peopleId,
         lead_id: leadId,
-        content: ctx.__pending_purchase_url,
+        content: isWaPurchase ? 'É só continuar de onde você parou 👇' : ctx.__pending_purchase_url,
         from_contact: 'agente_ia',
         source_type: 'ai_agent',
         channel: purchaseChannel,
         status: 'pending',
         message_type: 'texto',
+        media_metadata: isWaPurchase
+          ? { cta_url: { url: ctx.__pending_purchase_url, button_text: 'Voltar ao carrinho' } }
+          : null,
         execution_id: executionId,
         wa_phone_number_id: waPhoneIdForPurchase,
       });

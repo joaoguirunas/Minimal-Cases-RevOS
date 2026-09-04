@@ -473,6 +473,49 @@ async function sendInteractiveToMeta(
   return { wamid: json.messages?.[0]?.id ?? '' };
 }
 
+/**
+ * Botao de URL fora de template (interactive `cta_url`).
+ *
+ * O botao de resposta rapida (`sendInteractiveToMeta`) nao carrega link — o
+ * cliente teria que copiar a URL do texto. O `cta_url` mostra um botao de
+ * verdade que abre o link, e so vale dentro da janela de 24h de atendimento
+ * (fora dela a Meta exige template, que ja tem botao proprio).
+ *
+ * Limites da Meta: corpo 1024 chars, texto do botao 20.
+ */
+async function sendCtaUrlToMeta(
+  accessToken: string,
+  phoneNumberId: string,
+  to: string,
+  body: string,
+  linkUrl: string,
+  buttonText: string,
+): Promise<MetaResult> {
+  const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${phoneNumberId}/messages`;
+  const payload = {
+    messaging_product: 'whatsapp',
+    recipient_type: 'individual',
+    to,
+    type: 'interactive',
+    interactive: {
+      type: 'cta_url',
+      body: { text: body.slice(0, 1024) },
+      action: {
+        name: 'cta_url',
+        parameters: { display_text: buttonText.slice(0, 20), url: linkUrl },
+      },
+    },
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok || json.error) return { error: json.error?.message ?? `HTTP ${res.status}` };
+  return { wamid: json.messages?.[0]?.id ?? '' };
+}
+
 async function sendToMeta(
   accessToken: string,
   phoneNumberId: string,
@@ -1241,6 +1284,27 @@ Deno.serve(async (req: Request) => {
             await supabase.from('messages').update({ status: 'error' }).eq('id', msgId);
             await recordDeliveryAttempt(supabase, msgId, { success: false, error: errReason });
           }
+        }
+        continue;
+      }
+
+      // Botao de URL (cta_url) — antes do normalise, payload proprio.
+      // Evolution nao tem equivalente: cai pra texto com a URL no fim, senao o
+      // link simplesmente nao chegaria.
+      if (typeof rawItem === 'object' && (rawItem as any).type === 'cta_url') {
+        const item = rawItem as { type: 'cta_url'; text?: string; url: string; button_text?: string };
+        const btnText = item.button_text || 'Abrir link';
+        if (resolvedProvider === 'evolution') {
+          const fallback = `${item.text ?? ''}\n${item.url}`.trim();
+          const r = await sendToEvolution(evolutionCreds!, to, {
+            type: 'text', text: fallback, media_url: null, filename: null, mime_type: null, context_wamid: null,
+          });
+          if (r && 'wamid' in r) wamids.push(r.wamid);
+          else if (r && 'error' in r) errors.push(r.error);
+        } else {
+          const r = await sendCtaUrlToMeta(accessToken, phoneNumberId, to, item.text ?? '', item.url, btnText);
+          if (r && 'wamid' in r) wamids.push(r.wamid);
+          else if (r && 'error' in r) errors.push(r.error);
         }
         continue;
       }
