@@ -211,13 +211,26 @@ export function summarizeProduct(raw: unknown): ProductSummary | null {
 }
 
 /** Monta o bloco "Produto do carrinho" injetado no contexto do agente. */
+/** Junta até `max` itens; se sobrar, acrescenta "… e mais N" (N = itens restantes). */
+function joinBounded(items: string[], max: number): string {
+  if (items.length <= max) return items.join(', ');
+  const shown = items.slice(0, max).join(', ');
+  return `${shown}, … e mais ${items.length - max}`;
+}
+
+/**
+ * Bloco "Produto do carrinho" injetado no contexto do agente. Listas são
+ * limitadas (cores até 8, modelos até 10, categorias até 5, sem estoque até
+ * 6) pra não inflar o prompt em produtos com muitas variações — o
+ * `ProductSummary` completo continua disponível pra tool consultar_produto.
+ */
 export function describeProductForAgent(s: ProductSummary): string {
   const lines: string[] = [];
   lines.push(`Produto do carrinho: ${s.nome}${s.marca ? ` (${s.marca})` : ''}`);
   if (s.descricao) lines.push(s.descricao);
-  if (s.categorias.length) lines.push(`Categorias: ${s.categorias.join(', ')}`);
-  if (s.cores.length) lines.push(`Cores disponíveis: ${s.cores.join(', ')}`);
-  if (s.modelos.length) lines.push(`Modelos: ${s.modelos.join(', ')}`);
+  if (s.categorias.length) lines.push(`Categorias: ${joinBounded(s.categorias, 5)}`);
+  if (s.cores.length) lines.push(`Cores disponíveis: ${joinBounded(s.cores, 8)}`);
+  if (s.modelos.length) lines.push(`Modelos: ${joinBounded(s.modelos, 10)}`);
   if (s.precoMin !== null && s.precoMax !== null) {
     lines.push(
       s.precoMin === s.precoMax
@@ -225,7 +238,7 @@ export function describeProductForAgent(s: ProductSummary): string {
         : `Preço: ${formatBRL(s.precoMin)} a ${formatBRL(s.precoMax)}`,
     );
   }
-  if (s.semEstoque.length) lines.push(`Sem estoque: ${s.semEstoque.join(', ')}`);
+  if (s.semEstoque.length) lines.push(`Sem estoque: ${joinBounded(s.semEstoque, 6)}`);
   return lines.join('\n');
 }
 

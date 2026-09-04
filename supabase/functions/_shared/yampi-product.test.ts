@@ -139,3 +139,29 @@ Deno.test('describeProductForAgent monta o bloco de contexto', () => {
   assertStringIncludes(out, 'Preço: R$ 142,90 a R$ 149,90');
   assertStringIncludes(out, 'Sem estoque: Marrom / iPhone 17 Pro');
 });
+
+Deno.test('describeProductForAgent limita listas longas (cap + "… e mais N") pra não inflar o prompt', () => {
+  const modelos = Array.from({ length: 30 }, (_, i) => `Modelo ${i + 1}`);
+  const s = {
+    id: 3,
+    nome: 'Case Universal',
+    marca: 'Minimal',
+    descricao: 'Case compatível com dezenas de aparelhos.',
+    categorias: [],
+    cores: [],
+    modelos,
+    precoMin: 49.9,
+    precoMax: 49.9,
+    variantes: 30,
+    semEstoque: [],
+    imagem: null,
+    variantesDetalhe: [],
+  };
+  const out = describeProductForAgent(s);
+  const modelosLine = out.split('\n').find((l) => l.startsWith('Modelos:'));
+  if (!modelosLine) throw new Error('linha "Modelos:" ausente');
+  for (let i = 1; i <= 10; i++) assertStringIncludes(modelosLine, `Modelo ${i}`);
+  for (let i = 11; i <= 30; i++) assertEquals(modelosLine.includes(`Modelo ${i}`), false);
+  assertStringIncludes(modelosLine, '… e mais 20');
+  assertEquals(out.length < 1200, true);
+});
