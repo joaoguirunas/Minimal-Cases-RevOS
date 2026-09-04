@@ -8,6 +8,7 @@ import { useUpdateNegocioStage } from "@/hooks/useUpdateNegocioStage";
 import { useNegociosByStage } from "@/hooks/useNegociosOptimized";
 import { useQueryClient } from '@tanstack/react-query';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
+import { useTrackedClicksRealtime } from "@/hooks/useTrackedLinks";
 
 interface KanbanBoardProps {
   stages: Stage[];
@@ -56,6 +57,7 @@ const KanbanBoard = ({
 }: KanbanBoardProps) => {
   const updateNegocioStage = useUpdateNegocioStage();
   const queryClient = useQueryClient();
+  useTrackedClicksRealtime();
 
   // Get all stage IDs for the current pipeline to prevent droppable errors
   const pipelineStageIds = useMemo(

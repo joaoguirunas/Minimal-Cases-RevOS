@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Droppable, Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useNavigate } from "react-router-dom";
-import { ChevronsLeft, Clock, MessageCircle, MoreHorizontal, XCircle } from "lucide-react";
+import { ChevronsLeft, Clock, MessageCircle, MoreHorizontal, MousePointerClick, XCircle } from "lucide-react";
 import { format, formatDistanceToNowStrict, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -214,12 +214,13 @@ const StageColumn = ({
                 {displayedNegocios.map((negocio, index) => {
                   const s = cardData[negocio.id];
                   const unread = negocio.pessoa?.unread_count ?? 0;
+                  const clicks = s?.clicks;
                   return (
                     <PortalAwareDraggable
                       key={negocio.id}
                       negocio={negocio}
                       index={index}
-                      ariaLabel={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${s ? `, ${s.sent.total} de ${s.total} toques` : ''}${unread > 0 ? `, ${unread} não lidas` : ''}`}
+                      ariaLabel={`${negocio.pessoa?.name || 'Lead'}, ${formatCurrency(negocio.value || 0)}${s ? `, ${s.sent.total} de ${s.total} toques` : ''}${unread > 0 ? `, ${unread} não lidas` : ''}${clicks && clicks.total > 0 ? ', clicou no link' : ''}`}
                       onOpen={() => navigate(`/crm/kanban/${negocio.id}`)}
                     >
                       {({ snapshot }) => (
@@ -286,8 +287,14 @@ const StageColumn = ({
                                 {/* 4 · estado */}
                                 <div className="flex items-center gap-1 flex-wrap pt-1.5 border-t border-border/60">
                                   {unread > 0 && <Chip tone="danger" icon={MessageCircle} title="Mensagens não lidas">{unread}</Chip>}
-                                  {tags.slice(0, 1).map((t) => <Chip key={t}>{t}</Chip>)}
-                                  {tags.length > 1 && <Chip title={tags.slice(1).join(', ')}>+{tags.length - 1}</Chip>}
+                                  {clicks && clicks.total > 0 && (
+                                    <Chip tone="info" icon={MousePointerClick}
+                                      title={`Abriu ${clicks.total} ${clicks.total === 1 ? 'vez' : 'vezes'} um link nosso${clicks.lastAt ? ` · último ${formatDistanceToNowStrict(new Date(clicks.lastAt), { locale: ptBR, addSuffix: true })}` : ''}`}>
+                                      Clicou{clicks.lastAt ? ` · ${formatDistanceToNowStrict(new Date(clicks.lastAt), { locale: ptBR, addSuffix: true })}` : ''}
+                                    </Chip>
+                                  )}
+                                  {tags.slice(0, 1).map((t) => <Chip key={t} title={tags.length > 1 ? tags.slice(1).join(', ') : undefined}>{t}</Chip>)}
+                                  {!(clicks && clicks.total > 0) && tags.length > 1 && <Chip title={tags.slice(1).join(', ')}>+{tags.length - 1}</Chip>}
                                   {d !== null && (
                                     <Chip
                                       className="ml-auto"
