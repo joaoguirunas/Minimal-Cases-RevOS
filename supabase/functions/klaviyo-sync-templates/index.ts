@@ -144,6 +144,18 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // ── EVENTS: últimos eventos da métrica do CRM (leitura pura) ────────────
+    if (body.action === 'events') {
+      try {
+        const metricName = creds.metric_email?.trim() || 'CRM Email Followup';
+        const m = await client.findMetricByName(metricName);
+        if (!m) return ok200({ ok: true, metrica: metricName, existe: false, eventos: [] });
+        return ok200({ ok: true, metrica: metricName, metric_id: m.id, eventos: await client.listRecentEvents(m.id, 10) });
+      } catch (e) {
+        return err200(`Falha: ${(e as Error).message}`, 'API_ERROR');
+      }
+    }
+
     if (body.action === 'audit') {
       const nomesCrm = ['CRM · Corpo dinâmico (event.html)', 'CRM · Email Followup (auto)', 'CRM · SMS Followup (auto)'];
       try {

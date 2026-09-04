@@ -222,6 +222,19 @@ export class KlaviyoClient {
     return out;
   }
 
+  /** Eventos recentes de uma métrica (leitura pura) — prova que o evento chegou. */
+  async listRecentEvents(metricId: string, limit = 10): Promise<Array<Record<string, unknown>>> {
+    const filter = encodeURIComponent(`equals(metric_id,"${metricId}")`);
+    const res = await this.request<{ data?: Array<{ id: string; attributes?: Record<string, unknown>; relationships?: Record<string, unknown> }> }>(
+      'GET', `/api/events/?filter=${filter}&sort=-datetime&page[size]=${limit}`,
+    );
+    return (res.data ?? []).map((e) => ({
+      id: e.id,
+      datetime: (e.attributes ?? {}).datetime,
+      subject: ((e.attributes ?? {}).event_properties as Record<string, unknown> | undefined)?.subject,
+    }));
+  }
+
   /**
    * Definição de um flow (GET /api/flows/{id} com additional-fields[flow]=definition):
    * revela os gatilhos (métrica/lista/segmento) e as ações. Leitura pura.

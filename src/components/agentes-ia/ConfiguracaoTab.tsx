@@ -58,7 +58,8 @@ const LLM_PROVIDERS = [
 const LLM_MODELS: Record<string, { value: string; label: string; badge?: string }[]> = {
   openai: [
     // GPT-5.4 family (current flagship — mar 2026)
-    { value: 'gpt-5.4',      label: 'GPT-5.4',        badge: 'latest' },
+    { value: 'gpt-5.6-luna', label: 'GPT-5.6 Luna',   badge: 'latest' },
+    { value: 'gpt-5.4',      label: 'GPT-5.4',        badge: 'stable' },
     { value: 'gpt-5.4-mini', label: 'GPT-5.4 mini',   badge: 'fast' },
     { value: 'gpt-5.4-nano', label: 'GPT-5.4 nano',   badge: 'cheap' },
     { value: 'gpt-5.4-pro',  label: 'GPT-5.4 Pro',    badge: 'powerful' },
