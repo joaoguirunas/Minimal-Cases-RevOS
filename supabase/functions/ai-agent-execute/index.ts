@@ -3445,6 +3445,59 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // G2: Gate — só atendemos quem NÓS abordamos primeiro (número compartilhado).
+    //
+    // Este número é dividido com a Zoppy: toda mensagem que chega aqui chega lá
+    // também. Ter lead no CRM não resolve a divisão, porque o mesmo carrinho
+    // abandonado vira lead nos dois sistemas. O que separa de verdade é quem
+    // puxou a conversa: se a pessoa está respondendo um template NOSSO, a
+    // conversa é nossa; se ela escreveu do nada, é atendimento da Zoppy e o
+    // agente fica calado.
+    //
+    // A janela casa com a sessão de atendimento do WhatsApp (24h): passado
+    // esse prazo a resposta já não é mais ao nosso toque.
+    if (!testMode) {
+      const { data: gateCfg } = await supabase
+        .from('omni_channel_configs')
+        .select('settings')
+        .eq('channel', 'whatsapp')
+        .maybeSingle();
+      const gs = ((gateCfg as { settings?: Record<string, unknown> } | null)?.settings ?? {}) as Record<string, unknown>;
+      // Padrão restritivo: só um `false` explícito desliga a exigência.
+      const requiresOutreach = !(gs.agent_requires_outreach === false || gs.agent_requires_outreach === 'false');
+      const windowH = Number(gs.agent_outreach_window_hours ?? 24) || 24;
+
+      if (requiresOutreach) {
+        const since = new Date(Date.now() - windowH * 3_600_000).toISOString();
+        const { data: ourReach } = await supabase
+          .from('messages')
+          .select('id')
+          .eq('people_id', peopleId)
+          .eq('channel', 'whatsapp')
+          .eq('from_contact', 'sistema')
+          .gte('created_at', since)
+          .limit(1)
+          .maybeSingle();
+
+        if (!ourReach) {
+          log.warn('sem_abordagem_nossa_na_janela', { people_id: peopleId, window_hours: windowH });
+          if (bufferIds.length > 0) {
+            await supabase
+              .from('message_buffer')
+              .update({ processed: true, processed_at: new Date().toISOString() })
+              .in('id', bufferIds);
+          }
+          await supabase
+            .from('clients_people')
+            .update({ ai_processing_lock: false })
+            .eq('id', peopleId);
+          return new Response(JSON.stringify({ status: 'no_outreach_from_us', window_hours: windowH }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    }
+
     // 3. Find agent
     let agent: AgentConfig | null = null;
     if (testMode && testAgentId) {
