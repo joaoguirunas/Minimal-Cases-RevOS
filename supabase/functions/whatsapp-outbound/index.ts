@@ -30,6 +30,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
 import { createEvolutionClient, formatRecipient as formatEvolutionRecipient } from '../_shared/evolution-client.ts';
+import { getWhatsAppSendLock, isAllowedRecipient } from '../_shared/whatsapp-send-lock.ts';
 import {
   buildInteractiveFallbackText,
   resolveChannelDispatch,
@@ -907,6 +908,19 @@ Deno.serve(async (req: Request) => {
 
     log.info('start', { action: body.action ?? 'send', people_id: body.people_id ?? undefined, to: body.to ?? undefined });
 
+    // ── TRAVA DE ENVIO ────────────────────────────────────────────────────────
+    // Vale pra TODO caminho: agente de IA, templates da esteira, campanhas,
+    // lembretes e envio manual — todos passam por aqui. Padrão é travado; só
+    // um `sends_locked: false` explícito na config do canal libera.
+    const sendLock = await getWhatsAppSendLock(supabase as never);
+    if (sendLock.locked) {
+      log.warn('bloqueado pela trava de envio', { reason: sendLock.reason });
+      return new Response(
+        JSON.stringify({ error: 'whatsapp_sends_locked', blocked: true, reason: sendLock.reason }),
+        { status: 423, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // ── Typing indicator action ────────────────────────────────────────────────
     // { action: 'typing', people_id } — marks last client message as read +
     // shows "typing..." on the client's WhatsApp for ~25 seconds.
@@ -938,6 +952,14 @@ Deno.serve(async (req: Request) => {
 
       const token = channel?.access_token || envAccessToken;
       const phoneNumId = channel?.phone_number_id || lastMsg.wa_phone_number_id;
+
+      // Com allowlist de teste ativa o "digitando..." é pulado: é cosmético e
+      // não vale o risco de aparecer no celular de quem está fora da lista.
+      if (sendLock.allowlist.length > 0) {
+        return new Response(JSON.stringify({ ok: true, skipped: 'allowlist' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
 
       if (!token || !phoneNumId) {
         return new Response(JSON.stringify({ ok: true, skipped: true }), {
@@ -986,6 +1008,15 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ error: 'to and messages[] are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // Trava aberta, mas em modo teste: só os números da allowlist recebem.
+    if (!isAllowedRecipient(sendLock, to)) {
+      log.warn('destinatario fora da allowlist de teste', { to });
+      return new Response(
+        JSON.stringify({ error: 'whatsapp_recipient_not_allowlisted', blocked: true, to }),
+        { status: 423, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
