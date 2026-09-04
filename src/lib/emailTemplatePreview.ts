@@ -92,10 +92,54 @@ export const renderPreview = (
 };
 
 /** Wraps the rendered body in a minimal HTML document for the sandboxed iframe. */
-export const buildPreviewDocument = (renderedBody: string): string =>
-  `<!doctype html><html><head><meta charset="utf-8">` +
-  `<meta name="viewport" content="width=device-width, initial-scale=1">` +
-  `<style>body{margin:0;padding:16px;background:#fff;color:#111;` +
-  `font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;` +
-  `font-size:14px;line-height:1.5;} img{max-width:100%;}</style></head>` +
-  `<body>${renderedBody}</body></html>`;
+export const buildPreviewDocument = (renderedBody: string, opts?: { width?: number }): string => {
+  const widthStyle = opts?.width ? `<style>body{max-width:${opts.width}px;margin:0 auto}</style>` : '';
+  return (
+    `<!doctype html><html><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+    `<style>body{margin:0;padding:16px;background:#fff;color:#111;` +
+    `font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;` +
+    `font-size:14px;line-height:1.5;} img{max-width:100%;}</style>${widthStyle}</head>` +
+    `<body>${renderedBody}</body></html>`
+  );
+};
+
+/** Formata um valor numerico como moeda BRL, normalizando o non-breaking space que o Intl insere depois de R$. */
+const formatBRL = (value: number): string =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+    .format(value)
+    .replace(/\u00a0/g, ' ');
+
+/** Dados mínimos de um lead + carrinho para popular o preview com valores reais. */
+export interface LeadPreviewInput {
+  name: string | null;
+  cart: {
+    produto: string | null;
+    modelo: string | null;
+    modeloCurto: string | null;
+    imagem: string | null;
+    total: number | null;
+    url: string | null;
+  } | null;
+}
+
+/**
+ * Deriva as variáveis de preview ({{nome}}, {{produto}}, ...) a partir de um lead real.
+ * Sem carrinho, retorna somente `nome`.
+ */
+export const previewVarsFromLead = (i: LeadPreviewInput): Record<string, string> => {
+  const nome = i.name?.trim().split(/\s+/)[0] || sampleValueFor('nome');
+  if (!i.cart) return { nome };
+
+  const { cart } = i;
+  return {
+    nome,
+    produto: cart.produto ?? sampleValueFor('produto'),
+    modelo_celular: cart.modelo ?? sampleValueFor('modelo_celular'),
+    modelo_celular_curto: (cart.modeloCurto ?? sampleValueFor('modelo_celular_curto')).toUpperCase(),
+    imagem_produto: cart.imagem ?? sampleValueFor('imagem_produto'),
+    total: cart.total !== null ? formatBRL(cart.total) : sampleValueFor('total'),
+    preco: cart.total !== null ? formatBRL(cart.total) : sampleValueFor('preco'),
+    link_checkout: cart.url ?? sampleValueFor('link_checkout'),
+  };
+};
