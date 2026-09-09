@@ -24,6 +24,7 @@ export interface User {
   ativo?: boolean;
   whatsapp?: string; // Alias for phone
   agente?: string | null;
+  commission_pct?: number | null;
 }
 
 export const useUsers = () => {

@@ -21,6 +21,7 @@ import { createLogger } from '../_shared/logger.ts';
 import {
   buildTemplateRow,
   fetchAllMetaTemplates,
+  mergeHeaderImageUrl,
   type MetaTemplate,
   resolveTemplateMatch,
   shouldSoftDelete,
@@ -194,9 +195,24 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
+      // header_image_url é gravado localmente (whatsapp-templates-manage) e não
+      // volta na resposta da Meta — preserva o valor existente para o update não
+      // apagar a imagem do header (ver mergeHeaderImageUrl).
+      const { data: existingRow } = await supabase
+        .from('whatsapp_templates')
+        .select('json_data')
+        .eq('id', match.id)
+        .maybeSingle();
+
       await supabase
         .from('whatsapp_templates')
-        .update(row)
+        .update({
+          ...row,
+          json_data: mergeHeaderImageUrl(
+            row.json_data,
+            (existingRow?.json_data ?? null) as Record<string, unknown> | null,
+          ),
+        })
         .eq('id', match.id);
       updated++;
 

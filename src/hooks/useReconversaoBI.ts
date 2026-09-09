@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { aggregateReconversao, type Agregado, type RecRow, type TouchRow, type ClickRow } from '@/lib/bi/reconversao';
+import { aggregateComissoes, type ComissaoLinha } from '@/lib/bi/comissoes';
 
 const db = supabase as unknown as SupabaseClient;
 
@@ -32,6 +33,10 @@ export interface ReconversionRow {
   attributed_link_source?: string | null;
   attributed_template_name?: string | null;
   pessoa?: { name: string | null } | null;
+  recovered_by: string | null;
+  recovery_basis: 'cupom' | 'janela' | null;
+  commission_pct: number | null;
+  commission_value: number | null;
 }
 
 export interface ReconversaoBI {
@@ -52,6 +57,9 @@ export interface ReconversaoBI {
   rows: ReconversionRow[];
   // Agregação pura (período anterior, funil, níveis, top cupons)
   agregado: Agregado;
+  // Comissões por comercial (mês × pessoa)
+  comissoes: ComissaoLinha[];
+  comissaoPeriodo: number;
 }
 
 function isoDay(d: string): string {
@@ -86,6 +94,21 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
         const nameById = new Map(((people ?? []) as Array<{ id: string; name: string | null }>).map((p) => [p.id, p.name]));
         for (const r of all) r.pessoa = { name: r.people_id ? (nameById.get(r.people_id) ?? null) : null };
       }
+
+      // Nomes dos comerciais que recuperaram pedidos (para o card de comissões).
+      // Para um usuário comercial, a RLS de settings_users devolve só ele mesmo — o que basta.
+      const recoveredIds = [...new Set(all.map((r) => r.recovered_by).filter(Boolean))] as string[];
+      const namesById: Record<string, string> = {};
+      if (recoveredIds.length > 0) {
+        const { data: comerciais } = await db
+          .from('settings_users').select('id, name').in('id', recoveredIds);
+        for (const c of (comerciais ?? []) as Array<{ id: string; name: string | null }>) {
+          if (c.name) namesById[c.id] = c.name;
+        }
+      }
+      const comissoes = aggregateComissoes(all as never, namesById);
+      const comissaoPeriodo = all.reduce((a, r) => a + (r.commission_value ?? 0), 0);
+
       const attributed = all.filter((r) => r.attributed);
       const organicos = all.length - attributed.length;
       const porNivel = {
@@ -189,6 +212,8 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
         porDia,
         rows: all,
         agregado,
+        comissoes,
+        comissaoPeriodo,
       };
     },
   });

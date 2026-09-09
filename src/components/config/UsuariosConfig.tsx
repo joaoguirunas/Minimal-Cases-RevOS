@@ -74,6 +74,7 @@ export const UsuariosConfig = () => {
       super_adm: user_type === 'admin' || usuario.is_super_admin || usuario.super_adm || false,
       user_type,
       agente: usuario.agente ?? null,
+      commission_pct: usuario.commission_pct ?? null,
       auth_user_id: usuario.auth_user_id,
       created_at: usuario.created_at,
       updated_at: usuario.updated_at,
@@ -92,6 +93,7 @@ export const UsuariosConfig = () => {
       super_adm: usuario.user_type === 'admin' || usuario.super_adm,
       ativo: usuario.ativo,
       agente: (usuario.user_type === 'user' || usuario.user_type === 'comercial') ? (usuario.agente ?? null) : null,
+      commission_pct: usuario.user_type === 'comercial' ? (usuario.commission_pct ?? null) : null,
     });
   };
 
@@ -208,7 +210,11 @@ export const UsuariosConfig = () => {
                           <UserCircle className="w-2.5 h-2.5" strokeWidth={1.5} />
                           Comercial
                         </span>
-                      ) : (
+                      ) : null}
+                      {userType === 'comercial' && usuario.commission_pct != null && (
+                        <span className="text-[11px] text-muted-foreground">{usuario.commission_pct}%</span>
+                      )}
+                      {userType !== 'admin' && userType !== 'manager' && userType !== 'comercial' && (
                         <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/8 border border-emerald-200/30 px-1.5 py-0.5 rounded-full leading-none">
                           <UserCircle className="w-2.5 h-2.5" strokeWidth={1.5} />
                           User

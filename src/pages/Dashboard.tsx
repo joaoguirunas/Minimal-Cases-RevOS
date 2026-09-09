@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { ComponentType } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { DateRange } from "react-day-picker";
 import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBIProAdAccounts } from "@/hooks/useBIProAdAccounts";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 import { useLoading } from "@/contexts/LoadingContext";
 import StandardPageLoader from "@/components/loading/StandardPageLoader";
@@ -30,11 +31,27 @@ const TAB_TRIGGER_CLASS =
   'data-[state=active]:border-primary data-[state=active]:text-foreground ' +
   'data-[state=active]:bg-transparent data-[state=active]:shadow-none';
 
+// BI-REC-2: BI de reconversão da esteira é a visão principal.
+// Insights/RevOps/Comercial/Marketing ficam ocultas por ora — para reativar,
+// devolva as entradas abaixo (o conteúdo das tabs continua montado).
+const ALL_TABS: Array<{
+  key: TabKey;
+  label: string;
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+}> = [
+  { key: 'reconversao', label: 'Reconversão', icon: TrendingUp },
+  // { key: 'insights',  label: 'Insights',  icon: Sparkles   },
+  // { key: 'revops',    label: 'RevOps',    icon: TrendingUp },
+  // { key: 'comercial', label: 'Comercial', icon: Briefcase  },
+  // { key: 'marketing', label: 'Marketing', icon: Megaphone  },
+];
+
 const Dashboard = () => {
   const { t } = useTranslation();
   const { setLoading } = useLoading();
   const queryClient = useQueryClient();
   const { accounts, syncAccount } = useBIProAdAccounts();
+  const { isComercial } = useUserPermissions();
   const [activeTab, setActiveTab] = useState<TabKey>('reconversao');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -121,20 +138,10 @@ const Dashboard = () => {
     setTimeout(() => setLoading('dashboard-init', false), 800);
   }, [setLoading]);
 
-  const tabs: Array<{
-    key: TabKey;
-    label: string;
-    icon: ComponentType<{ className?: string; strokeWidth?: number }>;
-  }> = [
-    // BI-REC-2: BI de reconversão da esteira é a visão principal.
-    // Insights/RevOps/Comercial/Marketing ficam ocultas por ora — para reativar,
-    // devolva as entradas abaixo (o conteúdo das tabs continua montado).
-    { key: 'reconversao', label: 'Reconversão', icon: TrendingUp },
-    // { key: 'insights',  label: 'Insights',  icon: Sparkles   },
-    // { key: 'revops',    label: 'RevOps',    icon: TrendingUp },
-    // { key: 'comercial', label: 'Comercial', icon: Briefcase  },
-    // { key: 'marketing', label: 'Marketing', icon: Megaphone  },
-  ];
+  const tabs = useMemo(
+    () => (isComercial ? ALL_TABS.filter(tab => tab.key === 'reconversao') : ALL_TABS),
+    [isComercial]
+  );
 
   const tabLoader = (
     <div className="flex items-center justify-center h-64">
@@ -167,21 +174,23 @@ const Dashboard = () => {
             })}
           </TabsList>
           <div className="flex items-center gap-1.5">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMetaSync}
-              disabled={isSyncing}
-              className="h-[30px] rounded-lg text-xs text-muted-foreground hover:text-foreground"
-              title="Sincronizar Meta Ads"
-            >
-              {isSyncing ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <RefreshCw className="w-3 h-3" />
-              )}
-              <span className="hidden sm:inline">{isSyncing ? 'Sync...' : 'Meta Sync'}</span>
-            </Button>
+            {!isComercial && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMetaSync}
+                disabled={isSyncing}
+                className="h-[30px] rounded-lg text-xs text-muted-foreground hover:text-foreground"
+                title="Sincronizar Meta Ads"
+              >
+                {isSyncing ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3 h-3" />
+                )}
+                <span className="hidden sm:inline">{isSyncing ? 'Sync...' : 'Meta Sync'}</span>
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -237,7 +246,11 @@ const Dashboard = () => {
           <TabsContent value="reconversao" className="mt-0">
             <SectionErrorBoundary section="BI Reconversão">
               <Suspense fallback={tabLoader}>
-                <BIProReconversaoTab dateFrom={reconvDateFrom} dateTo={reconvDateTo} />
+                <BIProReconversaoTab
+                  dateFrom={reconvDateFrom}
+                  dateTo={reconvDateTo}
+                  scope={isComercial ? 'comercial' : 'admin'}
+                />
               </Suspense>
             </SectionErrorBoundary>
           </TabsContent>

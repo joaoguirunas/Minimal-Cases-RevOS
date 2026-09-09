@@ -564,6 +564,10 @@ Deno.serve(async (req: Request) => {
           body: 'Oi {{1}}, última chamada: seu pedido da *{{2}}* ainda dá pra fechar com *10% OFF* (cupom VOLTA10) nas próximas 12h. Depois disso o carrinho é liberado. Sem drama 🤝',
           examples: ['Gabriella', 'Case Couro Porta-Cartões Preta'], params: ['nome', 'produto'],
           buttons: [urlBtn('Fechar com VOLTA10')] },
+        { rule_prefix: 'COMERCIAL', name: 'minimal_esteira_comercial_cupom', category: 'MARKETING',
+          body: 'Oi {{1}}, aqui é {{2}} da Minimal Cases 👋\nVi que sua {{3}} ficou separada no carrinho.\nSeparei um cupom de {{4}}% só pra você: {{5}} — vale até {{6}}.\nQuer que eu te ajude a finalizar?',
+          examples: ['Gabriella', 'Hyago', 'Case Minimal Preta', '20', 'GABRIELLA20', '12/09'], params: ['nome', 'remetente', 'produto', 'percentual', 'cupom', 'validade'],
+          buttons: [urlBtn('Finalizar com desconto')] },
       ];
 
       const results: Array<{ template: string; rule: string; status: string; detail?: string }> = [];
@@ -605,6 +609,8 @@ Deno.serve(async (req: Request) => {
           }
         }
         // Liga a regra da esteira: template_id + vars (params/botão). Ativa só se já aprovado.
+        // Nem todo template tem regra de esteira (ex.: COMERCIAL é disparo manual do time,
+        // sem follow-up automático) — ausência de regra não é erro, só não há o que religar.
         const { data: rule } = await supabase.from('leads_stages_followups').select('id, vars').eq('type', 'whatsapp_template').ilike('subject', `${sp.rule_prefix} ·%`).limit(1).maybeSingle();
         if (rule && templateId) {
           const vars = { ...(((rule as { vars?: Record<string, unknown> }).vars) ?? {}), wa_template_name: sp.name, wa_params: sp.params, wa_button_url: true };

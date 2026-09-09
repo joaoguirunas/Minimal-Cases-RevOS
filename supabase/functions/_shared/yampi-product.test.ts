@@ -1,0 +1,167 @@
+/**
+ * Unit tests — yampi-product pure helpers (resumo do produto pro agente).
+ * Run: deno test --allow-env --allow-net supabase/functions/_shared/yampi-product.test.ts
+ */
+
+import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { describeProductForAgent, stripHtml, summarizeProduct, truncateAtSentence } from './yampi-product.ts';
+
+const FIXTURE_WRAPPED = {
+  data: {
+    id: 1,
+    name: 'Case Couro Porta Cartões',
+    brand: { data: { name: 'Minimal' } },
+    texts: { data: { description: '<p>Couro <b>legítimo</b>…</p><img src=x>' } },
+    categories: { data: [{ name: 'Couro' }, { name: 'Modelos iPhone 17' }] },
+    images: { data: [{ medium: { url: 'https://cdn/x.jpg' } }] },
+    skus: {
+      data: [
+        {
+          id: 11,
+          title: 'Case Couro Preto iPhone 17',
+          price_sale: 149.9,
+          price_discount: 142.9,
+          total_in_stock: 3,
+          variations: [{ name: 'Cor', value: 'Preto' }, { name: 'Modelo', value: 'iPhone 17' }],
+        },
+        {
+          id: 12,
+          title: '…Marrom iPhone 17 Pro',
+          price_sale: 149.9,
+          total_in_stock: 0,
+          variations: { data: [{ name: 'Cor', value: 'Marrom' }, { name: 'Modelo', value: 'iPhone 17 Pro' }] },
+        },
+      ],
+    },
+  },
+};
+
+// Mesmo produto, mas com arrays diretos (sem `.data`) — a Yampi tem as duas formas.
+const FIXTURE_DIRECT = {
+  id: 1,
+  name: 'Case Couro Porta Cartões',
+  brand: { name: 'Minimal' },
+  texts: { description: '<p>Couro <b>legítimo</b>…</p><img src=x>' },
+  categories: [{ name: 'Couro' }, { name: 'Modelos iPhone 17' }],
+  images: [{ medium: { url: 'https://cdn/x.jpg' } }],
+  skus: [
+    {
+      id: 11,
+      title: 'Case Couro Preto iPhone 17',
+      price_sale: 149.9,
+      price_discount: 142.9,
+      total_in_stock: 3,
+      variations: [{ name: 'Cor', value: 'Preto' }, { name: 'Modelo', value: 'iPhone 17' }],
+    },
+    {
+      id: 12,
+      title: '…Marrom iPhone 17 Pro',
+      price_sale: 149.9,
+      total_in_stock: 0,
+      variations: [{ name: 'Cor', value: 'Marrom' }, { name: 'Modelo', value: 'iPhone 17 Pro' }],
+    },
+  ],
+};
+
+function assertSummary(s: ReturnType<typeof summarizeProduct>) {
+  if (!s) throw new Error('summary null');
+  assertEquals(s.nome, 'Case Couro Porta Cartões');
+  assertEquals(s.marca, 'Minimal');
+  assertEquals(s.categorias, ['Couro', 'Modelos iPhone 17']);
+  assertEquals(s.cores, ['Preto', 'Marrom']);
+  assertEquals(s.modelos, ['iPhone 17', 'iPhone 17 Pro']);
+  assertEquals(s.precoMin, 142.9);
+  assertEquals(s.precoMax, 149.9);
+  assertEquals(s.variantes, 2);
+  assertEquals(s.semEstoque, ['Marrom / iPhone 17 Pro']);
+  assertEquals(s.imagem, 'https://cdn/x.jpg');
+  const desc = s.descricao;
+  assertEquals(desc.includes('<'), false);
+  assertEquals(desc.length <= 600, true);
+}
+
+Deno.test('summarizeProduct: formato Yampi com wrappers .data', () => {
+  assertSummary(summarizeProduct(FIXTURE_WRAPPED));
+});
+
+Deno.test('summarizeProduct: mesmo produto com arrays diretos (sem .data)', () => {
+  assertSummary(summarizeProduct(FIXTURE_DIRECT));
+});
+
+Deno.test('summarizeProduct: null/undefined → null, sem lançar', () => {
+  assertEquals(summarizeProduct(null), null);
+  assertEquals(summarizeProduct(undefined), null);
+  assertEquals(summarizeProduct({}), null);
+});
+
+Deno.test('stripHtml remove tags', () => {
+  assertEquals(stripHtml('<p>Couro <b>legítimo</b>…</p><img src=x>'), 'Couro legítimo…');
+});
+
+Deno.test('stripHtml remove <script>/<style> (com conteúdo) e decodifica entidades', () => {
+  assertEquals(
+    stripHtml('<style>x{}</style><p>Couro &amp; Metal &quot;premium&quot;</p>'),
+    'Couro & Metal "premium"',
+  );
+  assertEquals(
+    stripHtml('<script>alert(1)</script><p>Tamanho &lt;10cm&gt; &nbsp;&#39;ok&#39;</p>'),
+    "Tamanho <10cm> 'ok'",
+  );
+});
+
+Deno.test('summarizeProduct: price_discount 0 (sem promoção) não vira "preço R$ 0,00" — cai pro price_sale', () => {
+  const raw = {
+    id: 2,
+    name: 'Case Simples',
+    skus: [
+      { id: 21, title: 'Case Simples Preto', price_sale: 149.9, price_discount: 0, total_in_stock: 1, variations: [{ name: 'Cor', value: 'Preto' }] },
+      { id: 22, title: 'Case Simples Azul', price_sale: 129.9, price_discount: 99.9, total_in_stock: 1, variations: [{ name: 'Cor', value: 'Azul' }] },
+    ],
+  };
+  const s = summarizeProduct(raw);
+  if (!s) throw new Error('summary null');
+  assertEquals(s.variantesDetalhe.find((v) => v.skuId === 21)?.preco, 149.9);
+  assertEquals(s.precoMin, 99.9);
+  assertEquals(s.precoMax, 149.9);
+});
+
+Deno.test('truncateAtSentence corta na última frase que cabe', () => {
+  assertEquals(truncateAtSentence('A b. C d. E', 8), 'A b.');
+});
+
+Deno.test('describeProductForAgent monta o bloco de contexto', () => {
+  const s = summarizeProduct(FIXTURE_WRAPPED);
+  if (!s) throw new Error('summary null');
+  const out = describeProductForAgent(s);
+  assertStringIncludes(out, 'Produto do carrinho: Case Couro Porta Cartões (Minimal)');
+  assertStringIncludes(out, 'Cores disponíveis: Preto, Marrom');
+  assertStringIncludes(out, 'Modelos: iPhone 17, iPhone 17 Pro');
+  assertStringIncludes(out, 'Preço: R$ 142,90 a R$ 149,90');
+  assertStringIncludes(out, 'Sem estoque: Marrom / iPhone 17 Pro');
+});
+
+Deno.test('describeProductForAgent limita listas longas (cap + "… e mais N") pra não inflar o prompt', () => {
+  const modelos = Array.from({ length: 30 }, (_, i) => `Modelo ${i + 1}`);
+  const s = {
+    id: 3,
+    nome: 'Case Universal',
+    marca: 'Minimal',
+    descricao: 'Case compatível com dezenas de aparelhos.',
+    categorias: [],
+    cores: [],
+    modelos,
+    precoMin: 49.9,
+    precoMax: 49.9,
+    variantes: 30,
+    semEstoque: [],
+    imagem: null,
+    variantesDetalhe: [],
+  };
+  const out = describeProductForAgent(s);
+  const modelosLine = out.split('\n').find((l) => l.startsWith('Modelos:'));
+  if (!modelosLine) throw new Error('linha "Modelos:" ausente');
+  for (let i = 1; i <= 10; i++) assertStringIncludes(modelosLine, `Modelo ${i}`);
+  for (let i = 11; i <= 30; i++) assertEquals(modelosLine.includes(`Modelo ${i}`), false);
+  assertStringIncludes(modelosLine, '… e mais 20');
+  assertEquals(out.length < 1200, true);
+});

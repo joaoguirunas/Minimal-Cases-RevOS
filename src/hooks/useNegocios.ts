@@ -33,6 +33,7 @@ export interface Negocio {
   gclid?: string;
   fbclid?: string;
   fb_lead_id?: string;
+  sku_id?: number | null;
   // Backward compatibility
   person_id?: string;
   pipeline_id?: string;

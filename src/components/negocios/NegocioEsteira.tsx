@@ -18,8 +18,11 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { CHANNEL_TITLES, useCancelPendingTouches, useLeadEsteira, type TimelineEntry } from '@/hooks/useEsteiraLead';
 import { useTrackedClicksRealtime } from '@/hooks/useTrackedLinks';
+import { useCommercialScope, useSkuImages } from '@/hooks/useComercial';
+import { variantTone } from '@/lib/followups/ab';
 import { groupByDay } from '@/lib/esteira/timeline';
 import { toast } from 'sonner';
+import NegocioComercialCard from '@/components/negocios/NegocioComercialCard';
 
 const money = (v: number | null) =>
   v === null ? '—' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
@@ -64,11 +67,15 @@ function entryVisual(e: TimelineEntry): { icon: React.ElementType; cls: string }
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; peopleId?: string }) {
+export default function NegocioEsteira({ leadId, peopleId, skuId, ownerId, ownerName }: { leadId: string; peopleId?: string; skuId?: number | null; ownerId?: string | null; ownerName?: string | null }) {
   useTrackedClicksRealtime();
+  const { isComercial } = useCommercialScope();
+  const { data: skuImgs } = useSkuImages(skuId ? [skuId] : []);
+  const skuImage = skuId ? skuImgs?.[skuId] ?? null : null;
   const { data, isLoading } = useLeadEsteira(leadId, peopleId);
   const cart = data?.cart ?? null;
   const timeline = data?.timeline ?? [];
+  const abVariant = data?.abVariant ?? null;
   const sentCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'sent').length;
   const pendingCount = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').length;
   const next = timeline.filter((t) => t.kind === 'toque' && t.status === 'pending').sort((a, b) => (a.at < b.at ? -1 : 1))[0];
@@ -88,7 +95,14 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
       {/* ── Cabeçalho: progresso + ações ─────────────────────────────────── */}
       <div className="rounded-xl border border-border bg-card p-4 flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-[13px] font-medium text-foreground">{total > 0 ? `${sentCount} de ${total} toques enviados` : 'Sem toques agendados'}</p>
+            {abVariant && (
+              <Chip tone={variantTone(abVariant.key)} title={abVariant.experiment}>
+                Teste A/B · Variante {abVariant.key}
+              </Chip>
+            )}
+          </div>
           <p className="text-[11.5px] text-muted-foreground truncate">
             {(() => {
               if (!next) return pendingCount === 0 && total > 0 ? 'Esteira concluída' : '';
@@ -100,7 +114,7 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
           {total > 0 && <div className="mt-2 h-1 w-full max-w-[280px] rounded-full bg-muted overflow-hidden" aria-hidden><div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((sentCount / total) * 100)}%` }} /></div>}
         </div>
         {cart?.url && <Button variant="outline" size="sm" className="h-8 text-[12px]" onClick={() => { navigator.clipboard.writeText(cart.url!); toast.success('Link copiado'); }}>Copiar link do carrinho</Button>}
-        {pendingCount > 0 && (
+        {pendingCount > 0 && !isComercial && (
           <Button variant="outline" size="sm" className="h-8 text-[12px] text-destructive hover:text-destructive" disabled={cancel.isPending}
             onClick={() => { if (window.confirm(`Pausar ${pendingCount} toque(s) pendente(s) deste lead? Eles serão cancelados.`)) cancel.mutate(pendingCount, { onSuccess: (n) => toast.success(`${n} toque(s) cancelado(s)`), onError: (e) => { const msg = (e as Error).message; toast.error(msg === 'SEM_PERMISSAO' || /permission|policy|RLS/i.test(msg) ? 'Sem permissão para pausar — peça a um gestor' : msg); } }); }}>
             Pausar toques
@@ -108,12 +122,15 @@ export default function NegocioEsteira({ leadId, peopleId }: { leadId: string; p
         )}
       </div>
 
+      {/* ── Comercial ────────────────────────────────────────────────────── */}
+      <NegocioComercialCard leadId={leadId} peopleId={peopleId} ownerId={ownerId} ownerName={ownerName} cartTotal={cart?.total ?? null} />
+
       {/* ── Carrinho ─────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            {cart?.image && (
-              <img src={cart.image} alt="" className="w-14 h-14 rounded-lg object-cover bg-muted shrink-0" />
+            {(cart?.image || skuImage) && (
+              <img src={cart?.image ?? skuImage!} alt="" className="w-[120px] h-[120px] md:w-[200px] md:h-[200px] rounded-xl object-cover bg-muted shrink-0" />
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-2">

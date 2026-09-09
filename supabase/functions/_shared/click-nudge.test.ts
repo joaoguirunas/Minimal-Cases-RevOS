@@ -19,6 +19,7 @@ Deno.test('decideNudge: bloqueios', () => {
   assertEquals(decideNudge({ ...base, leadStatus: 'won' }).ok, false);
   assertEquals(decideNudge({ ...base, stageName: 'Pagamento pendente' }).ok, false);
   assertEquals(decideNudge({ ...base, stageName: 'Recuperado' }).ok, false);
+  assertEquals(decideNudge({ ...base, stageName: 'Em negociação' }).ok, false);  // comercial assumiu
   assertEquals(decideNudge({ ...base, agentActive: false }).ok, false);
   assertEquals(decideNudge({ ...base, lastNudgeAt: '2026-09-03T20:00:00Z' }).ok, false);   // < 24h
   assertEquals(decideNudge({ ...base, lastNudgeAt: '2026-09-02T20:00:00Z' }).ok, true);    // > 24h

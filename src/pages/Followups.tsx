@@ -9,6 +9,7 @@ import { useWhatsappChannels } from '@/hooks/useWhatsappChannels';
 import { useMeetingFollowupAutoSetup } from '@/hooks/useMeetingFollowupAutoSetup';
 import MultiSelectScoreMatrix from '@/components/followups/MultiSelectScoreMatrix';
 import StageFollowupsCard from '@/components/followups/StageFollowupsCard';
+import EsteiraTimelineTab from '@/components/followups/EsteiraTimelineTab';
 import AgendamentoFollowupsCard from '@/components/followups/AgendamentoFollowupsCard';
 import { BusinessHoursSettings } from '@/components/followups/BusinessHoursSettings';
 import StandardPageLoader from '@/components/loading/StandardPageLoader';
@@ -264,11 +265,13 @@ const Followups = () => (
     <div className="flex items-center justify-between px-4 h-[45px] border-b border-border bg-card dark:bg-zinc-950">
       <TabsList className="h-full bg-transparent gap-1">
         <TabsTrigger value="etapas" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary text-[13px]">Etapas CRM</TabsTrigger>
+        <TabsTrigger value="timeline" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary text-[13px]">Timeline</TabsTrigger>
         <TabsTrigger value="agendamento" className="h-full rounded-none border-b-2 border-transparent data-[state=active]:border-primary text-[13px]">Agendamento</TabsTrigger>
       </TabsList>
     </div>
 
     <TabsContent value="etapas"      className="mt-0"><EtapasCRMTab /></TabsContent>
+    <TabsContent value="timeline"    className="mt-0"><EsteiraTimelineTab /></TabsContent>
     <TabsContent value="agendamento" className="mt-0"><AgendamentoTab /></TabsContent>
   </Tabs>
 );

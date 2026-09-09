@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { WhatsappTemplatePreview } from './WhatsappTemplatePreview';
+import { AssetPicker } from './AssetPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,7 +13,7 @@ import {
   Loader2, Plus, Trash2, ArrowLeft, Calendar, MessageSquare, UserPlus, Clock, Star, FileText,
   RefreshCw, XCircle, CheckCircle, CreditCard, Receipt, FileSignature, Package, Key, Mail,
   Handshake, BarChart3, PartyPopper, Megaphone, BookOpen, Gift, Award, Rocket, Cake, Users,
-  HeartHandshake, Monitor, ClipboardCheck, TrendingUp, Newspaper,
+  HeartHandshake, Monitor, ClipboardCheck, TrendingUp, Newspaper, ImageIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -596,6 +597,9 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
   const [category, setCategory] = useState('MARKETING');
   const [language, setLanguage] = useState('pt_BR');
   const [header, setHeader] = useState('');
+  const [headerType, setHeaderType] = useState<'none' | 'text' | 'image'>('none');
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const [body, setBody] = useState('');
   const [footer, setFooter] = useState('');
   const [buttons, setButtons] = useState<ButtonItem[]>([]);
@@ -611,6 +615,8 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
     setCategory('MARKETING');
     setLanguage('pt_BR');
     setHeader('');
+    setHeaderType('none');
+    setHeaderImageUrl('');
     setBody('');
     setFooter('');
     setButtons([]);
@@ -627,6 +633,8 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
     setName(preset.name);
     setCategory(preset.category);
     setHeader(preset.header);
+    setHeaderType(preset.header.trim() ? 'text' : 'none');
+    setHeaderImageUrl('');
     setBody(preset.body);
     setFooter(preset.footer);
     setButtons([...preset.buttons]);
@@ -657,6 +665,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
     if (!name || !body.trim()) return false;
     if (!/^[a-z][a-z0-9_]*$/.test(name)) return false;
     if (category === 'AUTHENTICATION' && /\{\{\d+\}\}/.test(body)) return false;
+    if (headerType === 'image' && !headerImageUrl) return false;
     return true;
   };
 
@@ -666,7 +675,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
     const components: Array<Record<string, unknown>> = [];
 
     // Header — detect variables and attach example
-    if (header.trim()) {
+    if (headerType === 'text' && header.trim()) {
       const headerVarNums = [...header.matchAll(/\{\{(\d+)\}\}/g)].map(m => parseInt(m[1]));
       const headerComp: Record<string, unknown> = { type: 'HEADER', format: 'TEXT', text: header.trim() };
       if (headerVarNums.length > 0) {
@@ -708,8 +717,9 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
   };
 
   const buildPreviewComponents = () => {
-    const components: Array<{ type: string; text?: string; buttons?: Array<{ text: string; type: string }> }> = [];
-    if (header.trim()) components.push({ type: 'HEADER', text: header.trim() });
+    const components: Array<{ type: string; text?: string; format?: string; image_url?: string; buttons?: Array<{ text: string; type: string }> }> = [];
+    if (headerType === 'text' && header.trim()) components.push({ type: 'HEADER', text: header.trim() });
+    if (headerType === 'image') components.push({ type: 'HEADER', format: 'IMAGE', image_url: headerImageUrl });
     components.push({ type: 'BODY', text: body.trim() || 'Texto da mensagem...' });
     if (footer.trim()) components.push({ type: 'FOOTER', text: footer.trim() });
     if (buttons.length > 0) {
@@ -752,6 +762,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
         language,
         components: buildComponents(),
         ...(purpose !== 'none' ? { purpose } : {}),
+        ...(headerType === 'image' && headerImageUrl ? { header_image_url: headerImageUrl } : {}),
       };
       console.log('[TemplateBuilder] payload:', JSON.stringify(payload, null, 2));
 
@@ -787,6 +798,7 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => { if (!v) resetForm(); onOpenChange(v); }}>
       <DialogContent className={cn(
         "max-h-[90vh] overflow-y-auto",
@@ -937,14 +949,57 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
                 <label className="text-[13px] font-medium text-foreground">
                   Header <span className="text-muted-foreground/50 font-normal">(opcional)</span>
                 </label>
-                <Input
-                  value={header}
-                  onChange={e => setHeader(e.target.value)}
-                  placeholder="Título da mensagem"
-                  maxLength={60}
-                  className="mt-1 h-[30px] text-[13px]"
-                />
-                <p className="text-[11px] text-muted-foreground/50 mt-0.5 text-right">{header.length}/60</p>
+                <Select value={headerType} onValueChange={v => setHeaderType(v as 'none' | 'text' | 'image')}>
+                  <SelectTrigger className="mt-1 h-[30px] text-[13px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum</SelectItem>
+                    <SelectItem value="text">Texto</SelectItem>
+                    <SelectItem value="image">Imagem</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {headerType === 'text' && (
+                  <div className="mt-2">
+                    <Input
+                      value={header}
+                      onChange={e => setHeader(e.target.value)}
+                      placeholder="Título da mensagem"
+                      maxLength={60}
+                      className="h-[30px] text-[13px]"
+                    />
+                    <p className="text-[11px] text-muted-foreground/50 mt-0.5 text-right">{header.length}/60</p>
+                  </div>
+                )}
+
+                {headerType === 'image' && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setImagePickerOpen(true)}
+                        className="w-20 aspect-[1.91/1] rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0"
+                      >
+                        {headerImageUrl ? (
+                          <img src={headerImageUrl} alt="Imagem do cabeçalho" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon className="h-4 w-4 text-muted-foreground/50" strokeWidth={1.5} />
+                        )}
+                      </button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setImagePickerOpen(true)}
+                        className="h-[30px] text-[13px] gap-1.5"
+                      >
+                        <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        Escolher imagem
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground/60 mt-1.5">
+                      JPEG ou PNG até 5 MB. Recomendado 800×418 (1,91:1). A Meta exige o App ID do canal para subir a imagem.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Body */}
@@ -1077,5 +1132,13 @@ export const WhatsappTemplateBuilderModal: React.FC<WhatsappTemplateBuilderModal
         )}
       </DialogContent>
     </Dialog>
+    <AssetPicker
+      open={imagePickerOpen}
+      onOpenChange={setImagePickerOpen}
+      onSelect={setHeaderImageUrl}
+      prefix="wa-headers/"
+      accept="image/jpeg,image/png"
+    />
+    </>
   );
 };

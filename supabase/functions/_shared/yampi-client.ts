@@ -317,6 +317,17 @@ export class YampiApiClient {
     return { productImage, skuImages };
   }
 
+  /**
+   * Produto completo pro resumo do agente (AGENTE-PRODUTO): textos (descrição),
+   * marca, categorias, skus (variações/preço/estoque) e imagens.
+   */
+  async getProduct(productId: number | string): Promise<Json> {
+    const res = await this.request<{ data?: Json }>('GET', `/catalog/products/${productId}`, {
+      query: { include: 'texts,brand,categories,skus,images' },
+    });
+    return (res?.data ?? res) as Json;
+  }
+
   async getOrder(id: number | string, include = 'transactions,items,status,customer'): Promise<Json> {
     const res = await this.request<{ data: Json }>('GET', `/orders/${id}`, { query: { include } });
     return (res.data ?? res) as Json;

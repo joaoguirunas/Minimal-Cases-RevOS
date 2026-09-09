@@ -39,7 +39,8 @@ const EditarUsuarioModal = ({
     userType: 'user' as UserType,
     superAdmin: false,
     ativo: true,
-    timesSelecionados: [] as string[]
+    timesSelecionados: [] as string[],
+    commissionPct: '' as string,
   });
   const [timesOriginais, setTimesOriginais] = useState<string[]>([]);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
@@ -61,6 +62,7 @@ const EditarUsuarioModal = ({
         superAdmin: usuario.super_adm || false,
         ativo: usuario.ativo,
         timesSelecionados: [],
+        commissionPct: usuario.commission_pct != null ? String(usuario.commission_pct) : '',
       });
 
       fetchTimesUsuario(usuario.id);
@@ -74,6 +76,7 @@ const EditarUsuarioModal = ({
         superAdmin: false,
         ativo: true,
         timesSelecionados: [],
+        commissionPct: '',
       });
       setTimesOriginais([]);
     }
@@ -158,7 +161,8 @@ const EditarUsuarioModal = ({
         gestor: isGestor,
         super_adm: formData.userType === 'admin' || formData.superAdmin,
         ativo: formData.ativo,
-        user_type: formData.userType
+        user_type: formData.userType,
+        commission_pct: formData.userType === 'comercial' && formData.commissionPct !== '' ? Number(formData.commissionPct) : null
       });
 
       if (formData.senha.trim()) {
@@ -312,6 +316,15 @@ const EditarUsuarioModal = ({
               {formData.userType === 'comercial' && "Vendedor/closer — sem acesso a BI nem Configurações"}
             </p>
           </div>
+
+          {formData.userType === 'comercial' && (
+            <div className="space-y-2">
+              <Label htmlFor="commission">Comissão (%)</Label>
+              <Input id="commission" type="number" min={0} max={100} step={0.5} value={formData.commissionPct}
+                onChange={(e) => setFormData((p) => ({ ...p, commissionPct: e.target.value }))} placeholder="ex.: 3" />
+              <p className="text-xs text-muted-foreground">Aplicada sobre o valor de cada pedido recuperado por este comercial. Fica gravada no pedido — mudar aqui não altera o histórico.</p>
+            </div>
+          )}
 
           {/* Super Admin */}
           <div className="flex items-center space-x-2">

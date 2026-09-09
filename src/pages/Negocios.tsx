@@ -6,15 +6,19 @@ import NegociosList from "@/components/negocios/NegociosList";
 import NegociosToolbar from "@/components/negocios/NegociosToolbar";
 import { useTeams } from "@/hooks/useTeamsNew";
 import { useUsuarios } from "@/hooks/useUsuarios";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock } from "lucide-react";
 import NovoNegocioModal from "@/components/negocios/NovoNegocioModal";
 import Clientes from "@/pages/Clientes";
 import { startOfToday, endOfToday, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from "date-fns";
-import { useNegociosPipeline } from "@/hooks/useNegociosOptimized";
+import { useNegociosPipeline, type NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useClaimLead } from "@/hooks/useComercial";
+import { buildCommercialColumns, ageDays } from "@/lib/comercial/kanban";
+import { Chip } from "@/components/ui/chip";
+import { toast } from "sonner";
 
 const Negocios = () => {
   const { pipelines: allPipelines = [], stages = [], isLoading } = usePipelines();
@@ -186,6 +190,47 @@ const Negocios = () => {
     }
   );
 
+  // Modo comercial: kanban com 3 colunas virtuais (pool/em negociação/recuperado),
+  // sem drag, botão "Assumir" no card do pool e miniatura/dono só pra admin/gestor.
+  const claim = useClaimLead();
+  const commercialColumns = useMemo(
+    () => (isComercial ? buildCommercialColumns(pipelineStages) : undefined),
+    [isComercial, pipelineStages]
+  );
+  const ownerNames = useMemo(
+    () => Object.fromEntries((usuarios as Array<{ id: string; nome?: string; name?: string }>).map((u) => [u.id, u.nome ?? u.name ?? ''])),
+    [usuarios]
+  );
+  const renderCardExtra = isComercial
+    ? (n: NegocioOptimized) => {
+        const d = ageDays(n.created_at);
+        const disponivel = !n.user_id;
+        return (
+          <div className="flex items-center justify-between pt-1.5">
+            <Chip icon={Clock} tone={d >= 30 ? 'danger' : 'warning'} title="Idade do carrinho">há {d} dias</Chip>
+            {disponivel && (
+              <Button
+                size="sm"
+                className="h-7 text-[12px]"
+                disabled={claim.isPending}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  claim.mutate(n.id, {
+                    onSuccess: (r) =>
+                      r.ok
+                        ? toast.success('Carrinho é seu — está em Em negociação')
+                        : toast.error(r.reason === 'ja_assumido' ? 'Outro comercial pegou este carrinho' : 'Carrinho fora do pool'),
+                  });
+                }}
+              >
+                Assumir
+              </Button>
+            )}
+          </div>
+        );
+      }
+    : undefined;
+
   console.log('📊 Negocios.tsx:', {
     pipelineFilter,
     selectedPipeline: selectedPipeline?.name,
@@ -311,6 +356,7 @@ const Negocios = () => {
         isRefreshing={isRefetchingNegocios}
         times={times}
         usuarios={usuarios}
+        compact={isComercial}
       />
       )}
 
@@ -336,6 +382,10 @@ const Negocios = () => {
           productFilter={productFilter}
           tagFilter={tagFilter}
           channelFilter={channelFilter}
+          columns={commercialColumns}
+          readOnly={isComercial}
+          renderCardExtra={renderCardExtra}
+          ownerNames={isComercial ? undefined : ownerNames}
         />
       ) : viewMode === 'list' ? (
         <NegociosList
@@ -347,7 +397,7 @@ const Negocios = () => {
         <Clientes />
       )}
 
-      {viewMode !== 'clientes' && (
+      {viewMode !== 'clientes' && !isComercial && (
         <NovoNegocioModal
           open={isModalOpen}
           onOpenChange={setIsModalOpen}

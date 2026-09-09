@@ -10,16 +10,19 @@
 import { motion, type Variants } from 'framer-motion';
 import { useReconversaoBI } from '@/hooks/useReconversaoBI';
 import { useTrackedClicksRealtime } from '@/hooks/useTrackedLinks';
+import { StatCard } from '@/components/ui/stat-card';
 import {
-  cardVariants, containerVariants, SkeletonBlock,
+  cardVariants, containerVariants, fmtBRL, SkeletonBlock,
 } from './bipro-shared';
 import KpiHero from './reconversao/KpiHero';
 import InsightsStrip from './reconversao/InsightsStrip';
 import FunnelCard from './reconversao/FunnelCard';
 import AttributionCard from './reconversao/AttributionCard';
 import ClickRateCard from './reconversao/ClickRateCard';
+import AbTestCard from './reconversao/AbTestCard';
 import DailyChart from './reconversao/DailyChart';
 import ReconversionsTable from './reconversao/ReconversionsTable';
+import CommissionsCard from './reconversao/CommissionsCard';
 
 // bipro-shared declara os variants como objeto plano; o motion do framer 11 exige Variants.
 const cardV = cardVariants as unknown as Variants;
@@ -28,9 +31,10 @@ const containerV = containerVariants as unknown as Variants;
 interface Props {
   dateFrom?: string;
   dateTo?: string;
+  scope?: 'admin' | 'comercial';
 }
 
-export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
+export default function BIProReconversaoTab({ dateFrom, dateTo, scope = 'admin' }: Props) {
   const { data, isLoading, isError, error, refetch } = useReconversaoBI(dateFrom, dateTo);
   useTrackedClicksRealtime();
 
@@ -63,15 +67,23 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
 
   return (
     <motion.div variants={containerV} initial="hidden" animate="show" className="space-y-5">
+      {/* ── Comissão do período (escopo comercial) ────────────────────────── */}
+      {scope === 'comercial' && (
+        <motion.div variants={cardV}>
+          <StatCard label="Comissão no período" value={fmtBRL(data.comissaoPeriodo)} />
+        </motion.div>
+      )}
+
       {/* ── KPIs principais ─────────────────────────────────────────────── */}
-      <KpiHero agregado={data.agregado} />
-      <InsightsStrip agregado={data.agregado} />
+      <KpiHero agregado={data.agregado} scope={scope} />
+      {scope === 'admin' && <InsightsStrip agregado={data.agregado} />}
 
       {/* ── Funil, atribuição e clique por toque ─────────────────────────── */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <FunnelCard funil={data.agregado.funil} />
         <AttributionCard receita={data.agregado.porNivelReceita} topCupons={data.agregado.topCupons} />
         <ClickRateCard linhas={data.agregado.cliquesPorToque} geral={data.agregado.ctrGeral} />
+        {scope === 'admin' && <AbTestCard />}
       </div>
 
       {/* ── Série diária ────────────────────────────────────────────────── */}
@@ -83,6 +95,13 @@ export default function BIProReconversaoTab({ dateFrom, dateTo }: Props) {
       <motion.div variants={cardV}>
         <ReconversionsTable rows={data.rows} />
       </motion.div>
+
+      {/* ── Comissões por comercial (escopo admin) ─────────────────────────── */}
+      {scope === 'admin' && (
+        <motion.div variants={cardV}>
+          <CommissionsCard linhas={data.comissoes} />
+        </motion.div>
+      )}
     </motion.div>
   );
 }

@@ -12,6 +12,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
+import { uploadHeaderHandle } from '../_shared/meta-media-upload.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,6 +38,7 @@ interface CreatePayload {
   components: MetaComponent[];
   purpose?: string;
   variables?: Record<string, unknown>;
+  header_image_url?: string;
 }
 
 interface DeletePayload {
@@ -130,7 +132,7 @@ async function getChannelCredentials(
 ) {
   const { data: channel, error } = await supabase
     .from('settings_whatsapp_channels')
-    .select('waba_id, access_token')
+    .select('waba_id, access_token, app_id')
     .eq('id', channelId)
     .eq('active', true)
     .single();
@@ -139,13 +141,17 @@ async function getChannelCredentials(
     throw { message: 'Canal não encontrado ou inativo' };
   }
 
-  const { waba_id, access_token } = channel as { waba_id: string | null; access_token: string };
+  const { waba_id, access_token, app_id } = channel as {
+    waba_id: string | null;
+    access_token: string;
+    app_id: string | null;
+  };
 
   if (!waba_id) {
     throw { message: 'WABA ID não configurado neste canal' };
   }
 
-  return { waba_id, access_token };
+  return { waba_id, access_token, app_id };
 }
 
 // ── CREATE template ──────────────────────────────────────────────────────────
@@ -155,7 +161,8 @@ async function handleCreate(
   payload: CreatePayload,
   log: ReturnType<typeof createLogger>,
 ) {
-  const { channel_id, name, category, language, components, purpose, variables } = payload;
+  const { channel_id, name, category, language, purpose, variables, header_image_url } = payload;
+  let { components } = payload;
 
   // Validate required fields
   if (!name || !category || !language || !components?.length) {
@@ -167,9 +174,39 @@ async function handleCreate(
     return jsonResponse({ error: 'Nome do template deve ser lowercase, começar com letra, apenas letras, números e underscores' });
   }
 
-  const { waba_id, access_token } = await getChannelCredentials(supabase, channel_id);
+  const { waba_id, access_token, app_id } = await getChannelCredentials(supabase, channel_id);
 
-  log.info('create_start', { name, category, language, waba_id });
+  log.info('create_start', { name, category, language, waba_id, header_image: !!header_image_url });
+
+  // Header de imagem: envia a imagem pela Resumable Upload API da Meta para obter o
+  // header_handle exigido no example do componente HEADER/IMAGE.
+  if (header_image_url) {
+    // Protocolo/host da URL são validados dentro de uploadHeaderHandle (allowlist
+    // contra SSRF) — a mensagem de erro dela já é legível e é repassada abaixo.
+    if (components.some((c) => c.type === 'HEADER')) {
+      return jsonResponse({ error: 'Escolha header de texto OU imagem' });
+    }
+
+    const appId = app_id ?? Deno.env.get('META_APP_ID') ?? '';
+    if (!appId) {
+      return jsonResponse({
+        error: 'Informe o App ID da Meta no canal (Configurações → Canais → WhatsApp) para usar imagem no cabeçalho.',
+      });
+    }
+
+    let handle: string;
+    try {
+      ({ handle } = await uploadHeaderHandle({ appId, accessToken: access_token, imageUrl: header_image_url }));
+    } catch (e: any) {
+      log.error('header_image_upload_failed', { error: e?.message ?? String(e) });
+      return jsonResponse({ error: e?.message ?? 'Falha ao enviar a imagem do header para a Meta' });
+    }
+
+    components = [
+      { type: 'HEADER', format: 'IMAGE', example: { header_handle: [handle] } },
+      ...components,
+    ];
+  }
 
   // POST to Meta API
   const metaPayload = {
@@ -219,6 +256,7 @@ async function handleCreate(
       category,
       language,
       components,
+      header_image_url: header_image_url ?? null,
     },
     updated_at: new Date().toISOString(),
   };

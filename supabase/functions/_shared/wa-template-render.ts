@@ -6,6 +6,15 @@
  * with auto-detection from template text when `parameter_format` is absent.
  */
 
+export type HeaderKind = 'none' | 'text' | 'image' | 'video' | 'document';
+
+export interface TplComponent {
+  type: string;
+  format?: string;
+  text?: string;
+  buttons?: Array<{ type: string; text?: string; url?: string }>;
+}
+
 /** Extract unique positional {{N}} numbers from a text string, in order of appearance. */
 export function extractPositionals(text: string): number[] {
   const seen = new Set<number>();
@@ -190,4 +199,85 @@ export function extractTemplateButtons(
     text: btn.text as string,
     type: btn.type as string,
   }));
+}
+
+/**
+ * Classify the HEADER component of a template (esteira/WA followups).
+ * Falls back to 'text' when `format` is absent but `text` is present
+ * (legacy templates that never set an explicit format).
+ */
+export function templateHeaderKind(components: TplComponent[]): HeaderKind {
+  const h = components.find((c) => String(c.type).toUpperCase() === 'HEADER');
+  if (!h) return 'none';
+  const f = String(h.format ?? (h.text ? 'TEXT' : '')).toUpperCase();
+  return f === 'IMAGE' ? 'image' : f === 'VIDEO' ? 'video' : f === 'DOCUMENT' ? 'document' : f === 'TEXT' ? 'text' : 'none';
+}
+
+/** {{n}} placeholders found in the BODY component, in order of appearance. */
+export function bodyPlaceholders(components: TplComponent[]): number[] {
+  const b = components.find((c) => String(c.type).toUpperCase() === 'BODY');
+  return b?.text ? extractPositionals(b.text) : [];
+}
+
+/** True when the BUTTONS component has a URL button whose url contains {{1}}. */
+export function buttonHasDynamicUrl(components: TplComponent[]): boolean {
+  const bt = components.find((c) => String(c.type).toUpperCase() === 'BUTTONS');
+  return !!bt?.buttons?.some((b) => String(b.type).toUpperCase() === 'URL' && /\{\{1\}\}/.test(b.url ?? ''));
+}
+
+/**
+ * Resolve which image URL to use for an IMAGE header, based on the esteira
+ * rule's configured mode:
+ * - 'sku' (default): cart's product photo, falling back to a fixed image
+ *   (ruleVars.wa_header_image) and then to `fallback`.
+ * - 'fixa': always the fixed image (ruleVars.wa_header_image), falling back
+ *   to `fallback` when absent.
+ */
+export function resolveHeaderImage(
+  ruleVars: Record<string, unknown>,
+  cart: { imagemProduto: string | null } | null,
+  fallback: string,
+): string {
+  const fixed = typeof ruleVars.wa_header_image === 'string' && /^https?:\/\//.test(ruleVars.wa_header_image)
+    ? ruleVars.wa_header_image
+    : null;
+  const mode = ruleVars.wa_header_mode === 'fixa' ? 'fixa' : 'sku';
+  if (mode === 'sku' && cart?.imagemProduto) return cart.imagemProduto;
+  return fixed ?? fallback;
+}
+
+export interface EsteiraWaBuild {
+  templateComponents: TplComponent[];
+  waParams: string[];
+  waVars: Record<string, string>;
+  ruleVars: Record<string, unknown>;
+  buttonToken: string | null;
+  headerImageUrl: string | null;
+}
+
+/**
+ * Assemble the Meta Graph API `components` array for an esteira (cart
+ * abandonment/followup) WhatsApp send: header (text or image), body
+ * parameters, and a dynamic-URL button token, in that order.
+ *
+ * IMAGE headers always emit their header parameter first whenever
+ * `headerImageUrl` is provided — regardless of whether there are any body
+ * params — since Meta requires the header component on every send for
+ * templates that declare an IMAGE header.
+ */
+export function buildEsteiraWaComponents(i: EsteiraWaBuild): Array<Record<string, unknown>> {
+  const out: Array<Record<string, unknown>> = [];
+  const kind = templateHeaderKind(i.templateComponents);
+  if (kind === 'text') {
+    const h = i.templateComponents.find((c) => String(c.type).toUpperCase() === 'HEADER');
+    const name = h?.text?.match(/\{\{([^}]+)\}\}/)?.[1] ?? null;
+    if (name) out.push({ type: 'header', parameters: [{ type: 'text', text: '', parameter_name: name }] });
+  } else if (kind === 'image' && i.headerImageUrl) {
+    out.push({ type: 'header', parameters: [{ type: 'image', image: { link: i.headerImageUrl } }] });
+  }
+  if (i.waParams.length > 0) {
+    out.push({ type: 'body', parameters: i.waParams.map((k) => ({ type: 'text', text: i.waVars[k] ?? String(i.ruleVars[k] ?? '') })) });
+  }
+  if (i.buttonToken) out.push({ type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: i.buttonToken }] });
+  return out;
 }

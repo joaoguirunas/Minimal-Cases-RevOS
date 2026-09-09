@@ -118,6 +118,22 @@ export function buildTemplateRow(tpl: MetaTemplate, syncedAt: string): TemplateR
   };
 }
 
+/**
+ * A Meta Graph API não devolve `header_image_url` (é gravado localmente por
+ * whatsapp-templates-manage na criação do template). Sem preservar essa chave, o
+ * primeiro sync sobrescreve `json_data` por inteiro e a imagem do header vira
+ * placeholder na UI. Se o payload novo já trouxer `header_image_url`, ele prevalece.
+ */
+export function mergeHeaderImageUrl(
+  newJsonData: Record<string, unknown>,
+  existingJsonData: Record<string, unknown> | null | undefined,
+): Record<string, unknown> {
+  if (newJsonData.header_image_url) return newJsonData;
+  const existingUrl = existingJsonData?.header_image_url;
+  if (!existingUrl) return newJsonData;
+  return { ...newJsonData, header_image_url: existingUrl };
+}
+
 // ── Reconciliation predicate ─────────────────────────────────────────────────
 
 export interface LocalTemplateRef {

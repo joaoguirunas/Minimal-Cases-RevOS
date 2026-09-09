@@ -25,6 +25,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
+import { COUPON_PERCENTS_AGENT, createPersonalCoupon } from '../_shared/yampi-coupon.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -590,13 +591,21 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
       required: ['modelo'],
     },
   },
+  {
+    name: 'consultar_produto',
+    description: 'Fetches the full product sheet from the Yampi catalog (description, material, available colors and phone models, price range, stock per variant). Default: the product in the contact\'s latest cart. Use when the contact asks about material, what comes in the box, colors, models, warranty or anything the CONTEXT block "Produto do carrinho" does not answer. Never invent specs.',
+    parameters: { type: 'object', properties: {
+      product_id: { type: 'integer', description: 'Optional Yampi product id. Default: product of the latest cart.' },
+      force: { type: 'boolean', description: 'Optional. Refresh the cache (price/stock changed).' },
+    }, required: [] },
+  },
 ];
 
 // ── RETORNO-02 — Tools condicionais de retorno agendado (ADR-RETORNO-01 D2/D3) ──
 //
 // NÃO fazem parte de TOOL_DEFINITIONS: só são concatenadas por buildToolDefinitions()
 // quando existe ai_agent_callback_configs.enabled = true para o agente/step corrente.
-// As 22 tools estáticas permanecem inalteradas.
+// As tools estáticas permanecem inalteradas.
 
 interface CallbackTemplate {
   id: string;
@@ -1169,6 +1178,11 @@ async function loadContext(
       if (cart.produto || cart.url) {
         const etapa = cart.etapaAbandono === 'personal_info' ? 'parou no cadastro' : cart.etapaAbandono === 'shippment' ? 'parou na escolha do frete' : cart.etapaAbandono === 'payment' ? 'parou no pagamento' : '';
         linhas.push(`Carrinho abandonado: ${cart.produto ?? 'itens'}${cart.modeloCelular ? ` · modelo ${cart.modeloCelular}` : ''}${cart.total !== null ? ` · total ${formatBRL(cart.total)}` : ''}${cart.itens > 1 ? ` · ${cart.itens} itens` : ''}${etapa ? ` · ${etapa}` : ''}${cart.pagamentoRecusado ? ' · teve PAGAMENTO RECUSADO (sugira Pix ou outro cartão)' : ''}. Link de recuperação disponível (use yampi_enviar_link_carrinho).`);
+        if (cart.productId) {
+          const { resolveProductSummary, describeProductForAgent } = await import('../_shared/yampi-product.ts');
+          const ps = await resolveProductSummary(supabase as never, cart.productId);
+          if (ps) linhas.push(describeProductForAgent(ps));
+        }
       }
       const ultimo = ((evs ?? []) as any[])[0];
       if (ultimo) {
@@ -2667,59 +2681,21 @@ async function executeTool(
 
       case 'yampi_criar_cupom': {
         const percentual = Number(args.percentual ?? 0);
-        if (![5, 10, 15].includes(percentual)) return 'Error: percentual deve ser 5, 10 ou 15.';
+        if (!(COUPON_PERCENTS_AGENT as readonly number[]).includes(percentual)) return 'Error: percentual deve ser 5, 10 ou 15.';
         const dias = Math.min(Math.max(Number(args.dias_validade ?? 2) || 2, 1), 7);
-        const freteGratis = args.frete_gratis === true;
-
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
         if (!bound) return 'Integração Yampi não está conectada.';
-
-        // Personalized code: first name, ASCII-folded, + percent (e.g. GABRIELLA10).
-        const firstName = (ctx.nome ?? 'CLIENTE').split(/\s+/)[0]
-          .normalize('NFD').replace(/[̀-ͯ]/g, '')
-          .replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'CLIENTE';
-        let code = `${firstName}${percentual}`.slice(0, 20);
-
         try {
-          // Uniqueness: if the code exists and is still usable, reuse it; else suffix.
-          const existing = await bound.client.findPromocode(code);
-          if (existing) {
-            if (existing.active && !existing.expired) {
-              return JSON.stringify({ cupom: code, situacao: 'ja_existia_e_esta_ativo', percentual: existing.value });
-            }
-            for (let n = 2; n <= 9; n++) {
-              const candidate = `${firstName}${percentual}X${n}`.slice(0, 20);
-              if (!(await bound.client.findPromocode(candidate))) { code = candidate; break; }
-            }
-          }
-
-          const now = new Date();
-          const end = new Date(now.getTime() + dias * 24 * 3600_000);
-          const fmt = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
-          await bound.client.createPromocode({
-            code,
-            discount_type: 'p',
-            value: percentual,
-            quantity: 1,
-            min_value: 0, // obrigatório na Yampi (422 sem ele)
-            once_per_customer: true,
-            accumulate: false,
-            free_shipment: freteGratis,
-            abandoned_cart: false,
-            active: true,
-            start_at: fmt(now),
-            end_at: fmt(end),
+          const r = await createPersonalCoupon(supabase as never, bound.client, {
+            firstName: ctx.nome ?? 'CLIENTE', percent: percentual, validityDays: dias,
+            freeShipping: args.frete_gratis === true, peopleId: ctx.pessoa_id || null, leadId,
+            source: 'agente', createdBy: null,
           });
-          // BI-REC-3: registrar como cupom NOSSO — pedido pago com ele = prova forte.
-          await supabase.from('crm_coupons').upsert(
-            { code, source: 'agente', people_id: ctx.pessoa_id ?? null },
-            { onConflict: 'code', ignoreDuplicates: true },
-          );
+          if (r.reused) return JSON.stringify({ cupom: r.code, situacao: 'ja_existia_e_esta_ativo', percentual: r.percent });
           return JSON.stringify({
-            cupom: code,
-            percentual,
-            valido_ate: fmt(end),
+            cupom: r.code, percentual: r.percent,
+            valido_ate: r.expiresAt.slice(0, 19).replace('T', ' '),
             uso: 'único, apenas para este cliente',
             instrucao: 'Informe o código ao cliente e reforce a validade curta. Você pode anexá-lo a um checkout novo com yampi_enviar_link_pagamento passando cupom.',
           });
@@ -2786,6 +2762,29 @@ async function executeTool(
         } catch (e) {
           return `Falha ao consultar o catálogo: ${(e as Error).message}`;
         }
+      }
+
+      case 'consultar_produto': {
+        const { resolveProductSummary } = await import('../_shared/yampi-product.ts');
+        let pid = Number(args.product_id ?? 0) || 0;
+        if (!pid && ctx.pessoa_id) {
+          const { resolveCartForPerson } = await import('../_shared/tracked-links.ts');
+          pid = (await resolveCartForPerson(supabase as never, ctx.pessoa_id)).productId ?? 0;
+        }
+        if (!pid) return 'Não achei o produto do carrinho. Pergunte qual case o cliente quer (verificar_compatibilidade ajuda a localizar) ou informe product_id.';
+        const ps = await resolveProductSummary(supabase as never, pid, { force: args.force === true });
+        if (!ps) return 'Não consegui consultar o catálogo agora. Responda com o que está no CONTEXTO e ofereça confirmar depois.';
+        const { variantesDetalhe, ...resto } = ps;
+        const truncado = resto.cores.length > 12 || resto.modelos.length > 20 || resto.categorias.length > 8 || resto.semEstoque.length > 12 || variantesDetalhe.length > 12;
+        return JSON.stringify({
+          ...resto,
+          cores: resto.cores.slice(0, 12),
+          modelos: resto.modelos.slice(0, 20),
+          categorias: resto.categorias.slice(0, 8),
+          semEstoque: resto.semEstoque.slice(0, 12),
+          variantes_detalhe: variantesDetalhe.slice(0, 12),
+          truncado,
+        });
       }
 
       case 'yampi_consultar_pedido': {

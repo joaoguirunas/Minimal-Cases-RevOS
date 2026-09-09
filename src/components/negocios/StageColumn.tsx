@@ -1,7 +1,8 @@
 
 import { useState, useMemo } from "react";
+import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Stage } from "@/hooks/usePipelines";
+import type { KanbanColumn } from "@/lib/comercial/kanban";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Droppable, Draggable, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd';
@@ -40,12 +41,16 @@ function nextTouchText(nextAt: string | null, nextChannel: string | null): strin
 }
 
 interface StageColumnProps {
-  stage: Stage;
+  column: KanbanColumn;
   negocios: NegocioOptimized[];
   totalValue: number;
   isLoading: boolean;
   totalLeads: number;
   pipelineId: string;
+  readOnly?: boolean;
+  renderCardExtra?: (n: NegocioOptimized) => ReactNode;
+  ownerNames?: Record<string, string>;
+  skuImages?: Record<number, string>;
 }
 
 /** Recolhimento da coluna persistido por pipeline em localStorage. */
@@ -63,15 +68,19 @@ function useCollapsed(pipelineId: string, stageId: string): [boolean, () => void
 }
 
 const StageColumn = ({
-  stage,
+  column,
   negocios,
   totalValue,
   isLoading,
   totalLeads,
-  pipelineId
+  pipelineId,
+  readOnly,
+  renderCardExtra,
+  ownerNames,
+  skuImages
 }: StageColumnProps) => {
   const navigate = useNavigate();
-  const [collapsed, toggleCollapsed] = useCollapsed(pipelineId, stage.id);
+  const [collapsed, toggleCollapsed] = useCollapsed(pipelineId, column.id);
   const [displayedItems, setDisplayedItems] = useState(10);
   const [showLostModal, setShowLostModal] = useState<string | null>(null);
   const updateNegocio = useUpdateNegocio();
@@ -131,7 +140,7 @@ const StageColumn = ({
     onOpen: () => void;
     children: (args: { provided: DraggableProvided; snapshot: DraggableStateSnapshot }) => React.ReactNode;
   }> = ({ negocio, index, ariaLabel, onOpen, children }) => (
-    <Draggable draggableId={negocio.id} index={index}>
+    <Draggable draggableId={negocio.id} index={index} isDragDisabled={readOnly}>
       {(provided, snapshot) => {
         const child = (
           <div
@@ -159,36 +168,36 @@ const StageColumn = ({
         type="button"
         onClick={toggleCollapsed}
         className="w-10 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col items-center py-3 gap-2 hover:border-foreground/20 transition-colors"
-        aria-label={`Expandir etapa ${stage.nome} (${negocios.length})`}
+        aria-label={`Expandir etapa ${column.nome} (${negocios.length})`}
         title="Expandir"
       >
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.cor || 'hsl(var(--muted-foreground))' }} />
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: column.cor || 'hsl(var(--muted-foreground))' }} />
         <span className="text-[11px] font-semibold tabular-nums text-foreground">{negocios.length}</span>
-        <span className="text-[11px] text-muted-foreground [writing-mode:vertical-rl] rotate-180 truncate max-h-[200px]">{stage.nome}</span>
+        <span className="text-[11px] text-muted-foreground [writing-mode:vertical-rl] rotate-180 truncate max-h-[200px]">{column.nome}</span>
       </button>
     );
   }
 
   return (
-    <div className="w-72 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col h-full overflow-hidden" role="region" aria-label={`Etapa ${stage.nome} — ${negocios.length} negócios`}>
+    <div className="w-72 flex-shrink-0 border border-border rounded-xl bg-card flex flex-col h-full overflow-hidden" role="region" aria-label={`Etapa ${column.nome} — ${negocios.length} negócios`}>
       {/* Column header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: stage.cor || 'hsl(var(--muted-foreground))' }} />
-          <span className="text-[13px] font-medium text-foreground truncate">{stage.nome}</span>
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: column.cor || 'hsl(var(--muted-foreground))' }} />
+          <span className="text-[13px] font-medium text-foreground truncate">{column.nome}</span>
           <span className="text-[11px] text-muted-foreground tabular-nums flex-shrink-0">{negocios.length}</span>
           {totalLeads > 0 && <span className="text-[10px] text-muted-foreground/60 tabular-nums flex-shrink-0">· {share}%</span>}
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <span className="text-[11px] font-medium text-muted-foreground tabular-nums">{formatCurrency(totalValue)}</span>
-          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/50 hover:text-foreground" onClick={toggleCollapsed} aria-label={`Recolher etapa ${stage.nome}`} title="Recolher">
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/50 hover:text-foreground" onClick={toggleCollapsed} aria-label={`Recolher etapa ${column.nome}`} title="Recolher">
             <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
           </Button>
         </div>
       </div>
 
       {/* Cards area */}
-      <Droppable droppableId={stage.id}>
+      <Droppable droppableId={column.id}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -249,7 +258,7 @@ const StageColumn = ({
                                   </p>
                                   <div className="flex items-center gap-1 flex-shrink-0">
                                     <p className="text-[13px] font-semibold text-foreground tabular-nums whitespace-nowrap">{formatCurrency(negocio.value || 0)}</p>
-                                    {negocio.status === 'in_progress' && (
+                                    {!readOnly && negocio.status === 'in_progress' && (
                                       <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground/40 hover:text-foreground -mr-1" onClick={(e) => e.stopPropagation()} aria-label="Mais ações">
@@ -268,6 +277,12 @@ const StageColumn = ({
 
                                 {/* 2 · o quê */}
                                 {produto && <p className="text-[11.5px] text-muted-foreground truncate leading-tight">{produto}</p>}
+
+                                {(() => { const url = negocio.sku_id && skuImages ? skuImages[negocio.sku_id] : null; return url ? <img src={url} alt="" className="w-10 h-10 rounded-lg object-cover bg-muted" loading="lazy" /> : null; })()}
+                                {ownerNames && negocio.user_id && ownerNames[negocio.user_id] && (
+                                  <Chip tone="info" title="Comercial responsável">Comercial: {ownerNames[negocio.user_id]}</Chip>
+                                )}
+                                {renderCardExtra?.(negocio)}
 
                                 {/* 3 · progresso da esteira */}
                                 {s && s.total > 0 ? (

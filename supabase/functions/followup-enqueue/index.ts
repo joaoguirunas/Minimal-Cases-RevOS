@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { filterRulesForVariant } from '../_shared/ab-rules.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -79,6 +80,15 @@ serve(async (req) => {
       );
     }
 
+    // ESTEIRA-AB: atribui (ou recupera) a variante do lead — só há experimento running no pipeline dele. Nunca derruba o enqueue.
+    let abVariantId: string | null = null;
+    if (source_type === 'stage') {
+      const { data: v, error: vErr } = await supabase.rpc('assign_esteira_variant', { p_lead_id: lead_id });
+      if (vErr) console.warn('[followup-enqueue] assign_esteira_variant falhou:', vErr.message);
+      abVariantId = (v as string | null) ?? null;
+    }
+    console.log(`[followup-enqueue] variante A/B: ${abVariantId ?? 'nenhuma'}`);
+
     const now = new Date();
     const queueEntries: Record<string, unknown>[] = [];
 
@@ -91,9 +101,10 @@ serve(async (req) => {
         .eq('active', true);
 
       if (fupError) throw fupError;
-      if (!followups || followups.length === 0) {
+      const eligible = filterRulesForVariant(followups ?? [], abVariantId);
+      if (eligible.length === 0) {
         return new Response(
-          JSON.stringify({ message: 'Nenhum follow-up ativo para esta etapa', enqueued: 0 }),
+          JSON.stringify({ message: 'Nenhum follow-up ativo para esta etapa (variante)', enqueued: 0 }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -111,7 +122,7 @@ serve(async (req) => {
 
       const leadControl: string | null = (lead as Record<string, unknown>).control as string ?? null;
 
-      for (const fup of followups) {
+      for (const fup of eligible) {
         // Filtro de score
         if (fup.score_matrix_id && fup.score_matrix_id !== leadScoreMatrixId) {
           console.log(`[followup-enqueue] Pulando FUP ${fup.id} — score não corresponde`);
@@ -160,6 +171,7 @@ serve(async (req) => {
           source_type:         'stage',
           scheduled_for:       new Date(now.getTime() + delayMs).toISOString(),
           status:              'pending',
+          ab_variant_id:       abVariantId,
         });
       }
 

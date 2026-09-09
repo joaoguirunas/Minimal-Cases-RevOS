@@ -145,3 +145,9 @@ verify_jwt = true # Sincroniza templates da biblioteca para o Klaviyo — JWT do
 
 [functions.r]
 verify_jwt = false # Redirect público de link rastreado — clique de cliente, sem JWT
+
+[functions.email-template-test-send]
+verify_jwt = true # Teste de template de e-mail — JWT do usuário; gate gestor no código
+
+[functions.commercial-coupon-create]
+verify_jwt = true # Cupom pessoal criado pelo comercial — JWT do usuário; gate comercial no código

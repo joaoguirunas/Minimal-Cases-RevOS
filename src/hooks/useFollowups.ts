@@ -31,6 +31,8 @@ export interface StageFollowup {
   control: number | null;
   business_hours_only: boolean;
   bh_only_last: boolean;
+  vars: Record<string, unknown> | null;
+  ab_variant_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,6 +60,8 @@ interface DbFollowup {
   control: number | null;
   business_hours_only: boolean;
   bh_only_last: boolean;
+  vars: Record<string, unknown> | null;
+  ab_variant_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -84,6 +88,8 @@ const mapDbToFollowup = (d: DbFollowup): StageFollowup => ({
   control:                d.control,
   business_hours_only:    d.business_hours_only ?? false,
   bh_only_last:           d.bh_only_last ?? true,
+  vars:                   d.vars ?? null,
+  ab_variant_id:          d.ab_variant_id ?? null,
   created_at:             d.created_at,
   updated_at:             d.updated_at,
 });
@@ -150,6 +156,8 @@ interface FollowupMutationInput {
   control?: number | null;
   business_hours_only?: boolean;
   bh_only_last?: boolean;
+  vars?: Record<string, unknown> | null;
+  ab_variant_id?: string | null;
 }
 
 const buildInsert = (d: FollowupMutationInput) => ({
@@ -171,6 +179,8 @@ const buildInsert = (d: FollowupMutationInput) => ({
   control:              d.control ?? null,
   business_hours_only:  d.business_hours_only ?? false,
   bh_only_last:         d.bh_only_last ?? true,
+  vars:                 d.vars ?? {},
+  ab_variant_id:        d.ab_variant_id ?? null,
 });
 
 const invalidateAll = (qc: ReturnType<typeof useQueryClient>) => {
@@ -225,5 +235,21 @@ export const useDeleteFollowup = () => {
     },
     onSuccess: () => { invalidateAll(queryClient); toast.success('Follow-up excluído!'); },
     onError:   () => toast.error('Erro ao excluir follow-up'),
+  });
+};
+
+export interface FollowupPatch { id: string; dias?: number; horas?: number; minutos?: number; ativo?: boolean; ab_variant_id?: string | null }
+export const useUpdateFollowupFields = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, dias, horas, minutos, ativo, ab_variant_id }: FollowupPatch) => {
+      const patch: Record<string, unknown> = {};
+      if (dias !== undefined) patch.days = dias; if (horas !== undefined) patch.hours = horas; if (minutos !== undefined) patch.minutes = minutos;
+      if (ativo !== undefined) patch.active = ativo; if (ab_variant_id !== undefined) patch.ab_variant_id = ab_variant_id;
+      const { error } = await (supabase as any).from('leads_stages_followups').update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidateAll(qc),
+    onError: () => toast.error('Erro ao atualizar o toque'),
   });
 };

@@ -38,6 +38,8 @@ export interface CreateTrackedLinkOpts {
   followupQueueId?: string | null;
   messageId?: number | null;
   executionId?: string | null;
+  /** Variante do teste A/B da esteira (esteira_ab_variants.id). NULL = comum/fora de experimento. */
+  abVariantId?: string | null;
 }
 
 export interface TrackedLinkCreated { id: string; token: string; url: string }
@@ -73,6 +75,7 @@ export async function createTrackedLinkDetailed(
     followup_queue_id: opts.followupQueueId ?? null,
     message_id: opts.messageId ?? null,
     execution_id: opts.executionId ?? null,
+    ab_variant_id: opts.abVariantId ?? null,
   }).select('id').single();
   if (error || !data) {
     // Único sinal se a function for deployada antes da migration (colunas novas) ou se uma coluna mudar.
@@ -109,6 +112,8 @@ export interface PersonCart {
   itens: number;
   /** Yampi: id do SKU principal (guarda de estoque, troca de variante). */
   skuId: number | null;
+  /** Yampi: sku.product_id do item principal — chave do resumo do produto (yampi-product.ts). Zoppy: null. */
+  productId: number | null;
   /** Yampi search.data.abandoned_step: personal_info | shippment | payment. */
   etapaAbandono: string | null;
   /** Yampi search.data.has_refused_payment. */
@@ -175,7 +180,7 @@ export async function resolveCartForPerson(
   supabase: SupabaseClient,
   peopleId: string,
 ): Promise<PersonCart> {
-  const empty: PersonCart = { url: null, produto: null, modeloCelular: null, modeloCelularCurto: null, imagemProduto: null, total: null, itens: 0, skuId: null, etapaAbandono: null, pagamentoRecusado: false };
+  const empty: PersonCart = { url: null, produto: null, modeloCelular: null, modeloCelularCurto: null, imagemProduto: null, total: null, itens: 0, skuId: null, productId: null, etapaAbandono: null, pagamentoRecusado: false };
   const { data: events } = await supabase
     .from('yampi_webhook_events')
     .select('raw_payload')
@@ -219,6 +224,7 @@ export async function resolveCartForPerson(
       total,
       itens: items.length,
       skuId: typeof sku.id === 'number' ? sku.id : null,
+      productId: typeof sku.product_id === 'number' ? sku.product_id : null,
       etapaAbandono: typeof search.abandoned_step === 'string' ? search.abandoned_step : null,
       pagamentoRecusado: search.has_refused_payment === true,
     };
