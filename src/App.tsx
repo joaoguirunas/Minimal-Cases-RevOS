@@ -11,6 +11,7 @@ import { PresentationModeProvider } from "@/contexts/PresentationModeContext";
 import PageErrorBoundary from "@/components/error-boundaries/PageErrorBoundary";
 import SectionErrorBoundary from "@/components/error-boundaries/SectionErrorBoundary";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import HomeRedirect from "@/components/auth/HomeRedirect";
 import ModuleProtectedRoute from "@/components/auth/ModuleProtectedRoute";
 import GestorProtectedRoute from "@/components/auth/GestorProtectedRoute";
 import RestrictedRoute from "@/components/auth/RestrictedRoute";
@@ -141,7 +142,7 @@ function AppContent() {
       </Route>
 
       {/* ── Desktop routes ── */}
-      <Route path="/" element={<Navigate to="/bipro" replace />} />
+      <Route path="/" element={<HomeRedirect />} />
       <Route path="/oauth/meta/callback" element={<MetaOAuthCallback />} />
       <Route path="/oauth/google/callback" element={<GoogleOAuthCallback />} />
       <Route path="/oauth/microsoft/callback" element={<MicrosoftOAuthCallback />} />
@@ -233,7 +234,7 @@ function AppContent() {
           </SectionErrorBoundary>
         </ProtectedRoute>
       }>
-        <Route index element={<Navigate to="/bipro" replace />} />
+        <Route index element={<HomeRedirect />} />
         <Route path="negocios" element={
           <ModuleProtectedRoute moduleKey="negocios">
             <SectionErrorBoundary section="Negócios">

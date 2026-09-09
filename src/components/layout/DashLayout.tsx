@@ -70,6 +70,7 @@ interface SidebarItem {
   path: string;
   module?: "disparos" | "reunioes" | "clientes" | "negocios" | "dashboard" | "conversas" | "lp" | "agendamentos" | "agentes-ia";
   requireGestor?: boolean;
+  allowComercial?: boolean;
   isComingSoon?: boolean;
   groupLabel?: string;
 }
@@ -83,6 +84,7 @@ const fixedSidebarItems: SidebarItem[] = [
     module: "dashboard" as const,
     groupLabel: "CORE",
     requireGestor: true,
+    allowComercial: true,
   },
   {
     title: "CRM PRO™",
@@ -223,7 +225,7 @@ const DashLayout = () => {
   // Check if user is gestor or super admin (NOT consultor)
   const isGestorOrAdmin = user?.profile?.gestor === true || user?.profile?.super_adm === true;
   const isConsultor = user?.profile?.consultor === true;
-  const { isCliente, isProvisional } = useUserPermissions();
+  const { isCliente, isProvisional, isComercial } = useUserPermissions();
   const { data: settings } = useSettings();
   const { isActive: isMfaActive } = useMFA();
   const [mfaBannerDismissed, setMfaBannerDismissed] = useState(
@@ -286,7 +288,7 @@ const DashLayout = () => {
     // marked requireGestor (BI PRO™), which need the same gestor/admin check
     // as modular items below. Sem isso, BI aparecia na sidebar pra quem não
     // tem permissão nenhuma de acessar a rota.
-    activeItems.push(...fixedSidebarItems.filter(item => !item.requireGestor || isGestorOrAdmin));
+    activeItems.push(...fixedSidebarItems.filter(item => !item.requireGestor || isGestorOrAdmin || (item.allowComercial && isComercial)));
 
     // Process modular items with proper filtering
     modularSidebarItems.forEach(item => {
