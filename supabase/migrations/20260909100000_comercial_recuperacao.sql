@@ -191,10 +191,13 @@ END $$;
 -- Tabelas que o comercial PODE ler como qualquer usuário do app: catálogos/UI sem
 -- segredo e sem dado de cliente de terceiro. Ficam intocadas pela 5a.
 CREATE TEMP TABLE _comercial_rls_allowlist (tablename text PRIMARY KEY) ON COMMIT DROP;
+-- `notifications` e `leads_tags` NÃO entram: carregam dado de terceiro (título/preview de
+-- conversa e a marcação de leads que o comercial não enxerga). Ambas ganham comercial_select
+-- escopada logo abaixo. `lead_tags` (catálogo de tags) fica, é definição pura.
 INSERT INTO _comercial_rls_allowlist (tablename) VALUES
-  ('email_templates'), ('whatsapp_templates'), ('settings_system_modules'), ('notifications'),
+  ('email_templates'), ('whatsapp_templates'), ('settings_system_modules'),
   ('canned_responses'), ('yampi_sku_images'), ('settings_business_hours'),
-  ('leads_stages_followups'), ('leads_tags'), ('lead_tags');
+  ('leads_stages_followups'), ('lead_tags');
 
 -- 5a. TODA política permissiva de `public` (roles {authenticated}/{public}) ganha
 --     AND NOT (select public.is_commercial()) — exceto comercial_*, service_role-only
@@ -254,7 +257,7 @@ BEGIN
      AND tablename IN ('leads','clients_people','messages','followup_queue','tracked_links',
                        'tracked_link_clicks','esteira_reconversions','crm_coupons','leads_pipelines',
                        'leads_stages','settings_users','yampi_webhook_events','zoppy_abandoned_carts',
-                       'leads_updates','clients_people_updates');
+                       'leads_updates','clients_people_updates','notifications','leads_tags');
   IF v_bad IS NOT NULL THEN
     RAISE EXCEPTION 'política RESTRITIVA em tabela do comercial bloquearia as comercial_*: %', v_bad;
   END IF;
@@ -352,6 +355,25 @@ ALTER TABLE public.clients_people_updates ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS comercial_select ON public.clients_people_updates;
 CREATE POLICY comercial_select ON public.clients_people_updates FOR SELECT TO authenticated
   USING ((select public.is_commercial()) AND public.person_visible_to_commercial(people_id));
+
+-- Sino: notificação pessoal do próprio comercial, ou de pessoa que ele já enxerga.
+-- SEM política de UPDATE de propósito: 20260730210000_mark_all_notifications_read dropou
+-- notifications_mark_read porque toda escrita passa por RPC SECURITY DEFINER
+-- (mark_conversation_read / mark_all_notifications_read / mark_notification_read);
+-- recriar o UPDATE direto reabriria a superfície que aquela migration fechou.
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS comercial_select ON public.notifications;
+CREATE POLICY comercial_select ON public.notifications FOR SELECT TO authenticated
+  USING ((select public.is_commercial())
+         AND (target_user_id = (select public.get_current_settings_user_id())
+              OR (people_id IS NOT NULL AND public.person_visible_to_commercial(people_id))));
+
+-- Tags aplicadas: só as dos leads que o comercial enxerga (lead_tags, o catálogo, é allowlist).
+ALTER TABLE public.leads_tags ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS comercial_select ON public.leads_tags;
+CREATE POLICY comercial_select ON public.leads_tags FOR SELECT TO authenticated
+  USING ((select public.is_commercial()) AND EXISTS (
+    SELECT 1 FROM public.leads l WHERE l.id = leads_tags.lead_id AND public.lead_visible_to_commercial(l)));
 
 -- foto da capa: cache de URL pública (CDN) — leitura por qualquer usuário ativo
 -- (yampi_sku_images está na allowlist: a 5a não mexe nela).

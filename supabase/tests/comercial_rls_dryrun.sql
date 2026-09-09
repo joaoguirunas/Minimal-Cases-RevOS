@@ -11,7 +11,7 @@ DECLARE
   v_pipe uuid; v_stage_ca uuid; v_stage_rec uuid; v_stage_neg uuid;
   v_admin_auth uuid := gen_random_uuid(); v_c1_auth uuid := gen_random_uuid(); v_c2_auth uuid := gen_random_uuid();
   v_admin uuid; v_c1 uuid; v_c2 uuid; v_p1 uuid; v_p2 uuid; v_p3 uuid;
-  v_pool uuid; v_recente uuid; v_outro_rec uuid; v_validacao uuid;
+  v_pool uuid; v_recente uuid; v_outro_rec uuid; v_validacao uuid; v_tag uuid;
   v_n integer; v_res jsonb;
   -- contagens tiradas como postgres (sem RLS), para comparar com o que cada persona vê
   v_all_leads integer; v_all_people integer;
@@ -66,6 +66,11 @@ BEGIN
     VALUES ('DRYOUTRO10', 'comercial', v_p3, v_outro_rec, 10, v_c2);
   INSERT INTO public.esteira_reconversions (order_id, people_id, lead_id, order_total, paid_at, recovered_by, recovery_basis)
     VALUES ('dry-order-outro', v_p3, v_outro_rec, 199.90, now(), v_c2, 'cupom');
+  -- Notificação e tag de uma pessoa/lead INVISÍVEL para o C1, mais a tag pessoal do C1
+  INSERT INTO public.notifications (event_type, people_id, lead_id, title)
+    VALUES ('inbound_message', v_p3, v_outro_rec, 'preview de conversa de terceiro');
+  INSERT INTO public.lead_tags (name, color) VALUES ('dry-tag', '#111') RETURNING id INTO v_tag;
+  INSERT INTO public.leads_tags (lead_id, tag_id) VALUES (v_outro_rec, v_tag);
   -- Allowlist: template que o comercial PRECISA continuar lendo
   INSERT INTO public.email_templates (name, subject, html_body)
     VALUES ('dry-run-tpl', 'assunto', '<p>x</p>');
@@ -106,8 +111,12 @@ BEGIN
   SELECT count(*) INTO v_n FROM public.crm_coupons WHERE code = 'DRYOUTRO10';        IF v_n <> 0 THEN RAISE EXCEPTION 'C1 NÃO deveria ver cupom de outro comercial'; END IF;
   SELECT count(*) INTO v_n FROM public.esteira_reconversions WHERE order_id = 'dry-order-outro'; IF v_n <> 0 THEN RAISE EXCEPTION 'C1 NÃO deveria ver comissão de outro comercial'; END IF;
 
+  SELECT count(*) INTO v_n FROM public.notifications WHERE people_id = v_p3;         IF v_n <> 0 THEN RAISE EXCEPTION 'C1 NÃO deveria ver notificação (título/preview) de pessoa invisível'; END IF;
+  SELECT count(*) INTO v_n FROM public.leads_tags WHERE lead_id = v_outro_rec;       IF v_n <> 0 THEN RAISE EXCEPTION 'C1 NÃO deveria ver leads_tags de lead invisível'; END IF;
+
   -- allowlist continua legível (senão a UI do comercial quebra)
   SELECT count(*) INTO v_n FROM public.email_templates WHERE name = 'dry-run-tpl';   IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA ver email_templates (allowlist)'; END IF;
+  SELECT count(*) INTO v_n FROM public.lead_tags WHERE id = v_tag;                   IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA ver lead_tags, o catálogo de tags (allowlist)'; END IF;
 
   v_res := public.claim_lead(v_pool);
   IF (v_res->>'ok')::boolean IS DISTINCT FROM true THEN RAISE EXCEPTION 'claim de C1 deveria dar ok: %', v_res; END IF;
@@ -124,6 +133,9 @@ BEGIN
   SELECT count(*) INTO v_n FROM public.leads WHERE id = v_outro_rec; IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver o próprio Recuperado'; END IF;
   SELECT count(*) INTO v_n FROM public.crm_coupons WHERE code = 'DRYOUTRO10';        IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver o próprio cupom'; END IF;
   SELECT count(*) INTO v_n FROM public.esteira_reconversions WHERE order_id = 'dry-order-outro'; IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a própria comissão'; END IF;
+  -- o lado positivo das duas políticas novas: a pessoa/lead É visível para C2
+  SELECT count(*) INTO v_n FROM public.notifications WHERE people_id = v_p3;         IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a notificação da pessoa do próprio lead'; END IF;
+  SELECT count(*) INTO v_n FROM public.leads_tags WHERE lead_id = v_outro_rec;       IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a tag do próprio lead'; END IF;
 
   -- ── como ADMIN: a §5a não pode ter estreitado nada para quem não é comercial ──
   PERFORM set_config('request.jwt.claims', json_build_object('sub', v_admin_auth, 'role', 'authenticated')::text, true);
