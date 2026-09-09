@@ -221,7 +221,7 @@ const Conversas = () => {
   const [pessoaSelecionada, setPessoaSelecionada] = useState<string | null>(
     () => searchParams.get('pessoaId'),
   );
-  const [novaMensagem, setNovaMensagem] = useState("");
+  const [novaMensagem, setNovaMensagem] = useState(() => searchParams.get('draft') ?? "");
   const [filtroPipeline, setFiltroPipeline] = useState<string>("todos");
   const [filtroEtapa, setFiltroEtapa] = useState<string>("todos");
   // Remover filtro de data padrão - mostrar todo histórico

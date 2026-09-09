@@ -691,7 +691,7 @@ const NegocioSingle = () => {
 
                 {/* Esteira: carrinho + timeline de toques */}
                 <TabsContent value="esteira" className="mt-0 p-5 overflow-auto">
-                  <NegocioEsteira leadId={id!} peopleId={negocio?.pessoa?.id ?? negocio?.people_id} />
+                  <NegocioEsteira leadId={id!} peopleId={negocio?.pessoa?.id ?? negocio?.people_id} skuId={negocio?.sku_id ?? null} ownerId={negocio?.user_id ?? null} ownerName={usuarios.find(u => u.id === negocio?.user_id)?.nome ?? null} />
                 </TabsContent>
 
                 {/* Informações */}
