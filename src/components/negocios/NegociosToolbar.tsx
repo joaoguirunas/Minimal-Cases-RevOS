@@ -70,6 +70,9 @@ interface NegociosToolbarProps {
   times?: any[];
   usuarios?: any[];
   currentTenant?: any;
+  /** Modo compacto (ex.: comercial): esconde seletor de pipeline, criar, filtros de
+   * time/responsável/status/mais filtros e mover em massa — mantém busca + atualizar. */
+  compact?: boolean;
 }
 
 const NegociosToolbar = ({
@@ -118,6 +121,7 @@ const NegociosToolbar = ({
   times = [],
   usuarios = [],
   currentTenant,
+  compact = false,
 }: NegociosToolbarProps) => {
   const [moverLeadsOpen, setMoverLeadsOpen] = useState(false);
 
@@ -397,7 +401,7 @@ const NegociosToolbar = ({
         </div>
 
         {/* Pipeline Filter */}
-        {viewMode !== 'clientes' && (
+        {viewMode !== 'clientes' && !compact && (
           <Select
             value={pipelineFilter || (activePipelines[0]?.id || "")}
             onValueChange={onPipelineFilterChange}
@@ -431,7 +435,7 @@ const NegociosToolbar = ({
         )}
 
         {/* Status Filter */}
-        {viewMode !== 'clientes' && (
+        {viewMode !== 'clientes' && !compact && (
           <Select
             value={statusFilter || "sem-perdidos"}
             onValueChange={(value) => onStatusFilterChange(value)}
@@ -467,7 +471,7 @@ const NegociosToolbar = ({
         )}
 
         {/* Mais filtros (secundários) */}
-        {viewMode !== 'clientes' && (
+        {viewMode !== 'clientes' && !compact && (
           <MoreFiltersPopover count={secondaryCount}>
             {/* Etapa */}
             <div className="space-y-1">
@@ -740,7 +744,7 @@ const NegociosToolbar = ({
         )}
 
         {/* Mover leads em massa */}
-        {viewMode !== 'clientes' && stagesDoPipelineAtual.length > 0 && (
+        {viewMode !== 'clientes' && !compact && stagesDoPipelineAtual.length > 0 && (
           <Button
             variant="outline"
             size="sm"
@@ -769,7 +773,7 @@ const NegociosToolbar = ({
         )}
 
         {/* New Deal Button */}
-        {viewMode !== 'clientes' && (
+        {viewMode !== 'clientes' && !compact && (
           <Button
             onClick={onCreateNegocio}
             className="h-[30px] px-3 text-xs gap-1.5 flex-shrink-0 rounded-full"
