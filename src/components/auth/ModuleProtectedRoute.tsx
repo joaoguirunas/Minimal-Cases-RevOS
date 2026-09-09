@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useSystemModules } from "@/hooks/useSystemModules";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { Loader2 } from "lucide-react";
 
 // Módulos restritos a gestor/admin — user_type='user'/'comercial' não tem acesso
@@ -23,6 +24,7 @@ interface ModuleProtectedRouteProps {
 const ModuleProtectedRoute = ({ children, moduleKey }: ModuleProtectedRouteProps) => {
   const { activeModules, isLoading } = useSystemModules();
   const { user } = useAuth();
+  const { isComercial } = useUserPermissions();
 
   if (isLoading) {
     return (
@@ -33,9 +35,12 @@ const ModuleProtectedRoute = ({ children, moduleKey }: ModuleProtectedRouteProps
   }
 
   // Bloqueia módulos gestor-only para user_type='user'
+  // Exceção estreita: comercial pode ver o módulo 'dashboard' (BI PRO™, aba
+  // Reconversão) — 'lp' e 'disparos' continuam gestor-only.
   if (GESTOR_ONLY_MODULES.has(moduleKey)) {
     const isGestorOrAdmin = user?.profile?.gestor === true || user?.profile?.super_adm === true;
-    if (!isGestorOrAdmin) {
+    const allowComercialException = moduleKey === 'dashboard' && isComercial;
+    if (!isGestorOrAdmin && !allowComercialException) {
       const firstAccessible = activeModules.find(m => USER_ACCESSIBLE_MODULE_REDIRECT[m.module_key]);
       const redirectPath = firstAccessible
         ? USER_ACCESSIBLE_MODULE_REDIRECT[firstAccessible.module_key]

@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSettings } from '@/hooks/useSettings';
@@ -21,6 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     signOut
   } = useAuth();
   const navigate = useNavigate();
+  const { isComercial } = useUserPermissions();
   const { data: settings } = useSettings();
   const [mfaChecked, setMfaChecked] = useState(false);
   const [mfaChecking, setMfaChecking] = useState(false);
@@ -43,9 +45,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Redirecionamento automático para usuários autenticados na página de login (exceto recovery)
   useEffect(() => {
     if (user && window.location.pathname === '/login' && !isPasswordRecovery) {
-      navigate('/bipro', { replace: true });
+      navigate(isComercial ? '/crm/kanban' : '/bipro', { replace: true });
     }
-  }, [user, isPasswordRecovery, navigate]);
+  }, [user, isPasswordRecovery, navigate, isComercial]);
 
   // MFA guard: redirect gestores to /mfa-verify (AAL2 challenge) or /settings/mfa-setup (enrollment)
   useEffect(() => {
