@@ -25,6 +25,7 @@ import {
 } from '../_shared/yampi-events.ts';
 import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
 import { findTrackedClickBefore } from '../_shared/tracked-links.ts';
+import { decideHumanAttribution, commissionValue, extractFirstSkuId } from '../_shared/comercial-attribution.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -126,6 +127,7 @@ async function moveLead(
   title: string,
   allowCreate = true,
   createdAt: string | null = null,
+  skuId: number | null = null,
 ): Promise<string | null> {
   const { data: existing } = await supabase
     .from('leads')
@@ -140,7 +142,7 @@ async function moveLead(
 
   if (existing) {
     const id = (existing as { id: string }).id;
-    await supabase.from('leads').update({ leads_stages_id: stageId }).eq('id', id);
+    await supabase.from('leads').update({ leads_stages_id: stageId, ...(skuId ? { sku_id: skuId } : {}) }).eq('id', id);
     return id;
   }
 
@@ -156,6 +158,7 @@ async function moveLead(
       status: 'in_progress',
       lead_source: 'yampi',
       ...(createdAt ? { created_at: createdAt } : {}),
+      ...(skuId ? { sku_id: skuId } : {}),
     })
     .select('id')
     .single();
@@ -321,7 +324,8 @@ Deno.serve(async (req) => {
         const ts = Date.parse(`${resDateStr.replace(' ', 'T')}-03:00`);
         if (Number.isFinite(ts)) cartCreatedAt = new Date(ts).toISOString();
       }
-      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt);
+      const skuId = extractFirstSkuId(event.raw_payload);
+      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt, skuId);
       if (leadId && parsed.total !== null) {
         await supabase.from('leads').update({ value: parsed.total }).eq('id', leadId);
       }
@@ -401,10 +405,12 @@ Deno.serve(async (req) => {
           } catch (_) { /* sem cupom detectável — segue pros outros níveis */ }
         }
         let isOurCoupon = false;
+        let couponCreatedBy: string | null = null;
         if (couponCode) {
           const { data: cc } = await supabase
-            .from('crm_coupons').select('id').eq('code', couponCode).maybeSingle();
+            .from('crm_coupons').select('id, created_by').eq('code', couponCode).maybeSingle();
           isOurCoupon = !!cc;
+          couponCreatedBy = ((cc as { created_by?: string | null } | null)?.created_by) ?? null;
         }
 
         // 🥈 clique em link rastreado nosso antes de pagar (janela 7d).
@@ -413,6 +419,20 @@ Deno.serve(async (req) => {
 
         const attributionLevel = isOurCoupon ? 'cupom' : clicked ? 'clique' : withinWindow ? 'janela' : null;
         const attributed = attributionLevel !== null;
+
+        // ── Atribuição HUMANA (COMERCIAL): cupom do comercial > carrinho dele pago em ≤7d ──
+        const { data: leadOwnerRaw } = leadId
+          ? await supabase.from('leads').select('user_id, claimed_at').eq('id', leadId).maybeSingle()
+          : { data: null };
+        const leadOwner = leadOwnerRaw as { user_id: string | null; claimed_at: string | null } | null;
+        const human = decideHumanAttribution({
+          couponCreatedBy, leadUserId: leadOwner?.user_id ?? null, leadClaimedAt: leadOwner?.claimed_at ?? null, paidAt,
+        });
+        let commissionPct: number | null = null;
+        if (human.recoveredBy) {
+          const { data: su } = await supabase.from('settings_users').select('commission_pct').eq('id', human.recoveredBy).maybeSingle();
+          commissionPct = (su as { commission_pct: number | null } | null)?.commission_pct ?? null;
+        }
 
         const { data: abRow } = leadId
           ? await supabase.from('esteira_ab_assignments').select('experiment_id, variant_id').eq('lead_id', leadId).order('assigned_at', { ascending: false }).limit(1).maybeSingle()
@@ -440,8 +460,12 @@ Deno.serve(async (req) => {
           attributed_template_name: clickBefore?.templateName ?? clickBefore?.label ?? null,
           ab_experiment_id: (abRow as { experiment_id?: string } | null)?.experiment_id ?? null,
           ab_variant_id: (abRow as { variant_id?: string } | null)?.variant_id ?? null,
+          recovered_by: human.recoveredBy,
+          recovery_basis: human.basis,
+          commission_pct: human.recoveredBy ? (commissionPct ?? 0) : null,
+          commission_value: human.recoveredBy ? commissionValue(parsed.total, commissionPct) : null,
         }, { onConflict: 'order_id' });
-        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none' });
+        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none', recovered_by: human.recoveredBy ?? 'none', basis: human.basis ?? 'none' });
 
         // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a
         // recuperação foi nossa — relatórios da Yampi passam a separar "recuperado-crm".
