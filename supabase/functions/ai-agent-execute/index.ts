@@ -25,6 +25,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
+import { COUPON_PERCENTS_AGENT, createPersonalCoupon } from '../_shared/yampi-coupon.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -2680,59 +2681,21 @@ async function executeTool(
 
       case 'yampi_criar_cupom': {
         const percentual = Number(args.percentual ?? 0);
-        if (![5, 10, 15].includes(percentual)) return 'Error: percentual deve ser 5, 10 ou 15.';
+        if (!(COUPON_PERCENTS_AGENT as readonly number[]).includes(percentual)) return 'Error: percentual deve ser 5, 10 ou 15.';
         const dias = Math.min(Math.max(Number(args.dias_validade ?? 2) || 2, 1), 7);
-        const freteGratis = args.frete_gratis === true;
-
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
         if (!bound) return 'Integração Yampi não está conectada.';
-
-        // Personalized code: first name, ASCII-folded, + percent (e.g. GABRIELLA10).
-        const firstName = (ctx.nome ?? 'CLIENTE').split(/\s+/)[0]
-          .normalize('NFD').replace(/[̀-ͯ]/g, '')
-          .replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || 'CLIENTE';
-        let code = `${firstName}${percentual}`.slice(0, 20);
-
         try {
-          // Uniqueness: if the code exists and is still usable, reuse it; else suffix.
-          const existing = await bound.client.findPromocode(code);
-          if (existing) {
-            if (existing.active && !existing.expired) {
-              return JSON.stringify({ cupom: code, situacao: 'ja_existia_e_esta_ativo', percentual: existing.value });
-            }
-            for (let n = 2; n <= 9; n++) {
-              const candidate = `${firstName}${percentual}X${n}`.slice(0, 20);
-              if (!(await bound.client.findPromocode(candidate))) { code = candidate; break; }
-            }
-          }
-
-          const now = new Date();
-          const end = new Date(now.getTime() + dias * 24 * 3600_000);
-          const fmt = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
-          await bound.client.createPromocode({
-            code,
-            discount_type: 'p',
-            value: percentual,
-            quantity: 1,
-            min_value: 0, // obrigatório na Yampi (422 sem ele)
-            once_per_customer: true,
-            accumulate: false,
-            free_shipment: freteGratis,
-            abandoned_cart: false,
-            active: true,
-            start_at: fmt(now),
-            end_at: fmt(end),
+          const r = await createPersonalCoupon(supabase as never, bound.client, {
+            firstName: ctx.nome ?? 'CLIENTE', percent: percentual, validityDays: dias,
+            freeShipping: args.frete_gratis === true, peopleId: ctx.pessoa_id ?? null, leadId,
+            source: 'agente', createdBy: null,
           });
-          // BI-REC-3: registrar como cupom NOSSO — pedido pago com ele = prova forte.
-          await supabase.from('crm_coupons').upsert(
-            { code, source: 'agente', people_id: ctx.pessoa_id ?? null },
-            { onConflict: 'code', ignoreDuplicates: true },
-          );
+          if (r.reused) return JSON.stringify({ cupom: r.code, situacao: 'ja_existia_e_esta_ativo', percentual: r.percent });
           return JSON.stringify({
-            cupom: code,
-            percentual,
-            valido_ate: fmt(end),
+            cupom: r.code, percentual: r.percent,
+            valido_ate: r.expiresAt.slice(0, 19).replace('T', ' '),
             uso: 'único, apenas para este cliente',
             instrucao: 'Informe o código ao cliente e reforce a validade curta. Você pode anexá-lo a um checkout novo com yampi_enviar_link_pagamento passando cupom.',
           });
