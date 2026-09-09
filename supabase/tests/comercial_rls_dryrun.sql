@@ -58,7 +58,8 @@ BEGIN
   -- Linhas que pertencem a OUTRA pessoa / OUTRO comercial: o C1 não pode ver nenhuma delas.
   INSERT INTO public.messages (content, people_id, lead_id, user_id)
     VALUES ('msg do outro', v_p3, v_outro_rec, v_c2);
-  INSERT INTO public.followup_queue (lead_id, pessoa_id, canal, scheduled_at)
+  -- nomes de PRODUÇÃO: pessoa_id→person_id, canal→channel, scheduled_at→scheduled_for (20260427)
+  INSERT INTO public.followup_queue (lead_id, person_id, channel, scheduled_for)
     VALUES (v_outro_rec, v_p3, 'email', now());
   INSERT INTO public.tracked_links (token, destination, people_id, lead_id, created_by)
     VALUES ('dry-tok-outro', 'https://example.test/x', v_p3, v_outro_rec, v_c2);
