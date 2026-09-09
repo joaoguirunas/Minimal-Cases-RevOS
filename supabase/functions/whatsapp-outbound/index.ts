@@ -31,6 +31,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
 import { createEvolutionClient, formatRecipient as formatEvolutionRecipient } from '../_shared/evolution-client.ts';
 import { getWhatsAppSendLock, isAllowedRecipient } from '../_shared/whatsapp-send-lock.ts';
+import { handoffToHumanAfterFirstContact, shouldHandoffToHuman } from '../_shared/comercial-contact.ts';
 import {
   buildInteractiveFallbackText,
   resolveChannelDispatch,
@@ -1401,6 +1402,27 @@ Deno.serve(async (req: Request) => {
           }
         }
       }
+    }
+
+    // ── COMERCIAL: primeiro WhatsApp humano → cancela WA pendentes e desliga o agente ──
+    if (wamids.length > 0 && people_id && Array.isArray(message_ids) && message_ids.length > 0) {
+      try {
+        const { data: sentRow } = await supabase.from('messages').select('user_id').eq('id', message_ids[0]).maybeSingle();
+        const senderId = (sentRow as { user_id: string | null } | null)?.user_id ?? null;
+        if (senderId) {
+          const [{ data: su }, { count }] = await Promise.all([
+            supabase.from('settings_users').select('user_type').eq('id', senderId).maybeSingle(),
+            supabase.from('messages').select('id', { count: 'exact', head: true })
+              .eq('people_id', people_id).eq('user_id', senderId).not('wa_message_id', 'is', null)
+              .not('id', 'in', `(${message_ids.join(',')})`),
+          ]);
+          const decision = shouldHandoffToHuman({ senderUserType: (su as { user_type: string | null } | null)?.user_type ?? null, priorHumanSentByUser: count ?? 0 });
+          if (decision) {
+            const r = await handoffToHumanAfterFirstContact(supabase, { peopleId: people_id, userId: senderId });
+            log.info('commercial_first_contact', { people_id, user_id: senderId, cancelled: r.cancelled });
+          }
+        }
+      } catch (e) { log.warn('commercial_first_contact_failed', { error: (e as Error).message }); }
     }
 
     const response = {
