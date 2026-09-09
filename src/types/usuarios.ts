@@ -10,6 +10,7 @@ export interface Usuario {
   super_adm: boolean;
   user_type: UserType;
   agente?: string | null;
+  commission_pct?: number | null;
   auth_user_id?: string;
   created_at: string;
   updated_at: string;
