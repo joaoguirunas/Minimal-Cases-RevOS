@@ -26,6 +26,7 @@ import {
 import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
 import { findTrackedClickBefore } from '../_shared/tracked-links.ts';
 import { decideHumanAttribution, commissionValue, extractFirstSkuId } from '../_shared/comercial-attribution.ts';
+import { shouldMoveStage } from '../_shared/esteira-progress.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -131,7 +132,7 @@ async function moveLead(
 ): Promise<string | null> {
   const { data: existing } = await supabase
     .from('leads')
-    .select('id')
+    .select('id, claimed_at, leads_stages_id')
     .eq('people_id', peopleId)
     .eq('leads_pipelines_id', pipelineId)
     .neq('status', 'lost')
@@ -141,9 +142,25 @@ async function moveLead(
     .maybeSingle();
 
   if (existing) {
-    const id = (existing as { id: string }).id;
-    await supabase.from('leads').update({ leads_stages_id: stageId, ...(skuId ? { sku_id: skuId } : {}) }).eq('id', id);
-    return id;
+    const lead = existing as { id: string; claimed_at: string | null; leads_stages_id: string | null };
+    // Carrinho abandonado repetido não pode arrancar um lead assumido de "Em
+    // negociação" — só olhamos order_index quando há dono (1 query a mais).
+    let move = true;
+    if (lead.claimed_at && lead.leads_stages_id && lead.leads_stages_id !== stageId) {
+      const { data: stageRows } = await supabase
+        .from('leads_stages')
+        .select('id, order_index')
+        .in('id', [lead.leads_stages_id, stageId]);
+      const rows = (stageRows ?? []) as Array<{ id: string; order_index: number | null }>;
+      move = shouldMoveStage({
+        claimedAt: lead.claimed_at,
+        currentOrder: rows.find((s) => s.id === lead.leads_stages_id)?.order_index ?? null,
+        targetOrder: rows.find((s) => s.id === stageId)?.order_index ?? null,
+      });
+    }
+    const patch = { ...(move ? { leads_stages_id: stageId } : {}), ...(skuId ? { sku_id: skuId } : {}) };
+    if (Object.keys(patch).length > 0) await supabase.from('leads').update(patch).eq('id', lead.id);
+    return lead.id;
   }
 
   if (!allowCreate) return null;
@@ -438,6 +455,27 @@ Deno.serve(async (req) => {
           ? await supabase.from('esteira_ab_assignments').select('experiment_id, variant_id').eq('lead_id', leadId).order('assigned_at', { ascending: false }).limit(1).maybeSingle()
           : { data: null };
 
+        // Reprocessar o mesmo order_id (upsert por order_id) não pode apagar a
+        // atribuição HUMANA já gravada: na 2ª passada o cupom pode ter expirado ou o
+        // lead ter mudado de dono, e decideHumanAttribution devolveria null. Se já há
+        // recovered_by, o snapshot original manda.
+        const { data: prevRec } = await supabase
+          .from('esteira_reconversions')
+          .select('recovered_by, recovery_basis, commission_pct, commission_value')
+          .eq('order_id', event.order_id).maybeSingle();
+        const prev = prevRec as {
+          recovered_by: string | null; recovery_basis: string | null;
+          commission_pct: number | null; commission_value: number | null;
+        } | null;
+        const humanSnapshot = prev?.recovered_by
+          ? { recovered_by: prev.recovered_by, recovery_basis: prev.recovery_basis, commission_pct: prev.commission_pct, commission_value: prev.commission_value }
+          : {
+            recovered_by: human.recoveredBy,
+            recovery_basis: human.basis,
+            commission_pct: human.recoveredBy ? (commissionPct ?? 0) : null,
+            commission_value: human.recoveredBy ? commissionValue(parsed.total, commissionPct) : null,
+          };
+
         await supabase.from('esteira_reconversions').upsert({
           order_id: event.order_id,
           people_id: peopleId,
@@ -460,12 +498,9 @@ Deno.serve(async (req) => {
           attributed_template_name: clickBefore?.templateName ?? clickBefore?.label ?? null,
           ab_experiment_id: (abRow as { experiment_id?: string } | null)?.experiment_id ?? null,
           ab_variant_id: (abRow as { variant_id?: string } | null)?.variant_id ?? null,
-          recovered_by: human.recoveredBy,
-          recovery_basis: human.basis,
-          commission_pct: human.recoveredBy ? (commissionPct ?? 0) : null,
-          commission_value: human.recoveredBy ? commissionValue(parsed.total, commissionPct) : null,
+          ...humanSnapshot,
         }, { onConflict: 'order_id' });
-        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none', recovered_by: human.recoveredBy ?? 'none', basis: human.basis ?? 'none' });
+        log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none', recovered_by: humanSnapshot.recovered_by ?? 'none', basis: humanSnapshot.recovery_basis ?? 'none' });
 
         // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a
         // recuperação foi nossa — relatórios da Yampi passam a separar "recuperado-crm".

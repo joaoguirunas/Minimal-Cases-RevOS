@@ -2689,7 +2689,7 @@ async function executeTool(
         try {
           const r = await createPersonalCoupon(supabase as never, bound.client, {
             firstName: ctx.nome ?? 'CLIENTE', percent: percentual, validityDays: dias,
-            freeShipping: args.frete_gratis === true, peopleId: ctx.pessoa_id ?? null, leadId,
+            freeShipping: args.frete_gratis === true, peopleId: ctx.pessoa_id || null, leadId,
             source: 'agente', createdBy: null,
           });
           if (r.reused) return JSON.stringify({ cupom: r.code, situacao: 'ja_existia_e_esta_ativo', percentual: r.percent });

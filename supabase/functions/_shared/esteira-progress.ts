@@ -43,3 +43,25 @@ export async function progressEsteiraStage(
     .eq('id', leadId);
   return !error;
 }
+
+/**
+ * Um lead ASSUMIDO por um comercial (claimed_at) nunca volta pra trás no funil.
+ * O webhook `carrinho_abandonado` da Yampi repete a cada novo carrinho da mesma
+ * pessoa; sem isso, o segundo evento arrancaria o lead de "Em negociação" e o
+ * jogaria de volta em "Carrinho abandonado" — sumindo da mesa do comercial e
+ * voltando pro pool.
+ *
+ * Lead sem dono segue com o comportamento de hoje (a esteira manda). Ordem
+ * desconhecida (stage fora do pipeline, sem order_index) também: preferimos o
+ * comportamento antigo a travar o movimento por falta de informação.
+ */
+export function shouldMoveStage(args: {
+  claimedAt: string | null;
+  currentOrder: number | null;
+  targetOrder: number | null;
+}): boolean {
+  const { claimedAt, currentOrder, targetOrder } = args;
+  if (!claimedAt) return true;
+  if (currentOrder === null || targetOrder === null) return true;
+  return targetOrder >= currentOrder;
+}
