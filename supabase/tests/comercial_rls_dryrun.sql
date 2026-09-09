@@ -17,6 +17,7 @@ DECLARE
   v_all_leads integer; v_all_people integer;
   v_sec_omni integer; v_sec_wa integer; v_sec_keys integer; v_sec_ai integer;
   v_notif_p3 integer;
+  v_fup uuid; v_bh_all integer;
 BEGIN
   SELECT id INTO v_pipe FROM public.leads_pipelines WHERE name = 'Esteira Minimal — Loja';
   IF v_pipe IS NULL THEN RAISE EXCEPTION 'pipeline "Esteira Minimal — Loja" não encontrado'; END IF;
@@ -82,6 +83,14 @@ BEGIN
   -- Allowlist: template que o comercial PRECISA continuar lendo
   INSERT INTO public.email_templates (name, subject, html_body)
     VALUES ('dry-run-tpl', 'assunto', '<p>x</p>');
+  -- Allowlist com escrita: regra de follow-up. O comercial LÊ (authenticated_read segue
+  -- solta) mas NÃO pode escrever (authenticated_write FOR ALL é embrulhado pela 5a).
+  INSERT INTO public.leads_stages_followups (leads_stages_id, type, message, subject, active)
+    VALUES (v_stage_ca, 'texto', 'regra do dry-run', 'dry-run-fup', false) RETURNING id INTO v_fup;
+  -- settings_business_hours só tem política FOR ALL: sem a comercial_select da 5b o
+  -- comercial ficaria sem horário de atendimento. Precisa de ≥ 1 linha pra asserção valer.
+  SELECT count(*) INTO v_bh_all FROM public.settings_business_hours;
+  IF v_bh_all < 1 THEN RAISE EXCEPTION 'settings_business_hours vazia — a asserção de leitura ficaria vazia'; END IF;
 
   -- a notificação de v_p3 pode vir do trigger ou do seed explícito; o que não pode é não existir
   SELECT count(*) INTO v_notif_p3 FROM public.notifications WHERE people_id = v_p3;
@@ -129,6 +138,47 @@ BEGIN
   -- allowlist continua legível (senão a UI do comercial quebra)
   SELECT count(*) INTO v_n FROM public.email_templates WHERE name = 'dry-run-tpl';   IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA ver email_templates (allowlist)'; END IF;
   SELECT count(*) INTO v_n FROM public.lead_tags WHERE id = v_tag;                   IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA ver lead_tags, o catálogo de tags (allowlist)'; END IF;
+  SELECT count(*) INTO v_n FROM public.leads_stages_followups WHERE id = v_fup;      IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA ver leads_stages_followups (allowlist de LEITURA)'; END IF;
+  SELECT count(*) INTO v_n FROM public.settings_business_hours;                      IF v_n <> v_bh_all THEN RAISE EXCEPTION 'C1 DEVERIA ver as % linhas de settings_business_hours, viu %', v_bh_all, v_n; END IF;
+
+  -- ── allowlist é SÓ leitura: nenhuma escrita pode passar (achado 1) ──
+  -- A política `authenticated_write ... FOR ALL` dessas tabelas é embrulhada pela 5a:
+  -- INSERT bate no WITH CHECK (42501); UPDATE/DELETE não enxergam linha (0 linhas).
+  BEGIN
+    INSERT INTO public.leads_stages_followups (leads_stages_id, type, message, active)
+      VALUES (v_stage_ca, 'texto', 'comercial não deveria escrever', false);
+    RAISE EXCEPTION 'C1 conseguiu INSERT em leads_stages_followups';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    UPDATE public.leads_stages_followups SET subject = 'hackeado' WHERE id = v_fup;
+    GET DIAGNOSTICS v_n = ROW_COUNT;
+    IF v_n <> 0 THEN RAISE EXCEPTION 'C1 conseguiu UPDATE em leads_stages_followups (% linhas)', v_n; END IF;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    DELETE FROM public.leads_stages_followups WHERE id = v_fup;
+    GET DIAGNOSTICS v_n = ROW_COUNT;
+    IF v_n <> 0 THEN RAISE EXCEPTION 'C1 conseguiu DELETE em leads_stages_followups (% linhas)', v_n; END IF;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO public.email_templates (name, subject, html_body) VALUES ('dry-c1-tpl', 'x', '<p>x</p>');
+    RAISE EXCEPTION 'C1 conseguiu INSERT em email_templates';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    UPDATE public.email_templates SET subject = 'hackeado' WHERE name = 'dry-run-tpl';
+    GET DIAGNOSTICS v_n = ROW_COUNT;
+    IF v_n <> 0 THEN RAISE EXCEPTION 'C1 conseguiu UPDATE em email_templates (% linhas)', v_n; END IF;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    DELETE FROM public.email_templates WHERE name = 'dry-run-tpl';
+    GET DIAGNOSTICS v_n = ROW_COUNT;
+    IF v_n <> 0 THEN RAISE EXCEPTION 'C1 conseguiu DELETE em email_templates (% linhas)', v_n; END IF;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
 
   v_res := public.claim_lead(v_pool);
   IF (v_res->>'ok')::boolean IS DISTINCT FROM true THEN RAISE EXCEPTION 'claim de C1 deveria dar ok: %', v_res; END IF;
@@ -136,6 +186,26 @@ BEGIN
   IF v_n <> 1 THEN RAISE EXCEPTION 'lead assumido deveria estar em Em negociação com dono C1'; END IF;
   v_res := public.claim_lead(v_recente);
   IF v_res->>'reason' <> 'fora_do_pool' THEN RAISE EXCEPTION 'claim de lead recente deveria ser fora_do_pool: %', v_res; END IF;
+
+  -- ── guard de coluna no lead próprio (achado 2): comercial_update_own é irrestrita
+  -- por coluna; o trigger leads_comercial_guard barra claimed_at / people_id / user_id /
+  -- pipeline / created_at, e deixa passar o resto (title, value, status…).
+  BEGIN
+    UPDATE public.leads SET claimed_at = now() - interval '30 days' WHERE id = v_pool;
+    RAISE EXCEPTION 'C1 conseguiu renovar claimed_at (janela de comissão farmável)';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    UPDATE public.leads SET people_id = v_p3 WHERE id = v_pool;
+    RAISE EXCEPTION 'C1 conseguiu repontar people_id (escalada de visibilidade)';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  UPDATE public.leads SET title = 'x' WHERE id = v_pool;
+  GET DIAGNOSTICS v_n = ROW_COUNT;
+  IF v_n <> 1 THEN RAISE EXCEPTION 'C1 DEVERIA conseguir editar o title do próprio lead (% linhas)', v_n; END IF;
+  IF (SELECT claimed_at FROM public.leads WHERE id = v_pool) IS NULL THEN
+    RAISE EXCEPTION 'claimed_at do lead assumido não deveria ter sido perdido';
+  END IF;
 
   -- ── como C2 (outro comercial) ──
   PERFORM set_config('request.jwt.claims', json_build_object('sub', v_c2_auth, 'role', 'authenticated')::text, true);

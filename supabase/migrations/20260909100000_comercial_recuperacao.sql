@@ -163,10 +163,14 @@ BEGIN
    WHERE s.leads_pipelines_id = v_lead.leads_pipelines_id AND s.name = 'Em negociação' LIMIT 1;
   IF v_stage IS NULL THEN RETURN jsonb_build_object('ok', false, 'reason', 'fora_do_pool'); END IF;
 
+  -- Assumir é a ÚNICA escrita legítima do comercial em user_id/claimed_at; o trigger
+  -- leads_comercial_guard (5b-bis) barra as demais. Válvula local à transação.
+  PERFORM set_config('app.bypass_comercial_guard', 'on', true);
   UPDATE public.leads l
      SET user_id = v_me, claimed_at = now(), leads_stages_id = v_stage
    WHERE l.id = p_lead_id AND l.user_id IS NULL AND public.commercial_pool_lead(l);
   GET DIAGNOSTICS v_updated = ROW_COUNT;
+  PERFORM set_config('app.bypass_comercial_guard', 'off', true);
   IF v_updated = 1 THEN RETURN jsonb_build_object('ok', true); END IF;
 
   SELECT * INTO v_lead FROM public.leads WHERE id = p_lead_id;
@@ -199,44 +203,55 @@ INSERT INTO _comercial_rls_allowlist (tablename) VALUES
   ('canned_responses'), ('yampi_sku_images'), ('settings_business_hours'),
   ('leads_stages_followups'), ('lead_tags');
 
--- 5a. TODA política permissiva de `public` (roles {authenticated}/{public}) ganha
+-- 5a. TODA política permissiva de `public` (que alcance authenticated ou public) ganha
 --     AND NOT (select public.is_commercial()) — exceto comercial_*, service_role-only
---     e as tabelas da allowlist. A lista é materializada ANTES de mexer em pg_policy:
---     dropar/criar dentro do próprio cursor faria o loop enxergar o que ele acabou de criar.
+--     e a LEITURA das tabelas da allowlist. A lista é materializada ANTES de mexer em
+--     pg_policy: dropar/criar dentro do próprio cursor faria o loop enxergar o que ele
+--     acabou de criar.
 CREATE TEMP TABLE _comercial_rls_targets ON COMMIT DROP AS
-  SELECT p.tablename, p.policyname, p.cmd, p.permissive, p.qual, p.with_check
+  SELECT p.tablename, p.policyname, p.cmd, p.permissive, p.roles, p.qual, p.with_check
     FROM pg_policies p
    WHERE p.schemaname = 'public'
-     AND p.roles::text IN ('{authenticated}','{public}')
+     -- roles é name[]: `&&` pega também as políticas multi-role (ex.: {authenticated,anon}),
+     -- que um `IN ('{authenticated}','{public}')` deixaria escapar do embrulho.
+     AND p.roles && ARRAY['authenticated','public']::name[]
      AND p.permissive = 'PERMISSIVE'
      AND p.policyname NOT LIKE 'comercial\_%'
      -- (b) service_role-only: confere o QUAL, não só o nome
      AND NOT (p.policyname ILIKE '%service_role%'
               AND coalesce(p.qual, '') ~ 'auth\.role\(\)\s*=\s*''service_role''')
-     -- (c) allowlist de tabelas que o comercial precisa e que não guardam segredo
-     AND p.tablename NOT IN (SELECT tablename FROM _comercial_rls_allowlist)
+     -- (c) allowlist: SÓ a LEITURA fica de fora do embrulho. As mesmas tabelas têm um
+     --     `authenticated_write ... FOR ALL`; deixá-lo intocado daria INSERT/UPDATE/DELETE
+     --     ao comercial (ex.: DELETE FROM leads_stages_followups). cmd='ALL' é embrulhado.
+     AND NOT (p.cmd = 'SELECT'
+              AND p.tablename IN (SELECT tablename FROM _comercial_rls_allowlist))
      -- idempotência: não reembrulhar o que já foi embrulhado numa aplicação anterior
      AND coalesce(p.qual, '') NOT LIKE '%is_commercial()%'
      AND coalesce(p.with_check, '') NOT LIKE '%is_commercial()%';
 
 DO $$
-DECLARE r record; v_qual text; v_check text;
+DECLARE r record; v_qual text; v_check text; v_roles text;
 BEGIN
   FOR r IN SELECT * FROM _comercial_rls_targets LOOP
     v_qual  := CASE WHEN r.qual IS NULL THEN NULL ELSE format('(%s) AND NOT (select public.is_commercial())', r.qual) END;
     v_check := CASE WHEN r.with_check IS NULL THEN NULL ELSE format('(%s) AND NOT (select public.is_commercial())', r.with_check) END;
+    -- Reemite os MESMOS roles da política original: hardcodar `TO authenticated` tiraria
+    -- `anon` (e qualquer outro role) de toda política {public}, virando uma mudança de
+    -- acesso silenciosa. Sem quote_ident: PUBLIC é palavra-chave no RoleSpec do
+    -- CREATE POLICY — `TO "public"` viraria busca por um role chamado "public".
+    v_roles := array_to_string(r.roles, ', ');
     EXECUTE format('DROP POLICY %I ON public.%I', r.policyname, r.tablename);
     IF r.cmd = 'INSERT' THEN
-      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR INSERT TO authenticated WITH CHECK (%s)',
-        r.policyname, r.tablename, r.permissive, coalesce(v_check, 'NOT (select public.is_commercial())'));
+      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR INSERT TO %s WITH CHECK (%s)',
+        r.policyname, r.tablename, r.permissive, v_roles, coalesce(v_check, 'NOT (select public.is_commercial())'));
     ELSIF r.cmd IN ('UPDATE','ALL') THEN
-      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR %s TO authenticated USING (%s) WITH CHECK (%s)',
-        r.policyname, r.tablename, r.permissive, r.cmd,
+      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR %s TO %s USING (%s) WITH CHECK (%s)',
+        r.policyname, r.tablename, r.permissive, r.cmd, v_roles,
         coalesce(v_qual, 'NOT (select public.is_commercial())'),
         coalesce(v_check, v_qual, 'NOT (select public.is_commercial())'));
     ELSE
-      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR %s TO authenticated USING (%s)',
-        r.policyname, r.tablename, r.permissive, r.cmd,
+      EXECUTE format('CREATE POLICY %I ON public.%I AS %s FOR %s TO %s USING (%s)',
+        r.policyname, r.tablename, r.permissive, r.cmd, v_roles,
         coalesce(v_qual, 'NOT (select public.is_commercial())'));
     END IF;
   END LOOP;
@@ -253,7 +268,7 @@ BEGIN
     FROM pg_policies
    WHERE schemaname = 'public'
      AND permissive = 'RESTRICTIVE'
-     AND roles::text IN ('{authenticated}','{public}')
+     AND roles && ARRAY['authenticated','public']::name[]
      AND tablename IN ('leads','clients_people','messages','followup_queue','tracked_links',
                        'tracked_link_clicks','esteira_reconversions','crm_coupons','leads_pipelines',
                        'leads_stages','settings_users','yampi_webhook_events','zoppy_abandoned_carts',
@@ -381,6 +396,52 @@ DROP POLICY IF EXISTS yampi_sku_images_select_app ON public.yampi_sku_images;
 CREATE POLICY yampi_sku_images_select_app ON public.yampi_sku_images FOR SELECT TO authenticated
   USING ((select public.is_app_user()));
 
+-- settings_business_hours está na allowlist mas só tem política FOR ALL (cmd='ALL'),
+-- que a 5a embrulha — sem esta SELECT o comercial perderia o horário de atendimento.
+DROP POLICY IF EXISTS comercial_select ON public.settings_business_hours;
+CREATE POLICY comercial_select ON public.settings_business_hours FOR SELECT TO authenticated
+  USING ((select public.is_commercial()));
+
+-- Variante de A/B do lead: só dos leads que o comercial enxerga.
+DO $$ BEGIN
+  IF to_regclass('public.esteira_ab_assignments') IS NOT NULL THEN
+    EXECUTE 'DROP POLICY IF EXISTS comercial_select ON public.esteira_ab_assignments';
+    EXECUTE 'CREATE POLICY comercial_select ON public.esteira_ab_assignments FOR SELECT TO authenticated
+      USING ((select public.is_commercial()) AND EXISTS (SELECT 1 FROM public.leads l
+             WHERE l.id = esteira_ab_assignments.lead_id AND public.lead_visible_to_commercial(l)))';
+  END IF;
+END $$;
+
+-- 5b-bis. comercial_update_own em `leads` é irrestrita por COLUNA: com ela o comercial
+-- poderia renovar claimed_at (esticando a janela de 7d da comissão) ou repontar people_id
+-- (enxergando outra pessoa). RLS não sabe restringir coluna — um trigger sabe.
+-- SECURITY INVOKER (padrão): quem manda é is_commercial(), que é falso para admin/gestor
+-- e para o service_role, então a esteira e o painel seguem escrevendo normalmente.
+CREATE OR REPLACE FUNCTION public.leads_comercial_guard() RETURNS trigger
+LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
+DECLARE v_col text;
+BEGIN
+  -- claim_lead() é SECURITY DEFINER mas roda com o auth.uid() do comercial: sem esta
+  -- válvula o próprio "Assumir" (que grava user_id + claimed_at) cairia no guard.
+  IF coalesce(current_setting('app.bypass_comercial_guard', true), '') = 'on' THEN RETURN NEW; END IF;
+  IF NOT public.is_commercial() THEN RETURN NEW; END IF;
+  v_col := CASE
+    WHEN NEW.people_id          IS DISTINCT FROM OLD.people_id          THEN 'people_id'
+    WHEN NEW.user_id            IS DISTINCT FROM OLD.user_id            THEN 'user_id'
+    WHEN NEW.claimed_at         IS DISTINCT FROM OLD.claimed_at         THEN 'claimed_at'
+    WHEN NEW.leads_pipelines_id IS DISTINCT FROM OLD.leads_pipelines_id THEN 'leads_pipelines_id'
+    WHEN NEW.created_at         IS DISTINCT FROM OLD.created_at         THEN 'created_at'
+    ELSE NULL END;
+  IF v_col IS NOT NULL THEN
+    RAISE EXCEPTION 'comercial não pode alterar %', v_col USING ERRCODE = 'insufficient_privilege';
+  END IF;
+  RETURN NEW;
+END $$;
+
+DROP TRIGGER IF EXISTS leads_comercial_guard ON public.leads;
+CREATE TRIGGER leads_comercial_guard BEFORE UPDATE ON public.leads
+  FOR EACH ROW EXECUTE FUNCTION public.leads_comercial_guard();
+
 -- 5c. Trava: nenhuma política permissiva de `public` pode ter sobrado sem o
 --     AND NOT is_commercial() fora da allowlist. Se sobrou, é vazamento (§2.5).
 DO $$
@@ -391,11 +452,13 @@ BEGIN
     FROM pg_policies p
    WHERE p.schemaname = 'public'
      AND p.permissive = 'PERMISSIVE'
-     AND p.roles::text IN ('{authenticated}','{public}')
+     AND p.roles && ARRAY['authenticated','public']::name[]
      AND p.policyname NOT LIKE 'comercial\_%'
      AND NOT (p.policyname ILIKE '%service_role%'
               AND coalesce(p.qual, '') ~ 'auth\.role\(\)\s*=\s*''service_role''')
-     AND p.tablename NOT IN (SELECT tablename FROM _comercial_rls_allowlist)
+     -- mesma isenção da 5a: allowlist só perdoa a LEITURA
+     AND NOT (p.cmd = 'SELECT'
+              AND p.tablename IN (SELECT tablename FROM _comercial_rls_allowlist))
      AND ( (p.qual       IS NOT NULL AND p.qual       NOT LIKE '%is_commercial()%')
         OR (p.with_check IS NOT NULL AND p.with_check NOT LIKE '%is_commercial()%') );
   IF v_leak IS NOT NULL THEN
