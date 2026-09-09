@@ -25,6 +25,8 @@ export interface NegocioOptimized {
   utm_campaign?: string;
   utm_content?: string;
   utm_term?: string;
+  sku_id?: number | null;
+  claimed_at?: string | null;
   pessoa?: {
     id: string;
     name: string;
