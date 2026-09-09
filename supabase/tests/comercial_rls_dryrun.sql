@@ -16,6 +16,7 @@ DECLARE
   -- contagens tiradas como postgres (sem RLS), para comparar com o que cada persona vê
   v_all_leads integer; v_all_people integer;
   v_sec_omni integer; v_sec_wa integer; v_sec_keys integer; v_sec_ai integer;
+  v_notif_p3 integer;
 BEGIN
   SELECT id INTO v_pipe FROM public.leads_pipelines WHERE name = 'Esteira Minimal — Loja';
   IF v_pipe IS NULL THEN RAISE EXCEPTION 'pipeline "Esteira Minimal — Loja" não encontrado'; END IF;
@@ -67,14 +68,24 @@ BEGIN
     VALUES ('DRYOUTRO10', 'comercial', v_p3, v_outro_rec, 10, v_c2);
   INSERT INTO public.esteira_reconversions (order_id, people_id, lead_id, order_total, paid_at, recovered_by, recovery_basis)
     VALUES ('dry-order-outro', v_p3, v_outro_rec, 199.90, now(), v_c2, 'cupom');
-  -- Notificação e tag de uma pessoa/lead INVISÍVEL para o C1, mais a tag pessoal do C1
+  -- Notificação e tag de uma pessoa/lead INVISÍVEL para o C1.
+  -- O INSERT em messages acima já dispara bump_clients_people_on_message (from_contact
+  -- default 'cliente'), que cria a notificação 'inbound_message' aberta de v_p3. O índice
+  -- parcial UNIQUE idx_notifications_open (people_id, event_type) WHERE read_at IS NULL
+  -- (20260730200000) só admite uma. ON CONFLICT DO NOTHING mantém o seed idempotente tanto
+  -- se o trigger existir quanto se não existir — o que importa é ter ≥ 1 linha de v_p3.
   INSERT INTO public.notifications (event_type, people_id, lead_id, title)
-    VALUES ('inbound_message', v_p3, v_outro_rec, 'preview de conversa de terceiro');
+    VALUES ('inbound_message', v_p3, v_outro_rec, 'preview de conversa de terceiro')
+    ON CONFLICT DO NOTHING;
   INSERT INTO public.lead_tags (name, color) VALUES ('dry-tag', '#111') RETURNING id INTO v_tag;
   INSERT INTO public.leads_tags (lead_id, tag_id) VALUES (v_outro_rec, v_tag);
   -- Allowlist: template que o comercial PRECISA continuar lendo
   INSERT INTO public.email_templates (name, subject, html_body)
     VALUES ('dry-run-tpl', 'assunto', '<p>x</p>');
+
+  -- a notificação de v_p3 pode vir do trigger ou do seed explícito; o que não pode é não existir
+  SELECT count(*) INTO v_notif_p3 FROM public.notifications WHERE people_id = v_p3;
+  IF v_notif_p3 < 1 THEN RAISE EXCEPTION 'nenhuma notificação para v_p3 — a asserção de vazamento do sino ficaria vazia'; END IF;
 
   SELECT count(*) INTO v_all_leads  FROM public.leads;
   SELECT count(*) INTO v_all_people FROM public.clients_people;
@@ -135,7 +146,7 @@ BEGIN
   SELECT count(*) INTO v_n FROM public.crm_coupons WHERE code = 'DRYOUTRO10';        IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver o próprio cupom'; END IF;
   SELECT count(*) INTO v_n FROM public.esteira_reconversions WHERE order_id = 'dry-order-outro'; IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a própria comissão'; END IF;
   -- o lado positivo das duas políticas novas: a pessoa/lead É visível para C2
-  SELECT count(*) INTO v_n FROM public.notifications WHERE people_id = v_p3;         IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a notificação da pessoa do próprio lead'; END IF;
+  SELECT count(*) INTO v_n FROM public.notifications WHERE people_id = v_p3;         IF v_n <> v_notif_p3 THEN RAISE EXCEPTION 'C2 deveria ver as % notificações da pessoa do próprio lead, viu %', v_notif_p3, v_n; END IF;
   SELECT count(*) INTO v_n FROM public.leads_tags WHERE lead_id = v_outro_rec;       IF v_n <> 1 THEN RAISE EXCEPTION 'C2 deveria ver a tag do próprio lead'; END IF;
 
   -- ── como ADMIN: a §5a não pode ter estreitado nada para quem não é comercial ──
