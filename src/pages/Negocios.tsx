@@ -15,7 +15,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useClaimLead, useSkuImages } from "@/hooks/useComercial";
+import { useClaimLead } from "@/hooks/useComercial";
 import { buildCommercialColumns, ageDays } from "@/lib/comercial/kanban";
 import { Chip } from "@/components/ui/chip";
 import { toast } from "sonner";
@@ -201,13 +201,6 @@ const Negocios = () => {
     () => Object.fromEntries((usuarios as Array<{ id: string; nome?: string; name?: string }>).map((u) => [u.id, u.nome ?? u.name ?? ''])),
     [usuarios]
   );
-  // sku_id dos negócios visíveis nesse pipeline (sem os demais filtros) — evita repetir
-  // a busca de imagem por coluna dentro do KanbanBoard.
-  const { data: negociosDoBoard = [] } = useNegociosPipeline(pipelineFilter ?? '', {});
-  const { data: skuImages = {} } = useSkuImages(
-    negociosDoBoard.map((n) => n.sku_id).filter((v): v is number => typeof v === 'number')
-  );
-
   const renderCardExtra = isComercial
     ? (n: NegocioOptimized) => {
         const d = ageDays(n.created_at);
@@ -393,7 +386,6 @@ const Negocios = () => {
           readOnly={isComercial}
           renderCardExtra={renderCardExtra}
           ownerNames={isComercial ? undefined : ownerNames}
-          skuImages={skuImages}
         />
       ) : viewMode === 'list' ? (
         <NegociosList

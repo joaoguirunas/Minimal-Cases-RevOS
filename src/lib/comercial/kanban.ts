@@ -23,12 +23,27 @@ export function buildCommercialColumns(stages: Stage[]): KanbanColumn[] {
   return out;
 }
 
-export function groupByColumn(negocios: NegocioOptimized[], columns: KanbanColumn[]): Record<string, NegocioOptimized[]> {
+/**
+ * Agrupa negócios por coluna.
+ *
+ * `fallbackToFirst` (padrão true) é o comportamento de hoje do kanban normal:
+ * 1 coluna por stage, nenhum stage fica de fora, e o que sobrar cai na primeira.
+ * A visão do comercial cobre só 5 dos 8 stages do pipeline — lá o fallback jogaria
+ * um lead em "Pagamento recusado"/"Perdido" dentro de "Carrinhos disponíveis",
+ * anunciando como carrinho livre algo que não é. Nesse caso, passe false: quem não
+ * casa com nenhuma coluna é descartado (e some também da contagem do cabeçalho).
+ */
+export function groupByColumn(
+  negocios: NegocioOptimized[],
+  columns: KanbanColumn[],
+  opts: { fallbackToFirst?: boolean } = {},
+): Record<string, NegocioOptimized[]> {
+  const { fallbackToFirst = true } = opts;
   const byStage = new Map<string, string>();
   for (const c of columns) for (const sid of c.stageIds) byStage.set(sid, c.id);
   const out: Record<string, NegocioOptimized[]> = {};
   for (const c of columns) out[c.id] = [];
-  const first = columns[0]?.id;
+  const first = fallbackToFirst ? columns[0]?.id : undefined;
   for (const n of negocios) {
     const col = byStage.get(n.leads_stages_id) ?? first;
     if (col) out[col].push(n);

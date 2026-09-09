@@ -75,7 +75,7 @@ export default function BIProReconversaoTab({ dateFrom, dateTo, scope = 'admin' 
       )}
 
       {/* ── KPIs principais ─────────────────────────────────────────────── */}
-      <KpiHero agregado={data.agregado} />
+      <KpiHero agregado={data.agregado} scope={scope} />
       {scope === 'admin' && <InsightsStrip agregado={data.agregado} />}
 
       {/* ── Funil, atribuição e clique por toque ─────────────────────────── */}

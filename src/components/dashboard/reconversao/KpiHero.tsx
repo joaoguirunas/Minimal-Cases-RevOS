@@ -8,9 +8,11 @@ import { chartTheme } from '@/lib/chartTheme';
 const pct = (v: number | null) => (v === null ? '—' : `${(v * 100).toFixed(1)}%`);
 const horas = (h: number | null) => (h === null ? '—' : h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${h.toFixed(1)} h` : `${(h / 24).toFixed(1)} d`);
 
-export default function KpiHero({ agregado: a }: { agregado: Agregado }) {
+export default function KpiHero({ agregado: a, scope = 'admin' }: { agregado: Agregado; scope?: 'admin' | 'comercial' }) {
   const { atual, deltas, porNivel } = a;
   const nivelTotal = porNivel.cupom + porNivel.clique + porNivel.janela || 1;
+  // §4.6 da spec: no painel do comercial os números são só dele — o rótulo diz isso.
+  const comercial = scope === 'comercial';
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr_1fr] gap-4">
@@ -27,7 +29,7 @@ export default function KpiHero({ agregado: a }: { agregado: Agregado }) {
             </div>
           )}
         </StatCard>
-        <StatCard icon={Target} label="Reconvertidos por nós" value={String(atual.reconvertidos)}
+        <StatCard icon={Target} label={comercial ? 'Recuperados por você' : 'Reconvertidos por nós'} value={String(atual.reconvertidos)}
           delta={{ value: deltas.reconvertidos }} sub={`${atual.organicos} orgânicos fora da conta`}>
           <div className="space-y-1.5 mt-1">
             <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-muted" aria-hidden>

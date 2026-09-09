@@ -33,6 +33,23 @@ describe('stageColumns + groupByColumn', () => {
     expect(g[cols[0].id].map((n) => n.id)).toEqual(['a', 'b']);
     expect(g['neg'].map((n) => n.id)).toEqual(['c']);
   });
+  it('fallbackToFirst: false descarta quem não casa com nenhuma coluna', () => {
+    // Pagamento pendente/recusado/Perdido ficam fora da visão do comercial: um lead
+    // dele nesses stages não pode aparecer como "carrinho disponível".
+    const cols = buildCommercialColumns(stages as never);
+    const negocios = [
+      { id: 'a', leads_stages_id: 'ca' },
+      { id: 'x', leads_stages_id: 'pp' },
+      { id: 'y', leads_stages_id: 'per' },
+      { id: 'c', leads_stages_id: 'neg' },
+    ] as never;
+    const g = groupByColumn(negocios, cols, { fallbackToFirst: false });
+    expect(g[cols[0].id].map((n) => n.id)).toEqual(['a']);
+    expect(g['neg'].map((n) => n.id)).toEqual(['c']);
+    expect(Object.values(g).flat()).toHaveLength(2);
+    // padrão continua sendo o de hoje
+    expect(groupByColumn(negocios, cols)[cols[0].id].map((n) => n.id)).toEqual(['a', 'x', 'y']);
+  });
 });
 
 describe('ageDays', () => {

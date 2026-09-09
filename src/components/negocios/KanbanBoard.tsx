@@ -11,6 +11,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { NegocioOptimized } from "@/hooks/useNegociosOptimized";
 import { useTrackedClicksRealtime } from "@/hooks/useTrackedLinks";
 import { groupByColumn, stageColumns, type KanbanColumn } from "@/lib/comercial/kanban";
+import { useSkuImages } from "@/hooks/useComercial";
 
 interface KanbanBoardProps {
   stages: Stage[];
@@ -37,7 +38,6 @@ interface KanbanBoardProps {
   readOnly?: boolean;
   renderCardExtra?: (n: NegocioOptimized) => ReactNode;
   ownerNames?: Record<string, string>;
-  skuImages?: Record<number, string>;
 }
 
 const KanbanBoard = ({
@@ -64,8 +64,7 @@ const KanbanBoard = ({
   columns,
   readOnly,
   renderCardExtra,
-  ownerNames,
-  skuImages
+  ownerNames
 }: KanbanBoardProps) => {
   const updateNegocioStage = useUpdateNegocioStage();
   const queryClient = useQueryClient();
@@ -106,7 +105,22 @@ const KanbanBoard = ({
   // negociosByStage agrupa por stage (useNegociosByStage não sabe de colunas);
   // reagrupamos aqui por coluna, que pode somar múltiplos stages.
   const allNegocios = useMemo(() => Object.values(negociosByStage).flat(), [negociosByStage]);
-  const negociosByColumn = useMemo(() => groupByColumn(allNegocios, cols), [allNegocios, cols]);
+  // Colunas compostas (visão do comercial) não cobrem todos os stages do pipeline:
+  // sem fallback, o lead em "Pagamento recusado"/"Perdido" some do board em vez de
+  // aparecer como carrinho disponível. O kanban padrão (1 stage = 1 coluna) mantém o
+  // fallback — lá ele nunca dispara.
+  const negociosByColumn = useMemo(
+    () => groupByColumn(allNegocios, cols, { fallbackToFirst: !columns }),
+    [allNegocios, cols, columns]
+  );
+  // Foto da capa por SKU: os negócios já estão aqui, não vale pagar um segundo fetch
+  // (+ canal de realtime) do pipeline inteiro só pra juntar os sku_id.
+  const { data: skuImages = {} } = useSkuImages(
+    useMemo(
+      () => allNegocios.map((n) => n.sku_id).filter((v): v is number => typeof v === 'number'),
+      [allNegocios]
+    )
+  );
   const totalByColumn = useMemo(
     () => Object.fromEntries(cols.map((c) => [c.id, c.stageIds.reduce((a, s) => a + (totalByStage[s] ?? 0), 0)])),
     [cols, totalByStage]
