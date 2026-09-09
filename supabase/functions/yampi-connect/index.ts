@@ -616,9 +616,6 @@ Deno.serve(async (req: Request) => {
           const vars = { ...(((rule as { vars?: Record<string, unknown> }).vars) ?? {}), wa_template_name: sp.name, wa_params: sp.params, wa_button_url: true };
           const approved = status.toLowerCase() === 'approved';
           await supabase.from('leads_stages_followups').update({ template_id: templateId, vars, ...(approved ? { active: true } : {}) }).eq('id', (rule as { id: string }).id);
-        } else if (!rule && templateId) {
-          const last = results[results.length - 1];
-          if (last) last.status = `${last.status} · sem regra (disparo manual)`;
         }
       }
       return ok200({ ok: true, channel: ch.label, templates: results, hint: 'Templates aguardam aprovação da Meta (minutos a 24h). Quando aprovarem, a sincronização de templates ativa as regras WA-01/02/03 e PIX-WA sozinha.' });
