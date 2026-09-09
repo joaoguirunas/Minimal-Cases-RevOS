@@ -4,6 +4,10 @@
  * Lê o lead com o client DO USUÁRIO (RLS decide se ele pode ver) e, se o lead não tem dono,
  * assume via claim_lead. Cria na Yampi com service_role. 1 cupom ativo por lead (reaproveita).
  * Sempre HTTP 200 com { ok } exceto 401/403 — o front lê a mensagem.
+ *
+ * Códigos de erro: LEAD_INVISIVEL | JA_ASSUMIDO | PERCENT_INVALIDO | SEM_YAMPI | YAMPI_ERRO | DB_ERRO.
+ * DB_ERRO = a checagem de cupom ativo falhou; nada foi criado, dá pra tentar de novo.
+ * O front deve tratar código desconhecido caindo no campo `error`.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
@@ -52,6 +56,11 @@ Deno.serve(async (req) => {
     let lead = leadRaw as { id: string; user_id: string | null; people_id: string | null; title: string | null } | null;
     if (!lead) return json({ ok: false, code: 'LEAD_INVISIVEL', error: 'Carrinho não está disponível pra você.' });
 
+    // Antes do claim: sem Yampi não há cupom, e um claim é irreversível pelo front —
+    // falhar depois deixaria o comercial dono de um carrinho que ele não conseguiu trabalhar.
+    const bound = await createYampiClientForConnection(admin as never);
+    if (!bound) return json({ ok: false, code: 'SEM_YAMPI', error: 'Integração Yampi não conectada.' });
+
     if (!lead.user_id && !isAdmin) {
       const { data: claim } = await userClient.rpc('claim_lead', { p_lead_id: lead.id });
       const c = claim as { ok: boolean; reason?: string } | null;
@@ -61,17 +70,24 @@ Deno.serve(async (req) => {
     if (!isAdmin && lead.user_id !== meRow.id) return json({ ok: false, code: 'LEAD_INVISIVEL', error: 'Este carrinho é de outro comercial.' }, 403);
 
     // 1 cupom ativo por lead → devolve o existente.
-    const { data: existing } = await admin.from('crm_coupons').select('code, percent, expires_at')
+    // O `error` NÃO pode ser engolido: se esta query falhar (function no ar antes da migration,
+    // coluna renomeada), o guard some e cada clique cria um cupom novo na loja da cliente.
+    const { data: existing, error: exErr } = await admin.from('crm_coupons').select('code, percent, expires_at')
       .eq('lead_id', lead.id).gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (exErr) {
+      console.error('commercial-coupon-create: crm_coupons indisponível', exErr);
+      return json({ ok: false, code: 'DB_ERRO', error: 'Não consegui checar os cupons deste carrinho. Tente de novo em instantes.' });
+    }
     const ex = existing as { code: string; percent: number | null; expires_at: string } | null;
 
-    const bound = await createYampiClientForConnection(admin as never);
-    if (!bound) return json({ ok: false, code: 'SEM_YAMPI', error: 'Integração Yampi não conectada.' });
-
     const cart = lead.people_id ? await resolveCartForPerson(admin as never, lead.people_id) : null;
-    const { data: person } = await admin.from('clients_people').select('name').eq('id', lead.people_id ?? '').maybeSingle();
+    const person = lead.people_id
+      ? (await admin.from('clients_people').select('name').eq('id', lead.people_id).maybeSingle()).data
+      : null;
     const nome = ((person as { name: string | null } | null)?.name ?? 'cliente').split(/\s+/)[0];
 
+    // `reused` = já havia cupom ativo (deste lead, ou o mesmo código do mesmo cliente na Yampi).
+    // `expiresAt` é sempre a validade REAL — nunca now+dias quando o cupom já existia.
     let code = ex?.code ?? null, percent = ex?.percent ?? input.percent, expiresAt = ex?.expires_at ?? null, reused = !!ex;
     if (!ex) {
       try {
@@ -89,7 +105,11 @@ Deno.serve(async (req) => {
         source: 'manual', label: 'cupom_comercial', templateName: COMERCIAL_CUPOM_TEMPLATE_NAME,
       })
       : null;
-    if (tracked) await admin.from('tracked_links').update({ created_by: meRow.id }).eq('id', tracked.id);
+    if (tracked) {
+      const { error: linkErr } = await admin.from('tracked_links').update({ created_by: meRow.id }).eq('id', tracked.id);
+      // Não é motivo pra abortar (o link funciona), mas sem autor a comissão do clique se perde.
+      if (linkErr) console.warn('commercial-coupon-create: created_by do tracked_link falhou', { id: tracked.id, error: linkErr.message });
+    }
 
     const validade = expiresAt ? new Date(expiresAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' }) : '';
     // `||` e não `??`: título vazio / split sem sufixo devolvem '' (falsy), não null.
