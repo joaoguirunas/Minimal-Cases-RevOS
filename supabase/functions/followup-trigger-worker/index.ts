@@ -82,6 +82,16 @@ async function isSkuSoldOut(supabase: never, skuId: number): Promise<boolean> {
  * - whatsapp_template: dispara diretamente via whatsapp-outbound (sem N8N).
  * - outros canais: POST para webhooks ativos de event_type='followup'.
  */
+/**
+ * Quantos toques o worker tira da fila por invocação. O cron roda de minuto em
+ * minuto, então isto é a vazão por minuto. FOLLOWUP_BATCH_LIMIT permite frear a
+ * esteira sem deploy — ex.: '1' para um envio por minuto num lote de validação.
+ */
+const BATCH_LIMIT = (() => {
+  const raw = Number(Deno.env.get('FOLLOWUP_BATCH_LIMIT') ?? '');
+  return Number.isFinite(raw) && raw >= 1 && raw <= 200 ? Math.floor(raw) : 50;
+})();
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -166,7 +176,7 @@ serve(async (req) => {
     // FOR UPDATE SKIP LOCKED). Evita que duas invocações concorrentes (ex.: cron + chamada manual)
     // peguem a mesma entrada e disparem a mesma mensagem duas vezes.
     const { data: queue, error: qError } = await supabase
-      .rpc('claim_followup_queue_batch', { p_limit: 50 });
+      .rpc('claim_followup_queue_batch', { p_limit: BATCH_LIMIT });
 
     if (qError) throw qError;
 
