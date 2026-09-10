@@ -101,7 +101,20 @@ async function couponOwnerFromDb(supabase: SupabaseClient, code: string): Promis
   return { peopleId: row.people_id, expiresAt: row.expires_at };
 }
 
-const fmtYampi = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
+/**
+ * A Yampi lê `start_at`/`end_at` no fuso da loja (America/Sao_Paulo) e não aceita
+ * offset. Formatar com toISOString() mandava UTC: um cupom criado 11h nascia
+ * válido só às 14h — o cliente recebia um código que a loja recusava por 3 horas.
+ * 'sv-SE' já formata como "YYYY-MM-DD HH:MM:SS".
+ */
+const SP_FMT = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'America/Sao_Paulo',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+});
+const fmtYampi = (d: Date) => SP_FMT.format(d).replace('T', ' ');
+/** Margem pra trás no start_at: relógio da loja x nosso não precisam bater no segundo. */
+const START_MARGIN_MS = 10 * 60_000;
 
 export async function createPersonalCoupon(
   supabase: SupabaseClient, client: YampiApiClient, opts: CreateCouponOpts,
@@ -119,7 +132,8 @@ export async function createPersonalCoupon(
       code, discount_type: 'p', value: opts.percent, quantity: 1,
       min_value: 0, // obrigatório na Yampi (422 sem ele)
       once_per_customer: true, accumulate: false, free_shipment: opts.freeShipping === true,
-      abandoned_cart: false, active: true, start_at: fmtYampi(now), end_at: fmtYampi(end),
+      abandoned_cart: false, active: true,
+      start_at: fmtYampi(new Date(now.getTime() - START_MARGIN_MS)), end_at: fmtYampi(end),
     });
   }
   await supabase.from('crm_coupons').upsert(
