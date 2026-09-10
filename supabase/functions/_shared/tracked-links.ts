@@ -120,15 +120,26 @@ export interface PersonCart {
   pagamentoRecusado: boolean;
 }
 
-const MODEL_RE = /\b((?:iPhone|Galaxy|Samsung|Motorola|Moto|Xiaomi|Redmi|Poco|Pixel)\b[^,/|]*?)\s*$/i;
+// Marca + modelo no FIM do título. Os títulos da Minimal repetem a marca ("Case
+// iPhone em Tecido … iPhone 16 Pro"), então casamos a ÚLTIMA ocorrência: a âncora
+// $ com quantificador lazy pegava a primeira e deixava produto="Case".
+const BRAND_RE = /\b(?:iPhone|Galaxy|Samsung|Motorola|Moto|Xiaomi|Redmi|Poco|Pixel)\b[^,/|]*$/gi;
 
 /** Separa "Case … Azul iPhone 17 Pro Max" em produto + modelo (best-effort). */
 export function splitProductModel(title: string): { produto: string; modelo: string | null } {
-  const m = title.match(MODEL_RE);
-  if (!m) return { produto: title.trim(), modelo: null };
-  const modelo = m[1].trim();
-  const produto = title.slice(0, m.index).trim().replace(/[-–—]\s*$/, '').trim();
-  return { produto: produto || title.trim(), modelo };
+  const t = (title ?? '').trim();
+  // Última ocorrência da marca que ainda alcança o fim do título, e só quando o
+  // trecho tem um número (modelo de celular tem: "iPhone 16 Pro", "S22 Ultra").
+  let cut = -1;
+  BRAND_RE.lastIndex = 0;
+  for (let m = BRAND_RE.exec(t); m !== null; m = BRAND_RE.exec(t)) {
+    if (/\d/.test(m[0])) cut = m.index;
+    BRAND_RE.lastIndex = m.index + 1;
+  }
+  if (cut < 0) return { produto: t, modelo: null };
+  const modelo = t.slice(cut).trim();
+  const produto = t.slice(0, cut).trim().replace(/[-–—]\s*$/, '').trim();
+  return { produto: produto || t, modelo };
 }
 
 export function formatBRL(v: number | null | undefined): string {
