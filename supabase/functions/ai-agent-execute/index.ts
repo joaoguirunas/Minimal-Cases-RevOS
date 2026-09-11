@@ -508,6 +508,22 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
+    name: 'enviar_botoes',
+    description: 'Sends WhatsApp interactive quick-reply buttons (max 3). Use to open a service conversation with a menu instead of a wall of text — e.g. greeting someone who has an order in progress: body "Como posso te ajudar hoje?" with buttons ["Meu pedido","Prazo de entrega","Falar com o time"]. The button label comes back as the contact\'s next message, so keep labels literal. Do NOT use for scheduling time slots (use enviar_opcoes_horario) and do not repeat the body as plain text afterwards.',
+    parameters: {
+      type: 'object',
+      properties: {
+        body: { type: 'string', description: 'Message shown above the buttons. 1-2 short sentences, may include an emoji.' },
+        opcoes: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Up to 3 button labels, each max 20 characters.',
+        },
+      },
+      required: ['body', 'opcoes'],
+    },
+  },
+  {
     name: 'enviar_opcoes_horario',
     description: 'Sends WhatsApp interactive quick-reply buttons with time slot options. Use this INSTEAD of listing slots as text. Call after consultar_disponibilidade returns available slots. Use exactly the 2 slots returned — do not add more. Max 20 chars per option.',
     parameters: {
@@ -1204,6 +1220,22 @@ async function loadContext(
           linhas.push(`Pagamento pendente: pedido ${pend?.numeroPedido ?? pendente.order_id ?? ''} via ${pend?.metodo ?? pendente.trigger}${exp ? ` · Pix ${vencido ? 'VENCIDO' : 'válido até ' + exp}` : ''}${pend?.reorderUrl ? ' · dá pra recriar o carrinho (yampi_consultar_pix_pendente manda o link novo)' : ''}. Use yampi_consultar_pix_pendente para o código/link antes de insistir.`);
         }
         if (pago && (!pendente || pago.created_at > pendente.created_at)) linhas.push(`Pedido ${pago.order_id ?? ''} já PAGO — não venda de novo; ajude com rastreio/entrega (yampi_consultar_pedido).`);
+
+        // SAC-04 — pedido em andamento mudam a abertura: quem já comprou não é
+        // carrinho abandonado, e abrir com link de checkout entrega que é robô.
+        const statusEv = ((evs ?? []) as any[]).find((e) => e.trigger === 'pedido_status_atualizado');
+        const cancelado = ((evs ?? []) as any[]).find((e) => e.trigger === 'pedido_cancelado');
+        if (statusEv && !cancelado) {
+          const r = ((statusEv.raw_payload ?? {}).resource ?? {}) as Record<string, any>;
+          const nomeStatus = r?.status?.data?.name ?? r?.status?.data?.alias ?? null;
+          if (nomeStatus && r?.delivered !== true) {
+            linhas.push(
+              `PEDIDO EM ANDAMENTO: ${r.number ?? statusEv.order_id} · ${nomeStatus}` +
+              `${r.track_code ? ` · rastreio ${r.track_code}` : ''}. ` +
+              'Esta pessoa é CLIENTE, não carrinho abandonado — siga a regra "ABERTURA COM PEDIDO EM ANDAMENTO" e nunca abra com link de carrinho.',
+            );
+          }
+        }
       }
       if (linhas.length > 0) ctx.contexto_loja = linhas.join('\n');
 
@@ -1825,7 +1857,7 @@ async function callOpenAICompat(
   maxTokens: number,
   messages: LLMMessage[],
   tools: ToolDefinition[],
-  toolChoice: 'auto' | 'required' = 'auto',
+  toolChoice: 'auto' | 'required' | { type: 'function'; function: { name: string } } = 'auto',
 ): Promise<LLMResponse> {
   // GPT-5.x+ e da familia o* usam max_completion_tokens no lugar de max_tokens,
   // e so aceitam a temperatura padrao (1): mandar 0.4 devolve
@@ -2867,15 +2899,39 @@ async function executeTool(
               const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
                 .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
                 .filter(Boolean).slice(0, 5);
+              // Data da Yampi vem como {date:"YYYY-MM-DD HH:MM:SS", timezone:...}.
+              const dataBR = (v: unknown) => {
+                const raw = ((v ?? {}) as Record<string, unknown>).date ?? v;
+                if (typeof raw !== 'string') return null;
+                const [y, m, d] = raw.slice(0, 10).split('-');
+                return y && m && d ? `${d}/${m}/${y}` : null;
+              };
+              const end = (((order.shipping_address as Record<string, unknown> | undefined)?.data
+                ?? order.shipping_address ?? {}) as Record<string, unknown>);
+              const pgto = Array.isArray(order.payments)
+                ? (order.payments as Array<Record<string, unknown>>).map((p) => p.name).filter(Boolean).join(', ')
+                : null;
+              const historico = (((order.statuses as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
+                .map((s) => ({ status: s.name, em: dataBR(s.created_at) }))
+                .slice(-4);
               return JSON.stringify({
                 fonte: 'loja',
                 pedido: order.number ?? order.id,
                 status: status ?? 'desconhecido',
-                total: order.value_total ?? '',
-                itens: items,
+                entregue: order.delivered ?? null,
+                previsao_entrega: dataBR(order.date_delivery),
+                prazo_frete: order.shipment_service ?? null,
                 rastreio_codigo: order.track_code ?? null,
                 rastreio_url: order.track_url ?? null,
-                entregue: order.delivered ?? null,
+                cidade_uf: end.city ? `${end.city}/${end.uf ?? ''}`.replace(/\/$/, '') : null,
+                itens: items,
+                total: order.value_total ?? '',
+                frete: order.value_shipment ?? null,
+                desconto: order.value_discount ?? null,
+                pagamento: pgto || null,
+                comprado_em: dataBR(order.created_at),
+                historico,
+                instrucao: 'Responda em 1 frase com o que foi perguntado. A previsão de entrega é estimativa da transportadora — apresente como "previsto para", nunca como garantia. Nunca invente data que não esteja aqui.',
               });
             } catch (e) {
               // 403 (credencial sem permissão de Pedidos) ou API fora: cai pro webhook.
@@ -2920,19 +2976,42 @@ async function executeTool(
         const cancelado = doMesmoPedido.some((e) => e.trigger === 'pedido_cancelado');
         const pago = doMesmoPedido.some((e) => e.trigger === 'pedido_pago');
 
+        // Mesmos campos da via API: o payload do webhook é o mesmo recurso `order`.
+        const dataBRw = (v: unknown) => {
+          const raw = ((v ?? {}) as Record<string, unknown>).date ?? v;
+          if (typeof raw !== 'string') return null;
+          const [y, m, d] = raw.slice(0, 10).split('-');
+          return y && m && d ? `${d}/${m}/${y}` : null;
+        };
+        const endW = rec(rec(recurso.shipping_address).data ?? recurso.shipping_address);
+        const pgtoW = Array.isArray(recurso.payments)
+          ? (recurso.payments as Array<Record<string, unknown>>).map((p) => p.name).filter(Boolean).join(', ')
+          : null;
+        const histW = ((rec(recurso.statuses).data ?? []) as Array<Record<string, unknown>>)
+          .map((s) => ({ status: s.name, em: dataBRw(s.created_at) }))
+          .slice(-4);
+
         return JSON.stringify({
           fonte: 'crm',
           pedido: recurso.number ?? alvo.order_id,
           status: (statusData.name ?? statusData.alias ?? (cancelado ? 'cancelado' : pago ? 'pago' : 'desconhecido')) as string,
           pago,
           cancelado,
-          total: recurso.value_total ?? '',
-          itens,
+          entregue: recurso.delivered ?? null,
+          previsao_entrega: dataBRw(recurso.date_delivery),
+          prazo_frete: recurso.shipment_service ?? null,
           rastreio_codigo: recurso.track_code ?? null,
           rastreio_url: recurso.track_url ?? null,
-          entregue: recurso.delivered ?? null,
+          cidade_uf: endW.city ? `${endW.city}/${endW.uf ?? ''}`.replace(/\/$/, '') : null,
+          itens,
+          total: recurso.value_total ?? '',
+          frete: recurso.value_shipment ?? null,
+          desconto: recurso.value_discount ?? null,
+          pagamento: pgtoW || null,
+          comprado_em: dataBRw(recurso.created_at),
+          historico: histW,
           atualizado_em: alvo.created_at,
-          instrucao: 'Diga o status em 1 frase. Se houver rastreio, mande o código; o link vai em mensagem separada se você chamar a tool de link. Nunca prometa data de entrega que não esteja aqui.',
+          instrucao: 'Responda em 1 frase o que foi perguntado. A previsão de entrega é estimativa da transportadora — diga "previsto para", nunca prometa. Nunca invente data que não esteja aqui.',
         });
       }
 
@@ -3033,6 +3112,42 @@ async function executeTool(
           return `Error: whatsapp-outbound responded ${waRes.status}: ${errBody.slice(0, 200)}`;
         }
         return `WhatsApp conversation initiated with template "${templateName}" to ${toNumber}`;
+      }
+
+      // SAC-03 — botões de resposta rápida genéricos. Mesmo canal do
+      // enviar_opcoes_horario (whatsapp-outbound resolve Meta/Evolution pelo
+      // active_channel_id da pessoa); o que muda é só não ter nada a ver com
+      // agenda. O rótulo do botão volta como a próxima mensagem do contato.
+      case 'enviar_botoes': {
+        const bBody = String(args.body ?? '').trim();
+        if (!bBody) return 'Error: body is required';
+        const bOpcoes = ((args.opcoes as string[]) ?? [])
+          .slice(0, 3)
+          .map((o: string) => String(o).trim().slice(0, 20))
+          .filter(Boolean);
+        if (bOpcoes.length === 0) return 'Error: opcoes must have at least 1 item';
+        const bTo = ctx.whatsapp ?? '';
+        if (!bTo) return 'Error: missing WhatsApp phone context (whatsapp)';
+        const bRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-outbound`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: JSON.stringify({
+            to: bTo,
+            people_id: ctx.pessoa_id,
+            lead_id: leadId,
+            messages: [{ type: 'interactive', body: bBody, buttons: bOpcoes }],
+          }),
+        });
+        if (!bRes.ok) {
+          const errBody = await bRes.text().catch(() => '');
+          return `Error: whatsapp-outbound responded ${bRes.status}: ${errBody.slice(0, 200)}`;
+        }
+        // Suprime o texto final: os botões já carregam o corpo da mensagem.
+        ctx.__interactive_sent = 'true';
+        return `Botões enviados: ${bOpcoes.join(' | ')}`;
       }
 
       case 'enviar_opcoes_horario': {
@@ -3349,6 +3464,14 @@ async function runAgenticLoop(
   const TIME_PATTERN = /\b\d{1,2}[:h]\d*\b|\bàs?\s+\d{1,2}\b|\bas\s+\d{1,2}\b|\b\d{1,2}\s*horas?\b/i;
   const messageHasTimeRef = !isButtonClick && TIME_PATTERN.test(currentMessage);
 
+  // SAC-05 — abertura de quem já comprou. O modelo entende a regra mas às vezes
+  // responde em texto e engole o menu, e aí o cliente recebe um "oi" sem saída.
+  // Quando a pessoa só cumprimenta e o contexto traz pedido em andamento, a
+  // chamada de `enviar_botoes` deixa de ser sugestão e vira obrigação.
+  const SAUDACAO_PURA = /^(oi+|ol[áa]+|opa+|e a[íi]|eai|bom dia|boa tarde|boa noite|hey|hi)[\s!.,?…]*$/i;
+  const temPedidoEmAndamento = String(ctx['contexto_loja'] ?? '').includes('PEDIDO EM ANDAMENTO');
+  const abrirComBotoes = !isButtonClick && temPedidoEmAndamento && SAUDACAO_PURA.test(currentMessage.trim());
+
   log?.info('loop_start', { provider: agent.llm_provider, model: agent.llm_model, memory_msgs: memory.length, msg_len: currentMessage.length, force_tool_iter1: messageHasTimeRef });
 
   while (iteration < MAX_TOOL_ITERATIONS) {
@@ -3358,8 +3481,9 @@ async function runAgenticLoop(
     // On the first iteration, if the lead mentioned a specific time and we haven't
     // queried availability yet, force a tool call so the LLM can't respond with plain text.
     const forceTools = messageHasTimeRef && iteration === 1 && !toolsUsed.includes('consultar_disponibilidade');
+    const forcarBotoes = abrirComBotoes && iteration === 1 && !toolsUsed.includes('enviar_botoes');
 
-    log?.debug('loop_iter', { iteration, max: MAX_TOOL_ITERATIONS, force_tools: forceTools });
+    log?.debug('loop_iter', { iteration, max: MAX_TOOL_ITERATIONS, force_tools: forceTools, forcar_botoes: forcarBotoes });
 
     let response: LLMResponse;
 
@@ -3372,7 +3496,7 @@ async function runAgenticLoop(
         systemPrompt,
         anthropicMessages,
         toolDefinitions,
-        forceTools,
+        forceTools || forcarBotoes,
       );
     } else {
       response = await callOpenAICompat(
@@ -3383,7 +3507,7 @@ async function runAgenticLoop(
         agent.llm_max_tokens,
         openaiMessages,
         toolDefinitions,
-        forceTools ? 'required' : 'auto',
+        forceTools ? 'required' : forcarBotoes ? { type: 'function' as const, function: { name: 'enviar_botoes' } } : 'auto',
       );
     }
 
