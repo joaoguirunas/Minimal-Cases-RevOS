@@ -97,7 +97,8 @@ interface ContextData {
   pipeline_etapas: string;
   // Pessoa
   pessoa_id: string;
-  nome: string;
+  nome: string;           // primeiro nome — é assim que o agente chama a pessoa
+  nome_completo: string;
   email: string;
   whatsapp: string;
   cargo: string;
@@ -1004,7 +1005,11 @@ async function loadContext(
 
   if (person) {
     ctx.pessoa_id = person.id ?? '';
-    ctx.nome = person.name ?? '';
+    // {{nome}} é como o agente chama a pessoa na conversa: primeiro nome, sempre.
+    // "Oi Hyago Silva!" não é como gente fala no WhatsApp.
+    const nomeCompleto = String((person as { name?: string }).name ?? '');
+    ctx.nome_completo = nomeCompleto;
+    ctx.nome = nomeCompleto.trim().split(/\s+/)[0] ?? '';
     ctx.email = person.email ?? '';
     ctx.whatsapp = person.whatsapp ?? '';
     ctx.score = String(person.score ?? '');
@@ -3219,8 +3224,10 @@ async function executeTool(
           const errBody = await lRes.text().catch(() => '');
           return `Error: whatsapp-outbound responded ${lRes.status}: ${errBody.slice(0, 200)}`;
         }
-        ctx.__interactive_sent = 'true';
-        return `Botão "${rotulo}" enviado com o texto acima. Não repita esse texto nem escreva a URL.`;
+        // De propósito NÃO seta __interactive_sent: diferente dos botões de resposta
+        // rápida, aqui o texto da resposta (o status do pedido) é outra mensagem e
+        // precisa sair. Suprimir deixava o cliente só com "Dá pra acompanhar aqui:".
+        return `Botão "${rotulo}" enviado com o texto acima. Agora escreva a resposta com o status — ela sai como mensagem separada. Não repita a frase do botão nem escreva a URL.`;
       }
 
       // SAC-03 — botões de resposta rápida genéricos. Mesmo canal do
