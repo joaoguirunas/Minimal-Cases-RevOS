@@ -509,6 +509,19 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
+    name: 'buscar_no_catalogo',
+    description: 'Searches the Minimal Cases catalog by phone model, color and/or a free term, independent of what is in the cart. Use whenever the contact asks what exists ("que capinha amarela tem pro iPhone 14?", "tem de couro pro S24?", "quais cores pro 15 Pro Max?"). Returns matching variants with price, stock and sku_id, and — when the color has no match — the colors that DO exist for that model, so you can offer alternatives instead of just saying no. To send a checkout for one of them, call yampi_enviar_link_pagamento with the sku_id.',
+    parameters: {
+      type: 'object',
+      properties: {
+        modelo: { type: 'string', description: 'Phone model as the contact said it (e.g. "iPhone 14", "Galaxy S24 Ultra").' },
+        cor: { type: 'string', description: 'Color the contact wants (e.g. "amarelo", "verde", "couro preto").' },
+        termo: { type: 'string', description: 'Optional free term for the product line (e.g. "couro", "transparente", "anti impacto", "MagSafe").' },
+      },
+      required: [],
+    },
+  },
+  {
     name: 'enviar_botao_pedido',
     description: 'Sends a WhatsApp message with a tappable button that opens the contact\'s order on the Minimal Cases site, already loaded — order number, items, address, value and the delivery timeline. You never pass a URL: it is built from the order itself. Use right after telling the status, never instead of telling it. If the order has no tracking code yet the tool says so — then just explain the code comes when it ships, and send no button.',
     parameters: {
@@ -3187,6 +3200,75 @@ async function executeTool(
       // fixa. Assim ele não tem como inventar link, que é o risco de deixar
       // URL livre numa tool. Um botão por mensagem — a Meta não aceita dois
       // fora de template.
+      // SAC-07 — busca aberta no catálogo. O `q` da Yampi casa cor e modelo no
+      // nível do PRODUTO (392 deles), então uma chamada traz os candidatos e o
+      // filtro fino sai das variações dos SKUs. Varrer /catalog/skus direto seria
+      // inviável: são 21.777, mais de 200 páginas.
+      case 'buscar_no_catalogo': {
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const bound = await createYampiClientForConnection(supabase as never);
+        if (!bound) return 'Integração Yampi não está conectada.';
+
+        const norm = (v: unknown) => String(v ?? '')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cModelo = String(args.modelo ?? '').trim();
+        const cCor = String(args.cor ?? '').trim();
+        const cTermo = String(args.termo ?? '').trim();
+        const busca = cTermo || cCor || cModelo;
+        if (!busca) return 'Error: informe pelo menos modelo, cor ou termo.';
+
+        try {
+          const res = await bound.client.request<{ data?: Array<Record<string, unknown>> }>(
+            'GET', '/catalog/products', { query: { q: busca, limit: '25', include: 'skus' } },
+          );
+          type Sku = { id: number; price_discount?: number; price_sale?: number; total_in_stock?: number; blocked_sale?: boolean; variations?: Array<{ name?: string; value?: string }> };
+          const alvoMod = norm(cModelo);
+          const alvoCor = norm(cCor);
+          const achados: Array<Record<string, unknown>> = [];
+          const coresDoModelo = new Set<string>();
+
+          for (const prod of (res.data ?? [])) {
+            const nomeProd = String(prod.name ?? '');
+            const skus = (((prod.skus as Record<string, unknown> | undefined)?.data ?? []) as Sku[]).filter((sk) => !sk.blocked_sale);
+            for (const sk of skus) {
+              const vs = sk.variations ?? [];
+              const cor = vs.find((v) => /cor|color/i.test(v.name ?? ''))?.value ?? '';
+              const mod = vs.find((v) => /modelo|aparelho|celular|compat/i.test(v.name ?? ''))?.value ?? '';
+              const m = norm(mod);
+              const modeloBate = !alvoMod || (m && (m === alvoMod || m.endsWith(alvoMod) || alvoMod.endsWith(m)));
+              if (!modeloBate) continue;
+              if (cor) coresDoModelo.add(cor);
+              if (alvoCor && !norm(cor).includes(alvoCor)) continue;
+              achados.push({
+                produto: nomeProd, cor, modelo: mod, sku_id: sk.id,
+                preco: sk.price_discount || sk.price_sale || null,
+                em_estoque: (sk.total_in_stock ?? 0) > 0,
+              });
+            }
+          }
+
+          if (achados.length === 0) {
+            return JSON.stringify({
+              encontrados: 0,
+              cores_disponiveis: [...coresDoModelo].slice(0, 20),
+              instrucao: coresDoModelo.size > 0
+                ? 'Não temos essa cor nesse modelo. Diga isso em 1 frase e ofereça as cores que existem — nunca apenas "não temos".'
+                : 'Nada encontrado com esses termos. Pergunte o modelo exato do celular antes de tentar de novo.',
+            });
+          }
+
+          const emEstoque = achados.filter((a) => a.em_estoque);
+          return JSON.stringify({
+            encontrados: achados.length,
+            opcoes: (emEstoque.length > 0 ? emEstoque : achados).slice(0, 8),
+            instrucao: 'Cite no máximo 3 opções, com nome e preço, em 1 ou 2 frases. Pergunte qual ela quer e só então chame yampi_enviar_link_pagamento com o sku_id escolhido. Nunca liste tudo nem invente cor ou modelo que não esteja aqui.',
+          });
+        } catch (e) {
+          return `Erro ao buscar no catálogo: ${(e as Error).message}`;
+        }
+      }
+
       case 'enviar_botao_pedido': {
         const lTexto = String(args.texto ?? '').trim();
         if (!lTexto) return 'Error: texto is required';
