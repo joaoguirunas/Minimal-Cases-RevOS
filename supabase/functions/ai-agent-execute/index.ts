@@ -508,15 +508,14 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
-    name: 'enviar_botao_link',
-    description: 'Sends a WhatsApp message with a single tappable link button about the contact\'s order. You never pass a URL — choose `destino` and the URL is resolved from the order itself: "rastreio" opens the carrier tracking page for this order, "site" opens Minimal Cases\' own order-tracking page. WhatsApp allows only ONE link button per message, so send one, and only send the second if the contact asks. Use after telling the status, never instead of telling it.',
+    name: 'enviar_botao_pedido',
+    description: 'Sends a WhatsApp message with a tappable button that opens the contact\'s order on the Minimal Cases site, already loaded — order number, items, address, value and the delivery timeline. You never pass a URL: it is built from the order itself. Use right after telling the status, never instead of telling it. If the order has no tracking code yet the tool says so — then just explain the code comes when it ships, and send no button.',
     parameters: {
       type: 'object',
       properties: {
         texto: { type: 'string', description: 'Short line shown above the button (1 sentence).' },
-        destino: { type: 'string', enum: ['rastreio', 'site'], description: '"rastreio" = carrier tracking page for this order. "site" = minimalcases.com.br tracking page.' },
       },
-      required: ['texto', 'destino'],
+      required: ['texto'],
     },
   },
   {
@@ -2004,16 +2003,22 @@ function phoneTail(v: string | null | undefined): string {
   return String(v ?? '').replace(/\D/g, '').slice(-8);
 }
 
-/** Página de rastreio da própria loja — destino do botão "Ver no site". */
-const SITE_RASTREIO_URL = 'https://minimalcases.com.br/pages/rastreio';
+/**
+ * Página de acompanhamento da própria loja (plugin Reportana). Com `?code=<rastreio>`
+ * ela abre o pedido já carregado — número, endereço, itens, valor e a linha do tempo
+ * ("Preparando envio" → "Em trânsito" → "Saiu para entrega" → "Entregue"). É muito
+ * melhor que o link cru da transportadora, que para pedido recém-postado mostra
+ * "No tracking updates yet" e deixa o cliente achando que sumiu.
+ */
+const SITE_PEDIDO_URL = 'https://minimalcases.com.br/pages/rastreie-seu-pedido';
 
 /**
- * URL de rastreio do pedido mais recente do contato. Mesma ordem de fontes da
+ * Código de rastreio do pedido mais recente do contato. Mesma ordem de fontes da
  * yampi_consultar_pedido: API da loja primeiro (alcança pedido de qualquer
  * época) e, se a credencial não tiver permissão de Pedidos, os webhooks já
  * guardados. null quando o pedido ainda não foi postado.
  */
-async function resolveTrackUrlForPerson(
+async function resolveTrackCodeForPerson(
   supabase: ReturnType<typeof createClient>,
   peopleId: string,
   ctx: { email?: string; whatsapp?: string },
@@ -2030,7 +2035,7 @@ async function resolveTrackUrlForPerson(
           const cEmail = String(c.email ?? '').toLowerCase().trim();
           const alvo = (ctx.email ?? '').toLowerCase().trim();
           if (alvo && cEmail !== alvo) continue;
-          if (typeof o.track_url === 'string' && o.track_url) return o.track_url;
+          if (typeof o.track_code === 'string' && o.track_code) return o.track_code;
         }
       }
     }
@@ -2045,7 +2050,7 @@ async function resolveTrackUrlForPerson(
   for (const ev of (evRows ?? []) as Array<{ raw_payload: Record<string, unknown> }>) {
     if (!yampiEventMatchesContact(ev.raw_payload, ctx)) continue;
     const r = ((ev.raw_payload.resource ?? {}) as Record<string, unknown>);
-    if (typeof r.track_url === 'string' && r.track_url) return r.track_url;
+    if (typeof r.track_code === 'string' && r.track_code) return r.track_code;
   }
   return null;
 }
@@ -3177,30 +3182,24 @@ async function executeTool(
       // fixa. Assim ele não tem como inventar link, que é o risco de deixar
       // URL livre numa tool. Um botão por mensagem — a Meta não aceita dois
       // fora de template.
-      case 'enviar_botao_link': {
+      case 'enviar_botao_pedido': {
         const lTexto = String(args.texto ?? '').trim();
-        const lDestino = String(args.destino ?? '').trim();
         if (!lTexto) return 'Error: texto is required';
-        if (lDestino !== 'rastreio' && lDestino !== 'site') return 'Error: destino must be "rastreio" or "site"';
         const lTo = ctx.whatsapp ?? '';
         if (!lTo) return 'Error: missing WhatsApp phone context (whatsapp)';
 
-        let destinoUrl = SITE_RASTREIO_URL;
-        let rotulo = 'Ver no site';
-        if (lDestino === 'rastreio') {
-          const rastreio = await resolveTrackUrlForPerson(supabase, ctx.pessoa_id, ctx);
-          if (!rastreio) {
-            return 'Este pedido ainda não tem código de rastreio. Diga isso ao contato e ofereça o destino "site" ou avise que o código chega assim que postar — não mande botão de rastreio.';
-          }
-          destinoUrl = rastreio;
-          rotulo = 'Rastrear pedido';
+        const codigo = await resolveTrackCodeForPerson(supabase, ctx.pessoa_id, ctx);
+        if (!codigo) {
+          return 'Este pedido ainda não tem código de rastreio, então não há o que acompanhar na página. Diga ao contato que o código chega assim que o pedido for postado e NÃO mande botão nenhum.';
         }
+        const destinoUrl = `${SITE_PEDIDO_URL}?code=${encodeURIComponent(codigo)}`;
+        const rotulo = 'Acompanhar pedido';
 
         // Link rastreado: mantém a atribuição de clique igual à dos outros links.
         const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
         const tracked = await createTrackedLinkDetailed(supabase as never, {
           destination: destinoUrl, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
-          source: 'agente', label: `botao_${lDestino}`, executionId: ctx.__execution_id || null,
+          source: 'agente', label: 'botao_pedido', executionId: ctx.__execution_id || null,
         });
 
         const lRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-outbound`, {
