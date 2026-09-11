@@ -2831,13 +2831,39 @@ async function executeTool(
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
         if (bound) {
-          const chaves = [emailInformado, ctx.email, ctx.whatsapp].filter(Boolean) as string[];
+          // O `q` de /orders não acha o telefone com DDD — só os 9 dígitos finais
+          // (verificado em 3 clientes reais: 27998925849 → 0, 998925849 → 1). Já o
+          // /checkout/carts quer o contrário, o número cheio. Por isso as duas formas
+          // entram aqui, e só aqui.
+          const fone = String(ctx.whatsapp ?? '').replace(/\D/g, '');
+          const chaves = [...new Set(
+            [emailInformado, ctx.email, fone.slice(-9), fone].filter((v) => !!v && v.length >= 5),
+          )] as string[];
           for (const q of chaves) {
             try {
-              const orders = await bound.client.searchOrders(q, 3);
-              const order = orders[0] as Record<string, unknown> | undefined;
+              const orders = await bound.client.searchOrders(q, 5, 'transactions,items,status,customer');
+              // `q` é busca textual ampla (o nome do cliente também casa). Devolver o
+              // pedido de outra pessoa num SAC é vazamento — então só vale pedido cujo
+              // e-mail ou final de telefone bate com o contato.
+              // Telefone comparado em DDD + 9 dígitos, não no rabo de 8 do phoneTail:
+              // num SAC, dois números de DDDs diferentes com o mesmo final entregariam
+              // o pedido de um estranho.
+              const foneFull = (v: unknown) => {
+                const d = String(v ?? '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
+                return d.length >= 10 ? d.slice(-11) : '';
+              };
+              const alvoFone = foneFull(ctx.whatsapp);
+              const alvoEmail = (emailInformado ?? ctx.email ?? '').toLowerCase().trim();
+              const order = (orders as Array<Record<string, unknown>>).find((o) => {
+                const c = (((o.customer as Record<string, unknown> | undefined)?.data ?? {}) as Record<string, unknown>);
+                const cEmail = String(c.email ?? '').toLowerCase().trim();
+                const cFone = foneFull(((c.phone ?? {}) as Record<string, unknown>).full_number);
+                return (!!alvoEmail && cEmail === alvoEmail) || (!!alvoFone && cFone === alvoFone);
+              });
               if (!order) continue;
-              const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias ?? order.status) as string | undefined;
+              const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.name
+                ?? ((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias
+                ?? order.status) as string | undefined;
               const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
                 .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
                 .filter(Boolean).slice(0, 5);
