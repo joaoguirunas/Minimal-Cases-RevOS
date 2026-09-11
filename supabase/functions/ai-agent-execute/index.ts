@@ -3190,44 +3190,26 @@ async function executeTool(
       case 'enviar_botao_pedido': {
         const lTexto = String(args.texto ?? '').trim();
         if (!lTexto) return 'Error: texto is required';
-        const lTo = ctx.whatsapp ?? '';
-        if (!lTo) return 'Error: missing WhatsApp phone context (whatsapp)';
+        if (!ctx.whatsapp) return 'Error: missing WhatsApp phone context (whatsapp)';
 
         const codigo = await resolveTrackCodeForPerson(supabase, ctx.pessoa_id, ctx);
         if (!codigo) {
           return 'Este pedido ainda não tem código de rastreio, então não há o que acompanhar na página. Diga ao contato que o código chega assim que o pedido for postado e NÃO mande botão nenhum.';
         }
-        const destinoUrl = `${SITE_PEDIDO_URL}?code=${encodeURIComponent(codigo)}`;
-        const rotulo = 'Acompanhar pedido';
 
-        // Link rastreado: mantém a atribuição de clique igual à dos outros links.
+        // Não envia agora: o botão é AGENDADO para depois do texto final (etapa 10e).
+        // Enviar dentro do loop de tools fazia ele chegar antes da resposta, e o
+        // cliente via "Dá pra acompanhar aqui:" sem saber onde o pedido estava.
         const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+        const destinoUrl = `${SITE_PEDIDO_URL}?code=${encodeURIComponent(codigo)}`;
         const tracked = await createTrackedLinkDetailed(supabase as never, {
           destination: destinoUrl, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
           source: 'agente', label: 'botao_pedido', executionId: ctx.__execution_id || null,
         });
-
-        const lRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-outbound`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-          },
-          body: JSON.stringify({
-            to: lTo,
-            people_id: ctx.pessoa_id,
-            lead_id: leadId,
-            messages: [{ type: 'cta_url', text: lTexto, url: tracked?.url ?? destinoUrl, button_text: rotulo }],
-          }),
-        });
-        if (!lRes.ok) {
-          const errBody = await lRes.text().catch(() => '');
-          return `Error: whatsapp-outbound responded ${lRes.status}: ${errBody.slice(0, 200)}`;
-        }
-        // De propósito NÃO seta __interactive_sent: diferente dos botões de resposta
-        // rápida, aqui o texto da resposta (o status do pedido) é outra mensagem e
-        // precisa sair. Suprimir deixava o cliente só com "Dá pra acompanhar aqui:".
-        return `Botão "${rotulo}" enviado com o texto acima. Agora escreva a resposta com o status — ela sai como mensagem separada. Não repita a frase do botão nem escreva a URL.`;
+        ctx.__pending_order_url = tracked?.url ?? destinoUrl;
+        ctx.__pending_order_text = lTexto;
+        ctx.__pending_order_link_id = tracked?.id ?? '';
+        return 'Botão "Acompanhar pedido" agendado — ele sai DEPOIS da sua resposta. Agora escreva a resposta completa com o status, seguindo a estrutura das três partes. Não repita a frase do botão nem escreva a URL.';
       }
 
       // SAC-03 — botões de resposta rápida genéricos. Mesmo canal do
@@ -4426,6 +4408,40 @@ Deno.serve(async (req: Request) => {
         log.info('purchase_url_sent', { url: ctx.__pending_purchase_url });
         const linkId = ctx.__pending_purchase_link_id;
         const msgId = (purchaseInserted as { id?: number } | null)?.id;
+        if (linkId && msgId) {
+          const { attachTrackedLinkMessage } = await import('../_shared/tracked-links.ts');
+          await attachTrackedLinkMessage(supabase as never, linkId, msgId);
+        }
+      }
+    }
+
+    // 10e. Botão "Acompanhar pedido" — depois do texto, de propósito: primeiro o
+    // cliente lê onde o pedido está, depois recebe o botão para ver o detalhe.
+    if (ctx.__pending_order_url) {
+      const waPhoneIdForOrder = inboundWaPhoneNumberId ?? agent.wa_phone_number_id ?? null;
+      const orderChannel = inboundChannelType === 'instagram' ? 'instagram' : 'whatsapp';
+      const isWaOrder = orderChannel === 'whatsapp';
+      const { data: orderInserted, error: orderInsertError } = await supabase.from('messages').insert({
+        people_id: peopleId,
+        lead_id: leadId,
+        content: isWaOrder ? (ctx.__pending_order_text || 'Dá pra acompanhar tudo por aqui 👇') : ctx.__pending_order_url,
+        from_contact: 'agente_ia',
+        source_type: 'ai_agent',
+        channel: orderChannel,
+        status: 'pending',
+        message_type: 'texto',
+        media_metadata: isWaOrder
+          ? { cta_url: { url: ctx.__pending_order_url, button_text: 'Acompanhar pedido' } }
+          : null,
+        execution_id: executionId,
+        wa_phone_number_id: waPhoneIdForOrder,
+      }).select('id').single();
+      if (orderInsertError) {
+        log.error('order_button_insert_failed', { error: orderInsertError.message });
+      } else {
+        log.info('order_button_sent', { url: ctx.__pending_order_url });
+        const linkId = ctx.__pending_order_link_id;
+        const msgId = (orderInserted as { id?: number } | null)?.id;
         if (linkId && msgId) {
           const { attachTrackedLinkMessage } = await import('../_shared/tracked-links.ts');
           await attachTrackedLinkMessage(supabase as never, linkId, msgId);
