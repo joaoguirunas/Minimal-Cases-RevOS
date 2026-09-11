@@ -177,13 +177,15 @@ async function deliverWhatsApp(
       // texto normal na tabela (message_type 'texto'), o botao e so a forma de
       // entrega — assim nao precisa de novo valor no CHECK de message_type.
       const ctaMeta = (msg.media_metadata as Record<string, unknown> | null)?.cta_url as
-        { url?: string; button_text?: string } | undefined;
+        { url?: string; button_text?: string; image?: string } | undefined;
       if (ctaMeta?.url) {
         return {
           type: 'cta_url',
           text: msg.content,
           url: ctaMeta.url,
           button_text: ctaMeta.button_text ?? 'Abrir link',
+          // Com imagem vira card de produto: foto + descrição + botão.
+          ...(ctaMeta.image ? { image: ctaMeta.image } : {}),
         };
       }
       if (msg.media_url) {

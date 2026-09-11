@@ -491,6 +491,7 @@ async function sendCtaUrlToMeta(
   body: string,
   linkUrl: string,
   buttonText: string,
+  imageUrl?: string,
 ): Promise<MetaResult> {
   const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${phoneNumberId}/messages`;
   const payload = {
@@ -500,6 +501,8 @@ async function sendCtaUrlToMeta(
     type: 'interactive',
     interactive: {
       type: 'cta_url',
+      // Header de imagem: vira card com foto + texto + botão numa mensagem só.
+      ...(imageUrl ? { header: { type: 'image', image: { link: imageUrl } } } : {}),
       body: { text: body.slice(0, 1024) },
       action: {
         name: 'cta_url',
@@ -1293,7 +1296,7 @@ Deno.serve(async (req: Request) => {
       // Evolution nao tem equivalente: cai pra texto com a URL no fim, senao o
       // link simplesmente nao chegaria.
       if (typeof rawItem === 'object' && (rawItem as any).type === 'cta_url') {
-        const item = rawItem as { type: 'cta_url'; text?: string; url: string; button_text?: string };
+        const item = rawItem as { type: 'cta_url'; text?: string; url: string; button_text?: string; image?: string };
         const btnText = item.button_text || 'Abrir link';
         if (resolvedProvider === 'evolution') {
           const fallback = `${item.text ?? ''}\n${item.url}`.trim();
@@ -1303,7 +1306,7 @@ Deno.serve(async (req: Request) => {
           if (r && 'wamid' in r) wamids.push(r.wamid);
           else if (r && 'error' in r) errors.push(r.error);
         } else {
-          const r = await sendCtaUrlToMeta(accessToken, phoneNumberId, to, item.text ?? '', item.url, btnText);
+          const r = await sendCtaUrlToMeta(accessToken, phoneNumberId, to, item.text ?? '', item.url, btnText, item.image);
           if (r && 'wamid' in r) wamids.push(r.wamid);
           else if (r && 'error' in r) errors.push(r.error);
         }

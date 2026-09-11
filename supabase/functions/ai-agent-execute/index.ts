@@ -522,6 +522,18 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
+    name: 'enviar_produto',
+    description: 'Sends the contact a product card on WhatsApp: photo, one short line of description, and a button that opens the product page on the Minimal Cases store. Call it once per product you are recommending, at most 3 per reply, passing the product_id returned by buscar_no_catalogo. The cards are sent after your text, so also write one sentence introducing the options.',
+    parameters: {
+      type: 'object',
+      properties: {
+        product_id: { type: 'integer', description: 'product_id returned by buscar_no_catalogo.' },
+        descricao: { type: 'string', description: 'One short line about this product — material, feature or who it suits. Include the price. Max ~140 chars.' },
+      },
+      required: ['product_id', 'descricao'],
+    },
+  },
+  {
     name: 'enviar_botao_pedido',
     description: 'Sends a WhatsApp message with a tappable button that opens the contact\'s order on the Minimal Cases site, already loaded — order number, items, address, value and the delivery timeline. You never pass a URL: it is built from the order itself. Use right after telling the status, never instead of telling it. If the order has no tracking code yet the tool says so — then just explain the code comes when it ships, and send no button.',
     parameters: {
@@ -2022,6 +2034,39 @@ function phoneTail(v: string | null | undefined): string {
 }
 
 /**
+ * URL do produto na loja. O `url` que a Yampi devolve aponta para um domínio que
+ * responde 404 — a vitrine é Shopify, com handle próprio. O slug da Yampi é o
+ * handle + um sufixo hexadecimal, mas nem sempre (handle truncado, renomeado),
+ * então o caminho confiável é a busca da própria Shopify pelo nome. Último
+ * recurso: a página de busca, que ao menos nunca quebra.
+ */
+async function resolveProductStoreUrl(nome: string, slug: string): Promise<string> {
+  const LOJA = 'https://minimalcases.com.br';
+  try {
+    const u = new URL(`${LOJA}/search/suggest.json`);
+    u.searchParams.set('q', nome);
+    u.searchParams.set('resources[type]', 'product');
+    u.searchParams.set('resources[limit]', '1');
+    const res = await fetch(u.toString(), { signal: AbortSignal.timeout(6000) });
+    if (res.ok) {
+      const j = await res.json();
+      const first = j?.resources?.results?.products?.[0];
+      const path = typeof first?.url === 'string' ? first.url.split('?')[0] : '';
+      if (path) return `${LOJA}${path}`;
+    }
+  } catch (_) { /* cai pro slug */ }
+
+  const handle = slug.replace(/-[0-9a-f]{8,}$/, '');
+  if (handle) {
+    try {
+      const res = await fetch(`${LOJA}/products/${handle}`, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+      if (res.ok) return `${LOJA}/products/${handle}`;
+    } catch (_) { /* cai pra busca */ }
+  }
+  return `${LOJA}/search?q=${encodeURIComponent(nome)}`;
+}
+
+/**
  * Página de acompanhamento da própria loja (plugin Reportana). Com `?code=<rastreio>`
  * ela abre o pedido já carregado — número, endereço, itens, valor e a linha do tempo
  * ("Preparando envio" → "Em trânsito" → "Saiu para entrega" → "Entregue"). É muito
@@ -3215,13 +3260,28 @@ async function executeTool(
         const cModelo = String(args.modelo ?? '').trim();
         const cCor = String(args.cor ?? '').trim();
         const cTermo = String(args.termo ?? '').trim();
-        const busca = cTermo || cCor || cModelo;
-        if (!busca) return 'Error: informe pelo menos modelo, cor ou termo.';
+        // A loja chama de "Case", o cliente chama de "capinha" — e o `q` da Yampi é
+        // literal. Sem essa tradução, "capinha amarela" volta zero e o agente diz
+        // que não temos, com o catálogo cheio.
+        const SINONIMOS: Array<[RegExp, string]> = [
+          [/\bcapinhas?\b/gi, 'case'], [/\bcapas?\b/gi, 'case'], [/\bcasinhas?\b/gi, 'case'],
+        ];
+        const traduz = (v: string) => SINONIMOS.reduce((acc, [re, to]) => acc.replace(re, to), v).trim();
+        // Ordem importa: a cor é o filtro mais seletivo no nível do produto.
+        const candidatos = [...new Set([cCor, traduz(cTermo), cModelo].map((v) => v.trim()).filter(Boolean))];
+        if (candidatos.length === 0) return 'Error: informe pelo menos modelo, cor ou termo.';
 
         try {
-          const res = await bound.client.request<{ data?: Array<Record<string, unknown>> }>(
-            'GET', '/catalog/products', { query: { q: busca, limit: '25', include: 'skus' } },
-          );
+          // Junta o resultado de cada termo: um sozinho pode não casar nada.
+          const produtos = new Map<string, Record<string, unknown>>();
+          for (const termo of candidatos) {
+            const r = await bound.client.request<{ data?: Array<Record<string, unknown>> }>(
+              'GET', '/catalog/products', { query: { q: termo, limit: '25', include: 'skus' } },
+            );
+            for (const prod of (r.data ?? [])) produtos.set(String(prod.id), prod);
+            if (produtos.size >= 40) break;
+          }
+          const res = { data: [...produtos.values()] };
           type Sku = { id: number; price_discount?: number; price_sale?: number; total_in_stock?: number; blocked_sale?: boolean; variations?: Array<{ name?: string; value?: string }> };
           const alvoMod = norm(cModelo);
           const alvoCor = norm(cCor);
@@ -3241,7 +3301,7 @@ async function executeTool(
               if (cor) coresDoModelo.add(cor);
               if (alvoCor && !norm(cor).includes(alvoCor)) continue;
               achados.push({
-                produto: nomeProd, cor, modelo: mod, sku_id: sk.id,
+                produto: nomeProd, cor, modelo: mod, sku_id: sk.id, product_id: prod.id,
                 preco: sk.price_discount || sk.price_sale || null,
                 em_estoque: (sk.total_in_stock ?? 0) > 0,
               });
@@ -3262,11 +3322,51 @@ async function executeTool(
           return JSON.stringify({
             encontrados: achados.length,
             opcoes: (emEstoque.length > 0 ? emEstoque : achados).slice(0, 8),
-            instrucao: 'Cite no máximo 3 opções, com nome e preço, em 1 ou 2 frases. Pergunte qual ela quer e só então chame yampi_enviar_link_pagamento com o sku_id escolhido. Nunca liste tudo nem invente cor ou modelo que não esteja aqui.',
+            instrucao: 'Escolha no máximo 3 opções e chame `enviar_produto` uma vez para cada, passando o product_id — cada chamada manda foto, uma linha de descrição e o botão do produto. Escreva também 1 frase apresentando as opções e perguntando qual ela quer. Nunca liste tudo, nunca escreva preço que não esteja aqui e nunca invente cor ou modelo.',
           });
         } catch (e) {
           return `Erro ao buscar no catálogo: ${(e as Error).message}`;
         }
+      }
+
+      // SAC-08 — card de produto. A Meta aceita header de imagem no cta_url
+      // (testado), então foto + descrição + botão cabem numa mensagem só.
+      // O envio é AGENDADO (etapa 10f): dentro do loop de tools ele chegaria
+      // antes da frase que apresenta as opções.
+      case 'enviar_produto': {
+        const pid = Number(args.product_id ?? 0);
+        const pDesc = String(args.descricao ?? '').trim();
+        if (!Number.isFinite(pid) || pid <= 0) return 'Error: product_id inválido.';
+        if (!pDesc) return 'Error: descricao is required';
+
+        const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+        const boundP = await createYampiClientForConnection(supabase as never);
+        if (!boundP) return 'Integração Yampi não está conectada.';
+
+        let nome = '';
+        let imagem = '';
+        let slug = '';
+        try {
+          const r = await boundP.client.request<{ data?: Record<string, unknown> }>(
+            'GET', `/catalog/products/${pid}`, { query: { include: 'images' } },
+          );
+          const prod = (r.data ?? {}) as Record<string, unknown>;
+          nome = String(prod.name ?? '');
+          slug = String(prod.slug ?? '');
+          const imgs = (((prod.images as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>);
+          const first = (imgs[0] ?? {}) as Record<string, unknown>;
+          imagem = String(((first.medium ?? first.large ?? {}) as Record<string, unknown>).url ?? '');
+        } catch (e) {
+          return `Erro ao carregar o produto: ${(e as Error).message}`;
+        }
+        if (!nome) return 'Produto não encontrado no catálogo.';
+
+        const url = await resolveProductStoreUrl(nome, slug);
+        const cards = (() => { try { return JSON.parse(ctx.__pending_product_cards || '[]') as unknown[]; } catch { return []; } })();
+        if (cards.length >= 3) return 'Já são 3 produtos nesta resposta — não mande mais.';
+        cards.push({ nome, descricao: pDesc.slice(0, 900), imagem, url });
+        ctx.__pending_product_cards = JSON.stringify(cards);
+        return `Card de "${nome}" agendado — ele sai DEPOIS do seu texto. Escreva 1 frase apresentando as opções e perguntando qual ela quer. Não escreva a URL nem repita a descrição.`;
       }
 
       case 'enviar_botao_pedido': {
@@ -4494,6 +4594,36 @@ Deno.serve(async (req: Request) => {
           const { attachTrackedLinkMessage } = await import('../_shared/tracked-links.ts');
           await attachTrackedLinkMessage(supabase as never, linkId, msgId);
         }
+      }
+    }
+
+    // 10f. Cards de produto — foto + descrição + botão, um por produto, depois
+    // do texto que apresenta as opções.
+    if (ctx.__pending_product_cards) {
+      const waPhoneIdForCards = inboundWaPhoneNumberId ?? agent.wa_phone_number_id ?? null;
+      const cardChannel = inboundChannelType === 'instagram' ? 'instagram' : 'whatsapp';
+      type Card = { nome: string; descricao: string; imagem: string; url: string };
+      let cards: Card[] = [];
+      try { cards = JSON.parse(ctx.__pending_product_cards) as Card[]; } catch { cards = []; }
+      for (const card of cards.slice(0, 3)) {
+        if (!card?.url) continue;
+        const { error: cardErr } = await supabase.from('messages').insert({
+          people_id: peopleId,
+          lead_id: leadId,
+          content: card.descricao || card.nome,
+          from_contact: 'agente_ia',
+          source_type: 'ai_agent',
+          channel: cardChannel,
+          status: 'pending',
+          message_type: 'texto',
+          media_metadata: cardChannel === 'whatsapp'
+            ? { cta_url: { url: card.url, button_text: 'Ver produto', ...(card.imagem ? { image: card.imagem } : {}) } }
+            : null,
+          execution_id: executionId,
+          wa_phone_number_id: waPhoneIdForCards,
+        });
+        if (cardErr) log.error('product_card_insert_failed', { error: cardErr.message, produto: card.nome });
+        else log.info('product_card_sent', { produto: card.nome, url: card.url });
       }
     }
 
