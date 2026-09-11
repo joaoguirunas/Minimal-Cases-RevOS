@@ -1,18 +1,14 @@
 {
-  "version": "5.47",
+  "version": "5.50",
   "major": 5,
-  "minor": 47,
-  "created_at": "2026-09-09T14:07:38.000Z",
-  "git_sha": "34b25b88dff8604d8bfdeec2b595ef45d6ae833d",
+  "minor": 50,
+  "created_at": "2026-09-11T20:35:22.000Z",
+  "git_sha": "f4cd24a48ba6cc61064ee345e9cb2b484e0ee8f2",
   "migrations": [
-    "supabase/migrations/20260905100000_esteira_ab_testing.sql",
-    "supabase/migrations/20260905101000_wa_header_image.sql",
-    "supabase/migrations/20260905102000_yampi_products_cache.sql",
-    "supabase/migrations/20260905103000_email_template_versions.sql",
-    "supabase/migrations/20260905104000_e2_titulo.sql",
-    "supabase/migrations/20260908170000_security_rls_hardening.sql",
-    "supabase/migrations/20260909100000_comercial_recuperacao.sql"
+    "supabase/migrations/20260911120000_fix_trigger_followup_worker_url.sql",
+    "supabase/migrations/20260911140000_stage_change_keep_esteira_touches.sql",
+    "supabase/migrations/20260911160000_sac_handoff_prioridade.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat: esteira rodada 3 + perfil Comercial|fix(comercial): kanban descarta stage fora da visão e mata o 2º fetch do board|fix(esteira): carrinho repetido não puxa lead assumido pra trás; replay preserva atribuição|fix(comercial): RLS embrulha escrita da allowlist, preserva roles e trava colunas do lead|fix(comercial): seed de notifications convive com o trigger do sino|fix(comercial): seed do dry-run usa os nomes de produção de followup_queue|fix(comercial): tira notifications e leads_tags da allowlist de RLS|chore(db): versiona a blindagem de RLS de 08/09 (já aplicada em produção via Management API)|fix(comercial): RLS do comercial nega TODO o schema public por padrão (C1)|fix(comercial): cupom só é reaproveitado pro mesmo cliente, com a validade real; DB_ERRO no guard|feat(comercial): bloco Comercial no lead (assumir, cupom 5-20%, abrir conversa com draft); previa da capa 200px|fix(comercial): libera módulo dashboard pro comercial no ModuleProtectedRoute e alinha redirect pós-login|feat(comercial): kanban do comercial — 3 colunas virtuais, sem drag, botão Assumir, idade do carrinho; miniatura e chip do dono pro admin|feat(comercial): edge function commercial-coupon-create — cupom 5/10/15/20 na Yampi, assume o lead, preview da mensagem|feat(comercial): BI só Reconversão, sidebar com BI liberado pro comercial, entrada direto no kanban|feat(comercial): migration — pool 15d+, stage Em negociação, claim_lead, cupom com autor, comissão, RLS do comercial|feat(kanban): colunas compostas (N stages por coluna), modo readOnly, miniatura do SKU e chip do comercial|feat(bi): comissões por comercial (mês × pessoa, CSV) e escopo comercial na aba Reconversão|fix(comercial): remove branch genérico \"sem regra\" no bootstrap_wa_templates|refactor(cupom): createPersonalCoupon em _shared/yampi-coupon; agente usa o shared (5/10/15 preservado)"
+  "changelog": "feat(sac): fila de atendimento humano + consulta de pedido que não depende da API|copy(esteira): E-CLICK sem revelar o rastreio, oferta direta|fix(esteira): clique não cancela mais a sequência + e-mail E-CLICK com 15%|fix(cupom): datas da Yampi no fuso da loja, não em UTC|feat(esteira): vazão do worker configurável por FOLLOWUP_BATCH_LIMIT|fix(auth): raiz sem sessão vai pro login em vez de tela preta|fix(esteira): produto/modelo pega a última marca do título, não a primeira|chore(release): release.json v5.47 [skip ci]"
 }
