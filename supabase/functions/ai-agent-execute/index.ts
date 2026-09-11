@@ -575,8 +575,14 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: 'yampi_consultar_pedido',
-    description: 'Looks up the contact\'s latest order in the Yampi store: payment status, items, total, and tracking code/URL when shipped. Use when the contact asks about an order they placed ("meu pedido chegou?", "cadê o rastreio", "foi aprovado?").',
-    parameters: { type: 'object', properties: {}, required: [] },
+    description: 'Looks up the contact\'s latest order in the Yampi store: payment status, items, total, and tracking code/URL when shipped. Use when the contact asks about an order they placed ("meu pedido chegou?", "cadê o rastreio", "foi aprovado?"). By default searches by the e-mail/WhatsApp already on file. If it returns nao_encontrado, ask the contact which e-mail they used to buy and call again passing `email` — the purchase may be under a different address than the one we have.',
+    parameters: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', description: 'Optional. E-mail the contact says they used on the purchase, when the order was not found under the e-mail/phone on file.' },
+      },
+      required: [],
+    },
   },
   {
     name: 'verificar_compatibilidade',
@@ -2203,6 +2209,20 @@ async function executeTool(
             reason: args.reason ?? 'não especificado',
           },
         }).then(() => {}); // fire-and-forget
+
+        // SAC-01 — o alerta acima é de saúde do canal e não chega a ninguém. A fila
+        // de atendimento é esta: marca a pessoa como aguardando humano (topo da
+        // lista de conversas) e abre o sino no painel. Awaited de propósito —
+        // perder o handoff é pior que atrasar a resposta em alguns milissegundos.
+        // `as any`: flag_needs_human ainda não está no types.ts gerado — mesmo
+        // padrão usado nos outros RPCs novos do repo.
+        const { error: queueErr } = await (supabase.rpc as any)('flag_needs_human', {
+          p_people_id: ctx.pessoa_id,
+          p_lead_id: leadId ?? null,
+          p_reason: (args.reason as string | undefined) ?? null,
+        });
+        if (queueErr) console.error('[bloquear_ia] flag_needs_human falhou', queueErr.message);
+
         return 'AI disabled for this person — human takeover';
       }
 
@@ -2787,32 +2807,107 @@ async function executeTool(
         });
       }
 
+      // SAC-02 — "cadê meu pedido?". Duas fontes, nesta ordem:
+      //   1. API de Pedidos da Yampi — completa, alcança pedido de qualquer época.
+      //      Só responde se a credencial tiver permissão de Pedidos (o par
+      //      User-Token/Secret herda as permissões do usuário Yampi que o gerou;
+      //      sem isso a API devolve 403 e o client levanta YampiAuthError).
+      //   2. Webhooks já guardados — cobre tudo que passou pelo CRM desde a
+      //      integração e traz status, rastreio e entrega. É o que mantém o SAC
+      //      de pé enquanto a permissão não existe.
+      // O e-mail informado na conversa entra como terceira chave de busca: muita
+      // gente compra com um e-mail e fala com a gente de outro número.
       case 'yampi_consultar_pedido': {
-        if (!ctx.email && !ctx.whatsapp) return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo).';
+        const emailInformado = String(args.email ?? '').trim().toLowerCase() || null;
+        if (emailInformado && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInformado)) {
+          return `Error: e-mail inválido "${args.email}". Peça de novo ao contato.`;
+        }
+        if (!ctx.email && !ctx.whatsapp && !emailInformado) {
+          return 'Não foi possível identificar o contato (sem e-mail nem WhatsApp salvo). Pergunte o e-mail usado na compra e chame de novo passando `email`.';
+        }
+
+        // ── 1. API ────────────────────────────────────────────────────────────
+        let apiIndisponivel = false;
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
-        if (!bound) return 'Integração Yampi não está conectada.';
-        try {
-          const q = ctx.email || ctx.whatsapp;
-          const orders = await bound.client.searchOrders(q, 3);
-          const order = orders[0] as Record<string, unknown> | undefined;
-          if (!order) return 'Nenhum pedido encontrado para este contato na loja.';
-          const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias ?? order.status) as string | undefined;
-          const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
-            .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
-            .filter(Boolean).slice(0, 5);
-          return JSON.stringify({
-            pedido: order.number ?? order.id,
-            status: status ?? 'desconhecido',
-            total: order.value_total ?? '',
-            itens: items,
-            rastreio_codigo: order.track_code ?? null,
-            rastreio_url: order.track_url ?? null,
-            entregue: order.delivered ?? null,
-          });
-        } catch (e) {
-          return `Erro ao consultar pedidos na Yampi: ${(e as Error).message}`;
+        if (bound) {
+          const chaves = [emailInformado, ctx.email, ctx.whatsapp].filter(Boolean) as string[];
+          for (const q of chaves) {
+            try {
+              const orders = await bound.client.searchOrders(q, 3);
+              const order = orders[0] as Record<string, unknown> | undefined;
+              if (!order) continue;
+              const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias ?? order.status) as string | undefined;
+              const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
+                .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
+                .filter(Boolean).slice(0, 5);
+              return JSON.stringify({
+                fonte: 'loja',
+                pedido: order.number ?? order.id,
+                status: status ?? 'desconhecido',
+                total: order.value_total ?? '',
+                itens: items,
+                rastreio_codigo: order.track_code ?? null,
+                rastreio_url: order.track_url ?? null,
+                entregue: order.delivered ?? null,
+              });
+            } catch (e) {
+              // 403 (credencial sem permissão de Pedidos) ou API fora: cai pro webhook.
+              apiIndisponivel = true;
+              console.warn('[yampi_consultar_pedido] API indisponível, usando webhooks:', (e as Error).message);
+              break;
+            }
+          }
         }
+
+        // ── 2. Webhooks ───────────────────────────────────────────────────────
+        const contatoBusca = { email: emailInformado ?? ctx.email ?? undefined, whatsapp: ctx.whatsapp ?? undefined };
+        const { data: evRows } = await supabase
+          .from('yampi_webhook_events')
+          .select('order_id, trigger, raw_payload, created_at')
+          .in('trigger', ['pedido_status_atualizado', 'pedido_pago', 'pedido_criado', 'pedido_cancelado'])
+          .order('created_at', { ascending: false })
+          .limit(400);
+
+        const eventos = ((evRows ?? []) as Array<{ order_id: string | null; trigger: string; raw_payload: Record<string, unknown>; created_at: string }>)
+          .filter((e) => yampiEventMatchesContact(e.raw_payload, contatoBusca));
+
+        if (eventos.length === 0) {
+          return JSON.stringify({
+            resultado: 'nao_encontrado',
+            api_indisponivel: apiIndisponivel,
+            instrucao: emailInformado
+              ? 'Não achei pedido nem com esse e-mail. Peça desculpa, diga que vai confirmar com o time e passe para humano (criar_nota + bloquear_ia).'
+              : 'Não achei pedido com os dados que temos. Pergunte em 1 frase qual e-mail foi usado na compra e chame esta tool de novo passando `email`. Só passe para humano se ainda assim não achar.',
+          });
+        }
+
+        // Mais recente do pedido mais recente: o status atual é o do último evento.
+        const alvo = eventos[0];
+        const doMesmoPedido = eventos.filter((e) => e.order_id === alvo.order_id);
+        const rec = (v: unknown) => (v ?? {}) as Record<string, unknown>;
+        const recurso = rec(rec(alvo.raw_payload).resource);
+        const statusData = rec(rec(recurso.status).data);
+        const itens = ((rec(recurso.items).data ?? []) as Array<Record<string, unknown>>)
+          .map((i) => (rec(rec(i.sku).data).title ?? i.title) as string | undefined)
+          .filter(Boolean).slice(0, 5);
+        const cancelado = doMesmoPedido.some((e) => e.trigger === 'pedido_cancelado');
+        const pago = doMesmoPedido.some((e) => e.trigger === 'pedido_pago');
+
+        return JSON.stringify({
+          fonte: 'crm',
+          pedido: recurso.number ?? alvo.order_id,
+          status: (statusData.name ?? statusData.alias ?? (cancelado ? 'cancelado' : pago ? 'pago' : 'desconhecido')) as string,
+          pago,
+          cancelado,
+          total: recurso.value_total ?? '',
+          itens,
+          rastreio_codigo: recurso.track_code ?? null,
+          rastreio_url: recurso.track_url ?? null,
+          entregue: recurso.delivered ?? null,
+          atualizado_em: alvo.created_at,
+          instrucao: 'Diga o status em 1 frase. Se houver rastreio, mande o código; o link vai em mensagem separada se você chamar a tool de link. Nunca prometa data de entrega que não esteja aqui.',
+        });
       }
 
       case 'collect_identity': {
