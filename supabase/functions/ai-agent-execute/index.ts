@@ -523,14 +523,14 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: 'enviar_produto',
-    description: 'Sends the contact a product card on WhatsApp: photo, one short line of description, and a button that opens the product page on the Minimal Cases store. Call it once per product you are recommending, at most 3 per reply, passing the product_id returned by buscar_no_catalogo. The cards are sent after your text, so also write one sentence introducing the options.',
+    description: 'Sends the contact a product card on WhatsApp: photo, one short line of description, and a button that opens the product page with the exact colour and phone model already selected. Call it once per product you are recommending, at most 3 per reply, passing the sku_id returned by buscar_no_catalogo — the sku carries the variant, so the customer lands on the right one instead of having to pick again. The cards are sent after your text, so also write one sentence introducing the options.',
     parameters: {
       type: 'object',
       properties: {
-        product_id: { type: 'integer', description: 'product_id returned by buscar_no_catalogo.' },
+        sku_id: { type: 'integer', description: 'sku_id returned by buscar_no_catalogo — it identifies the exact colour + model variant.' },
         descricao: { type: 'string', description: 'One short line about this product — material, feature or who it suits. Include the price. Max ~140 chars.' },
       },
-      required: ['product_id', 'descricao'],
+      required: ['sku_id', 'descricao'],
     },
   },
   {
@@ -2040,8 +2040,10 @@ function phoneTail(v: string | null | undefined): string {
  * então o caminho confiável é a busca da própria Shopify pelo nome. Último
  * recurso: a página de busca, que ao menos nunca quebra.
  */
-async function resolveProductStoreUrl(nome: string, slug: string): Promise<string> {
+async function resolveProductStoreUrl(nome: string, slug: string, cor = '', modelo = ''): Promise<string> {
   const LOJA = 'https://minimalcases.com.br';
+  let base = '';
+
   try {
     const u = new URL(`${LOJA}/search/suggest.json`);
     u.searchParams.set('q', nome);
@@ -2052,18 +2054,37 @@ async function resolveProductStoreUrl(nome: string, slug: string): Promise<strin
       const j = await res.json();
       const first = j?.resources?.results?.products?.[0];
       const path = typeof first?.url === 'string' ? first.url.split('?')[0] : '';
-      if (path) return `${LOJA}${path}`;
+      if (path) base = `${LOJA}${path}`;
     }
   } catch (_) { /* cai pro slug */ }
 
-  const handle = slug.replace(/-[0-9a-f]{8,}$/, '');
-  if (handle) {
-    try {
-      const res = await fetch(`${LOJA}/products/${handle}`, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
-      if (res.ok) return `${LOJA}/products/${handle}`;
-    } catch (_) { /* cai pra busca */ }
+  if (!base) {
+    const handle = slug.replace(/-[0-9a-f]{8,}$/, '');
+    if (handle) {
+      try {
+        const res = await fetch(`${LOJA}/products/${handle}`, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        if (res.ok) base = `${LOJA}/products/${handle}`;
+      } catch (_) { /* cai pra busca */ }
+    }
   }
-  return `${LOJA}/search?q=${encodeURIComponent(nome)}`;
+  if (!base) return `${LOJA}/search?q=${encodeURIComponent(nome)}`;
+
+  // Variante já selecionada: sem isso o cliente cai na página e tem que escolher
+  // de novo a cor e o modelo que ele acabou de dizer no WhatsApp. As variantes da
+  // Shopify vêm como "Cor / Modelo", os mesmos valores das variações da Yampi.
+  if (cor && modelo) {
+    try {
+      const norm = (v: string) => v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const alvo = norm(`${cor}/${modelo}`);
+      const res = await fetch(`${base}.js`, { signal: AbortSignal.timeout(8000) });
+      if (res.ok) {
+        const j = await res.json();
+        const v = (j?.variants ?? []).find((x: { title?: string }) => norm(String(x.title ?? '')) === alvo);
+        if (v?.id) return `${base}?variant=${v.id}`;
+      }
+    } catch (_) { /* sem variante: a página do produto já serve */ }
+  }
+  return base;
 }
 
 /**
@@ -3334,9 +3355,9 @@ async function executeTool(
       // O envio é AGENDADO (etapa 10f): dentro do loop de tools ele chegaria
       // antes da frase que apresenta as opções.
       case 'enviar_produto': {
-        const pid = Number(args.product_id ?? 0);
+        const skuId = Number(args.sku_id ?? 0);
         const pDesc = String(args.descricao ?? '').trim();
-        if (!Number.isFinite(pid) || pid <= 0) return 'Error: product_id inválido.';
+        if (!Number.isFinite(skuId) || skuId <= 0) return 'Error: sku_id inválido — use o sku_id devolvido por buscar_no_catalogo.';
         if (!pDesc) return 'Error: descricao is required';
 
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
@@ -3346,11 +3367,21 @@ async function executeTool(
         let nome = '';
         let imagem = '';
         let slug = '';
+        let cor = '';
+        let modelo = '';
         try {
-          const r = await boundP.client.request<{ data?: Record<string, unknown> }>(
-            'GET', `/catalog/products/${pid}`, { query: { include: 'images' } },
+          const rs = await boundP.client.request<{ data?: Record<string, unknown> }>('GET', `/catalog/skus/${skuId}`);
+          const sku = (rs.data ?? {}) as Record<string, unknown>;
+          const vars = (sku.variations ?? []) as Array<{ name?: string; value?: string }>;
+          cor = vars.find((v) => /cor|color/i.test(v.name ?? ''))?.value ?? '';
+          modelo = vars.find((v) => /modelo|aparelho|celular|compat/i.test(v.name ?? ''))?.value ?? '';
+          const productId = Number(sku.product_id ?? 0);
+          if (!productId) return 'SKU sem produto associado no catálogo.';
+
+          const rp = await boundP.client.request<{ data?: Record<string, unknown> }>(
+            'GET', `/catalog/products/${productId}`, { query: { include: 'images' } },
           );
-          const prod = (r.data ?? {}) as Record<string, unknown>;
+          const prod = (rp.data ?? {}) as Record<string, unknown>;
           nome = String(prod.name ?? '');
           slug = String(prod.slug ?? '');
           const imgs = (((prod.images as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>);
@@ -3361,12 +3392,12 @@ async function executeTool(
         }
         if (!nome) return 'Produto não encontrado no catálogo.';
 
-        const url = await resolveProductStoreUrl(nome, slug);
+        const url = await resolveProductStoreUrl(nome, slug, cor, modelo);
         const cards = (() => { try { return JSON.parse(ctx.__pending_product_cards || '[]') as unknown[]; } catch { return []; } })();
         if (cards.length >= 3) return 'Já são 3 produtos nesta resposta — não mande mais.';
         cards.push({ nome, descricao: pDesc.slice(0, 900), imagem, url });
         ctx.__pending_product_cards = JSON.stringify(cards);
-        return `Card de "${nome}" agendado — ele sai DEPOIS do seu texto. Escreva 1 frase apresentando as opções e perguntando qual ela quer. Não escreva a URL nem repita a descrição.`;
+        return `Card de "${nome}" (${cor} · ${modelo}) agendado — sai DEPOIS do seu texto, já com a variante selecionada. Escreva 1 frase apresentando as opções e perguntando qual ela quer. Não escreva a URL nem repita a descrição.`;
       }
 
       case 'enviar_botao_pedido': {
