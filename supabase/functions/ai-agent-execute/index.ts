@@ -508,6 +508,18 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
+    name: 'enviar_botao_link',
+    description: 'Sends a WhatsApp message with a single tappable link button about the contact\'s order. You never pass a URL — choose `destino` and the URL is resolved from the order itself: "rastreio" opens the carrier tracking page for this order, "site" opens Minimal Cases\' own order-tracking page. WhatsApp allows only ONE link button per message, so send one, and only send the second if the contact asks. Use after telling the status, never instead of telling it.',
+    parameters: {
+      type: 'object',
+      properties: {
+        texto: { type: 'string', description: 'Short line shown above the button (1 sentence).' },
+        destino: { type: 'string', enum: ['rastreio', 'site'], description: '"rastreio" = carrier tracking page for this order. "site" = minimalcases.com.br tracking page.' },
+      },
+      required: ['texto', 'destino'],
+    },
+  },
+  {
     name: 'enviar_botoes',
     description: 'Sends WhatsApp interactive quick-reply buttons (max 3). Use to open a service conversation with a menu instead of a wall of text — e.g. greeting someone who has an order in progress: body "Como posso te ajudar hoje?" with buttons ["Meu pedido","Prazo de entrega","Falar com o time"]. The button label comes back as the contact\'s next message, so keep labels literal. Do NOT use for scheduling time slots (use enviar_opcoes_horario) and do not repeat the body as plain text afterwards.',
     parameters: {
@@ -1992,6 +2004,52 @@ function phoneTail(v: string | null | undefined): string {
   return String(v ?? '').replace(/\D/g, '').slice(-8);
 }
 
+/** Página de rastreio da própria loja — destino do botão "Ver no site". */
+const SITE_RASTREIO_URL = 'https://minimalcases.com.br/pages/rastreio';
+
+/**
+ * URL de rastreio do pedido mais recente do contato. Mesma ordem de fontes da
+ * yampi_consultar_pedido: API da loja primeiro (alcança pedido de qualquer
+ * época) e, se a credencial não tiver permissão de Pedidos, os webhooks já
+ * guardados. null quando o pedido ainda não foi postado.
+ */
+async function resolveTrackUrlForPerson(
+  supabase: ReturnType<typeof createClient>,
+  peopleId: string,
+  ctx: { email?: string; whatsapp?: string },
+): Promise<string | null> {
+  const fone = String(ctx.whatsapp ?? '').replace(/\D/g, '');
+  try {
+    const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+    const bound = await createYampiClientForConnection(supabase as never);
+    if (bound) {
+      for (const q of [ctx.email, fone.slice(-9)].filter((v) => !!v && v.length >= 5) as string[]) {
+        const orders = await bound.client.searchOrders(q, 5, 'status,customer');
+        for (const o of orders as Array<Record<string, unknown>>) {
+          const c = (((o.customer as Record<string, unknown> | undefined)?.data ?? {}) as Record<string, unknown>);
+          const cEmail = String(c.email ?? '').toLowerCase().trim();
+          const alvo = (ctx.email ?? '').toLowerCase().trim();
+          if (alvo && cEmail !== alvo) continue;
+          if (typeof o.track_url === 'string' && o.track_url) return o.track_url;
+        }
+      }
+    }
+  } catch (_) { /* 403 ou API fora: cai pro webhook */ }
+
+  const { data: evRows } = await supabase
+    .from('yampi_webhook_events')
+    .select('raw_payload')
+    .in('trigger', ['pedido_status_atualizado', 'pedido_pago'])
+    .order('created_at', { ascending: false })
+    .limit(200);
+  for (const ev of (evRows ?? []) as Array<{ raw_payload: Record<string, unknown> }>) {
+    if (!yampiEventMatchesContact(ev.raw_payload, ctx)) continue;
+    const r = ((ev.raw_payload.resource ?? {}) as Record<string, unknown>);
+    if (typeof r.track_url === 'string' && r.track_url) return r.track_url;
+  }
+  return null;
+}
+
 /** Does a stored yampi_webhook_events payload belong to this conversation's contact? */
 function yampiEventMatchesContact(
   payload: Record<string, unknown>,
@@ -3112,6 +3170,58 @@ async function executeTool(
           return `Error: whatsapp-outbound responded ${waRes.status}: ${errBody.slice(0, 200)}`;
         }
         return `WhatsApp conversation initiated with template "${templateName}" to ${toNumber}`;
+      }
+
+      // SAC-06 — botão de link do pedido. O modelo escolhe o DESTINO, nunca a
+      // URL: a de rastreio sai do próprio pedido (API ou webhook) e a do site é
+      // fixa. Assim ele não tem como inventar link, que é o risco de deixar
+      // URL livre numa tool. Um botão por mensagem — a Meta não aceita dois
+      // fora de template.
+      case 'enviar_botao_link': {
+        const lTexto = String(args.texto ?? '').trim();
+        const lDestino = String(args.destino ?? '').trim();
+        if (!lTexto) return 'Error: texto is required';
+        if (lDestino !== 'rastreio' && lDestino !== 'site') return 'Error: destino must be "rastreio" or "site"';
+        const lTo = ctx.whatsapp ?? '';
+        if (!lTo) return 'Error: missing WhatsApp phone context (whatsapp)';
+
+        let destinoUrl = SITE_RASTREIO_URL;
+        let rotulo = 'Ver no site';
+        if (lDestino === 'rastreio') {
+          const rastreio = await resolveTrackUrlForPerson(supabase, ctx.pessoa_id, ctx);
+          if (!rastreio) {
+            return 'Este pedido ainda não tem código de rastreio. Diga isso ao contato e ofereça o destino "site" ou avise que o código chega assim que postar — não mande botão de rastreio.';
+          }
+          destinoUrl = rastreio;
+          rotulo = 'Rastrear pedido';
+        }
+
+        // Link rastreado: mantém a atribuição de clique igual à dos outros links.
+        const { createTrackedLinkDetailed } = await import('../_shared/tracked-links.ts');
+        const tracked = await createTrackedLinkDetailed(supabase as never, {
+          destination: destinoUrl, peopleId: ctx.pessoa_id, leadId, channel: 'whatsapp',
+          source: 'agente', label: `botao_${lDestino}`, executionId: ctx.__execution_id || null,
+        });
+
+        const lRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-outbound`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: JSON.stringify({
+            to: lTo,
+            people_id: ctx.pessoa_id,
+            lead_id: leadId,
+            messages: [{ type: 'cta_url', text: lTexto, url: tracked?.url ?? destinoUrl, button_text: rotulo }],
+          }),
+        });
+        if (!lRes.ok) {
+          const errBody = await lRes.text().catch(() => '');
+          return `Error: whatsapp-outbound responded ${lRes.status}: ${errBody.slice(0, 200)}`;
+        }
+        ctx.__interactive_sent = 'true';
+        return `Botão "${rotulo}" enviado com o texto acima. Não repita esse texto nem escreva a URL.`;
       }
 
       // SAC-03 — botões de resposta rápida genéricos. Mesmo canal do
