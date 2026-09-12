@@ -652,7 +652,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: 'consultar_produto',
-    description: 'Fetches the full product sheet from the Yampi catalog (description, material, available colors and phone models, price range, stock per variant). Default: the product in the contact\'s latest cart. Use when the contact asks about material, what comes in the box, colors, models, warranty or anything the CONTEXT block "Produto do carrinho" does not answer. Never invent specs.',
+    description: 'Fetches the full product sheet from the Yampi catalog (description, material, available colors and phone models, price range, stock per variant). Use when the contact asks about material, what comes in the box, colors, models, warranty or anything the CONTEXT block does not answer. Pass `product_id` explicitly: for something the contact already BOUGHT, use the product_id of the item returned by yampi_consultar_pedido; for something in the catalog, the one from buscar_no_catalogo. Only omit it when the question is about the cart. Never invent specs.',
     parameters: { type: 'object', properties: {
       product_id: { type: 'integer', description: 'Optional Yampi product id. Default: product of the latest cart.' },
       force: { type: 'boolean', description: 'Optional. Refresh the cache (price/stock changed).' },
@@ -2973,6 +2973,26 @@ async function executeTool(
         if (!pid) return 'Não achei o produto do carrinho. Pergunte qual case o cliente quer (verificar_compatibilidade ajuda a localizar) ou informe product_id.';
         const ps = await resolveProductSummary(supabase as never, pid, { force: args.force === true });
         if (!ps) return 'Não consegui consultar o catálogo agora. Responda com o que está no CONTEXTO e ofereça confirmar depois.';
+        // A descrição na Yampi vem vazia para boa parte do catálogo — o texto de
+        // verdade (material, acabamento, o que vem na caixa) está na vitrine
+        // Shopify. Sem esse resgate, "qual o material dessa case?" vira handoff.
+        if (!ps.descricao) {
+          try {
+            const base = (await resolveProductStoreUrl(ps.nome, '')).split('?')[0];
+            if (base.includes('/products/')) {
+              const r = await fetch(`${base}.js`, { signal: AbortSignal.timeout(8000) });
+              if (r.ok) {
+                const j = await r.json();
+                const txt = String(j?.description ?? '')
+                  .replace(/<[^>]+>/g, ' ')
+                  .replace(/&nbsp;/g, ' ')
+                  .replace(/\s+/g, ' ')
+                  .trim();
+                if (txt) ps.descricao = txt.slice(0, 700);
+              }
+            }
+          } catch (_) { /* sem descrição: o resto da ficha ainda serve */ }
+        }
         const { variantesDetalhe, ...resto } = ps;
         const truncado = resto.cores.length > 12 || resto.modelos.length > 20 || resto.categorias.length > 8 || resto.semEstoque.length > 12 || variantesDetalhe.length > 12;
         return JSON.stringify({
@@ -3043,9 +3063,14 @@ async function executeTool(
               const status = (((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.name
                 ?? ((order.status as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.alias
                 ?? order.status) as string | undefined;
+              // Itens com id: sem isso o agente não consegue abrir a ficha do que a
+              // pessoa comprou e cai em "não localizei" numa pergunta trivial.
               const items = (((order.items as Record<string, unknown> | undefined)?.data ?? []) as Array<Record<string, unknown>>)
-                .map((i) => ((i.sku as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined)?.title ?? (i.title as string | undefined))
-                .filter(Boolean).slice(0, 5);
+                .map((i) => {
+                  const sk = (((i.sku as Record<string, unknown> | undefined)?.data ?? {}) as Record<string, unknown>);
+                  return { nome: (sk.title ?? i.title ?? '') as string, product_id: sk.product_id ?? null, sku_id: sk.id ?? null };
+                })
+                .filter((i) => !!i.nome).slice(0, 5);
               // Data da Yampi vem como {date:"YYYY-MM-DD HH:MM:SS", timezone:...}.
               const dataBR = (v: unknown) => {
                 const raw = ((v ?? {}) as Record<string, unknown>).date ?? v;
@@ -3066,8 +3091,10 @@ async function executeTool(
                 pedido: order.number ?? order.id,
                 status: status ?? 'desconhecido',
                 entregue: order.delivered ?? null,
-                previsao_entrega: dataBR(order.date_delivery),
-                prazo_frete: order.shipment_service ?? null,
+                // Importação: data exata é promessa que a gente não controla. A janela
+                // do frete é o que vale; a data fica como referência interna.
+                prazo_estimado: order.shipment_service ?? null,
+                data_referencia: dataBR(order.date_delivery),
                 rastreio_codigo: order.track_code ?? null,
                 rastreio_url: order.track_url ?? null,
                 cidade_uf: end.city ? `${end.city}/${end.uf ?? ''}`.replace(/\/$/, '') : null,
@@ -3078,7 +3105,7 @@ async function executeTool(
                 pagamento: pgto || null,
                 comprado_em: dataBR(order.created_at),
                 historico,
-                instrucao: 'Responda em 1 frase com o que foi perguntado. A previsão de entrega é estimativa da transportadora — apresente como "previsto para", nunca como garantia. Nunca invente data que não esteja aqui.',
+                instrucao: 'Prazo: informe SEMPRE a janela de `prazo_estimado` (ex.: "5 a 15 dias úteis"), nunca uma data exata — é importação e a data muda. `data_referencia` é interna: no máximo diga "por volta de". Para dúvida sobre material, cores ou especificação do que ela comprou, chame consultar_produto com o product_id do item.',
               });
             } catch (e) {
               // 403 (credencial sem permissão de Pedidos) ou API fora: cai pro webhook.
@@ -3118,8 +3145,11 @@ async function executeTool(
         const recurso = rec(rec(alvo.raw_payload).resource);
         const statusData = rec(rec(recurso.status).data);
         const itens = ((rec(recurso.items).data ?? []) as Array<Record<string, unknown>>)
-          .map((i) => (rec(rec(i.sku).data).title ?? i.title) as string | undefined)
-          .filter(Boolean).slice(0, 5);
+          .map((i) => {
+            const sk = rec(rec(i.sku).data);
+            return { nome: (sk.title ?? i.title ?? '') as string, product_id: sk.product_id ?? null, sku_id: sk.id ?? null };
+          })
+          .filter((i) => !!i.nome).slice(0, 5);
         const cancelado = doMesmoPedido.some((e) => e.trigger === 'pedido_cancelado');
         const pago = doMesmoPedido.some((e) => e.trigger === 'pedido_pago');
 
@@ -3145,8 +3175,8 @@ async function executeTool(
           pago,
           cancelado,
           entregue: recurso.delivered ?? null,
-          previsao_entrega: dataBRw(recurso.date_delivery),
-          prazo_frete: recurso.shipment_service ?? null,
+          prazo_estimado: recurso.shipment_service ?? null,
+          data_referencia: dataBRw(recurso.date_delivery),
           rastreio_codigo: recurso.track_code ?? null,
           rastreio_url: recurso.track_url ?? null,
           cidade_uf: endW.city ? `${endW.city}/${endW.uf ?? ''}`.replace(/\/$/, '') : null,
@@ -3158,7 +3188,7 @@ async function executeTool(
           comprado_em: dataBRw(recurso.created_at),
           historico: histW,
           atualizado_em: alvo.created_at,
-          instrucao: 'Responda em 1 frase o que foi perguntado. A previsão de entrega é estimativa da transportadora — diga "previsto para", nunca prometa. Nunca invente data que não esteja aqui.',
+          instrucao: 'Prazo: informe SEMPRE a janela de `prazo_estimado` (ex.: "5 a 15 dias úteis"), nunca uma data exata — é importação e a data muda. `data_referencia` é interna: no máximo diga "por volta de". Para dúvida sobre material, cores ou especificação do que ela comprou, chame consultar_produto com o product_id do item.',
         });
       }
 
