@@ -2045,6 +2045,34 @@ function phoneTail(v: string | null | undefined): string {
   return String(v ?? '').replace(/\D/g, '').slice(-8);
 }
 
+/** A partir de quantos dias sem postar a demora deixa de ser normal. */
+const DIAS_POSTAGEM_ESPERADA = 2;
+
+/**
+ * Quantos dias desde o pagamento e se a postagem já passou do aceitável.
+ * Sai calculado da ferramenta de propósito: o modelo erra conta de data, e o
+ * custo do erro aqui é responder "está tudo dentro do prazo" para quem está
+ * esperando há uma semana — que foi como um cliente de teste acabou pedindo
+ * reembolso.
+ */
+function diasEPostagem(o: Record<string, unknown>): Record<string, unknown> {
+  const rec = (v: unknown) => (v ?? {}) as Record<string, unknown>;
+  const st = rec(rec(o.status).data);
+  const alias = String(st.alias ?? '');
+  const despachado = alias === 'on_carriage' || !!String(o.track_code ?? '').trim() || o.delivered === true;
+  const historico = ((rec(o.statuses).data ?? []) as Array<Record<string, unknown>>);
+  const pago = historico.find((h) => h.alias === 'paid');
+  const bruto = (rec(pago?.created_at).date ?? rec(o.created_at).date) as string | undefined;
+  if (typeof bruto !== 'string' || bruto.length < 10) return {};
+  const quando = new Date(`${bruto.slice(0, 19).replace(' ', 'T')}-03:00`);
+  if (Number.isNaN(quando.getTime())) return {};
+  const dias = Math.floor((Date.now() - quando.getTime()) / 86_400_000);
+  return {
+    dias_desde_pagamento: dias,
+    postagem_atrasada: !despachado && dias > DIAS_POSTAGEM_ESPERADA,
+  };
+}
+
 /** Janela em que um pedido pago ainda é alterado direto com o fornecedor. */
 const JANELA_ALTERACAO_DIAS = 2;
 
@@ -3217,6 +3245,7 @@ async function executeTool(
                 // do frete é o que vale; a data fica como referência interna.
                 prazo_estimado: order.shipment_service ?? null,
                 data_referencia: dataBR(order.date_delivery),
+                ...diasEPostagem(order),
                 rastreio_codigo: order.track_code ?? null,
                 rastreio_url: order.track_url ?? null,
                 cidade_uf: end.city ? `${end.city}/${end.uf ?? ''}`.replace(/\/$/, '') : null,
@@ -3299,6 +3328,7 @@ async function executeTool(
           entregue: recurso.delivered ?? null,
           prazo_estimado: recurso.shipment_service ?? null,
           data_referencia: dataBRw(recurso.date_delivery),
+          ...diasEPostagem(recurso),
           rastreio_codigo: recurso.track_code ?? null,
           rastreio_url: recurso.track_url ?? null,
           cidade_uf: endW.city ? `${endW.city}/${endW.uf ?? ''}`.replace(/\/$/, '') : null,
