@@ -136,6 +136,18 @@ const Negocios = () => {
       console.log('📅 No date filter or "todos" - returning undefined');
       return undefined;
     }
+
+    // Período personalizado: `custom:AAAA-MM-DD:AAAA-MM-DD`. Enquanto o usuário
+    // não escolheu as duas pontas, não filtra nada — mostrar lista vazia no meio
+    // da escolha parece bug.
+    if (dateFilter.startsWith('custom:')) {
+      const [, ini, fim] = dateFilter.split(':');
+      if (!ini || !fim) return undefined;
+      return {
+        dataInicio: new Date(`${ini}T00:00:00`).toISOString(),
+        dataFim: new Date(`${fim}T23:59:59.999`).toISOString(),
+      };
+    }
     
     console.log('📅 Date range calculation for filter:', dateFilter);
     

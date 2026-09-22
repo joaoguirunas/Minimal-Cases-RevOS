@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import {
   LayoutGrid, List, Plus, Calendar,
@@ -142,7 +143,21 @@ const NegociosToolbar = ({
     (stage) => !pipelineFilter || stage.pipeline_id === pipelineFilter
   );
 
+  /** Período personalizado viaja como `custom:AAAA-MM-DD:AAAA-MM-DD` no MESMO
+   *  campo de texto dos presets — sem estado novo para manter em sincronia. */
+  const periodoCustom = (() => {
+    if (!dateFilter?.startsWith('custom:')) return { from: undefined, to: undefined };
+    const [, ini, fim] = dateFilter.split(':');
+    const dia = (v: string) => (v ? new Date(`${v}T12:00:00`) : undefined);
+    return { from: dia(ini), to: dia(fim) };
+  })();
+
   const getDateFilterLabel = (value: string) => {
+    if (value?.startsWith('custom:')) {
+      const [, ini, fim] = value.split(':');
+      const br = (v: string) => (v ? v.split('-').reverse().slice(0, 2).join('/') : '');
+      return ini && fim ? `${br(ini)} a ${br(fim)}` : 'Personalizado';
+    }
     switch (value) {
       case 'hoje': return 'Hoje';
       case 'semana': return 'Semana atual';
@@ -466,8 +481,26 @@ const NegociosToolbar = ({
               <SelectItem value="semana">Semana atual</SelectItem>
               <SelectItem value="hoje">Hoje</SelectItem>
               <SelectItem value="todos">Todo período</SelectItem>
+              <SelectItem value="custom:">Personalizado…</SelectItem>
             </SelectContent>
           </Select>
+        )}
+
+        {/* Intervalo personalizado — só aparece com o preset "Personalizado" */}
+        {viewMode !== 'clientes' && dateFilter?.startsWith('custom:') && (
+          <DateRangePicker
+            className="flex-shrink-0"
+            placeholder="Escolher intervalo"
+            showDaysBadge={false}
+            dateRange={periodoCustom}
+            onDateRangeChange={(r) => {
+              // Data local, não UTC: new Date().toISOString() de 01/10 00:00 em
+              // BRT devolveria 30/09 e o filtro perderia o primeiro dia.
+              const iso = (d?: Date) =>
+                d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : '';
+              onDateFilterChange(`custom:${iso(r.from)}:${iso(r.to)}`);
+            }}
+          />
         )}
 
         {/* Mais filtros (secundários) */}
