@@ -3649,6 +3649,32 @@ async function executeTool(
       case 'enviar_botoes': {
         const bBody = String(args.body ?? '').trim();
         if (!bBody) return 'Error: body is required';
+
+        // O rótulo do botão chega como texto comum ("Prazo de entrega"). Se a
+        // pessoa TOCOU numa opção, ela já escolheu: mandar o menu de novo é
+        // fingir que o clique não existiu. Trava por rótulo, independente de
+        // tempo — a de 6h abaixo é a rede para os demais casos.
+        const ROTULOS_MENU = ['meu pedido', 'prazo de entrega', 'falar com o time'];
+        if (ROTULOS_MENU.includes(String(ctx.__mensagem_atual ?? '').trim().toLowerCase())) {
+          return 'A pessoa TOCOU num botão do menu — isso é uma escolha, não um cumprimento. NÃO mande menu. "Meu pedido" e "Prazo de entrega": chame yampi_consultar_pedido e responda em texto (regra 4). "Falar com o time": regra 5 (humano).';
+        }
+
+        // SAC-11 — menu uma vez só. O modelo relia "sua primeira resposta é o
+        // menu" a cada turno e reenviava o mesmo cumprimento no lugar de
+        // responder o botão que a pessoa tocou. Regra de prompt não segurou;
+        // esta trava sim. A janela cobre a conversa do dia — voltar amanhã e
+        // receber o menu de novo é aceitável.
+        const { data: menuRecente } = await supabase
+          .from('ai_agents_execution_log')
+          .select('id')
+          .eq('people_id', ctx.pessoa_id)
+          .contains('tools_used', ['enviar_botoes'])
+          .gte('created_at', new Date(Date.now() - 6 * 3_600_000).toISOString())
+          .limit(1)
+          .maybeSingle();
+        if (menuRecente) {
+          return 'Você JÁ mandou o menu de botões nesta conversa — não mande de novo. A mensagem da pessoa é a resposta dela ao menu: trate "Meu pedido" e "Prazo de entrega" como pergunta sobre o pedido (regra 4, chame yampi_consultar_pedido) e "Falar com o time" como pedido de humano (regra 5). Responda em texto.';
+        }
         const bOpcoes = ((args.opcoes as string[]) ?? [])
           .slice(0, 3)
           .map((o: string) => String(o).trim().slice(0, 20))
@@ -3673,6 +3699,24 @@ async function executeTool(
           const errBody = await bRes.text().catch(() => '');
           return `Error: whatsapp-outbound responded ${bRes.status}: ${errBody.slice(0, 200)}`;
         }
+        // MEM-01 — registra o que foi enviado. whatsapp-outbound só ATUALIZA
+        // linhas de messages (ack, wamid); quem cria é o chamador. Sem isto a
+        // mensagem de botões não existia para o CRM nem para a memória do
+        // agente — que é montada de `messages` — e a cada turno ele concluía,
+        // corretamente, que ainda não tinha cumprimentado, e remandava o menu.
+        await (supabase.from('messages') as any).insert({
+          people_id: ctx.pessoa_id,
+          lead_id: leadId,
+          content: `${bBody}\n[botões: ${bOpcoes.join(' | ')}]`,
+          from_contact: 'agente_ia',
+          source_type: 'ai_agent',
+          channel: 'whatsapp',
+          status: 'sent',
+          message_type: 'texto',
+          execution_id: ctx.__execution_id || null,
+          sent_at: new Date().toISOString(),
+        });
+
         // Suprime o texto final: os botões já carregam o corpo da mensagem.
         ctx.__interactive_sent = 'true';
         return `Botões enviados: ${bOpcoes.join(' | ')}`;
@@ -3712,6 +3756,21 @@ async function executeTool(
           }),
         });
         if (!outboundRes.ok) return `Error: whatsapp-outbound responded ${outboundRes.status}`;
+        // Mesmo registro do enviar_botoes (MEM-01): sem isto o agente não lembra
+        // que já ofereceu os horários.
+        await (supabase.from('messages') as any).insert({
+          people_id: ctx.pessoa_id,
+          lead_id: leadId,
+          content: `${btnBody}\n[botões: ${btnOpcoes.join(' | ')}]`,
+          from_contact: 'agente_ia',
+          source_type: 'ai_agent',
+          channel: 'whatsapp',
+          status: 'sent',
+          message_type: 'texto',
+          execution_id: ctx.__execution_id || null,
+          sent_at: new Date().toISOString(),
+        });
+
         ctx.__interactive_sent = 'true';
         return `Interactive buttons sent successfully: ${btnOpcoes.join(' | ')}`;
       }
@@ -3987,6 +4046,11 @@ async function runAgenticLoop(
 
   // Detect specific time reference in user message (e.g. "às 16h", "16:00", "10h").
   // Exclude button clicks — they already contain time strings but are handled by OVERRIDE ABSOLUTO.
+  // A mensagem do turno também viaja no ctx: o executor de tools roda em outro
+  // escopo e precisa dela para decidir (ex.: não remandar menu para quem acabou
+  // de tocar num botão).
+  ctx.__mensagem_atual = currentMessage;
+
   const isButtonClick = currentMessage.startsWith('[SELEÇÃO DE BOTÃO]');
   // Matches "16h", "16:00", "às 16", "as 16" (no accent common in WhatsApp), "9 horas"
   const TIME_PATTERN = /\b\d{1,2}[:h]\d*\b|\bàs?\s+\d{1,2}\b|\bas\s+\d{1,2}\b|\b\d{1,2}\s*horas?\b/i;
