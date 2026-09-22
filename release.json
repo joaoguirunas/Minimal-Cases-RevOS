@@ -1,12 +1,13 @@
 {
-  "version": "5.62",
+  "version": "5.63",
   "major": 5,
-  "minor": 62,
-  "created_at": "2026-09-22T20:24:15.000Z",
-  "git_sha": "493d8bb106dcfd04dd05165a37fa65959b83f027",
+  "minor": 63,
+  "created_at": "2026-09-22T20:57:20.000Z",
+  "git_sha": "243ebead0781e36bb92c43e3ac68905f66eda55d",
   "migrations": [
-    "supabase/migrations/20260922210000_esteira_sem_sms.sql"
+    "supabase/migrations/20260922230000_esteira_v2_pipeline_gatilhos.sql",
+    "supabase/migrations/20260922233000_esteira_v2_reclassifica.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "chore(esteira): SMS sai da esteira|chore(release): release.json v5.61 [skip ci]"
+  "changelog": "feat(esteira): v2 — cupom pessoal, gatilho de clique por canal e pipeline com prova|chore(release): release.json v5.62 [skip ci]"
 }
