@@ -1,12 +1,12 @@
 {
-  "version": "5.61",
+  "version": "5.62",
   "major": 5,
-  "minor": 61,
-  "created_at": "2026-09-22T20:18:09.000Z",
-  "git_sha": "5cafd74c4dfc8665d653b2aa091bbbc05c34c7ee",
+  "minor": 62,
+  "created_at": "2026-09-22T20:24:15.000Z",
+  "git_sha": "493d8bb106dcfd04dd05165a37fa65959b83f027",
   "migrations": [
-    "supabase/migrations/20260922200000_omni_ordem_e_filtros.sql"
+    "supabase/migrations/20260922210000_esteira_sem_sms.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(omni): não lidas em primeiro, destaque e filtros de triagem|feat(kanban): período personalizado (dia X a dia Y) no filtro de data|feat(sac): demora para postar vira prioridade + handoff, não repetição do prazo|chore(release): release.json v5.58 [skip ci]"
+  "changelog": "chore(esteira): SMS sai da esteira|chore(release): release.json v5.61 [skip ci]"
 }
