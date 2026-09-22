@@ -25,6 +25,10 @@ interface ConversasSimplesParams {
   filtroTime?: string;
   filtroTag?: string;
   filtroChannel?: string;
+  /** Só conversas com mensagem não lida. */
+  apenasNaoLidas?: boolean;
+  /** Só conversas em que o cliente mandou a última mensagem. */
+  ultimaDoCliente?: boolean;
   limit?: number;
   offset?: number;
 }
@@ -45,6 +49,8 @@ async function tryRpc(params: ConversasSimplesParams): Promise<{ data: any[]; co
       p_offset:       params.offset ?? 0,
       p_tag:          (params.filtroTag         && params.filtroTag         !== 'todos') ? params.filtroTag         : null,
       p_channel:      (params.filtroChannel     && params.filtroChannel     !== 'todos') ? params.filtroChannel     : null,
+      p_apenas_nao_lidas:  !!params.apenasNaoLidas,
+      p_ultima_do_cliente: !!params.ultimaDoCliente,
     });
 
     if (error) {
@@ -92,6 +98,9 @@ async function directQuery(params: ConversasSimplesParams): Promise<{ data: any[
     .select('*', { count: 'exact' })
     .or('whatsapp.not.is.null,instagram_id.not.is.null,tiktok_open_id.not.is.null,email.not.is.null')
     .neq('status', 'merged')
+    // Mesma ordem da RPC get_omni_contacts: fila humana → não lidas → recentes.
+    .order('needs_human_at', { ascending: true, nullsFirst: false })
+    .order('unread_count', { ascending: false, nullsFirst: false })
     .order('updated_at', { ascending: false });
 
   if (allowedPeopleIds) query = (query as any).in('id', allowedPeopleIds);
@@ -111,10 +120,16 @@ async function directQuery(params: ConversasSimplesParams): Promise<{ data: any[
     // means "open" (never explicitly closed).
     if (params.statusAtendimento === 'open') {
       query = query.or('service_status.eq.open,service_status.is.null');
+    } else if (params.statusAtendimento === 'nao_respondida') {
+      // Nenhum contato tem service_status = 'nao_respondida'; "pendente" é
+      // "o cliente falou por último" (mesma regra da RPC).
+      query = query.eq('last_message_from', 'cliente').or('service_status.eq.open,service_status.is.null');
     } else {
       query = query.eq('service_status', params.statusAtendimento);
     }
   }
+  if (params.apenasNaoLidas)  query = query.gt('unread_count', 0);
+  if (params.ultimaDoCliente) query = query.eq('last_message_from', 'cliente');
   if (params.atendimentoIA === 'ia_ativa') query = query.eq('ai_enabled', true);
   if (params.atendimentoIA === 'humano')   query = query.eq('ai_enabled', false);
   if (params.filtroData) {

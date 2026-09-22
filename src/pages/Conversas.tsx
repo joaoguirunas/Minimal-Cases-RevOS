@@ -228,6 +228,10 @@ const Conversas = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [filtroStatusAtendimento, setFiltroStatusAtendimento] = useState("open");
   const [filtroAtendimentoIA, setFiltroAtendimentoIA] = useState("todos");
+  // Atalhos de triagem, independentes e combináveis: ficam fora do popover de
+  // filtros porque são o jeito de trabalhar a fila, não um recorte eventual.
+  const [apenasNaoLidas, setApenasNaoLidas] = useState(false);
+  const [ultimaDoCliente, setUltimaDoCliente] = useState(false);
   const [filtroTimeVendas, setFiltroTimeVendas] = useState("todos");
   const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
   const [filtroTag, setFiltroTag] = useState("todos");
@@ -426,8 +430,10 @@ const Conversas = () => {
     filtroResponsavel: isManager ? filtroResponsavel : currentUserId,
     filtroTime: isManager ? filtroTimeVendas : undefined,
     filtroTag,
-    filtroChannel: filtroWhatsappChannel
-  }), [selectedTenantId, searchTerm, filtroStatusAtendimento, filtroAtendimentoIA, dateRange, filtroPipeline, filtroEtapa, filtroResponsavel, filtroTimeVendas, filtroTag, filtroWhatsappChannel, isManager, currentUserId]);
+    filtroChannel: filtroWhatsappChannel,
+    apenasNaoLidas,
+    ultimaDoCliente,
+  }), [selectedTenantId, searchTerm, filtroStatusAtendimento, filtroAtendimentoIA, dateRange, filtroPipeline, filtroEtapa, filtroResponsavel, filtroTimeVendas, filtroTag, filtroWhatsappChannel, isManager, currentUserId, apenasNaoLidas, ultimaDoCliente]);
   const {
     data: filteredConversas,
     isLoading,
@@ -1446,9 +1452,32 @@ const Conversas = () => {
             })}
           </div>
 
-          {/* Contagem */}
-          <div className="text-[11px] text-muted-foreground/60 px-0.5 tabular-nums">
-            {conversasFiltradas.length} {conversasFiltradas.length === 1 ? 'contato' : 'contatos'}
+          {/* Atalhos de triagem + contagem na mesma linha */}
+          <div className="flex items-center gap-1 flex-wrap">
+            {[
+              { ativo: apenasNaoLidas, alterna: () => setApenasNaoLidas(v => !v), label: 'Não lidas',
+                dica: 'Só conversas com mensagem que ninguém do time leu ainda' },
+              { ativo: ultimaDoCliente, alterna: () => setUltimaDoCliente(v => !v), label: 'Aguardando resposta',
+                dica: 'Só conversas em que o cliente mandou a última mensagem' },
+            ].map(({ ativo, alterna, label, dica }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={alterna}
+                title={dica}
+                aria-pressed={ativo}
+                className={`text-[11px] leading-none px-2 py-1 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  ativo
+                    ? 'bg-[#EF4444] border-[#EF4444] text-white font-semibold'
+                    : 'border-border text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            <span className="ml-auto text-[11px] text-muted-foreground/60 px-0.5 tabular-nums">
+              {conversasFiltradas.length} {conversasFiltradas.length === 1 ? 'contato' : 'contatos'}
+            </span>
           </div>
         </div>
 
@@ -2377,14 +2406,17 @@ const PessoaListItem = ({
   return (
     <div
       className={`relative px-3 py-2.5 cursor-pointer transition-all duration-150 ${
-        isSelected ? 'bg-muted' : 'hover:bg-muted/70'
+        isSelected ? 'bg-muted' : hasUnread ? 'bg-[#EF4444]/[0.045] hover:bg-[#EF4444]/[0.08]' : 'hover:bg-muted/70'
       }`}
       onClick={onClick}
     >
-      {/* Indicador de seleção */}
-      {isSelected && (
+      {/* Indicador de seleção — ou, sem seleção, de mensagem esperando resposta.
+          Mesma cor do contador de não lidas, para as duas marcas lerem como uma só. */}
+      {isSelected ? (
         <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-muted-foreground rounded-full" />
-      )}
+      ) : hasUnread ? (
+        <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-[#EF4444] rounded-full" />
+      ) : null}
 
       <div className="flex items-start gap-2.5">
         {/* Avatar */}
@@ -2421,7 +2453,7 @@ const PessoaListItem = ({
 
           {/* Linha 2: preview última mensagem */}
           {pessoa.ultima_mensagem && (
-            <p className="text-[11.5px] text-muted-foreground/50 truncate leading-snug mt-0.5">
+            <p className={`text-[11.5px] truncate leading-snug mt-0.5 ${hasUnread ? 'text-foreground/80 font-medium' : 'text-muted-foreground/50'}`}>
               {pessoa.ultima_mensagem.from_message === 'humano' && (
                 <span className="text-muted-foreground/35">Você: </span>
               )}
