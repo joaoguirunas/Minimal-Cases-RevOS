@@ -1,13 +1,12 @@
 {
-  "version": "5.57",
+  "version": "5.58",
   "major": 5,
-  "minor": 57,
-  "created_at": "2026-09-22T10:45:00.000Z",
-  "git_sha": "6d434057399b4627d2773d0a24598ee66aa80078",
+  "minor": 58,
+  "created_at": "2026-09-22T18:36:41.000Z",
+  "git_sha": "98e2f6897cec912fcf5fec8ada7ff3eec6a26ac7",
   "migrations": [
-    "supabase/migrations/20260921230000_evolution_grupos.sql",
-    "supabase/migrations/20260922100000_app_config_crm_url.sql"
+    "supabase/migrations/20260922180000_omni_nao_lidas_e_ultima_do_lead.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(sac): handoff humano avisa o grupo do atendimento no WhatsApp|feat(evolution): grupos do fornecedor e do atendimento + login com redirecionamento|fix(sac): prazo em janela, ficha do produto comprado e política de devolução|feat(agente): o botão do card abre a variante que o cliente pediu|feat(agente): card de produto com foto e botão, e busca que entende \"capinha\"|feat(agente): busca aberta no catálogo por modelo, cor e termo|fix(sac): o botão sai depois da resposta, não antes|fix(sac): primeiro nome e o botão deixa de engolir a resposta|fix(sac): botão abre o pedido no site, não o rastreio da transportadora|feat(sac): botão de link do pedido — rastreio da transportadora e página da loja|feat(sac): previsão de entrega, menu de botões e abertura de quem já comprou|fix(sac): busca de pedido por telefone e checagem de dono|chore(release): release.json v5.50 [skip ci]"
+  "changelog": "fix(agente): menu de botões repetido — a memória não enxergava o próprio menu|feat(sac): alteração de pedido não despachado vai direto ao grupo do fornecedor"
 }
