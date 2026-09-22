@@ -510,6 +510,17 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
   },
   {
+    name: 'solicitar_alteracao_pedido',
+    description: 'Requests a change to the contact\'s order (swap the product type — model, color or variant) by posting it to the supplier\'s WhatsApp group. The tool itself checks whether the order can still be changed: only paid orders that have NOT been dispatched and were paid within the last 2 days. If it cannot, the tool tells you to hand the case to a human instead. Before calling: confirm with buscar_no_catalogo that the new option exists, and confirm with the contact exactly what they want in one sentence.',
+    parameters: {
+      type: 'object',
+      properties: {
+        alteracao: { type: 'string', description: 'What the contact wants instead, specific enough for the supplier to act without asking — e.g. "Trocar a Case Minimalista Fosca Azul Royal iPhone 14 Pro pela mesma case em Azul Royal para iPhone 15 Pro". Include product, color and phone model of the NEW option.' },
+      },
+      required: ['alteracao'],
+    },
+  },
+  {
     name: 'buscar_no_catalogo',
     description: 'Searches the Minimal Cases catalog by phone model, color and/or a free term, independent of what is in the cart. Use whenever the contact asks what exists ("que capinha amarela tem pro iPhone 14?", "tem de couro pro S24?", "quais cores pro 15 Pro Max?"). Returns matching variants with price, stock and sku_id, and — when the color has no match — the colors that DO exist for that model, so you can offer alternatives instead of just saying no. To send a checkout for one of them, call yampi_enviar_link_pagamento with the sku_id.',
     parameters: {
@@ -2034,6 +2045,96 @@ function phoneTail(v: string | null | undefined): string {
   return String(v ?? '').replace(/\D/g, '').slice(-8);
 }
 
+/** Janela em que um pedido pago ainda é alterado direto com o fornecedor. */
+const JANELA_ALTERACAO_DIAS = 2;
+
+interface PedidoDoContato {
+  numero: string;
+  statusAlias: string;
+  statusNome: string;
+  despachado: boolean;
+  cancelado: boolean;
+  pagoEm: Date | null;
+  itens: string[];
+}
+
+/** Data da Yampi ({date:"YYYY-MM-DD HH:MM:SS", timezone:"America/Sao_Paulo"}) → Date. */
+function dataYampi(v: unknown): Date | null {
+  const raw = ((v ?? {}) as Record<string, unknown>).date ?? v;
+  if (typeof raw !== 'string' || raw.length < 10) return null;
+  const d = new Date(`${raw.slice(0, 19).replace(' ', 'T')}-03:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/** Normaliza um recurso `order` da Yampi (mesmo shape na API e no webhook). */
+function normalizarPedido(o: Record<string, unknown>): PedidoDoContato {
+  const rec = (v: unknown) => (v ?? {}) as Record<string, unknown>;
+  const st = rec(rec(o.status).data);
+  const alias = String(st.alias ?? '');
+  const historico = ((rec(o.statuses).data ?? []) as Array<Record<string, unknown>>);
+  const pago = historico.find((h) => h.alias === 'paid');
+  const itens = ((rec(o.items).data ?? []) as Array<Record<string, unknown>>)
+    .map((i) => String(rec(rec(i.sku).data).title ?? i.title ?? ''))
+    .filter(Boolean);
+  return {
+    numero: String(o.number ?? o.id ?? ''),
+    statusAlias: alias,
+    statusNome: String(st.name ?? alias),
+    // Na loja, rastreio só existe em "Em transporte" (1.441 de 1.441 eventos).
+    // Qualquer um dos três sinais basta: já saiu, não dá mais pra mexer.
+    despachado: alias === 'on_carriage' || !!String(o.track_code ?? '').trim() || o.delivered === true,
+    cancelado: alias === 'cancelled',
+    pagoEm: dataYampi(pago?.created_at) ?? dataYampi(o.created_at),
+    itens,
+  };
+}
+
+/**
+ * Pedido mais recente do contato. Mesma regra de fonte e de dono da
+ * yampi_consultar_pedido: API da loja primeiro (com conferência de e-mail ou
+ * DDD+9 dígitos — o `q` é busca textual ampla), webhooks como queda.
+ */
+async function buscarPedidoDoContato(
+  supabase: ReturnType<typeof createClient>,
+  ctx: { email?: string; whatsapp?: string },
+): Promise<PedidoDoContato | null> {
+  const foneFull = (v: unknown) => {
+    const d = String(v ?? '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
+    return d.length >= 10 ? d.slice(-11) : '';
+  };
+  const alvoEmail = (ctx.email ?? '').toLowerCase().trim();
+  const alvoFone = foneFull(ctx.whatsapp);
+  const fone = String(ctx.whatsapp ?? '').replace(/\D/g, '');
+
+  try {
+    const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
+    const bound = await createYampiClientForConnection(supabase as never);
+    if (bound) {
+      for (const q of [...new Set([alvoEmail, fone.slice(-9), fone].filter((v) => v.length >= 5))]) {
+        const orders = await bound.client.searchOrders(q, 5, 'items,status,statuses,customer');
+        const dono = (orders as Array<Record<string, unknown>>).find((o) => {
+          const c = (((o.customer as Record<string, unknown> | undefined)?.data ?? {}) as Record<string, unknown>);
+          return (!!alvoEmail && String(c.email ?? '').toLowerCase().trim() === alvoEmail)
+            || (!!alvoFone && foneFull(((c.phone ?? {}) as Record<string, unknown>).full_number) === alvoFone);
+        });
+        if (dono) return normalizarPedido(dono);
+      }
+    }
+  } catch (_) { /* 403 ou API fora: cai pro webhook */ }
+
+  const { data: evRows } = await supabase
+    .from('yampi_webhook_events')
+    .select('raw_payload, created_at')
+    .in('trigger', ['pedido_status_atualizado', 'pedido_pago', 'pedido_criado', 'pedido_cancelado'])
+    .order('created_at', { ascending: false })
+    .limit(400);
+  for (const ev of (evRows ?? []) as Array<{ raw_payload: Record<string, unknown> }>) {
+    if (!yampiEventMatchesContact(ev.raw_payload, ctx)) continue;
+    return normalizarPedido((ev.raw_payload.resource ?? {}) as Record<string, unknown>);
+  }
+  return null;
+}
+
 /**
  * URL do produto na loja. O `url` que a Yampi devolve aponta para um domínio que
  * responde 404 — a vitrine é Shopify, com handle próprio. O slug da Yampi é o
@@ -3321,6 +3422,71 @@ async function executeTool(
       // nível do PRODUTO (392 deles), então uma chamada traz os candidatos e o
       // filtro fino sai das variações dos SKUs. Varrer /catalog/skus direto seria
       // inviável: são 21.777, mais de 200 páginas.
+      // SAC-10 — alteração de pedido. A regra de elegibilidade mora AQUI, não no
+      // prompt: é o tipo de decisão que um modelo erra por vontade de ajudar, e
+      // o custo do erro é o fornecedor mexer num pedido que já saiu.
+      case 'solicitar_alteracao_pedido': {
+        const alteracao = String(args.alteracao ?? '').trim();
+        if (alteracao.length < 10) return 'Error: descreva a alteração com produto, cor e modelo da nova opção.';
+
+        const pedido = await buscarPedidoDoContato(supabase, ctx);
+        if (!pedido) {
+          return 'Não encontrei pedido para este contato. Pergunte o e-mail usado na compra e consulte com yampi_consultar_pedido antes de tentar de novo.';
+        }
+
+        const idadeDias = pedido.pagoEm ? (Date.now() - pedido.pagoEm.getTime()) / 86_400_000 : Infinity;
+        const bloqueio =
+          pedido.cancelado ? `o pedido #${pedido.numero} está cancelado`
+          : pedido.despachado ? `o pedido #${pedido.numero} já foi despachado (${pedido.statusNome})`
+          : !['paid', 'authorized'].includes(pedido.statusAlias) ? `o pedido #${pedido.numero} ainda não teve o pagamento aprovado (${pedido.statusNome})`
+          : idadeDias > JANELA_ALTERACAO_DIAS ? `o pedido #${pedido.numero} foi pago há mais de ${JANELA_ALTERACAO_DIAS} dias e pode já estar em separação`
+          : '';
+        if (bloqueio) {
+          return JSON.stringify({
+            alterado: false,
+            motivo: bloqueio,
+            instrucao: 'NÃO prometa a alteração. Explique em 1 frase, sem jargão, que por esse motivo a alteração precisa ser vista pelo time, e passe para humano (regra 5: criar_nota + bloquear_ia com reason "troca: ..." e o resumo).',
+          });
+        }
+
+        const fmt = (d: Date | null) => d ? d.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' }) : null;
+        const { avisarGrupoFornecedor } = await import('../_shared/grupo-atendimento.ts');
+        const envio = await avisarGrupoFornecedor(supabase as never, {
+          numeroPedido: pedido.numero,
+          nome: ctx.nome_completo || ctx.nome || '',
+          whatsapp: ctx.whatsapp,
+          pagoEm: fmt(pedido.pagoEm),
+          itensAtuais: pedido.itens,
+          alteracao,
+        });
+
+        if (!envio.enviado) {
+          // Sem grupo do fornecedor (ou envio falhou): o pedido não pode se perder
+          // no silêncio — vira caso humano.
+          return JSON.stringify({
+            alterado: false,
+            motivo: envio.motivo === 'sem_grupo' ? 'grupo do fornecedor não configurado' : 'falha ao avisar o fornecedor',
+            instrucao: 'Não diga que o pedido foi alterado. Diga que você registrou o pedido de alteração e que o time confirma com ela, e passe para humano (regra 5) com o resumo do que ela quer.',
+          });
+        }
+
+        // Rastro no lead: quem abrir o card vê que houve pedido de alteração.
+        if (leadId) {
+          // `as any`: leads_notes não está no types.ts gerado (mesmo caso do criar_nota).
+          await (supabase.from('leads_notes') as any).insert({
+            lead_id: leadId,
+            title: `Alteração de pedido #${pedido.numero} enviada ao fornecedor`,
+            content: `Pedido #${pedido.numero} (${pedido.statusNome}).\nAntes: ${pedido.itens.join(' | ') || '—'}\nPedido: ${alteracao}`,
+          });
+        }
+
+        return JSON.stringify({
+          alterado: 'solicitado',
+          pedido: pedido.numero,
+          instrucao: 'Confirme para a pessoa que o pedido de alteração foi enviado ao time responsável e que ela recebe a confirmação por aqui. NÃO diga que já foi trocado — quem confirma é o fornecedor. Nada de emoji de festa; 1 emoji neutro no máximo.',
+        });
+      }
+
       case 'buscar_no_catalogo': {
         const { createYampiClientForConnection } = await import('../_shared/yampi-client.ts');
         const bound = await createYampiClientForConnection(supabase as never);
