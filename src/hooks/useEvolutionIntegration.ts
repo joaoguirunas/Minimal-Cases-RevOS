@@ -16,6 +16,10 @@ export interface EvolutionChannel {
   evolution_last_seen_at: string | null;
   active: boolean;
   is_default: boolean;
+  evolution_group_fornecedor_jid: string | null;
+  evolution_group_fornecedor_nome: string | null;
+  evolution_group_atendimento_jid: string | null;
+  evolution_group_atendimento_nome: string | null;
 }
 
 export function useEvolutionChannels() {
@@ -24,7 +28,7 @@ export function useEvolutionChannels() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('settings_whatsapp_channels')
-        .select('id, label, evolution_base_url, evolution_instance_name, evolution_status, evolution_last_seen_at, active, is_default')
+        .select('id, label, evolution_base_url, evolution_instance_name, evolution_status, evolution_last_seen_at, active, is_default, evolution_group_fornecedor_jid, evolution_group_fornecedor_nome, evolution_group_atendimento_jid, evolution_group_atendimento_nome')
         .eq('provider', 'evolution')
         .order('created_at', { ascending: true });
       if (error) throw error;
@@ -134,5 +138,61 @@ export function useEvolutionDelete() {
       toast.success('Canal Evolution removido.');
     },
     onError: (e: Error) => toast.error('Erro ao remover canal: ' + e.message),
+  });
+}
+
+
+// ── Grupos do número (WhatsApp não-oficial) ──────────────────────────────────
+// O número da Evolution fala com o TIME: um grupo recebe pedido de alteração de
+// pedido (fornecedor) e outro recebe o handoff humano (atendimento).
+
+export interface EvolutionGroup {
+  jid: string;
+  nome: string;
+  participantes: number | null;
+}
+
+/** Lista sob demanda: só busca quando o usuário abre o seletor de grupos. */
+export function useEvolutionGroups(channelId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ['evolution-groups', channelId],
+    enabled: !!channelId && enabled,
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('evolution-session-manage', {
+        body: { action: 'groups', channel_id: channelId },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return (data?.grupos ?? []) as EvolutionGroup[];
+    },
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useEvolutionSetGroups() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      channelId: string;
+      fornecedor: { jid: string; nome: string } | null;
+      atendimento: { jid: string; nome: string } | null;
+    }) => {
+      const { data, error } = await supabase.functions.invoke('evolution-session-manage', {
+        body: {
+          action: 'set_groups',
+          channel_id: input.channelId,
+          fornecedor: input.fornecedor,
+          atendimento: input.atendimento,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: CHANNEL_KEY });
+      toast.success('Grupos salvos');
+    },
+    onError: (e: Error) => toast.error(e.message || 'Falha ao salvar grupos'),
   });
 }

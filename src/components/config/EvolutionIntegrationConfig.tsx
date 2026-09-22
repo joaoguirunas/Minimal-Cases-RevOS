@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-import { Loader2, MessageSquareText, Plus, QrCode, Trash2, Unplug } from 'lucide-react';
+import { Loader2, MessageSquareText, Plus, QrCode, Trash2, Unplug, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,8 @@ import {
   useEvolutionStatus,
   useEvolutionLogout,
   useEvolutionDelete,
+  useEvolutionGroups,
+  useEvolutionSetGroups,
   type EvolutionChannel,
 } from '@/hooks/useEvolutionIntegration';
 import { useSetDefaultWhatsappChannel } from '@/hooks/useWhatsappChannels';
@@ -219,6 +221,8 @@ function EvolutionChannelCard({ channel }: { channel: EvolutionChannel }) {
         </p>
       )}
 
+      {isWorking && <GruposDoCanal channel={channel} />}
+
       <div className="flex items-center gap-2 pt-1">
         <Switch
           checked={channel.is_default}
@@ -259,6 +263,121 @@ function EvolutionChannelCard({ channel }: { channel: EvolutionChannel }) {
         >
           <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
           Remover canal
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Escolha dos dois grupos que o agente usa neste número. A lista vem da própria
+ * Evolution (grupos em que o número está) e só é buscada quando o usuário abre
+ * o seletor — a chamada passa pelo servidor de WhatsApp e não vale pagar em toda
+ * renderização da tela de integrações.
+ */
+function GruposDoCanal({ channel }: { channel: EvolutionChannel }) {
+  const [aberto, setAberto] = useState(false);
+  const { data: grupos, isLoading, error, refetch, isRefetching } = useEvolutionGroups(channel.id, aberto);
+  const salvar = useEvolutionSetGroups();
+
+  const [fornecedor, setFornecedor] = useState<string>(channel.evolution_group_fornecedor_jid ?? '');
+  const [atendimento, setAtendimento] = useState<string>(channel.evolution_group_atendimento_jid ?? '');
+
+  useEffect(() => {
+    setFornecedor(channel.evolution_group_fornecedor_jid ?? '');
+    setAtendimento(channel.evolution_group_atendimento_jid ?? '');
+  }, [channel.evolution_group_fornecedor_jid, channel.evolution_group_atendimento_jid]);
+
+  const nomeDe = (jid: string) => grupos?.find((g) => g.jid === jid)?.nome ?? '';
+  const mudou =
+    fornecedor !== (channel.evolution_group_fornecedor_jid ?? '') ||
+    atendimento !== (channel.evolution_group_atendimento_jid ?? '');
+
+  const handleSalvar = () =>
+    salvar.mutate({
+      channelId: channel.id,
+      fornecedor: fornecedor ? { jid: fornecedor, nome: nomeDe(fornecedor) || fornecedor } : null,
+      atendimento: atendimento ? { jid: atendimento, nome: nomeDe(atendimento) || atendimento } : null,
+    });
+
+  const Selecao = ({ label, ajuda, valor, onChange }: {
+    label: string; ajuda: string; valor: string; onChange: (v: string) => void;
+  }) => (
+    <div className="space-y-1">
+      <Label className="text-[12px] text-foreground">{label}</Label>
+      <p className="text-[10px] text-muted-foreground/60 leading-tight">{ajuda}</p>
+      <select
+        value={valor}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={isLoading || !!error}
+        className="mt-1 h-8 w-full rounded-md border border-border bg-background px-2 text-[13px] text-foreground disabled:opacity-50"
+      >
+        <option value="">— nenhum —</option>
+        {grupos?.map((g) => (
+          <option key={g.jid} value={g.jid}>
+            {g.nome}{g.participantes ? ` (${g.participantes})` : ''}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  if (!aberto) {
+    const resumo = [
+      channel.evolution_group_fornecedor_nome && `fornecedor: ${channel.evolution_group_fornecedor_nome}`,
+      channel.evolution_group_atendimento_nome && `atendimento: ${channel.evolution_group_atendimento_nome}`,
+    ].filter(Boolean).join(' · ');
+    return (
+      <div className="pt-1 border-t border-border">
+        <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-[13px] text-muted-foreground px-0" onClick={() => setAberto(true)}>
+          <Users className="h-3.5 w-3.5" strokeWidth={1.5} />
+          {resumo || 'Definir grupos (fornecedor e atendimento)'}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-3 border-t border-border space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[12px] font-medium text-foreground">Grupos deste número</p>
+        <Button size="sm" variant="ghost" className="h-7 text-[12px] text-muted-foreground"
+          onClick={() => refetch()} disabled={isLoading || isRefetching}>
+          {isLoading || isRefetching ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Atualizar lista'}
+        </Button>
+      </div>
+
+      {isLoading && <p className="text-[12px] text-muted-foreground">Buscando grupos no WhatsApp...</p>}
+      {error && <p className="text-[12px] text-destructive">{(error as Error).message}</p>}
+      {!isLoading && !error && (grupos?.length ?? 0) === 0 && (
+        <p className="text-[12px] text-muted-foreground">
+          Este número não está em nenhum grupo. Adicione o número aos grupos no WhatsApp e clique em Atualizar lista.
+        </p>
+      )}
+
+      {!isLoading && !error && (grupos?.length ?? 0) > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Selecao
+            label="Grupo do fornecedor"
+            ajuda="Recebe os pedidos de alteração de pedido que ainda não foi despachado."
+            valor={fornecedor}
+            onChange={setFornecedor}
+          />
+          <Selecao
+            label="Grupo do atendimento"
+            ajuda="Recebe o handoff humano com link da conversa, nome e resumo."
+            valor={atendimento}
+            onChange={setAtendimento}
+          />
+        </div>
+      )}
+
+      <div className="flex items-center gap-2">
+        <Button size="sm" className="h-8 text-[13px]" onClick={handleSalvar} disabled={!mudou || salvar.isPending}>
+          {salvar.isPending ? 'Salvando...' : 'Salvar grupos'}
+        </Button>
+        <Button size="sm" variant="ghost" className="h-8 text-[13px] text-muted-foreground" onClick={() => setAberto(false)}>
+          Fechar
         </Button>
       </div>
     </div>

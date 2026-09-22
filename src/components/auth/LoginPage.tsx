@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +50,20 @@ const LoginPage = () => {
   const { user, signIn, resetPassword, emergencyReset, isLoading, initError } = useAuth();
   const { data: config } = useConfiguracoesGerais();
   const navigate = useNavigate();
+  const location = useLocation();
+  /**
+   * Destino pós-login: a rota que o usuário tentou abrir antes de cair aqui
+   * (guardada pelo ProtectedRoute em location.state.from), ou `?next=` para
+   * links montados fora do app — é o caso do link de atendimento que o agente
+   * manda no grupo do time. Só aceita caminho interno: URL absoluta viraria
+   * open redirect.
+   */
+  const destinoPosLogin = (() => {
+    const fromState = (location.state as { from?: string } | null)?.from;
+    const fromQuery = new URLSearchParams(location.search).get('next');
+    const alvo = fromState || fromQuery || '';
+    return /^\/(?!\/)/.test(alvo) ? alvo : '';
+  })();
 
   const isBlocked = blockedSecondsLeft > 0;
 
@@ -77,10 +91,10 @@ const LoginPage = () => {
   // Redirecionar usuários já autenticados
   useEffect(() => {
     if (user && !isLoading) {
-      console.log('✅ Usuário já autenticado, redirecionando para dashboard');
-      navigate('/bipro', { replace: true });
+      console.log('✅ Usuário já autenticado, redirecionando');
+      navigate(destinoPosLogin || '/bipro', { replace: true });
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, destinoPosLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +128,7 @@ const LoginPage = () => {
       } else {
         setFailedAttempts(0);
         toast.success('Login realizado com sucesso!');
-        navigate('/bipro', { replace: true });
+        navigate(destinoPosLogin || '/bipro', { replace: true });
       }
     } catch (err) {
       const duration = performance.now() - startTime;

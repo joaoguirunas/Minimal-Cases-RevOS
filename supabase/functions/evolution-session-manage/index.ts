@@ -182,6 +182,42 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ ok: true, status: canonical, qr_data_url: qrToDataUrl(result.data), pairing_code: result.data.pairingCode ?? null });
     }
 
+    // ── groups: lista os grupos do número, e salva a escolha do usuário ──────
+    // O número da Evolution fala com o TIME, não com cliente: um grupo é o do
+    // fornecedor (alteração de pedido) e outro o do atendimento (handoff).
+    if (action === 'groups') {
+      const result = await client.groups.fetchAll(channel.evolution_instance_name);
+      if (!result.ok) return jsonResponse({ error: `Falha ao listar grupos: ${result.message ?? result.error}` });
+      const grupos = (Array.isArray(result.data) ? result.data : [])
+        .filter((g) => typeof g.id === 'string' && g.id.endsWith('@g.us'))
+        .map((g) => ({ jid: g.id, nome: String(g.subject ?? g.id), participantes: g.size ?? null }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      return jsonResponse({ ok: true, grupos });
+    }
+
+    if (action === 'set_groups') {
+      const { fornecedor, atendimento } = body as {
+        fornecedor?: { jid: string; nome: string } | null;
+        atendimento?: { jid: string; nome: string } | null;
+      };
+      const valido = (g: { jid?: string } | null | undefined) => !g || (typeof g.jid === 'string' && g.jid.endsWith('@g.us'));
+      if (!valido(fornecedor) || !valido(atendimento)) {
+        return jsonResponse({ error: 'JID de grupo inválido — precisa terminar em @g.us' });
+      }
+      const { error: upErr } = await supabase
+        .from('settings_whatsapp_channels')
+        .update({
+          evolution_group_fornecedor_jid: fornecedor?.jid ?? null,
+          evolution_group_fornecedor_nome: fornecedor?.nome ?? null,
+          evolution_group_atendimento_jid: atendimento?.jid ?? null,
+          evolution_group_atendimento_nome: atendimento?.nome ?? null,
+        })
+        .eq('id', channel.id);
+      if (upErr) return jsonResponse({ error: `Falha ao salvar grupos: ${upErr.message}` });
+      log.info('groups_saved', { channel_id: channel.id, fornecedor: fornecedor?.jid ?? null, atendimento: atendimento?.jid ?? null });
+      return jsonResponse({ ok: true });
+    }
+
     if (action === 'status') {
       const result = await client.instances.connectionState(channel.evolution_instance_name);
       if (!result.ok) return jsonResponse({ error: `Falha ao consultar status: ${result.message ?? result.error}` });

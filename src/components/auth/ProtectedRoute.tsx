@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     signOut
   } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isComercial } = useUserPermissions();
   const { data: settings } = useSettings();
   const [mfaChecked, setMfaChecked] = useState(false);
@@ -30,10 +31,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     if (!isLoading && !user) {
+      // Guarda o destino pra voltar pra cá depois do login. Sem isso, quem abre
+      // um link direto (conversa do Omni, lead, pedido) cai no dashboard e perde
+      // o que veio ver — o caso do link de atendimento mandado no grupo.
+      const destino = `${location.pathname}${location.search}${location.hash}`;
       console.log('🔒 Redirecionando para login');
-      navigate('/login', { replace: true });
+      navigate('/login', { replace: true, state: destino !== '/' ? { from: destino } : undefined });
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, location]);
 
   // Redirecionar para reset-password se for fluxo de recuperação
   useEffect(() => {
@@ -45,9 +50,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Redirecionamento automático para usuários autenticados na página de login (exceto recovery)
   useEffect(() => {
     if (user && window.location.pathname === '/login' && !isPasswordRecovery) {
-      navigate(isComercial ? '/crm/kanban' : '/bipro', { replace: true });
+      const from = (location.state as { from?: string } | null)?.from;
+      navigate(from || (isComercial ? '/crm/kanban' : '/bipro'), { replace: true });
     }
-  }, [user, isPasswordRecovery, navigate, isComercial]);
+  }, [user, isPasswordRecovery, navigate, isComercial, location]);
 
   // MFA guard: redirect gestores to /mfa-verify (AAL2 challenge) or /settings/mfa-setup (enrollment)
   useEffect(() => {

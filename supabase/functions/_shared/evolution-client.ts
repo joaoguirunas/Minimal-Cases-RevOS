@@ -160,6 +160,17 @@ export function buildEvolutionWebhookConfig(params: {
   };
 }
 
+/** Um grupo do WhatsApp como a Evolution devolve em `/group/fetchAllGroups`. */
+export interface EvolutionGroup {
+  /** JID do grupo — sempre `…@g.us`. É a chave estável; o nome pode mudar. */
+  id: string;
+  /** Nome exibido do grupo. */
+  subject?: string;
+  /** Quantidade de participantes. */
+  size?: number;
+  [key: string]: unknown;
+}
+
 /** Resposta de `POST /instance/create`. */
 export interface EvolutionInstance {
   instanceName?: string;
@@ -278,6 +289,14 @@ export interface EvolutionClient {
     delete(instanceName: string): Promise<EvolutionResult<unknown>>;
     /** `POST /instance/restart/{instance}` — reinicia o socket Baileys. */
     restart(instanceName: string): Promise<EvolutionResult<unknown>>;
+  };
+  groups: {
+    /**
+     * `GET /group/fetchAllGroups/{instance}` — grupos em que o número está.
+     * `getParticipants=false`: a lista de membros é cara e não usamos nada dela
+     * para escolher o grupo de destino.
+     */
+    fetchAll(instanceName: string): Promise<EvolutionResult<EvolutionGroup[]>>;
   };
   webhook: {
     /** `POST /webhook/set/{instance}` — (re)configura webhook. */
@@ -707,6 +726,16 @@ export function createEvolutionClient(cfg: EvolutionClientConfig): EvolutionClie
           method: 'POST',
           path: `/instance/restart/${enc(instanceName)}`,
           retryable: WRITE,
+          meta: { instance: instanceName },
+        }),
+    },
+
+    groups: {
+      fetchAll: (instanceName) =>
+        request<EvolutionGroup[]>(internal, {
+          method: 'GET',
+          path: `/group/fetchAllGroups/${enc(instanceName)}?getParticipants=false`,
+          retryable: READ,
           meta: { instance: instanceName },
         }),
     },
