@@ -1,12 +1,12 @@
 {
-  "version": "5.58",
+  "version": "5.61",
   "major": 5,
-  "minor": 58,
-  "created_at": "2026-09-22T18:36:41.000Z",
-  "git_sha": "98e2f6897cec912fcf5fec8ada7ff3eec6a26ac7",
+  "minor": 61,
+  "created_at": "2026-09-22T20:18:09.000Z",
+  "git_sha": "5cafd74c4dfc8665d653b2aa091bbbc05c34c7ee",
   "migrations": [
-    "supabase/migrations/20260922180000_omni_nao_lidas_e_ultima_do_lead.sql"
+    "supabase/migrations/20260922200000_omni_ordem_e_filtros.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "fix(agente): menu de botões repetido — a memória não enxergava o próprio menu|feat(sac): alteração de pedido não despachado vai direto ao grupo do fornecedor"
+  "changelog": "feat(omni): não lidas em primeiro, destaque e filtros de triagem|feat(kanban): período personalizado (dia X a dia Y) no filtro de data|feat(sac): demora para postar vira prioridade + handoff, não repetição do prazo|chore(release): release.json v5.58 [skip ci]"
 }
