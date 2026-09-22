@@ -47,7 +47,7 @@ export async function progressEsteiraStage(
 /**
  * Um lead ASSUMIDO por um comercial (claimed_at) nunca volta pra trás no funil.
  * O webhook `carrinho_abandonado` da Yampi repete a cada novo carrinho da mesma
- * pessoa; sem isso, o segundo evento arrancaria o lead de "Em negociação" e o
+ * pessoa; sem isso, o segundo evento arrancaria o lead de "Com o comercial" e o
  * jogaria de volta em "Carrinho abandonado" — sumindo da mesa do comercial e
  * voltando pro pool.
  *

@@ -8,6 +8,7 @@ import {
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
+import { ensureEsteiraCoupon, formatExpiry, withEsteiraUtm } from "../_shared/esteira-coupon.ts";
 import { buildEsteiraWaComponents, resolveHeaderImage, templateHeaderKind, type TplComponent } from "../_shared/wa-template-render.ts";
 
 // ── Business hours helpers ────────────────────────────────────────────────────
@@ -241,7 +242,7 @@ serve(async (req) => {
       // Buscar dados do lead
       const { data: lead } = await supabase
         .from('leads')
-        .select('id, title, people_id, leads_stages_id, leads_pipelines_id')
+        .select('id, title, people_id, leads_stages_id, leads_pipelines_id, status, created_at')
         .eq('id', entry.lead_id)
         .single();
 
@@ -254,6 +255,57 @@ serve(async (req) => {
           .eq('id', entry.person_id)
           .single();
         pessoa = pessoaData;
+      }
+
+      // ── Guardas da esteira (v2) ──────────────────────────────────────────
+      const cancelEntry = async (motivo: string) => {
+        await supabase.from('followup_queue').update({
+          status: 'cancelled', fired_at: new Date().toISOString(), error_message: motivo,
+        }).eq('id', entry.id);
+        results.push({ id: entry.id, lead_id: entry.lead_id, channel: entry.channel, success: false });
+        console.log(`[followup-trigger-worker] Entry ${entry.id}: ${motivo}`);
+      };
+
+      // Quem já comprou não recebe mais nada da esteira. O cancelamento no
+      // pedido_pago cobre o caso comum; isto cobre o resto (pessoa com lead em
+      // outro pipeline de esteira, pedido que chegou antes da fila existir).
+      if (entry.source_type === 'stage' && lead) {
+        const l = lead as { status?: string; created_at?: string };
+        if (l.status && l.status !== 'in_progress') { await cancelEntry(`auto-cancel: lead ${l.status}`); continue; }
+        if (entry.person_id && l.created_at) {
+          const { data: paid } = await supabase.from('esteira_reconversions').select('order_id')
+            .eq('people_id', entry.person_id).gte('paid_at', l.created_at).limit(1).maybeSingle();
+          if (paid) { await cancelEntry(`auto-cancel: pessoa já comprou (pedido ${(paid as { order_id: string }).order_id})`); continue; }
+        }
+      }
+
+      // Cupom pessoal (NOME15): criado na Yampi ANTES do envio. Falhou → espera e
+      // tenta de novo; nunca sai mensagem com código que não existe.
+      let ruleVarsTop: Record<string, unknown> = {};
+      if (entry.followup_id) {
+        const { data: rvRow } = await supabase.from('leads_stages_followups').select('vars').eq('id', entry.followup_id).maybeSingle();
+        ruleVarsTop = ((rvRow as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
+      }
+      let cupomPessoal: { code: string; expiresAt: string } | null = null;
+      if (ruleVarsTop.cupom_pessoal === true || ruleVarsTop.cupom_pessoal === 'true') {
+        if (!entry.person_id) { await cancelEntry('auto-cancel: toque com cupom pessoal sem pessoa'); continue; }
+        const c = await ensureEsteiraCoupon(supabase, {
+          peopleId: entry.person_id, leadId: entry.lead_id ?? null,
+          firstName: (pessoa?.name ?? '').split(/\s+/)[0] ?? '',
+        });
+        if (c.kind === 'expired') { await cancelEntry(`auto-cancel: cupom ${c.code} vencido`); continue; }
+        if (c.kind === 'error') {
+          const tries = (entry.retry_count ?? 0) + 1;
+          const MAX_TRIES = 3;
+          await supabase.from('followup_queue').update(tries < MAX_TRIES
+            ? { status: 'pending', scheduled_for: new Date(Date.now() + 15 * 60_000).toISOString(), retry_count: tries, error_message: `cupom (tentativa ${tries}/${MAX_TRIES}): ${c.message}` }
+            : { status: 'failed', fired_at: new Date().toISOString(), retry_count: tries, error_message: `cupom não criado após ${MAX_TRIES} tentativas: ${c.message}` },
+          ).eq('id', entry.id);
+          results.push({ id: entry.id, lead_id: entry.lead_id, channel: entry.channel, success: false });
+          console.warn(`[followup-trigger-worker] Entry ${entry.id}: cupom falhou (${tries}) — ${c.message}`);
+          continue;
+        }
+        cupomPessoal = { code: c.code, expiresAt: c.expiresAt };
       }
 
       let success = false;
@@ -307,12 +359,12 @@ serve(async (req) => {
               produto: waCart?.produto ?? 'sua case Minimal',
               modelo_celular: waCart?.modeloCelular ?? 'seu celular',
               preco: formatBRL(waCart?.total ?? null),
-              cupom: String(rv.cupom ?? ''),
-              expira_em: expiraWa,
+              cupom: cupomPessoal?.code ?? String(rv.cupom ?? ''),
+              expira_em: cupomPessoal ? formatExpiry(cupomPessoal.expiresAt) : expiraWa,
             };
             if (rv.wa_button_url && waCart?.url && entry.person_id) {
               waLink = await createTrackedLinkDetailed(supabase, {
-                destination: waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
+                destination: rv.utm_content ? withEsteiraUtm(waCart.url, 'whatsapp', String(rv.utm_content)) : waCart.url, peopleId: entry.person_id, leadId: entry.lead_id, channel: 'whatsapp',
                 source: 'esteira_whatsapp', label: 'wa_button_url', templateName: resolvedTemplateName, followupQueueId: entry.id,
                 abVariantId: (entry as { ab_variant_id?: string | null }).ab_variant_id ?? null,
               });
@@ -492,6 +544,12 @@ serve(async (req) => {
             'link_whatsapp': eCreds.link_whatsapp || 'https://minimalcases.com.br/',
             'unsubscribe': eCreds.unsubscribe_url || (eCreds.from_email ? `mailto:${eCreds.from_email}?subject=Descadastro` : 'https://minimalcases.com.br/'),
           }, ruleVars);
+          if (cupomPessoal) {
+            vars['cupom'] = cupomPessoal.code;
+            vars['cupom_pct'] = '15';
+            vars['expira_em'] = formatExpiry(cupomPessoal.expiresAt);
+            vars['preco_com_cupom'] = formatBRL(total !== null ? total * 0.85 : null);
+          }
 
           // ── Pagamento pendente (Pix/boleto) lido do webhook — sem escopo "Pedidos" ──
           // {{pix_codigo}}, {{pix_expira_em}}, {{boleto_*}}, {{numero_pedido}},

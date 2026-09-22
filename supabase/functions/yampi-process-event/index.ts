@@ -129,14 +129,20 @@ async function moveLead(
   allowCreate = true,
   createdAt: string | null = null,
   skuId: number | null = null,
+  entryTrigger = false,
 ): Promise<string | null> {
-  const { data: existing } = await supabase
+  // Lead ganho (já comprou) não volta pra esteira: um carrinho novo da mesma
+  // pessoa abre um lead novo. Eventos de pedido (cancelado depois de pago etc.)
+  // continuam achando o lead ganho.
+  let q = supabase
     .from('leads')
     .select('id, claimed_at, leads_stages_id')
     .eq('people_id', peopleId)
     .eq('leads_pipelines_id', pipelineId)
     .neq('status', 'lost')
-    .neq('status', 'archived')
+    .neq('status', 'archived');
+  if (entryTrigger) q = q.neq('status', 'won');
+  const { data: existing } = await q
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -198,6 +204,20 @@ async function applyTags(
   for (const t of add) set.add(t.trim());
   for (const t of remove) set.delete(t.trim());
   await supabase.from('clients_people').update({ q23_behavioral_tags: [...set].join(', ') }).eq('id', peopleId);
+}
+
+/** Origens de cupom que só chegam ao cliente por nós (esteira, agente, comercial). */
+const RECOVERY_COUPON_SOURCES = ['esteira', 'agente', 'comercial'];
+
+/** Move o lead para a etapa de mesmo nome no pipeline dele (no-op se não existir). */
+async function moveToStageByName(supabase: SupabaseClient, leadId: string, stageName: string): Promise<void> {
+  const { data: lead } = await supabase.from('leads').select('leads_pipelines_id').eq('id', leadId).maybeSingle();
+  const pipelineId = (lead as { leads_pipelines_id: string | null } | null)?.leads_pipelines_id;
+  if (!pipelineId) return;
+  const { data: st } = await supabase.from('leads_stages').select('id')
+    .eq('leads_pipelines_id', pipelineId).eq('name', stageName).maybeSingle();
+  const stageId = (st as { id: string } | null)?.id;
+  if (stageId) await supabase.from('leads').update({ leads_stages_id: stageId }).eq('id', leadId);
 }
 
 async function loadMapping(supabase: SupabaseClient, trigger: YampiTrigger): Promise<MappingRow | null> {
@@ -342,7 +362,8 @@ Deno.serve(async (req) => {
         if (Number.isFinite(ts)) cartCreatedAt = new Date(ts).toISOString();
       }
       const skuId = extractFirstSkuId(event.raw_payload);
-      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt, skuId);
+      const entryTrigger = trigger === 'carrinho_abandonado' || trigger === 'checkout_iniciado';
+      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt, skuId, entryTrigger);
       if (leadId && parsed.total !== null) {
         await supabase.from('leads').update({ value: parsed.total }).eq('id', leadId);
       }
@@ -356,14 +377,29 @@ Deno.serve(async (req) => {
 
     // ── Fim da esteira: pagou ou cancelou → cancela os toques pendentes ─────
     // Quem já recuperamos (ou desistiu de vez) não pode continuar recebendo
-    // e-mail/SMS/WhatsApp da sequência enfileirada.
-    if ((trigger === 'pedido_pago' || trigger === 'pedido_cancelado') && leadId) {
-      const { error: cancelErr } = await supabase
+    // e-mail/SMS/WhatsApp da sequência enfileirada. Pago cancela em TODOS os
+    // leads da pessoa (a mesma pessoa pode estar em outro pipeline de esteira,
+    // ex. "Esteira Validação" — antes só o lead do mapeamento era limpo e quem
+    // pagou continuava recebendo e-mail pelo outro).
+    if (trigger === 'pedido_pago' || (trigger === 'pedido_cancelado' && leadId)) {
+      const base = supabase
         .from('followup_queue')
         .update({ status: 'cancelled', error_message: `auto-cancel: ${trigger}` })
-        .eq('lead_id', leadId)
         .eq('status', 'pending');
-      if (!cancelErr) log.info('pending_fups_cancelled', { lead_id: leadId, trigger });
+      const { error: cancelErr } = trigger === 'pedido_pago'
+        ? await base.eq('person_id', peopleId)
+        : await base.eq('lead_id', leadId!);
+      if (!cancelErr) log.info('pending_fups_cancelled', { lead_id: leadId, people_id: peopleId, trigger });
+    }
+
+    // ── Status do lead: pago = ganho, cancelado = perdido ───────────────────
+    // A etapa ("Comprou sozinho" vs "Recuperado") é decidida mais abaixo, com a
+    // atribuição. Aqui só o status, que nunca pode depender do enriquecimento.
+    if (leadId && (trigger === 'pedido_pago' || trigger === 'pedido_cancelado')) {
+      const now = new Date().toISOString();
+      await supabase.from('leads').update(
+        trigger === 'pedido_pago' ? { status: 'won', won_at: now } : { status: 'lost', lost_at: now },
+      ).eq('id', leadId);
     }
 
     // LINKS-V2: qualquer sinal de pagamento em andamento/concluído cancela o retorno reativo
@@ -388,7 +424,9 @@ Deno.serve(async (req) => {
           .from('followup_queue')
           .select('channel, fired_at')
           .eq('person_id', peopleId)
-          .eq('status', 'sent')
+          // Envio pelo Klaviyo fica 'queued' (entregue ao Klaviyo, sem callback de
+          // envio). Contar só 'sent' zerava todo toque de e-mail na atribuição.
+          .in('status', ['sent', 'queued'])
           .lt('fired_at', paidAt.toISOString())
           .order('fired_at', { ascending: true });
         const rows = (touches ?? []) as Array<{ channel: string; fired_at: string }>;
@@ -425,8 +463,10 @@ Deno.serve(async (req) => {
         let couponCreatedBy: string | null = null;
         if (couponCode) {
           const { data: cc } = await supabase
-            .from('crm_coupons').select('id, created_by').eq('code', couponCode).maybeSingle();
-          isOurCoupon = !!cc;
+            .from('crm_coupons').select('id, created_by, source').eq('code', couponCode).maybeSingle();
+          // Cupom de vitrine (ex.: INSTA10 do Instagram) está na tabela mas não é
+          // prova de recuperação — qualquer um pode ter visto no perfil.
+          isOurCoupon = !!cc && RECOVERY_COUPON_SOURCES.includes(String((cc as { source?: string }).source ?? ''));
           couponCreatedBy = ((cc as { created_by?: string | null } | null)?.created_by) ?? null;
         }
 
@@ -459,6 +499,7 @@ Deno.serve(async (req) => {
         // atribuição HUMANA já gravada: na 2ª passada o cupom pode ter expirado ou o
         // lead ter mudado de dono, e decideHumanAttribution devolveria null. Se já há
         // recovered_by, o snapshot original manda.
+        const recoveredByUsPre = isOurCoupon || clicked;
         const { data: prevRec } = await supabase
           .from('esteira_reconversions')
           .select('recovered_by, recovery_basis, commission_pct, commission_value')
@@ -476,6 +517,7 @@ Deno.serve(async (req) => {
             commission_value: human.recoveredBy ? commissionValue(parsed.total, commissionPct) : null,
           };
 
+        const recoveredByUs = recoveredByUsPre || !!humanSnapshot.recovered_by;
         await supabase.from('esteira_reconversions').upsert({
           order_id: event.order_id,
           people_id: peopleId,
@@ -499,16 +541,23 @@ Deno.serve(async (req) => {
           ab_experiment_id: (abRow as { experiment_id?: string } | null)?.experiment_id ?? null,
           ab_variant_id: (abRow as { variant_id?: string } | null)?.variant_id ?? null,
           ...humanSnapshot,
+          recovered_by_us: recoveredByUs,
         }, { onConflict: 'order_id' });
+
+        // Etapa final: "Recuperado" só com prova; o mapeamento já deixou em
+        // "Comprou sozinho". Nunca rebaixa (reprocessar não tira de Recuperado).
+        if (leadId && recoveredByUs) {
+          await moveToStageByName(supabase, leadId, 'Recuperado');
+        }
         log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none', recovered_by: humanSnapshot.recovered_by ?? 'none', basis: humanSnapshot.recovery_basis ?? 'none' });
 
         // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a
         // recuperação foi nossa — relatórios da Yampi passam a separar "recuperado-crm".
-        if (attributed) {
+        if (recoveredByUs) {
           try {
             const bound = await createYampiClientForConnection(supabase);
             if (bound) {
-              const tags = ['recuperado-crm', `crm-${attributionLevel}`];
+              const tags = ['recuperado-crm', `crm-${humanSnapshot.recovered_by && !recoveredByUsPre ? 'comercial' : attributionLevel}`];
               await bound.client.request('POST', `/orders/${event.order_id}/tags`, { body: { tags } });
               const customerId = (parsed as unknown as { customerId?: number | string | null }).customerId
                 ?? ((event.raw_payload as Record<string, unknown>)?.resource as Record<string, unknown> | undefined)?.customer_id;

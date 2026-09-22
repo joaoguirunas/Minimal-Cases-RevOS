@@ -10,13 +10,13 @@ export function stageColumns(stages: Stage[]): KanbanColumn[] {
   return stages.map((s) => ({ id: s.id, nome: s.nome ?? s.name, cor: s.cor ?? s.color ?? null, stageIds: [s.id] }));
 }
 
-/** Visão do comercial: pool (3 stages) → Em negociação → Recuperado. Coluna sem stage no pipeline é omitida. */
+/** Visão do comercial: pool (3 stages) → Com o comercial → Recuperado. Coluna sem stage no pipeline é omitida. */
 export function buildCommercialColumns(stages: Stage[]): KanbanColumn[] {
   const byName = new Map(stages.map((s) => [s.nome ?? s.name, s]));
   const pool = COMMERCIAL_POOL_STAGES.map((n) => byName.get(n)).filter((s): s is Stage => !!s);
   const out: KanbanColumn[] = [];
   if (pool.length > 0) out.push({ id: COMMERCIAL_POOL_COLUMN_ID, nome: 'Carrinhos disponíveis', cor: pool[0].cor ?? pool[0].color ?? null, stageIds: pool.map((s) => s.id) });
-  for (const name of ['Em negociação', 'Recuperado'] as const) {
+  for (const name of ['Com o comercial', 'Recuperado'] as const) {
     const s = byName.get(name);
     if (s) out.push({ id: s.id, nome: name, cor: s.cor ?? s.color ?? null, stageIds: [s.id] });
   }

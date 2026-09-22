@@ -230,7 +230,7 @@ const Negocios = () => {
                   claim.mutate(n.id, {
                     onSuccess: (r) =>
                       r.ok
-                        ? toast.success('Carrinho é seu — está em Em negociação')
+                        ? toast.success('Carrinho é seu — está em Com o comercial')
                         : toast.error(r.reason === 'ja_assumido' ? 'Outro comercial pegou este carrinho' : 'Carrinho fora do pool'),
                   });
                 }}

@@ -1,10 +1,11 @@
 /**
  * BIProReconversaoTab — BI da esteira de recuperação (BI-REC-2).
  *
- * Números EXATOS de reconversão: um pedido só conta como "reconvertido por nós"
- * quando o pagamento aconteceu depois de pelo menos um toque enviado (e-mail /
- * WhatsApp / SMS), dentro da janela de atribuição de 7 dias — gravado no momento
- * do pedido pago pelo yampi-process-event (esteira_reconversions).
+ * Números EXATOS de reconversão: um pedido só conta como "recuperado por nós"
+ * com prova — cupom nosso usado, clique em link rastreado antes de pagar (7 dias)
+ * ou atribuição ao comercial. Ter recebido mensagem sem clicar ("janela") aparece
+ * como influência, fora da conta. Gravado no pedido pago pelo yampi-process-event
+ * (esteira_reconversions.recovered_by_us).
  */
 
 import { motion, type Variants } from 'framer-motion';

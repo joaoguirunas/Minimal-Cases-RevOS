@@ -1,4 +1,4 @@
-import { Clock, DollarSign, Target, Users, Zap } from 'lucide-react';
+import { Clock, DollarSign, ShoppingBag, Target, Users, Zap } from 'lucide-react';
 import { Area, AreaChart, ResponsiveContainer } from 'recharts';
 import { StatCard } from '@/components/ui/stat-card';
 import { fmtBRL } from '@/components/dashboard/bipro-shared';
@@ -18,7 +18,7 @@ export default function KpiHero({ agregado: a, scope = 'admin' }: { agregado: Ag
       <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr_1fr] gap-4">
         <StatCard size="hero" icon={DollarSign} label="Receita recuperada" value={fmtBRL(atual.receita)}
           delta={{ value: deltas.receita, label: 'vs. período anterior' }}
-          sub={atual.ticketMedio !== null ? `ticket médio ${fmtBRL(atual.ticketMedio)} · ${atual.reconvertidos} pedidos` : 'nenhum pedido atribuído ainda'}>
+          sub={atual.ticketMedio !== null ? `ticket médio ${fmtBRL(atual.ticketMedio)} · ${atual.reconvertidos} pedidos com prova` : 'nenhum pedido com prova (cupom, clique ou comercial) ainda'}>
           {a.porDia.length > 1 && (
             <div className="h-12 -mx-1 mt-1">
               <ResponsiveContainer width="100%" height="100%">
@@ -30,7 +30,8 @@ export default function KpiHero({ agregado: a, scope = 'admin' }: { agregado: Ag
           )}
         </StatCard>
         <StatCard icon={Target} label={comercial ? 'Recuperados por você' : 'Reconvertidos por nós'} value={String(atual.reconvertidos)}
-          delta={{ value: deltas.reconvertidos }} sub={`${atual.organicos} orgânicos fora da conta`}>
+          delta={{ value: deltas.reconvertidos }}
+          sub={comercial ? `${atual.organicos} fora da conta` : `esteira ${atual.recEsteira} · comercial ${atual.recComercial} · ${atual.influenciados} só influenciados (fora da conta)`}>
           <div className="space-y-1.5 mt-1">
             <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-muted" aria-hidden>
               <div className="bg-emerald-500" style={{ width: `${(porNivel.cupom / nivelTotal) * 100}%` }} />
@@ -44,10 +45,12 @@ export default function KpiHero({ agregado: a, scope = 'admin' }: { agregado: Ag
             </div>
           </div>
         </StatCard>
-        <StatCard icon={Zap} label="Taxa de reconversão" value={pct(atual.taxa)} delta={{ value: deltas.taxa }}
-          sub={`${atual.reconvertidos} de ${atual.leadsTocados} leads tocados`} />
+        <StatCard icon={Zap} label="Das vendas totais" value={pct(atual.participacao)}
+          sub={`${fmtBRL(atual.receita)} de ${fmtBRL(atual.receitaTotal)} · ${atual.reconvertidos} de ${atual.vendasTotais} pedidos pagos`} />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard size="compact" icon={ShoppingBag} label="Vendas totais" value={String(atual.vendasTotais)}
+          sub={`${fmtBRL(atual.receitaTotal)} · taxa sobre tocados ${pct(atual.taxa)}`} />
         <StatCard size="compact" icon={Users} label="Leads tocados" value={String(atual.leadsTocados)} sub="receberam ≥ 1 toque no período" />
         <StatCard size="compact" label="Toques enviados" value={String(atual.toques.total)}
           sub={`e-mail ${atual.toques.email} · WhatsApp ${atual.toques.whatsapp} · SMS ${atual.toques.sms}`} />

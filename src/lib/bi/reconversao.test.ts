@@ -17,6 +17,21 @@ describe('kpis', () => {
   });
 });
 
+describe('recuperado × influenciado', () => {
+  it('só prova conta como recuperado; janela é influência; comercial separado', () => {
+    const k = kpis([
+      r({ recovered_by_us: true }),
+      r({ attribution_level: 'janela', recovered_by_us: false, order_total: 40 }),
+      r({ attributed: false, attribution_level: null, recovered_by_us: true, recovered_by: 'u1', order_total: 60 }),
+      r({ attributed: false, attribution_level: null, recovered_by_us: false, order_total: 200 }),
+    ], []);
+    expect(k.reconvertidos).toBe(2); expect(k.influenciados).toBe(1);
+    expect(k.recEsteira).toBe(1); expect(k.recComercial).toBe(1);
+    expect(k.vendasTotais).toBe(4); expect(k.receitaTotal).toBe(400);
+    expect(k.receita).toBe(160); expect(k.participacao).toBeCloseTo(0.4);
+  });
+});
+
 describe('delta', () => {
   it('fração com sinal; null sem base', () => {
     expect(delta(120, 100)).toBeCloseTo(0.2); expect(delta(80, 100)).toBeCloseTo(-0.2);

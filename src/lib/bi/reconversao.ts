@@ -1,10 +1,10 @@
 import { aggregateClickRates, overallClickRate, type ClickRateRow } from './clicks';
 
 export type Nivel = 'cupom' | 'clique' | 'janela';
-export interface RecRow { order_total: number | null; paid_at: string; attributed: boolean; attribution_level: Nivel | null; people_id: string | null; hours_since_last_touch: number | null; touches_email: number; touches_whatsapp: number; touches_sms: number; coupon_code: string | null }
+export interface RecRow { order_total: number | null; paid_at: string; attributed: boolean; attribution_level: Nivel | null; people_id: string | null; hours_since_last_touch: number | null; touches_email: number; touches_whatsapp: number; touches_sms: number; coupon_code: string | null; recovered_by_us?: boolean | null; recovered_by?: string | null }
 export interface TouchRow { channel: string; person_id: string | null; fired_at: string | null }
 export interface ClickRow { people_id: string | null; first_clicked_at: string | null }
-export interface Kpis { reconvertidos: number; organicos: number; receita: number; ticketMedio: number | null; leadsTocados: number; taxa: number | null; horasMedias: number | null; toques: { email: number; whatsapp: number; sms: number; total: number } }
+export interface Kpis { reconvertidos: number; organicos: number; receita: number; influenciados: number; vendasTotais: number; receitaTotal: number; participacao: number | null; recEsteira: number; recComercial: number; ticketMedio: number | null; leadsTocados: number; taxa: number | null; horasMedias: number | null; toques: { email: number; whatsapp: number; sms: number; total: number } }
 export interface Agregado {
   atual: Kpis; anterior: Kpis;
   deltas: { receita: number | null; reconvertidos: number | null; taxa: number | null; horas: number | null };
@@ -18,11 +18,20 @@ export interface Agregado {
   ctrGeral: { enviados: number; clicados: number; ctr: number | null };
 }
 
+/**
+ * Recuperado POR NÓS = com prova (cupom nosso, clique rastreado antes de pagar ou
+ * comercial). Só ter recebido mensagem ("janela") é influência, não recuperação.
+ * Linhas antigas sem a coluna caem na mesma regra pelo nível de atribuição.
+ */
+export const recuperado = (r: RecRow): boolean =>
+  r.recovered_by_us ?? (r.attributed && (r.attribution_level === 'cupom' || r.attribution_level === 'clique'));
+
 const canal = (c: string) => (c === 'email' ? 'email' : c === 'sms' ? 'sms' : 'whatsapp') as 'email' | 'whatsapp' | 'sms';
 
 export function kpis(rows: RecRow[], touches: TouchRow[]): Kpis {
-  const attributed = rows.filter((r) => r.attributed);
+  const attributed = rows.filter(recuperado);
   const receita = attributed.reduce((a, r) => a + (r.order_total ?? 0), 0);
+  const receitaTotal = rows.reduce((a, r) => a + (r.order_total ?? 0), 0);
   const tocados = new Set(touches.map((t) => t.person_id).filter(Boolean)).size;
   const toques = { email: 0, whatsapp: 0, sms: 0, total: 0 };
   for (const t of touches) { toques[canal(t.channel)]++; toques.total++; }
@@ -31,6 +40,12 @@ export function kpis(rows: RecRow[], touches: TouchRow[]): Kpis {
     reconvertidos: attributed.length,
     organicos: rows.length - attributed.length,
     receita,
+    influenciados: rows.filter((r) => r.attributed && !recuperado(r)).length,
+    vendasTotais: rows.length,
+    receitaTotal,
+    participacao: receitaTotal > 0 ? receita / receitaTotal : null,
+    recComercial: attributed.filter((r) => !!r.recovered_by).length,
+    recEsteira: attributed.filter((r) => !r.recovered_by).length,
     ticketMedio: attributed.length ? receita / attributed.length : null,
     leadsTocados: tocados,
     taxa: tocados ? attributed.length / tocados : null,
@@ -48,7 +63,7 @@ export function aggregateReconversao(input: { rows: RecRow[]; touches: TouchRow[
   const { rows, touches, clicks, prevRows, prevTouches, links } = input;
   const atual = kpis(rows, touches);
   const anterior = kpis(prevRows, prevTouches);
-  const attributed = rows.filter((r) => r.attributed);
+  const attributed = rows.filter(recuperado);
 
   const porNivel: Record<Nivel, number> = { cupom: 0, clique: 0, janela: 0 };
   const porNivelReceita: Record<Nivel | 'organico', number> = { cupom: 0, clique: 0, janela: 0, organico: 0 };

@@ -6,8 +6,9 @@
  *   2. UMA chamada ao banco (rpc record_tracked_click): grava o hit em tracked_link_clicks,
  *      conta só humano não duplicado em tracked_links e devolve o destino;
  *   3. responde 302 imediatamente (robô inclusive — o preview precisa do redirect);
- *   4. em background (EdgeRuntime.waitUntil): move o lead para "Engajou" e, no PRIMEIRO
- *      clique humano, agenda o retorno reativo (se habilitado na config).
+ *   4. em background (EdgeRuntime.waitUntil): move o lead para "Engajou", agenda o toque
+ *      de clique da esteira do canal do link (1ª vez na vida) e, no PRIMEIRO clique humano,
+ *      o retorno reativo do agente (se habilitado na config).
  * Token desconhecido → 302 para a loja. Nunca falha o redirect por causa do log.
  */
 
@@ -77,6 +78,18 @@ Deno.serve(async (req) => {
             // Progressão da esteira (YMP-7): clique humano = engajamento → "Engajou" (forward-only).
             if (row.lead_id) {
               try { await progressEsteiraStage(supabase, row.lead_id, 'Engajou'); } catch (e) { console.warn('[r] progressEsteiraStage falhou', { lead_id: row.lead_id, error: String(e) }); }
+            }
+            // Esteira v2: 1º clique da pessoa num link da esteira agenda o toque de
+            // clique DAQUELE canal (WhatsApp → W-CLICK, e-mail → E-CLICK). Uma vez
+            // na vida por canal; a trava é o UPDATE condicional dentro da RPC.
+            const clickChannel = row.source === 'esteira_whatsapp' ? 'whatsapp' : row.source === 'esteira_email' ? 'email' : null;
+            if (clickChannel && row.lead_id && row.people_id) {
+              try {
+                const { data: why } = await supabase.rpc('schedule_esteira_click_touch', {
+                  p_lead_id: row.lead_id, p_people_id: row.people_id, p_channel: clickChannel,
+                });
+                console.log('[r] toque de clique', { lead_id: row.lead_id, channel: clickChannel, result: why });
+              } catch (e) { console.warn('[r] schedule_esteira_click_touch falhou', { lead_id: row.lead_id, error: String(e) }); }
             }
             // Retorno reativo só no PRIMEIRO clique humano do link (config decide se agenda).
             if (row.first_human) {

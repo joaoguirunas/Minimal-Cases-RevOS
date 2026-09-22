@@ -260,7 +260,7 @@ async function processCallback(deps: ProcessDeps): Promise<Outcome> {
     if (stageId) {
       const { data: st } = await supabase.from('leads_stages').select('name').eq('id', stageId).maybeSingle();
       const stageName = String((st as { name?: string } | null)?.name ?? '');
-      if (['Pagamento pendente', 'Recuperado', 'Perdido'].includes(stageName)) {
+      if (['Pagamento pendente', 'Recuperado', 'Comprou sozinho', 'Perdido'].includes(stageName)) {
         return finish({ status: 'skipped', error_message: `clique_sem_compra: lead em "${stageName}"` }, 'skipped');
       }
     }

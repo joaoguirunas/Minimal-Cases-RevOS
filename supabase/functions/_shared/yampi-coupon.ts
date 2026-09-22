@@ -28,6 +28,13 @@ export interface PickCouponOpts {
   peopleId?: string | null;
   /** Consulta `crm_coupons` pelo código. Sem ela não há checagem de dono (só testes puros). */
   owner?: (code: string) => Promise<CouponOwner | null>;
+  /**
+   * Reaproveitar código base ativo que o CRM não conhece (criado à mão na Yampi).
+   * Padrão true (comportamento do agente). A esteira passa false: ela precisa
+   * saber a validade real pra escrever na mensagem, e um código de dono
+   * desconhecido não tem validade conhecida.
+   */
+  allowUnknownReuse?: boolean;
 }
 
 export interface PickedCoupon {
@@ -61,7 +68,7 @@ export async function pickCouponCode(
   const existing = await find(base);
   if (!existing) return { code: base, reused: false, expiresAt: null };
   if (existing.active && !existing.expired) {
-    const row = await usable(base, true);
+    const row = await usable(base, opts.allowUnknownReuse ?? true);
     if (row !== false) return { code: base, reused: true, expiresAt: row?.expiresAt ?? null };
   }
   for (let n = 2; n <= 9; n++) {
@@ -80,7 +87,8 @@ export async function pickCouponCode(
 export interface CreateCouponOpts {
   firstName: string; percent: number; validityDays: number; freeShipping?: boolean;
   peopleId: string | null; leadId: string | null;
-  source: 'agente' | 'comercial'; createdBy: string | null;
+  source: 'agente' | 'comercial' | 'esteira'; createdBy: string | null;
+  allowUnknownReuse?: boolean;
 }
 
 /**
@@ -123,6 +131,7 @@ export async function createPersonalCoupon(
   const picked = await pickCouponCode(opts.firstName, opts.percent, (c) => client.findPromocode(c), {
     peopleId: opts.peopleId,
     owner: (c) => couponOwnerFromDb(supabase, c),
+    allowUnknownReuse: opts.allowUnknownReuse,
   });
   const { code, reused } = picked;
   const now = new Date();

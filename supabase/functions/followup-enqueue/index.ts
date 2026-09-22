@@ -98,7 +98,10 @@ serve(async (req) => {
         .from('leads_stages_followups')
         .select('*')
         .eq('leads_stages_id', stage_id)
-        .eq('active', true);
+        .eq('active', true)
+        // Regras de clique (esteira v2) moram numa etapa mas só disparam pelo
+        // clique — schedule_esteira_click_touch. Entrar na etapa não as enfileira.
+        .eq('trigger_on', 'stage');
 
       if (fupError) throw fupError;
       const eligible = filterRulesForVariant(followups ?? [], abVariantId);

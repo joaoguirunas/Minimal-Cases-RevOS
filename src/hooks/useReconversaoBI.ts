@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { aggregateReconversao, type Agregado, type RecRow, type TouchRow, type ClickRow } from '@/lib/bi/reconversao';
+import { aggregateReconversao, recuperado, type Agregado, type RecRow, type TouchRow, type ClickRow } from '@/lib/bi/reconversao';
 import { aggregateComissoes, type ComissaoLinha } from '@/lib/bi/comissoes';
 
 const db = supabase as unknown as SupabaseClient;
@@ -34,6 +34,7 @@ export interface ReconversionRow {
   attributed_template_name?: string | null;
   pessoa?: { name: string | null } | null;
   recovered_by: string | null;
+  recovered_by_us: boolean;
   recovery_basis: 'cupom' | 'janela' | null;
   commission_pct: number | null;
   commission_value: number | null;
@@ -81,7 +82,7 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
         .gte('paid_at', from)
         .lte('paid_at', to)
         .order('paid_at', { ascending: false })
-        .limit(500);
+        .limit(5000);
       if (recErr) throw recErr;
       const all = (recData ?? []) as ReconversionRow[];
 
@@ -109,19 +110,21 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
       const comissoes = aggregateComissoes(all as never, namesById);
       const comissaoPeriodo = all.reduce((a, r) => a + (r.commission_value ?? 0), 0);
 
-      const attributed = all.filter((r) => r.attributed);
+      // Recuperado = com prova (cupom/clique/comercial); "janela" é só influência.
+      const attributed = all.filter((r) => recuperado(r as never));
       const organicos = all.length - attributed.length;
+      const comNivel = all.filter((r) => r.attributed);
       const porNivel = {
-        cupom: attributed.filter((r) => r.attribution_level === 'cupom').length,
-        clique: attributed.filter((r) => r.attribution_level === 'clique').length,
-        janela: attributed.filter((r) => r.attribution_level === 'janela').length,
+        cupom: comNivel.filter((r) => r.attribution_level === 'cupom').length,
+        clique: comNivel.filter((r) => r.attribution_level === 'clique').length,
+        janela: comNivel.filter((r) => r.attribution_level === 'janela').length,
       };
 
       // ── Toques enviados no período (por canal) + leads tocados ───────────
       const { data: touchData, error: tErr } = await db
         .from('followup_queue')
         .select('channel, person_id, fired_at')
-        .eq('status', 'sent')
+        .in('status', ['sent', 'queued']) // Klaviyo fica 'queued'
         .gte('fired_at', from)
         .lte('fired_at', to)
         .limit(10000);
@@ -148,11 +151,11 @@ export function useReconversaoBI(dateFrom?: string, dateTo?: string) {
           .select('*')
           .gte('paid_at', prevFrom)
           .lte('paid_at', prevTo)
-          .limit(500),
+          .limit(5000),
         db
           .from('followup_queue')
           .select('channel, person_id, fired_at')
-          .eq('status', 'sent')
+          .in('status', ['sent', 'queued']) // Klaviyo fica 'queued'
           .gte('fired_at', prevFrom)
           .lte('fired_at', prevTo)
           .limit(10000),

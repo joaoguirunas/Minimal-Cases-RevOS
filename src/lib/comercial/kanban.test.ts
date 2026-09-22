@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { buildCommercialColumns, stageColumns, groupByColumn, ageDays, COMMERCIAL_POOL_STAGES } from './kanban';
 
 const st = (id: string, name: string, order_index: number) => ({ id, name, nome: name, order_index, ordem: order_index, leads_pipelines_id: 'P', pipeline_id: 'P', active: true, ativo: true });
-const stages = [st('ca', 'Carrinho abandonado', 0), st('er', 'Em recuperação', 1), st('en', 'Engajou', 2), st('neg', 'Em negociação', 3), st('pp', 'Pagamento pendente', 4), st('pr', 'Pagamento recusado', 5), st('rec', 'Recuperado', 6), st('per', 'Perdido', 7)];
+const stages = [st('ca', 'Carrinho abandonado', 0), st('er', 'Em recuperação', 1), st('en', 'Engajou', 2), st('neg', 'Com o comercial', 3), st('pp', 'Pagamento pendente', 4), st('pr', 'Pagamento recusado', 5), st('rec', 'Recuperado', 6), st('per', 'Perdido', 7)];
 
 describe('buildCommercialColumns', () => {
   it('3 colunas: disponíveis (3 stages), em negociação, recuperado', () => {
     const cols = buildCommercialColumns(stages as never);
-    expect(cols.map((c) => c.nome)).toEqual(['Carrinhos disponíveis', 'Em negociação', 'Recuperado']);
+    expect(cols.map((c) => c.nome)).toEqual(['Carrinhos disponíveis', 'Com o comercial', 'Recuperado']);
     expect(cols[0].stageIds).toEqual(['ca', 'er', 'en']);
     expect(cols[1].stageIds).toEqual(['neg']);
     expect(cols[2].stageIds).toEqual(['rec']);
