@@ -321,13 +321,14 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: 'bloquear_ia',
-    description: 'Disables AI for this person (ai_enabled=false). ONLY use when the person explicitly rejects the AI or asks for the real human by name. NEVER use for scheduling meetings — use enviar_link_agendamento instead.',
+    description: 'Hands the conversation to the human team: disables AI for this person, puts them at the top of the service queue, lights the bell in the panel and posts the case in the team\'s WhatsApp group with a direct link. Use whenever your rules say the case goes to a human (cancellation, refund, exchange, defect, complaint, explicit request for a person, anything you cannot resolve). NEVER use for scheduling meetings — use enviar_link_agendamento instead.',
     parameters: {
       type: 'object',
       properties: {
-        reason: { type: 'string', description: 'Reason for disabling AI (stored in notes)' },
+        reason: { type: 'string', description: 'Why the case goes to a human, starting with the case word — e.g. "cancelamento: quer cancelar o pedido 32844". Shown to the team as the case title.' },
+        resumo: { type: 'string', description: 'What the team needs to take over without reading the whole chat, in 2-3 short lines: who it is, which order, what they want and what was already said. Same text you put in criar_nota.' },
       },
-      required: [],
+      required: ['reason', 'resumo'],
     },
   },
   {
@@ -2402,7 +2403,27 @@ async function executeTool(
         });
         if (queueErr) console.error('[bloquear_ia] flag_needs_human falhou', queueErr.message);
 
-        return 'AI disabled for this person — human takeover';
+        // SAC-09 — o time vive no WhatsApp, não no CRM: sem este aviso o caso só
+        // aparece para quem está com o painel aberto. Vai para o grupo escolhido
+        // em Integrações. Awaited e nunca derruba o handoff: fila e sino já
+        // foram garantidos acima.
+        let avisoGrupo = '';
+        try {
+          const { avisarGrupoAtendimento } = await import('../_shared/grupo-atendimento.ts');
+          const r = await avisarGrupoAtendimento(supabase as never, {
+            peopleId: ctx.pessoa_id,
+            nome: ctx.nome_completo || ctx.nome || '',
+            whatsapp: ctx.whatsapp,
+            motivo: String(args.reason ?? 'não especificado'),
+            resumo: (args.resumo as string | undefined) ?? null,
+          });
+          avisoGrupo = r.enviado ? ` Caso avisado no grupo "${r.grupo}".` : '';
+          if (!r.enviado && r.motivo === 'falha_envio') console.error('[bloquear_ia] aviso no grupo falhou', r.detalhe);
+        } catch (e) {
+          console.error('[bloquear_ia] aviso no grupo lançou', (e as Error).message);
+        }
+
+        return `AI disabled for this person — human takeover.${avisoGrupo}`;
       }
 
       case 'criar_agendamento': {
