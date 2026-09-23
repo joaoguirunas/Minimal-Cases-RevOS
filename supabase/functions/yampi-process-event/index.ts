@@ -130,13 +130,14 @@ async function moveLead(
   createdAt: string | null = null,
   skuId: number | null = null,
   entryTrigger = false,
+  cancelTrigger = false,
 ): Promise<string | null> {
   // Lead ganho (já comprou) não volta pra esteira: um carrinho novo da mesma
   // pessoa abre um lead novo. Eventos de pedido (cancelado depois de pago etc.)
   // continuam achando o lead ganho.
   let q = supabase
     .from('leads')
-    .select('id, claimed_at, leads_stages_id')
+    .select('id, claimed_at, leads_stages_id, status, won_at')
     .eq('people_id', peopleId)
     .eq('leads_pipelines_id', pipelineId)
     .neq('status', 'lost')
@@ -147,7 +148,17 @@ async function moveLead(
     .limit(1)
     .maybeSingle();
 
-  if (existing) {
+  // Lead ganho só se move por cancelamento. Cartão manda pedido_criado e
+  // pedido_pago no mesmo segundo; processados em paralelo, o "criado" chegava
+  // depois e puxava o lead já ganho de volta para "Pagamento pendente".
+  // Ganho há mais de 1h = é outra compra: abre lead novo.
+  const wonLead = existing as { status?: string; won_at?: string | null } | null;
+  if (wonLead?.status === 'won' && !cancelTrigger) {
+    const wonAgoMs = wonLead.won_at ? Date.now() - new Date(wonLead.won_at).getTime() : 0;
+    if (wonAgoMs < 3_600_000) return (existing as { id: string }).id;
+  }
+
+  if (existing && !(wonLead?.status === 'won' && !cancelTrigger)) {
     const lead = existing as { id: string; claimed_at: string | null; leads_stages_id: string | null };
     // Carrinho abandonado repetido não pode arrancar um lead assumido de "Em
     // negociação" — só olhamos order_index quando há dono (1 query a mais).
@@ -363,7 +374,7 @@ Deno.serve(async (req) => {
       }
       const skuId = extractFirstSkuId(event.raw_payload);
       const entryTrigger = trigger === 'carrinho_abandonado' || trigger === 'checkout_iniciado';
-      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt, skuId, entryTrigger);
+      leadId = await moveLead(supabase, peopleId, mapping.target_pipeline_id, mapping.target_stage_id, title, intakeEnabled, cartCreatedAt, skuId, entryTrigger, trigger === 'pedido_cancelado');
       if (leadId && parsed.total !== null) {
         await supabase.from('leads').update({ value: parsed.total }).eq('id', leadId);
       }
