@@ -326,7 +326,23 @@ serve(async (req) => {
         if (entry.person_id && l.created_at) {
           const { data: paid } = await supabase.from('esteira_reconversions').select('order_id')
             .eq('people_id', entry.person_id).gte('paid_at', l.created_at).limit(1).maybeSingle();
-          if (paid) { await cancelEntry(`auto-cancel: pessoa já comprou (pedido ${(paid as { order_id: string }).order_id})`); continue; }
+          if (paid) {
+            // Fecha o lead inteiro, não só este toque: senão os próximos ficavam
+            // "agendados" no kanban e o lead parecia ativo.
+            const motivo = `auto-cancel: pessoa já comprou (pedido ${(paid as { order_id: string }).order_id})`;
+            await supabase.from('followup_queue').update({ status: 'cancelled', fired_at: new Date().toISOString(), error_message: motivo })
+              .eq('lead_id', entry.lead_id).in('status', ['pending', 'held']).neq('id', entry.id);
+            const l2 = lead as { leads_pipelines_id?: string | null };
+            const { data: st } = l2.leads_pipelines_id
+              ? await supabase.from('leads_stages').select('id').eq('leads_pipelines_id', l2.leads_pipelines_id).eq('name', 'Comprou sozinho').maybeSingle()
+              : { data: null };
+            await supabase.from('leads').update({
+              status: 'won', won_at: new Date().toISOString(),
+              ...((st as { id?: string } | null)?.id ? { leads_stages_id: (st as { id: string }).id } : {}),
+            }).eq('id', entry.lead_id).eq('status', 'in_progress');
+            await cancelEntry(motivo);
+            continue;
+          }
         }
       }
 
