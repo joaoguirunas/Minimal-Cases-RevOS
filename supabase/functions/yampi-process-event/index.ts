@@ -27,6 +27,7 @@ import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
 import { findTrackedClickBefore } from '../_shared/tracked-links.ts';
 import { decideHumanAttribution, commissionValue, extractFirstSkuId } from '../_shared/comercial-attribution.ts';
 import { shouldMoveStage } from '../_shared/esteira-progress.ts';
+import { upsertYampiOrder } from '../_shared/orders-store.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -286,6 +287,16 @@ Deno.serve(async (req) => {
     }
     const trigger = event.trigger;
     const parsed = parseYampiPayload(event.raw_payload);
+
+    // BI: todo evento de pedido atualiza orders/order_items (o payload já vem completo).
+    // Nunca falha o evento.
+    if (event.order_id && trigger !== 'carrinho_abandonado' && trigger !== 'checkout_iniciado') {
+      const resource = (event.raw_payload as Record<string, unknown>)?.resource as Record<string, unknown> | undefined;
+      if (resource?.id) {
+        try { await upsertYampiOrder(supabase, resource); }
+        catch (e) { log.warn('orders_upsert_failed', { order_id: event.order_id, error: (e as Error).message }); }
+      }
+    }
 
     // ── Precedence guard (order- or cart-scoped) ────────────────────────────
     const scope = guardScope(event);
