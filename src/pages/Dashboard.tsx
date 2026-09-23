@@ -3,7 +3,9 @@ import type { ComponentType } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
-import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2 } from "lucide-react";
+import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2, LayoutDashboard, RotateCcw, Send, type LucideIcon } from "lucide-react";
+import { BiFiltersBar, type BiFilters } from "@/components/bi/BiFiltersBar";
+import { resolvePeriod, comparePeriod } from "@/lib/bi/period";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBIProAdAccounts } from "@/hooks/useBIProAdAccounts";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
@@ -21,8 +23,13 @@ const BIProComercialTab = lazy(() => import("@/components/dashboard/BIProComerci
 const BIProMarketingTab = lazy(() => import("@/components/dashboard/BIProMarketingTab"));
 const BIProInsightsTab  = lazy(() => import("@/components/dashboard/BIProInsightsTab"));
 const BIProReconversaoTab = lazy(() => import("@/components/dashboard/BIProReconversaoTab"));
+const VisaoGeralTab  = lazy(() => import("@/components/bi/tabs/VisaoGeralTab"));
+const RecuperacaoTab = lazy(() => import("@/components/bi/tabs/RecuperacaoTab"));
+const EsteiraTab     = lazy(() => import("@/components/bi/tabs/EsteiraTab"));
 
-type TabKey = 'reconversao' | 'revops' | 'comercial' | 'marketing' | 'insights';
+type TabKey = 'visao' | 'recuperacao' | 'esteira' | 'reconversao' | 'revops' | 'comercial' | 'marketing' | 'insights';
+/** Abas do BI novo (filtros próprios, cálculo no banco). */
+const BI_TABS: TabKey[] = ['visao', 'recuperacao', 'esteira'];
 
 const TAB_TRIGGER_CLASS =
   'flex items-center gap-1.5 px-4 h-full text-[13px] font-medium transition-colors ' +
@@ -37,9 +44,13 @@ const TAB_TRIGGER_CLASS =
 const ALL_TABS: Array<{
   key: TabKey;
   label: string;
-  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
 }> = [
-  { key: 'reconversao', label: 'Reconversão', icon: TrendingUp },
+  { key: 'visao',       label: 'Visão Geral', icon: LayoutDashboard },
+  { key: 'recuperacao', label: 'Recuperação', icon: RotateCcw },
+  { key: 'esteira',     label: 'Esteira',     icon: Send },
+  // Reconversão: só para o comercial (é onde ele vê a própria comissão).
+  { key: 'reconversao', label: 'Minha comissão', icon: TrendingUp },
   // { key: 'insights',  label: 'Insights',  icon: Sparkles   },
   // { key: 'revops',    label: 'RevOps',    icon: TrendingUp },
   // { key: 'comercial', label: 'Comercial', icon: Briefcase  },
@@ -52,7 +63,10 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
   const { accounts, syncAccount } = useBIProAdAccounts();
   const { isComercial } = useUserPermissions();
-  const [activeTab, setActiveTab] = useState<TabKey>('reconversao');
+  const [activeTab, setActiveTab] = useState<TabKey>(isComercial ? 'recuperacao' : 'visao');
+  const [biFilters, setBiFilters] = useState<BiFilters>({ period: '30d', compare: 'previous' });
+  const biCur = resolvePeriod(biFilters.period, biFilters.custom);
+  const biCmp = comparePeriod(biCur, biFilters.compare);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -139,7 +153,9 @@ const Dashboard = () => {
   }, [setLoading]);
 
   const tabs = useMemo(
-    () => (isComercial ? ALL_TABS.filter(tab => tab.key === 'reconversao') : ALL_TABS),
+    () => (isComercial
+      ? ALL_TABS.filter(tab => tab.key === 'recuperacao' || tab.key === 'reconversao')
+      : ALL_TABS.filter(tab => tab.key !== 'reconversao')),
     [isComercial]
   );
 
@@ -206,7 +222,14 @@ const Dashboard = () => {
       </div>
 
       {/* ── Filters bar — hidden on Insights (pure chat) ────────────────── */}
-      {activeTab !== 'insights' && (
+      {BI_TABS.includes(activeTab) && (
+        <div className="flex-none border-b border-border bg-background">
+          <div className="px-3 sm:px-6 py-2">
+            <BiFiltersBar value={biFilters} onChange={setBiFilters} />
+          </div>
+        </div>
+      )}
+      {activeTab !== 'insights' && !BI_TABS.includes(activeTab) && (
         <div className="flex-none border-b border-border bg-background">
           <div className="px-3 sm:px-6 py-2">
             <DashboardFilters
@@ -242,6 +265,28 @@ const Dashboard = () => {
               </SectionErrorBoundary>
             </div>
           )}
+
+          <TabsContent value="visao" className="mt-0">
+            <SectionErrorBoundary section="BI Visão Geral">
+              <Suspense fallback={tabLoader}>
+                <VisaoGeralTab from={biCur.from} to={biCur.to} cmpFrom={biCmp.from} cmpTo={biCmp.to} />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
+          <TabsContent value="recuperacao" className="mt-0">
+            <SectionErrorBoundary section="BI Recuperação">
+              <Suspense fallback={tabLoader}>
+                <RecuperacaoTab from={biCur.from} to={biCur.to} />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
+          <TabsContent value="esteira" className="mt-0">
+            <SectionErrorBoundary section="BI Esteira">
+              <Suspense fallback={tabLoader}>
+                <EsteiraTab from={biCur.from} to={biCur.to} isAdmin={!isComercial} />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
 
           <TabsContent value="reconversao" className="mt-0">
             <SectionErrorBoundary section="BI Reconversão">
