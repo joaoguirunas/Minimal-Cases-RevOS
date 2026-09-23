@@ -57,6 +57,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/**
+ * Número no formato internacional. A Yampi entrega "DDD + número" (10–11
+ * dígitos) sem o 55, e a Meta lê o começo como código de país: 51… vira Peru,
+ * 44… Reino Unido, 16… EUA/Canadá — a mensagem pode chegar a um estranho.
+ * Com 10–11 dígitos é sempre número brasileiro sem o país.
+ */
+function toWhatsAppBR(raw: string | null): string | null {
+  const d = String(raw ?? '').replace(/\D/g, '');
+  if (!d) return null;
+  return d.length === 10 || d.length === 11 ? `55${d}` : d;
+}
+
 // ── Guarda de estoque (Yampi GET /catalog/skus/{id}) — cache por invocação ──────
 const skuStockCache = new Map<number, boolean>();
 async function isSkuSoldOut(supabase: never, skuId: number): Promise<boolean> {
@@ -352,7 +364,7 @@ serve(async (req) => {
 
       // ── whatsapp_template: disparo direto via whatsapp-outbound ─────────
       if (entry.channel === 'whatsapp_template' && entry.template_id) {
-        const toNumber = entry.phone_number ?? pessoa?.whatsapp ?? pessoa?.telefone ?? null;
+        const toNumber = toWhatsAppBR(entry.phone_number ?? pessoa?.whatsapp ?? pessoa?.telefone ?? null);
         if (!toNumber) {
           errorMsg = 'Sem número de telefone disponível para envio WA';
           console.warn(`[followup-trigger-worker] Entry ${entry.id}: ${errorMsg}`);
