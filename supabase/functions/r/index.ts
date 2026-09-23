@@ -105,7 +105,17 @@ Deno.serve(async (req) => {
   }
 
   if (extraQs && destination !== FALLBACK_URL) {
-    destination += (destination.includes('?') ? '&' : '?') + extraQs;
+    // Param do template substitui o de mesmo nome no destino: o carrinho da Yampi
+    // já vem com utm_source=google, e "…&utm_source=crm" anexado duplicava a chave
+    // (a loja lê a primeira → venda atribuída ao Google).
+    try {
+      const d = new URL(destination);
+      for (const k of new Set([...extra.keys()])) d.searchParams.delete(k);
+      for (const [k, v] of extra) d.searchParams.append(k, v);
+      destination = d.toString();
+    } catch (_) {
+      destination += (destination.includes('?') ? '&' : '?') + extraQs;
+    }
   }
 
   let res: Response;

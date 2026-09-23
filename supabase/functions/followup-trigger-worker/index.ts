@@ -128,6 +128,15 @@ serve(async (req) => {
     // existe PELO MENOS UM canal ativo (Meta OU Evolution), pra dar um erro claro
     // aqui em vez de deixar a chamada falhar sem contexto.
     let hasActiveWaChannel = false;
+    // Template da Meta só existe no número oficial. Sem canal explícito, o
+    // whatsapp-outbound cai no canal padrão — que já foi o Evolution (número dos
+    // grupos) e fez a esteira tentar mandar template por lá. Template = Meta, sempre.
+    let metaChannelId: string | null = null;
+    {
+      const { data: metaCh } = await supabase.from('settings_whatsapp_channels').select('id')
+        .eq('provider', 'meta').eq('active', true).order('is_default', { ascending: false }).limit(1).maybeSingle();
+      metaChannelId = (metaCh as { id?: string } | null)?.id ?? null;
+    }
     {
       const { count } = await supabase
         .from('settings_whatsapp_channels')
@@ -455,6 +464,7 @@ serve(async (req) => {
                 },
                 body: JSON.stringify({
                   to:              toNumber,
+                  ...(metaChannelId ? { channel_id: metaChannelId } : {}),
                   // Sem phone_number_id explícito — whatsapp-outbound resolve o canal
                   // certo (Meta ou Evolution) via people_id -> active_channel_id.
                   people_id:       entry.person_id ?? null,
@@ -469,6 +479,18 @@ serve(async (req) => {
               }
             );
             success = waRes.ok;
+            // 200 não quer dizer que saiu: o outbound devolve { failed: n } por mensagem.
+            if (waRes.ok) {
+              const body = await waRes.clone().json().catch(() => null) as { failed?: number; error?: string } | null;
+              if (body && ((body.failed ?? 0) > 0 || body.error)) {
+                success = false;
+                const { data: m } = insertedMsg
+                  ? await supabase.from('messages').select('metadata').eq('id', insertedMsg.id).maybeSingle()
+                  : { data: null };
+                const reason = ((m as { metadata?: { error_reason?: string } } | null)?.metadata?.error_reason) ?? body.error ?? 'falha no envio';
+                errorMsg = `WA não enviado: ${String(reason).slice(0, 200)}`;
+              }
+            }
             if (!waRes.ok) {
               const errBody = await waRes.text().catch(() => '');
               errorMsg = `WA HTTP ${waRes.status}: ${errBody.slice(0, 200)}`;

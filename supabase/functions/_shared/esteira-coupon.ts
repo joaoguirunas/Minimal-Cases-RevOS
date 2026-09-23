@@ -84,11 +84,15 @@ export function formatExpiry(iso: string): string {
     .replace(',', ' às');
 }
 
-/** Acrescenta as UTMs da esteira ao destino (sem duplicar as que já existem). */
+/**
+ * Põe as UTMs da esteira no destino, SOBRESCREVENDO as que vierem nele: o link
+ * de carrinho da Yampi já nasce com utm_source=google&utm_campaign= (vazio), e
+ * a venda seria atribuída ao Google.
+ */
 export function withEsteiraUtm(url: string, medium: 'whatsapp' | 'email', content: string): string {
   try {
     const u = new URL(url);
-    const set = (k: string, v: string) => { if (!u.searchParams.has(k)) u.searchParams.set(k, v); };
+    const set = (k: string, v: string) => u.searchParams.set(k, v);
     set('utm_source', 'crm');
     set('utm_medium', medium);
     set('utm_campaign', 'carrinho-abandonado');

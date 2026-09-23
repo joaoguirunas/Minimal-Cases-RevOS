@@ -17,10 +17,10 @@ Deno.test('cupom sem validade conhecida não é mostrado', () => {
   assertEquals(judgeExisting({ code: 'ANA15', expires_at: null }, now).kind, 'expired');
 });
 
-Deno.test('UTM entra sem duplicar e sem perder params do carrinho', () => {
-  const u = new URL(withEsteiraUtm('https://seguro.minimalcases.com.br/cart?token=abc&utm_source=x', 'whatsapp', 'w1'));
+Deno.test('UTM da esteira sobrescreve a da Yampi e mantém os params do carrinho', () => {
+  const u = new URL(withEsteiraUtm('https://seguro.minimalcases.com.br/cart?token=abc&utm_source=google&utm_campaign=+', 'whatsapp', 'w1'));
   assertEquals(u.searchParams.get('token'), 'abc');
-  assertEquals(u.searchParams.get('utm_source'), 'x');
+  assertEquals(u.searchParams.getAll('utm_source'), ['crm']);
   assertEquals(u.searchParams.get('utm_medium'), 'whatsapp');
   assertEquals(u.searchParams.get('utm_campaign'), 'carrinho-abandonado');
   assertEquals(u.searchParams.get('utm_content'), 'w1');
