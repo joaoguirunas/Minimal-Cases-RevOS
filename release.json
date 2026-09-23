@@ -1,13 +1,14 @@
 {
-  "version": "5.63",
+  "version": "5.65",
   "major": 5,
-  "minor": 63,
-  "created_at": "2026-09-22T20:57:20.000Z",
-  "git_sha": "243ebead0781e36bb92c43e3ac68905f66eda55d",
+  "minor": 65,
+  "created_at": "2026-09-23T09:59:53.000Z",
+  "git_sha": "4c11042f02f6d4b639162139983719e67a6942b3",
   "migrations": [
-    "supabase/migrations/20260922230000_esteira_v2_pipeline_gatilhos.sql",
-    "supabase/migrations/20260922233000_esteira_v2_reclassifica.sql"
+    "supabase/migrations/20260923120000_esteira_validacao_fase2.sql",
+    "supabase/migrations/20260923130000_esteira_validacao_fase2_leads.sql",
+    "supabase/migrations/20260923140000_release_esteira_fase2.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): v2 — cupom pessoal, gatilho de clique por canal e pipeline com prova|chore(release): release.json v5.62 [skip ci]"
+  "changelog": "feat(esteira): Fase 2 da validação — lote retido (held), WhatsApp espaçado em 120 s e go em uma chamada|fix(yampi): lead ganho não volta para Pagamento pendente (pedido_criado e pedido_pago no mesmo segundo)|chore(release): release.json v5.63 [skip ci]"
 }
