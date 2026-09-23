@@ -3,8 +3,8 @@ import { buildInsights } from './insights';
 import type { Agregado } from './reconversao';
 
 const base: Agregado = {
-  atual: { reconvertidos: 7, organicos: 3, receita: 1000, ticketMedio: 142.8, leadsTocados: 100, taxa: 0.07, horasMedias: 20, toques: { email: 20, whatsapp: 5, sms: 3, total: 28 } },
-  anterior: { reconvertidos: 4, organicos: 2, receita: 600, ticketMedio: 150, leadsTocados: 90, taxa: 0.044, horasMedias: 30, toques: { email: 10, whatsapp: 2, sms: 1, total: 13 } },
+  atual: { reconvertidos: 7, organicos: 3, receita: 1000, ticketMedio: 142.8, leadsTocados: 100, taxa: 0.07, horasMedias: 20, toques: { email: 20, whatsapp: 5, sms: 3, total: 28 }, influenciados: 0, vendasTotais: 10, receitaTotal: 1400, participacao: 0.71, recEsteira: 7, recComercial: 0 },
+  anterior: { reconvertidos: 4, organicos: 2, receita: 600, ticketMedio: 150, leadsTocados: 90, taxa: 0.044, horasMedias: 30, toques: { email: 10, whatsapp: 2, sms: 1, total: 13 }, influenciados: 0, vendasTotais: 10, receitaTotal: 1400, participacao: 0.71, recEsteira: 7, recComercial: 0 },
   deltas: { receita: 0.66, reconvertidos: 0.75, taxa: 0.59, horas: -0.33 },
   porNivel: { cupom: 4, clique: 2, janela: 1 },
   porNivelReceita: { cupom: 620, clique: 280, janela: 100, organico: 400 },
