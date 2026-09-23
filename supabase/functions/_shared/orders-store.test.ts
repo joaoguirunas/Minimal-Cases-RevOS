@@ -18,3 +18,15 @@ Deno.test({ name: 'upsert duas vezes = 1 pedido, itens substituídos', ignore: !
   assertEquals(count, 1);
   assertEquals(itens, r.items.data.length);
 }});
+
+Deno.test({ name: 'evento antigo não sobrescreve estado mais novo (cancelado não volta a pago)', ignore: !url || !key, fn: async () => {
+  const sb = createClient(url!, key!);
+  const novo = { ...structuredClone(fixture), id: -999002, status: { data: { alias: 'cancelled' } }, updated_at: { date: '2026-09-24 10:00:00.000000' } };
+  novo.items.data = novo.items.data.map((i: any, n: number) => ({ ...i, id: -999200 - n }));
+  const velho = { ...structuredClone(novo), status: { data: { alias: 'paid' } }, updated_at: { date: '2026-09-23 10:00:00.000000' } };
+  await upsertYampiOrder(sb, novo, { attribute: false });
+  await upsertYampiOrder(sb, velho, { attribute: false });
+  const { data } = await sb.from('orders').select('status').eq('id', -999002).maybeSingle();
+  await sb.from('orders').delete().eq('id', -999002);
+  assertEquals((data as any)?.status, 'cancelled');
+}});

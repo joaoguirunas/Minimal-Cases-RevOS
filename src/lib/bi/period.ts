@@ -2,7 +2,9 @@
 export type PeriodKey = 'today' | '7d' | '30d' | '90d' | 'month' | 'last-month' | 'custom';
 export type CompareKey = 'previous' | 'year';
 const day0 = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-export function resolvePeriod(key: PeriodKey, custom?: { from: Date; to: Date }, now = new Date()): { from: Date; to: Date } {
+export function resolvePeriod(key: PeriodKey, custom?: { from: Date; to: Date }, nowIn = new Date()): { from: Date; to: Date } {
+  // "Até agora" arredondado para o minuto: a chave do cache não muda a cada render.
+  const now = new Date(nowIn); now.setSeconds(0, 0);
   const back = (n: number) => { const f = day0(now); f.setDate(f.getDate() - n); return { from: f, to: now }; };
   switch (key) {
     case 'today': return { from: day0(now), to: now };

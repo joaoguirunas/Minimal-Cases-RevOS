@@ -12,6 +12,26 @@ import { nextCursor, type Cursor } from '../_shared/orders-sync-cursor.ts';
 
 const INCLUDE = 'items,transactions,statuses,customer,shipping_address,promocode';
 const KEY = 'yampi_orders_backfill';
+const RKEY = 'yampi_orders_recompute';
+
+/**
+ * Depois da carga: 1º pedido + atribuição do histórico em lotes de 1.000, cada
+ * tick do cron continua de onde parou. Só marca done quando um lote volta vazio;
+ * erro não avança o cursor (o próximo tick tenta de novo).
+ */
+// deno-lint-ignore no-explicit-any
+async function recomputeChunks(sb: any, chunks = 5) {
+  const { data: st } = await sb.from('sync_state').select('value').eq('key', RKEY).maybeSingle();
+  const state = ((st?.value as { last_id: number; done: boolean }) ?? { last_id: 0, done: false });
+  for (let i = 0; i < chunks && !state.done; i++) {
+    const { data, error } = await sb.rpc('recompute_attribution_chunk', { p_after: state.last_id, p_limit: 1000 });
+    if (error) return { ...state, error: error.message };
+    const last = Number(data ?? 0);
+    if (!last) state.done = true; else state.last_id = last;
+    await sb.from('sync_state').upsert({ key: RKEY, value: state, updated_at: new Date().toISOString() });
+  }
+  return state;
+}
 
 Deno.serve(async (req) => {
   const srk = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -45,7 +65,7 @@ Deno.serve(async (req) => {
   // backfill
   const { data: st } = await sb.from('sync_state').select('value').eq('key', KEY).maybeSingle();
   let cursor: Cursor = (st?.value as Cursor) ?? { page: 1, done: false, total_pages: 0 };
-  if (cursor.done) return Response.json({ ok: true, mode: 'backfill', done: true, page: cursor.page });
+  if (cursor.done) return Response.json({ ok: true, mode: 'backfill', done: true, page: cursor.page, recompute: await recomputeChunks(sb) });
   let processed = 0;
   const pages = Math.max(1, Math.min(body.pages ?? 5, 20));
   for (let i = 0; i < pages && !cursor.done; i++) {
@@ -59,12 +79,6 @@ Deno.serve(async (req) => {
       return Response.json({ ok: false, mode: 'backfill', page: cursor.page, error: String(e).slice(0, 300) });
     }
     await sb.from('sync_state').upsert({ key: KEY, value: cursor, updated_at: new Date().toISOString() });
-  }
-  // Fim da carga: 1º pedido e atribuição de todo o histórico, uma vez só
-  // (no backfill cada lote grava sem atribuir, para ir rápido).
-  if (cursor.done) {
-    await sb.rpc('recompute_first_orders');
-    await sb.rpc('recompute_all_attribution');
   }
   return Response.json({ ok: true, mode: 'backfill', processed, page: cursor.page, done: cursor.done, total_pages: cursor.total_pages });
 });

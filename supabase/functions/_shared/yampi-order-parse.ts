@@ -3,7 +3,7 @@
  * Pedido da Yampi (webhook `resource` ou GET /orders com include) → linhas do BI.
  * Puro: sem banco, sem rede. As datas da Yampi vêm em São Paulo sem fuso.
  */
-export interface OrderRow { id: number; number: string | null; customer_yampi_id: number | null; customer_email: string | null; customer_phone: string | null; status: string; is_paid: boolean; created_at: string; paid_at: string | null; cancelled_at: string | null; shipped_at: string | null; delivered_at: string | null; value_products: number; value_discount: number; value_shipment: number; value_total: number; payment_method: string | null; installments: number | null; coupon_code: string | null; utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; utm_content: string | null; utm_term: string | null; device: string | null; state: string | null; city: string | null; shipment_service: string | null; raw: unknown }
+export interface OrderRow { id: number; number: string | null; customer_yampi_id: number | null; customer_email: string | null; customer_phone: string | null; status: string; is_paid: boolean; created_at: string; paid_at: string | null; cancelled_at: string | null; shipped_at: string | null; delivered_at: string | null; value_products: number; value_discount: number; value_shipment: number; value_total: number; payment_method: string | null; installments: number | null; coupon_code: string | null; utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; utm_content: string | null; utm_term: string | null; device: string | null; state: string | null; city: string | null; shipment_service: string | null; yampi_updated_at: string | null; raw: unknown }
 export interface OrderItemRow { id: number; order_id: number; sku_id: number | null; product_id: number | null; sku: string | null; title: string | null; variant: string | null; quantity: number; price: number; total: number }
 
 type R = Record<string, unknown>;
@@ -94,6 +94,7 @@ export function parseYampiOrder(o: R): { order: OrderRow; items: OrderItemRow[] 
     state: str(addr?.uf ?? addr?.state),
     city: str(addr?.city),
     shipment_service: str(o.shipment_service),
+    yampi_updated_at: yampiDate(o.updated_at),
     raw: o,
   };
   const items: OrderItemRow[] = (arr(o.items).map(rec).filter(Boolean) as R[]).map((it) => {

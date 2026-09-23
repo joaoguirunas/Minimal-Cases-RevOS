@@ -6,6 +6,7 @@ import { DateRange } from "react-day-picker";
 import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2, LayoutDashboard, RotateCcw, Send, type LucideIcon } from "lucide-react";
 import { BiFiltersBar, type BiFilters } from "@/components/bi/BiFiltersBar";
 import { resolvePeriod, comparePeriod } from "@/lib/bi/period";
+import { firstAllowedTab } from "@/lib/bi/tabs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBIProAdAccounts } from "@/hooks/useBIProAdAccounts";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
@@ -65,8 +66,8 @@ const Dashboard = () => {
   const { isComercial } = useUserPermissions();
   const [activeTab, setActiveTab] = useState<TabKey>(isComercial ? 'recuperacao' : 'visao');
   const [biFilters, setBiFilters] = useState<BiFilters>({ period: '30d', compare: 'previous' });
-  const biCur = resolvePeriod(biFilters.period, biFilters.custom);
-  const biCmp = comparePeriod(biCur, biFilters.compare);
+  const biCur = useMemo(() => resolvePeriod(biFilters.period, biFilters.custom), [biFilters.period, biFilters.custom]);
+  const biCmp = useMemo(() => comparePeriod(biCur, biFilters.compare), [biCur, biFilters.compare]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -158,6 +159,12 @@ const Dashboard = () => {
       : ALL_TABS.filter(tab => tab.key !== 'reconversao')),
     [isComercial]
   );
+
+  // O papel (comercial) carrega depois do 1º render: se a aba ativa não for
+  // permitida, vai para a primeira permitida.
+  useEffect(() => {
+    setActiveTab((cur) => firstAllowedTab(cur, tabs.map((t) => t.key)));
+  }, [tabs]);
 
   const tabLoader = (
     <div className="flex items-center justify-center h-64">

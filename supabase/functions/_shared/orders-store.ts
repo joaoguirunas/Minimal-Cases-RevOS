@@ -29,7 +29,16 @@ async function resolvePeople(sb: SupabaseClient, emails: string[], phones: strin
 }
 
 export async function upsertYampiOrdersBatch(sb: SupabaseClient, resources: Record<string, unknown>[], attribute = true): Promise<number> {
-  const parsed = resources.map(parseYampiOrder).filter(Boolean) as NonNullable<ReturnType<typeof parseYampiOrder>>[];
+  const all = resources.map(parseYampiOrder).filter(Boolean) as NonNullable<ReturnType<typeof parseYampiOrder>>[];
+  if (!all.length) return 0;
+  // Webhooks chegam fora de ordem (e há reprocesso): um snapshot mais velho que o
+  // gravado não pode sobrescrever — senão um cancelado voltaria a "pago".
+  const { data: stored } = await sb.from('orders').select('id, yampi_updated_at').in('id', all.map((p) => p.order.id));
+  const storedAt = new Map(((stored ?? []) as { id: number; yampi_updated_at: string | null }[]).map((r) => [Number(r.id), r.yampi_updated_at]));
+  const parsed = all.filter(({ order }) => {
+    const prev = storedAt.get(order.id);
+    return !prev || !order.yampi_updated_at || new Date(order.yampi_updated_at) >= new Date(prev);
+  });
   if (!parsed.length) return 0;
   const emails = [...new Set(parsed.map((p) => p.order.customer_email).filter(Boolean) as string[])];
   const phones = [...new Set(parsed.flatMap((p) => phoneKeys(p.order.customer_phone)))];
@@ -52,7 +61,7 @@ export async function upsertYampiOrdersBatch(sb: SupabaseClient, resources: Reco
     if (e2) throw new Error(`order_items upsert: ${e2.message}`);
   }
   if (attribute) {
-    for (const o of orders) if (o.is_paid) await sb.rpc('compute_order_attribution', { p_order_id: o.id }).then(() => {}, () => {});
+    for (const o of orders) if (o.is_paid) await sb.rpc('compute_order_attribution_and_first', { p_order_id: o.id }).then(() => {}, () => {});
   }
   return orders.length;
 }

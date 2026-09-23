@@ -31,3 +31,17 @@ select not exists (select 1 from f a join f b on b.n = a.n + 1 where b.v > a.v) 
 with r as (select public.bi_esteira('2026-09-23 03:00+00','2026-09-24 03:00+00') j)
 select ((select sum((x->>'sent')::int) from r, jsonb_array_elements(j->'touches') x)
       = (select count(*) from followup_queue where status in ('queued','sent') and fired_at >= '2026-09-23 03:00+00' and fired_at < '2026-09-24 03:00+00')) as ok;
+-- F2: todo pedido pago tem is_first_order definido
+select not exists (select 1 from orders where is_paid and paid_at is not null and is_first_order is null and coalesce(people_id::text, customer_email, customer_phone) is not null) as ok;
+-- F4: série diária soma o faturamento bruto do período (1 ano) e responde
+with r as (select public.bi_overview(now()-interval '365 days', now(), now()-interval '730 days', now()-interval '365 days') j)
+select (abs((select sum((x->>'organico')::numeric + (x->>'influenciado')::numeric + (x->>'recuperado')::numeric) from r, jsonb_array_elements(j->'daily') x)
+          - (select coalesce(sum(value_total),0) from order_attribution where paid_at >= now()-interval '365 days')) < 0.01) as ok;
+-- F8: cupons criados = cupons da esteira no período (sem inflar por pedido)
+with r as (select public.bi_esteira('2026-09-23 03:00+00','2026-09-24 03:00+00') j)
+select ((j->'coupons'->>'created')::int = (select count(*) from crm_coupons where source='esteira' and created_at >= '2026-09-23 03:00+00' and created_at < '2026-09-24 03:00+00')) as ok from r;
+-- F9: líquido exclui recusados
+with r as (select public.bi_overview(now()-interval '30 days', now(), now()-interval '60 days', now()-interval '30 days') j)
+select ((j->'kpis'->'cur'->>'net')::numeric = (select coalesce(sum(value_total),0) from orders where is_paid and paid_at >= now()-interval '30 days' and status not in ('cancelled','refunded','refused'))) as ok from r;
+-- F3: função de recálculo em lotes existe e avança
+select (public.recompute_attribution_chunk(0, 10) > 0) as ok;

@@ -56,3 +56,11 @@ Deno.test('sem cliente e sem itens não quebra', () => {
 Deno.test('sem id → null', () => {
   assertEquals(parseYampiOrder({}), null);
 });
+
+Deno.test('fixture sem dados pessoais reais', () => {
+  const s = JSON.stringify(fixture);
+  const c = fixture.customer?.data ?? {};
+  assertEquals(c.ip ?? '0.0.0.0', '0.0.0.0');
+  assert(!/\d{10,11}/.test(JSON.stringify(c.phone ?? {}).replace(/71999990000/g, '')), 'telefone real no customer.phone');
+  assert(!s.includes('gmail.com'), 'e-mail real na fixture');
+});

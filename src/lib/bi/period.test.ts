@@ -24,3 +24,11 @@ describe('período', () => {
     expect(safeDelta(120, 100)).toBeCloseTo(0.2); expect(safeDelta(10, 0)).toBeNull(); expect(safeDelta(null, 5)).toBeNull();
   });
 });
+
+describe('estabilidade da chave', () => {
+  it('"até agora" é arredondado para o minuto (mesma chave de cache dentro do minuto)', () => {
+    const a = resolvePeriod('30d', undefined, new Date(2026, 8, 23, 15, 0, 5, 123));
+    const b = resolvePeriod('30d', undefined, new Date(2026, 8, 23, 15, 0, 48, 999));
+    expect(a.to.getTime()).toBe(b.to.getTime());
+  });
+});
