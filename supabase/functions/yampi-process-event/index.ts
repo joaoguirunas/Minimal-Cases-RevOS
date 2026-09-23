@@ -568,8 +568,10 @@ Deno.serve(async (req) => {
 
         // Etapa final: "Recuperado" só com prova; o mapeamento já deixou em
         // "Comprou sozinho". Nunca rebaixa (reprocessar não tira de Recuperado).
-        if (leadId && recoveredByUs) {
-          await moveToStageByName(supabase, leadId, 'Recuperado');
+        // Sem prova mas com toque nos 7 dias = influenciado (etapa própria).
+        const finalStage = recoveredByUs ? 'Recuperado' : attributionLevel === 'janela' ? 'Influenciado' : null;
+        if (leadId && finalStage) {
+          await moveToStageByName(supabase, leadId, finalStage);
         }
 
         // A mesma pessoa pode ter lead aberto em outro pipeline de esteira (ex.:
@@ -577,11 +579,12 @@ Deno.serve(async (req) => {
         // ganhos, na etapa que a prova manda (se o pipeline tiver a etapa).
         {
           const { data: outros } = await supabase.from('leads').select('id')
-            .eq('people_id', peopleId).eq('status', 'in_progress')
+            // arquivado = Fase 1 já encerrada: se comprou depois, o resultado aparece.
+            .eq('people_id', peopleId).in('status', ['in_progress', 'archived'])
             .lte('created_at', paidAt.toISOString())
             .neq('id', leadId ?? '00000000-0000-0000-0000-000000000000');
           for (const o of (outros ?? []) as Array<{ id: string }>) {
-            await moveToStageByName(supabase, o.id, recoveredByUs ? 'Recuperado' : 'Comprou sozinho');
+            await moveToStageByName(supabase, o.id, recoveredByUs ? 'Recuperado' : attributionLevel === 'janela' ? 'Influenciado' : 'Comprou sozinho');
             await supabase.from('leads').update({ status: 'won', won_at: paidAt.toISOString() }).eq('id', o.id);
           }
         }

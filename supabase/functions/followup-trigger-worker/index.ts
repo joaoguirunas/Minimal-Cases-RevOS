@@ -333,8 +333,13 @@ serve(async (req) => {
             await supabase.from('followup_queue').update({ status: 'cancelled', fired_at: new Date().toISOString(), error_message: motivo })
               .eq('lead_id', entry.lead_id).in('status', ['pending', 'held']).neq('id', entry.id);
             const l2 = lead as { leads_pipelines_id?: string | null };
+            // Etapa pela atribuição do pedido (Recuperado / Influenciado / Comprou sozinho).
+            const { data: att } = await supabase.from('order_attribution').select('class')
+              .eq('order_id', Number((paid as { order_id: string }).order_id)).maybeSingle();
+            const cls = (att as { class?: string } | null)?.class;
+            const stageName = cls === 'recuperado' ? 'Recuperado' : cls === 'influenciado' ? 'Influenciado' : 'Comprou sozinho';
             const { data: st } = l2.leads_pipelines_id
-              ? await supabase.from('leads_stages').select('id').eq('leads_pipelines_id', l2.leads_pipelines_id).eq('name', 'Comprou sozinho').maybeSingle()
+              ? await supabase.from('leads_stages').select('id').eq('leads_pipelines_id', l2.leads_pipelines_id).eq('name', stageName).maybeSingle()
               : { data: null };
             await supabase.from('leads').update({
               status: 'won', won_at: new Date().toISOString(),

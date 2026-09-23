@@ -28,7 +28,7 @@ export function parseClickNudgeSettings(settings: unknown): ClickNudgeSettings {
   return { enabled, delayMinutes, templateName };
 }
 
-export const NUDGE_BLOCKED_STAGES: readonly string[] = ['Pagamento pendente', 'Recuperado', 'Comprou sozinho', 'Perdido', 'Com o comercial'];
+export const NUDGE_BLOCKED_STAGES: readonly string[] = ['Pagamento pendente', 'Recuperado', 'Influenciado', 'Comprou sozinho', 'Perdido', 'Com o comercial'];
 
 export interface NudgeDecisionInput {
   settings: ClickNudgeSettings; leadId: string | null; peopleId: string | null;
