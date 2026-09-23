@@ -19,3 +19,11 @@ select ((j->'kpis'->'cur'->>'recovered_revenue')::numeric = (select coalesce(sum
 -- O3: período vazio não quebra e aov = null
 with r as (select public.bi_overview('2020-01-01','2020-01-02','2019-12-31','2020-01-01') j)
 select ((j->'kpis'->'cur'->>'orders')::int = 0 and (j->'kpis'->'cur'->'aov') = 'null'::jsonb) as ok from r;
+-- R1: soma do by_type recuperado = recuperados do período
+with r as (select public.bi_recuperacao('2026-09-16 03:00+00','2026-09-24 03:00+00') j)
+select ((select coalesce(sum((x->>'recovered')::int),0) from r, jsonb_array_elements(j->'by_type') x)
+       = (select count(*) from order_attribution where class='recuperado' and recovery_type is not null and paid_at >= '2026-09-16 03:00+00' and paid_at < '2026-09-24 03:00+00')) as ok;
+-- R2: funil é não-crescente
+with r as (select public.bi_recuperacao('2026-09-16 03:00+00','2026-09-24 03:00+00') j),
+ f as (select (x->>'value')::int v, row_number() over () n from r, jsonb_array_elements(j->'funnel') x)
+select not exists (select 1 from f a join f b on b.n = a.n + 1 where b.v > a.v) as ok;
