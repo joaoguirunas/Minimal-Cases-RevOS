@@ -465,8 +465,40 @@ const Conversas = () => {
     refetch
   } = useConversasPaginadas(filtrosConversas);
 
-  // AGORA definir pessoaAtual APÓS filteredConversas estar disponível
-  const pessoaAtual = pessoaSelecionada ? filteredConversas.find(p => p.id === pessoaSelecionada) : null;
+  // ── Conversas fixadas ─────────────────────────────────────────────────
+  // Com "Não lidas" (ou "Aguardando resposta") ligado, abrir a conversa a tira
+  // do filtro: no refetch seguinte ela sumia da lista — e, como a conversa
+  // aberta é procurada na lista, o painel fechava junto. Agora quem você abriu
+  // fica no mesmo lugar, já como lida, até você mudar os filtros ou atualizar.
+  const [fixadas, setFixadas] = useState<Map<string, { pessoa: (typeof filteredConversas)[number]; idx: number }>>(() => new Map());
+  const filtrosChave = JSON.stringify(filtrosConversas);
+  useEffect(() => { setFixadas(new Map()); }, [filtrosChave]);
+  useEffect(() => {
+    if (!pessoaSelecionada) return;
+    const idx = filteredConversas.findIndex((p) => p.id === pessoaSelecionada);
+    if (idx < 0) return;
+    const pessoa = filteredConversas[idx];
+    setFixadas((prev) => {
+      const atual = prev.get(pessoaSelecionada);
+      if (atual && atual.pessoa === pessoa && atual.idx === idx) return prev;
+      const next = new Map(prev);
+      next.set(pessoaSelecionada, { pessoa, idx });
+      return next;
+    });
+  }, [pessoaSelecionada, filteredConversas]);
+
+  const listaVisivel = useMemo(() => {
+    if (fixadas.size === 0) return filteredConversas;
+    const presentes = new Set(filteredConversas.map((p) => p.id));
+    const faltando = [...fixadas.entries()].filter(([id]) => !presentes.has(id)).sort((a, b) => a[1].idx - b[1].idx);
+    if (faltando.length === 0) return filteredConversas;
+    const lista = [...filteredConversas];
+    for (const [, f] of faltando) lista.splice(Math.min(f.idx, lista.length), 0, { ...f.pessoa, unread_count: 0 });
+    return lista;
+  }, [filteredConversas, fixadas]);
+
+  // AGORA definir pessoaAtual APÓS a lista estar disponível
+  const pessoaAtual = pessoaSelecionada ? listaVisivel.find(p => p.id === pessoaSelecionada) : null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tiktokOpenId = (pessoaAtual as any)?.tiktok_open_id as string | undefined;
 
@@ -500,8 +532,8 @@ const Conversas = () => {
 
   // Filtro client-side por canal (aplicado após a query server-side)
   const conversasFiltradas = useMemo(() => {
-    if (filtroCanais.size >= 6) return filteredConversas;
-    return filteredConversas.filter(pessoa => {
+    if (filtroCanais.size >= 6) return listaVisivel;
+    return listaVisivel.filter(pessoa => {
       const hasWa     = !!pessoa.whatsapp;
       const hasIg     = !!pessoa.instagram_id || !!pessoa.instagram_user_id;
       const hasEmail  = !!pessoa.email;
@@ -517,7 +549,7 @@ const Conversas = () => {
         (filtroCanais.has('telefone')  && hasWa)
       );
     });
-  }, [filteredConversas, filtroCanais]);
+  }, [listaVisivel, filtroCanais]);
 
   // Get lead ID for permission checking - usar múltiplas fontes
   // 1. Mensagens existentes
@@ -560,6 +592,8 @@ const Conversas = () => {
 
       // Reset da paginação após invalidação
       resetPagination();
+      // Atualizar é o "pode tirar da lista quem já li".
+      setFixadas(new Map());
     } catch {
       // silent
     }
