@@ -8,10 +8,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createYampiClientForConnection } from '../_shared/yampi-client.ts';
 import { upsertYampiOrdersBatch } from '../_shared/orders-store.ts';
-import { nextCursor, type Cursor } from '../_shared/orders-sync-cursor.ts';
+import { nextMonthCursor, monthRange, type MonthCursor } from '../_shared/orders-sync-cursor.ts';
 
 const INCLUDE = 'items,transactions,statuses,customer,shipping_address,promocode';
 const KEY = 'yampi_orders_backfill';
+/** Primeiro mês com pedidos na loja (histórico começa em jan/2025). */
+const FIRST_MONTH = '2025-01';
 const RKEY = 'yampi_orders_recompute';
 
 /**
@@ -62,23 +64,25 @@ Deno.serve(async (req) => {
     return Response.json({ ok: true, mode: 'since', processed });
   }
 
-  // backfill
+  // backfill — mês a mês (a Yampi não pagina além de 10 mil nem filtra mais de 12 meses)
   const { data: st } = await sb.from('sync_state').select('value').eq('key', KEY).maybeSingle();
-  let cursor: Cursor = (st?.value as Cursor) ?? { page: 1, done: false, total_pages: 0 };
-  if (cursor.done) return Response.json({ ok: true, mode: 'backfill', done: true, page: cursor.page, recompute: await recomputeChunks(sb) });
+  const raw = st?.value as Partial<MonthCursor> | undefined;
+  let cursor: MonthCursor = raw?.month ? (raw as MonthCursor) : { month: FIRST_MONTH, page: 1, done: false };
+  if (cursor.done) return Response.json({ ok: true, mode: 'backfill', done: true, month: cursor.month, recompute: await recomputeChunks(sb) });
+  const now = new Date();
+  const currentMonth = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit' }).format(now).slice(0, 7);
   let processed = 0;
   const pages = Math.max(1, Math.min(body.pages ?? 5, 20));
   for (let i = 0; i < pages && !cursor.done; i++) {
     try {
-      const res = await get({ include: INCLUDE, limit: '100', page: String(cursor.page), orderBy: 'id', sortedBy: 'asc' });
+      const res = await get({ include: INCLUDE, limit: '100', page: String(cursor.page), date: monthRange(cursor.month) });
       processed += await upsertYampiOrdersBatch(sb, (res.data ?? []) as any[], false);
-      cursor = nextCursor(cursor, { processedPage: cursor.page, totalPages: Number(res.meta?.pagination?.total_pages ?? cursor.total_pages) });
+      cursor = nextMonthCursor(cursor, { processedPage: cursor.page, totalPages: Number(res.meta?.pagination?.total_pages ?? 0) }, currentMonth);
     } catch (e) {
-      cursor = nextCursor(cursor, null);
       await sb.from('sync_state').upsert({ key: KEY, value: cursor, updated_at: new Date().toISOString() });
-      return Response.json({ ok: false, mode: 'backfill', page: cursor.page, error: String(e).slice(0, 300) });
+      return Response.json({ ok: false, mode: 'backfill', month: cursor.month, page: cursor.page, error: String(e).slice(0, 300) });
     }
     await sb.from('sync_state').upsert({ key: KEY, value: cursor, updated_at: new Date().toISOString() });
   }
-  return Response.json({ ok: true, mode: 'backfill', processed, page: cursor.page, done: cursor.done, total_pages: cursor.total_pages });
+  return Response.json({ ok: true, mode: 'backfill', processed, month: cursor.month, page: cursor.page, done: cursor.done });
 });
