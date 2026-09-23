@@ -10,3 +10,12 @@ select not exists (select 1 from order_attribution a join orders o on o.id=a.ord
 -- A4: recuperado sempre tem prova; influenciado nunca tem
 select not exists (select 1 from order_attribution where (class='recuperado' and proof is null) or (class<>'recuperado' and proof is not null)) as ok;
 select not exists (select 1 from orders o join order_attribution a on a.order_id=o.id where o.status in ('cancelled','refunded') and a.value_total <> o.value_total) as ok;
+-- O1: faturamento bruto do overview = soma direta
+with r as (select public.bi_overview('2026-09-16 03:00+00','2026-09-23 03:00+00','2026-09-09 03:00+00','2026-09-16 03:00+00') j)
+select ((j->'kpis'->'cur'->>'gross')::numeric = (select coalesce(sum(value_total),0) from orders where is_paid and paid_at >= '2026-09-16 03:00+00' and paid_at < '2026-09-23 03:00+00')) as ok from r;
+-- O2: recuperado = soma de order_attribution recuperado
+with r as (select public.bi_overview('2026-09-16 03:00+00','2026-09-24 03:00+00','2026-09-08 03:00+00','2026-09-16 03:00+00') j)
+select ((j->'kpis'->'cur'->>'recovered_revenue')::numeric = (select coalesce(sum(value_total),0) from order_attribution where class='recuperado' and paid_at >= '2026-09-16 03:00+00' and paid_at < '2026-09-24 03:00+00')) as ok from r;
+-- O3: período vazio não quebra e aov = null
+with r as (select public.bi_overview('2020-01-01','2020-01-02','2019-12-31','2020-01-01') j)
+select ((j->'kpis'->'cur'->>'orders')::int = 0 and (j->'kpis'->'cur'->'aov') = 'null'::jsonb) as ok from r;
