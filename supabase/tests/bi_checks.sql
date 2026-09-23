@@ -27,3 +27,7 @@ select ((select coalesce(sum((x->>'recovered')::int),0) from r, jsonb_array_elem
 with r as (select public.bi_recuperacao('2026-09-16 03:00+00','2026-09-24 03:00+00') j),
  f as (select (x->>'value')::int v, row_number() over () n from r, jsonb_array_elements(j->'funnel') x)
 select not exists (select 1 from f a join f b on b.n = a.n + 1 where b.v > a.v) as ok;
+-- E1: enviados por toque somam os toques enviados do período
+with r as (select public.bi_esteira('2026-09-23 03:00+00','2026-09-24 03:00+00') j)
+select ((select sum((x->>'sent')::int) from r, jsonb_array_elements(j->'touches') x)
+      = (select count(*) from followup_queue where status in ('queued','sent') and fired_at >= '2026-09-23 03:00+00' and fired_at < '2026-09-24 03:00+00')) as ok;
