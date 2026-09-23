@@ -108,6 +108,6 @@ export function parseYampiOrder(o: R): { order: OrderRow; items: OrderItemRow[] 
       variant: variations.length ? variations.join(' / ') : null,
       quantity, price, total: Math.round(price * quantity * 100) / 100,
     };
-  }).filter((i) => i.id > 0);
+  }).filter((i) => i.id !== 0);
   return { order, items };
 }
