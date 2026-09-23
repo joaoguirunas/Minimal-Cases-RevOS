@@ -1,12 +1,12 @@
 {
-  "version": "5.67",
+  "version": "5.68",
   "major": 5,
-  "minor": 67,
-  "created_at": "2026-09-23T13:50:38.000Z",
-  "git_sha": "9967f88822b7461d5efa231add9f03227258c3a6",
+  "minor": 68,
+  "created_at": "2026-09-23T16:06:47.000Z",
+  "git_sha": "78254b09b1c65de9c7190bea22d68358d585acc2",
   "migrations": [
-    "supabase/migrations/20260923150000_reconversao_fuso.sql"
+    "supabase/migrations/20260923160000_omni_mensagens_paginadas.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "fix(yampi): horário do evento em São Paulo (paid_at estava 3 h adiantado) e pagamento fecha leads abertos em outros pipelines de esteira|fix(esteira): WhatsApp sempre com +55 (Yampi entrega DDD+número e a Meta lia como outro país)|fix(esteira): template WhatsApp sempre pelo canal Meta, falha por mensagem vira falha do toque, UTM da esteira sobrescreve a da Yampi|chore(release): release.json v5.65 [skip ci]"
+  "changelog": "perf(omni): conversa paginada em uma consulta, sem polling de 5 s, loading, linha do tempo e ordem estável|chore(release): release.json v5.67 [skip ci]"
 }
