@@ -1,14 +1,12 @@
 {
-  "version": "5.65",
+  "version": "5.67",
   "major": 5,
-  "minor": 65,
-  "created_at": "2026-09-23T09:59:53.000Z",
-  "git_sha": "4c11042f02f6d4b639162139983719e67a6942b3",
+  "minor": 67,
+  "created_at": "2026-09-23T13:50:38.000Z",
+  "git_sha": "9967f88822b7461d5efa231add9f03227258c3a6",
   "migrations": [
-    "supabase/migrations/20260923120000_esteira_validacao_fase2.sql",
-    "supabase/migrations/20260923130000_esteira_validacao_fase2_leads.sql",
-    "supabase/migrations/20260923140000_release_esteira_fase2.sql"
+    "supabase/migrations/20260923150000_reconversao_fuso.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): Fase 2 da validação — lote retido (held), WhatsApp espaçado em 120 s e go em uma chamada|fix(yampi): lead ganho não volta para Pagamento pendente (pedido_criado e pedido_pago no mesmo segundo)|chore(release): release.json v5.63 [skip ci]"
+  "changelog": "fix(yampi): horário do evento em São Paulo (paid_at estava 3 h adiantado) e pagamento fecha leads abertos em outros pipelines de esteira|fix(esteira): WhatsApp sempre com +55 (Yampi entrega DDD+número e a Meta lia como outro país)|fix(esteira): template WhatsApp sempre pelo canal Meta, falha por mensagem vira falha do toque, UTM da esteira sobrescreve a da Yampi|chore(release): release.json v5.65 [skip ci]"
 }
