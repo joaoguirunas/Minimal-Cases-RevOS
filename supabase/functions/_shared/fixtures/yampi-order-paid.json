@@ -1,0 +1,519 @@
+{
+ "id": 173745558,
+ "ip": "177.193.215.4",
+ "pix": {
+  "data": {
+   "pix_qr_code": "00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306",
+   "pix_expiration_date": "2026-09-23 18:58:07"
+  }
+ },
+ "tags": [],
+ "items": {
+  "data": [
+   {
+    "id": 232616773,
+    "sku": {
+     "data": {
+      "id": 299014642,
+      "sku": "14:29#Black ;263619383:1983129464",
+      "order": 0,
+      "title": "Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17",
+      "token": "CT841LJYHY",
+      "width": 1,
+      "erp_id": null,
+      "height": 1,
+      "length": 1,
+      "weight": 0.05,
+      "barcode": null,
+      "seller_id": null,
+      "created_at": {
+       "date": "2026-05-22 08:03:56.000000",
+       "timezone": "America/Sao_Paulo",
+       "timezone_type": 3
+      },
+      "price_cost": 0,
+      "price_sale": 0,
+      "product_id": 45147596,
+      "updated_at": {
+       "date": "2026-08-14 12:25:11.000000",
+       "timezone": "America/Sao_Paulo",
+       "timezone_type": 3
+      },
+      "variations": [
+       {
+        "id": 4407318,
+        "name": "Cor",
+        "value": "Preto",
+        "value_id": 61791987
+       },
+       {
+        "id": 4407319,
+        "name": "Modelo",
+        "value": "iPhone 17",
+        "value_id": 63875968
+       }
+      ],
+      "availability": 1,
+      "blocked_sale": false,
+      "combinations": "61791987-63875968",
+      "purchase_url": "https://seguro.minimalcases.com.br/r/CT841LJYHY",
+      "stock_status": "in_stock",
+      "total_orders": null,
+      "customizations": {
+       "data": []
+      },
+      "price_discount": 154.9,
+      "total_in_stock": 2000,
+      "quantity_managed": false,
+      "availability_soldout": 0,
+      "image_reference_sku_id": null,
+      "days_availability_formated": "1 dia útil",
+      "allow_sell_without_customization": false
+     }
+    },
+    "gift": false,
+    "price": 154.9,
+    "sku_id": 299014642,
+    "item_sku": "14:29#Black ;263619383:1983129464",
+    "quantity": 1,
+    "bundle_id": null,
+    "is_upsell": false,
+    "freebie_id": null,
+    "gift_value": 0,
+    "has_recomm": 0,
+    "is_digital": false,
+    "price_cost": 0,
+    "product_id": 45147596,
+    "bundle_name": null,
+    "shipment_cost": 0,
+    "customizations": []
+   }
+  ]
+ },
+ "device": "mobile",
+ "number": 34724,
+ "search": {
+  "data": {
+   "created_at": "2026-09-23",
+   "has_upsell": false,
+   "payment_id": 43,
+   "updated_at": "2026-09-23",
+   "upsell_ids": [],
+   "captured_at": "2026-09-23",
+   "freebie_ids": [],
+   "has_freebie": false,
+   "cancelled_at": null,
+   "products_ids": [
+    45147596
+   ],
+   "date_delivery": "2026-10-15",
+   "inventory_ids": [],
+   "payment_retry": false,
+   "affiliation_id": 768724,
+   "discount_names": [],
+   "discount_types": [],
+   "has_order_bump": false,
+   "order_bump_ids": [],
+   "payment_method": "pix",
+   "antifraud_status": null,
+   "gateway_transaction_id": "179559402263"
+  }
+ },
+ "status": {
+  "data": {
+   "id": 4,
+   "name": "Pagamento aprovado",
+   "alias": "paid",
+   "description": "O pedido foi pago/capturado"
+  }
+ },
+ "customer": {
+  "data": {
+   "id": 268471630,
+   "ip": "177.193.215.4",
+   "cpf": "00000000000",
+   "cnpj": null,
+   "name": "Cliente Teste",
+   "type": "f",
+   "email": "cliente@teste.com",
+   "notes": null,
+   "phone": {
+    "number": "996500271",
+    "area_code": "71",
+    "full_number": "71999990000",
+    "whatsapp_link": "https://api.whatsapp.com/send?phone=5571996500271",
+    "formated_number": "(71) 99650-0271"
+   },
+   "token": "739df030-b795-11f1-bc9c-b9377f08453a",
+   "active": true,
+   "birthday": null,
+   "whatsapp": false,
+   "last_name": "Oliveira",
+   "login_url": "https://seguro.minimalcases.com.br/auth/login/force?token=739df030-b795-11f1-bc9c-b9377f08453a",
+   "social_id": null,
+   "anonymized": false,
+   "cluster_id": null,
+   "created_at": {
+    "date": "2026-09-23 18:26:34.000000",
+    "timezone": "America/Sao_Paulo",
+    "timezone_type": 3
+   },
+   "first_name": "Gabriel",
+   "newsletter": false,
+   "updated_at": {
+    "date": "2026-09-23 18:26:34.000000",
+    "timezone": "America/Sao_Paulo",
+    "timezone_type": 3
+   },
+   "utm_source": "google",
+   "merchant_id": 1299632,
+   "generic_name": "Gabriel paixão dos Santos Oliveira",
+   "razao_social": null,
+   "utm_campaign": "23137413097",
+   "social_driver": null,
+   "marketplace_id": null,
+   "state_registration": null
+  }
+ },
+ "metadata": {
+  "data": [
+   {
+    "key": "cart_id",
+    "value": "642390354"
+   },
+   {
+    "key": "discount_highlight",
+    "value": "pix"
+   },
+   {
+    "key": "platform",
+    "value": "shopify"
+   },
+   {
+    "key": "platform_order_number",
+    "value": "41122"
+   },
+   {
+    "key": "source_platform",
+    "value": "shopify"
+   }
+  ]
+ },
+ "payments": [
+  {
+   "name": "Pix",
+   "alias": "pix",
+   "icon_url": "https://icons.yampi.me/svg/pix.svg"
+  }
+ ],
+ "services": {
+  "data": [
+   {
+    "shopifyapp": {
+     "link": "https://5285e9-46.myshopify.com/admin/orders/7475728875603",
+     "external_id": "7475728875603"
+    }
+   }
+  ]
+ },
+ "statuses": {
+  "data": [
+   {
+    "id": 3,
+    "name": "Aguardando pagamento",
+    "alias": "waiting_payment",
+    "details": null,
+    "created_at": {
+     "date": "2026-09-23 18:28:09.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "updated_at": {
+     "date": "2026-09-23 18:28:09.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "description": "Aguardando confirmação de pagamento"
+   },
+   {
+    "id": 4,
+    "name": "Pagamento aprovado",
+    "alias": "paid",
+    "details": "Criado por Mercadopago",
+    "created_at": {
+     "date": "2026-09-23 18:28:25.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "updated_at": {
+     "date": "2026-09-23 18:28:25.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "description": "O pedido foi pago/capturado"
+   }
+  ]
+ },
+ "utm_term": null,
+ "whatsapp": {
+  "data": {
+   "pix": {
+    "link": "https://api.whatsapp.com/send?phone=5571996500271&text=Oi Gabriel. O seu pedido foi reservado com sucesso.%0a%0a*1 - Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17*%0a%0aPara garantir os seus produtos, você precisa pagar o PIX o mais rápido possível, tá? Para pagar, copie e cole o texto abaixo no Aplicativo onde você configurou suas chaves PIX: %0a%0a00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306",
+    "message": "Oi Gabriel. O seu pedido foi reservado com sucesso.%0a%0a*1 - Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17*%0a%0aPara garantir os seus produtos, você precisa pagar o PIX o mais rápido possível, tá? Para pagar, copie e cole o texto abaixo no Aplicativo onde você configurou suas chaves PIX: %0a%0a00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306"
+   },
+   "billet": null,
+   "payment_link": null,
+   "order_shipped": null,
+   "abandoned_cart": null
+  }
+ },
+ "delivered": false,
+ "is_upsell": false,
+ "promocode": {
+  "data": []
+ },
+ "status_id": 4,
+ "track_url": null,
+ "value_tax": 0,
+ "authorized": true,
+ "cart_token": "hWNHB4v4qePSuWag5o17nHnO",
+ "created_at": {
+  "date": "2026-09-23 18:28:08.000000",
+  "timezone": "America/Sao_Paulo",
+  "timezone_type": 3
+ },
+ "has_recomm": false,
+ "has_upsell": false,
+ "public_url": "https://api.dooki.com.br/v2/public/orders/hWNHB4v4qePSuWag5o17nHnO",
+ "track_code": null,
+ "updated_at": {
+  "date": "2026-09-23 18:28:25.000000",
+  "timezone": "America/Sao_Paulo",
+  "timezone_type": 3
+ },
+ "utm_medium": "cpc",
+ "utm_source": "google",
+ "customer_id": 268471630,
+ "has_freebie": false,
+ "has_payment": true,
+ "marketplace": {
+  "data": []
+ },
+ "merchant_id": 1299632,
+ "reorder_url": "https://seguro.minimalcases.com.br/cart/items?customerToken=739df030-b795-11f1-bc9c-b9377f08453a&product_option_id%5B0%5D=299014642&quantity%5B0%5D=1&has_recomm%5B0%5D=0&redirectTo=checkout&skipToCheckout=1&store_token=UnjG4zbdMgSOL9cQjv5w2fLB3SlZfVheCwXNXGLg",
+ "spreadsheet": {
+  "data": [
+   {
+    "sku": "14:29#Black ;263619383:1983129464",
+    "status": "Pagamento aprovado",
+    "payment": "Pix",
+    "product": "Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17",
+    "customer": "Gabriel paixao dos Santos Oliveira",
+    "quantity": 1,
+    "delivered": 0,
+    "total_cost": 0,
+    "total_item": 154.9,
+    "credit_card": null,
+    "payment_date": "23/09/2026 18:28",
+    "customization": "",
+    "shipping_city": "Salvador",
+    "billet_barcode": null,
+    "cancelled_date": "",
+    "customer_email": "gabrielpaix54@gmail.com",
+    "customer_phone": "71996500271",
+    "shipping_state": "Bahia",
+    "shipping_number": "1412",
+    "shipping_street": "Rua Bicuiba",
+    "shipping_address": "Rua Bicuiba, 1412 - Apto 905 - Patamares",
+    "customer_document": "85783000507",
+    "shipping_zip_code": "41680050",
+    "shipping_complement": "Apto 905",
+    "shipping_neighborhood": "Patamares",
+    "gateway_transaction_id": "179559402263"
+   }
+  ]
+ },
+ "sync_by_erp": false,
+ "utm_content": "779110422631",
+ "value_total": 150.25,
+ "promocode_id": null,
+ "transactions": {
+  "data": [
+   {
+    "id": 201022757,
+    "amount": 150.25,
+    "status": "paid",
+    "payment": {
+     "data": {
+      "id": 43,
+      "name": "Pix",
+      "alias": "pix",
+      "is_pix": true,
+      "icon_url": "https://icons.yampi.me/svg/card-pix.svg",
+      "is_billet": false,
+      "is_wallet": false,
+      "has_config": false,
+      "is_deposit": false,
+      "active_config": false,
+      "is_credit_card": false,
+      "is_pix_in_installments": false
+     }
+    },
+    "captured": true,
+    "metadata": {
+     "data": {
+      "pix_qr_code": "00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306",
+      "pix_expiration_date": "2026-09-23 18:58:07"
+     }
+    },
+    "bank_name": null,
+    "cancelled": false,
+    "authorized": true,
+    "bank_alias": null,
+    "billet_url": null,
+    "created_at": {
+     "date": "2026-09-23 18:28:08.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "error_code": null,
+    "payment_id": 43,
+    "total_logs": 0,
+    "updated_at": {
+     "date": "2026-09-23 18:28:25.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "billet_date": null,
+    "captured_at": {
+     "date": "2026-09-23 18:28:25.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "customer_id": 268471630,
+    "holder_name": null,
+    "buyer_amount": 0,
+    "cancelled_at": null,
+    "capture_date": null,
+    "installments": 1,
+    "authorized_at": {
+     "date": "2026-09-23 18:28:08.000000",
+     "timezone": "America/Sao_Paulo",
+     "timezone_type": 3
+    },
+    "error_message": null,
+    "affiliation_id": 768724,
+    "billet_barcode": null,
+    "marketplace_id": null,
+    "truncated_card": null,
+    "antifraud_score": null,
+    "can_be_captured": false,
+    "holder_document": null,
+    "antifraud_status": null,
+    "can_be_cancelled": true,
+    "gateway_order_id": null,
+    "antifraud_sale_id": null,
+    "billet_our_number": null,
+    "gateway_billet_id": null,
+    "installment_value": 150.25,
+    "sent_to_antifraud": false,
+    "billet_whatsapp_link": "https://api.whatsapp.com/send?phone=5571996500271&text=",
+    "installment_formated": "1x de R$ 150,25",
+    "billet_document_number": null,
+    "gateway_transaction_id": "179559402263",
+    "marketplace_account_id": null,
+    "buyer_installment_value": 0,
+    "buyer_installment_formated": "1x de R$ 0,00",
+    "gateway_authorization_code": null
+   }
+  ]
+ },
+ "utm_campaign": "23137413097",
+ "whatsapp_app": {
+  "data": {
+   "pix": {
+    "link": "whatsapp://send?phone=5571996500271&text=Oi Gabriel. O seu pedido foi reservado com sucesso.%0a%0a*1 - Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17*%0a%0aPara garantir os seus produtos, você precisa pagar o PIX o mais rápido possível, tá? Para pagar, copie e cole o texto abaixo no Aplicativo onde você configurou suas chaves PIX: %0a%0a00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306",
+    "message": "Oi Gabriel. O seu pedido foi reservado com sucesso.%0a%0a*1 - Case iPhone Carbono Design Ondas com MagSafe Preto iPhone 17*%0a%0aPara garantir os seus produtos, você precisa pagar o PIX o mais rápido possível, tá? Para pagar, copie e cole o texto abaixo no Aplicativo onde você configurou suas chaves PIX: %0a%0a00020126580014br.gov.bcb.pix01368ff892a6-de7b-4bba-b009-3330e34479475204000053039865406150.255802BR5916WW202507111418456009Sao Paulo62250521mpqrinter17955940226363042306"
+   },
+   "billet": null,
+   "payment_link": null,
+   "order_shipped": null,
+   "abandoned_cart": null
+  }
+ },
+ "date_delivery": {
+  "date": "2026-10-15 00:00:00.000000",
+  "timezone": "America/Sao_Paulo",
+  "timezone_type": 3
+ },
+ "days_delivery": 16,
+ "desire_status": [
+  "cancelled",
+  "delivered",
+  "handling_products",
+  "invoiced",
+  "on_carriage",
+  "partially_paid",
+  "ready_for_shipping",
+  "refused",
+  "shipment_exception"
+ ],
+ "shipment_cost": 0,
+ "has_order_bump": false,
+ "marketplace_id": null,
+ "pickup_address": {
+  "data": []
+ },
+ "total_comments": 0,
+ "value_discount": 4.65,
+ "value_products": 154.9,
+ "value_shipment": 0,
+ "buyer_value_tax": 0,
+ "desire_status_id": [
+  8,
+  7,
+  5,
+  10,
+  6,
+  15,
+  12,
+  9,
+  11
+ ],
+ "order_bump_types": [],
+ "shipment_service": "FRETE GRÁTIS - ENTREGA DE 5 A 15 DIAS ÚTEIS",
+ "shipping_address": {
+  "data": {
+   "id": 162240606,
+   "uf": "BA",
+   "city": "Salvador",
+   "state": "BA",
+   "number": "1412",
+   "street": "Rua Bicuíba",
+   "country": "BR",
+   "zipcode": "41680050",
+   "order_id": 173745558,
+   "receiver": "Gabriel paixão dos Santos Oliveira",
+   "zip_code": "41680050",
+   "reference": null,
+   "complement": "Apto 905",
+   "address_name": null,
+   "full_address": "Rua Bicuíba, 1412 - Apto 905 - Patamares",
+   "neighborhood": "Patamares"
+  }
+ },
+ "buyer_value_total": 150.25,
+ "shipment_icon_url": null,
+ "shipment_quote_id": "56839200",
+ "marketplace_account": {
+  "data": []
+ },
+ "shipment_service_id": "Frete Grátis - Entrega de 5 a 15 dias úteis.",
+ "billet_whatsapp_link": "https://api.whatsapp.com/send?phone=5571996500271&text=",
+ "content_statement_url": "https://api.dooki.com.br/html/orders/content-statement/hWNHB4v4qePSuWag5o17nHnO?id=def502001b566664b9026ce053c4a2acf2e18ae276088d4241dd1ecad2d082c8c56146487ce4ad7b51d945a546a189a5c860067ba9c6d64b2890bc50c2c3e3376ea125285fe4179b5ab7e3e6e49b1db60978d485794b244a208771b239",
+ "value_wallet_discount": 0,
+ "marketplace_account_id": null,
+ "marketplace_partner_id": null,
+ "marketplace_sale_number": null,
+ "billet_whatsapp_app_link": "whatsapp://send?phone=5571996500271&text="
+}
