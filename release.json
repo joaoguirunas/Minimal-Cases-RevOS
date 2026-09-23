@@ -1,17 +1,13 @@
 {
-  "version": "5.71",
+  "version": "5.72",
   "major": 5,
-  "minor": 71,
-  "created_at": "2026-09-23T22:27:53.000Z",
-  "git_sha": "d274aef9b37d64e2500b2dd5e4acbf25bdb7477d",
+  "minor": 72,
+  "created_at": "2026-09-23T22:39:09.000Z",
+  "git_sha": "b525bd787fe5e369d26ef29ef6feee9e52fb7c5c",
   "migrations": [
-    "supabase/migrations/20260924100000_bi_orders.sql",
-    "supabase/migrations/20260924105000_bi_orders_cron.sql",
-    "supabase/migrations/20260924110000_bi_attribution.sql",
-    "supabase/migrations/20260924120000_bi_rpc_overview.sql",
-    "supabase/migrations/20260924130000_bi_rpc_recuperacao.sql",
-    "supabase/migrations/20260924140000_bi_rpc_esteira.sql"
+    "supabase/migrations/20260924150000_bi_review_fixes.sql",
+    "supabase/migrations/20260924155000_bi_recompute_cron.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(bi): abas Visão Geral, Recuperação e Esteira no /bipro|feat(bi): aba Esteira|feat(bi): aba Recuperação|feat(bi): aba Visão Geral|feat(bi): componentes base (KpiCard, funil, tabela com CSV, filtros, hook de RPC)|feat(bi): período/comparação/delta seguro e exportação CSV|feat(bi): RPC bi_esteira (por toque, canal, cupons, saúde do WhatsApp, custo/ROI)|feat(bi): RPC bi_recuperacao (funil, por tipo, tempo, canal, fila ao vivo)|feat(bi): RPC bi_overview (KPIs, série diária, mix, alertas)|feat(bi): atribuição por pedido (recuperado/influenciado/orgânico) numa fonte única|feat(bi): webhook da Yampi grava pedido em orders em tempo real|feat(bi): backfill retomável e reconciliação horária de pedidos da Yampi|feat(bi): store de pedidos com upsert idempotente e resolução de pessoa|feat(bi): parser do pedido Yampi para orders/order_items|feat(bi): tabelas orders, order_items e sync_state|fix(esteira): quem já comprou tem o lead inteiro fechado (todos os toques cancelados, Comprou sozinho, ganho)|fix(omni): conversa aberta não some da lista (nem fecha) ao sair do filtro de não lidas|chore(release): release.json v5.68 [skip ci]"
+  "changelog": "fix(bi): correções da revisão final|chore(release): release.json v5.71 [skip ci]"
 }
