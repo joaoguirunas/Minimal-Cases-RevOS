@@ -192,6 +192,26 @@ serve(async (req) => {
 
     const results = [];
 
+    // ── Espaçamento do WhatsApp da esteira ─────────────────────────────────
+    // omni_channel_configs(whatsapp).settings.esteira_wa_intervalo_segundos:
+    // nenhum WhatsApp de follow-up sai a menos de N s do anterior. Um lote da
+    // base inteira não pode chegar como rajada (qualidade do número na Meta).
+    // Toque que chega antes da vez é reagendado para o próximo horário livre.
+    let waIntervalMs = 0;
+    let nextWaSlot = 0;
+    {
+      const { data: waCfg } = await supabase.from('omni_channel_configs').select('settings').eq('channel', 'whatsapp').maybeSingle();
+      const sec = Number(((waCfg as { settings?: Record<string, unknown> } | null)?.settings ?? {}).esteira_wa_intervalo_segundos ?? 0);
+      waIntervalMs = Number.isFinite(sec) && sec > 0 ? Math.floor(sec) * 1000 : 0;
+      if (waIntervalMs > 0) {
+        const { data: lastWa } = await supabase.from('followup_queue').select('fired_at')
+          .eq('channel', 'whatsapp_template').in('status', ['queued', 'sent'])
+          .not('fired_at', 'is', null).order('fired_at', { ascending: false }).limit(1).maybeSingle();
+        const last = (lastWa as { fired_at?: string } | null)?.fired_at;
+        nextWaSlot = last ? new Date(last).getTime() + waIntervalMs : 0;
+      }
+    }
+
     for (const entry of queue) {
       // ── Business hours hold logic ────────────────────────────────────────
       if (entry.followup_id && bhSettings?.enabled) {
@@ -255,6 +275,16 @@ serve(async (req) => {
           .eq('id', entry.person_id)
           .single();
         pessoa = pessoaData;
+      }
+
+      if (waIntervalMs > 0 && entry.channel === 'whatsapp_template') {
+        const nowMs = Date.now();
+        if (nowMs < nextWaSlot) {
+          await supabase.from('followup_queue').update({ status: 'pending', scheduled_for: new Date(nextWaSlot).toISOString() }).eq('id', entry.id);
+          nextWaSlot += waIntervalMs;
+          continue;
+        }
+        nextWaSlot = nowMs + waIntervalMs;
       }
 
       // ── Guardas da esteira (v2) ──────────────────────────────────────────
