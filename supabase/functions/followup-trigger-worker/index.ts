@@ -358,6 +358,15 @@ serve(async (req) => {
         const { data: rvRow } = await supabase.from('leads_stages_followups').select('vars').eq('id', entry.followup_id).maybeSingle();
         ruleVarsTop = ((rvRow as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
       }
+      // Toque só para quem já clicou (ex.: W2 da esteira v2): quem nunca abriu um
+      // link nosso não recebe — evita centenas de WhatsApp para quem ignorou o 1º.
+      if ((ruleVarsTop.only_if_clicked === true || ruleVarsTop.only_if_clicked === 'true') && entry.person_id) {
+        const since = (lead as { created_at?: string } | null)?.created_at ?? '1970-01-01';
+        const { count: cliques } = await supabase.from('tracked_link_clicks').select('id', { count: 'exact', head: true })
+          .eq('people_id', entry.person_id).eq('is_bot', false).eq('is_duplicate', false).gte('clicked_at', since);
+        if (!cliques) { await cancelEntry('pulado: pessoa não clicou em nenhum link da esteira'); continue; }
+      }
+
       let cupomPessoal: { code: string; expiresAt: string } | null = null;
       if (ruleVarsTop.cupom_pessoal === true || ruleVarsTop.cupom_pessoal === 'true') {
         if (!entry.person_id) { await cancelEntry('auto-cancel: toque com cupom pessoal sem pessoa'); continue; }
