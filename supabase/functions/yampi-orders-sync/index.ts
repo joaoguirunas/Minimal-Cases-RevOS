@@ -60,5 +60,11 @@ Deno.serve(async (req) => {
     }
     await sb.from('sync_state').upsert({ key: KEY, value: cursor, updated_at: new Date().toISOString() });
   }
+  // Fim da carga: 1º pedido e atribuição de todo o histórico, uma vez só
+  // (no backfill cada lote grava sem atribuir, para ir rápido).
+  if (cursor.done) {
+    await sb.rpc('recompute_first_orders');
+    await sb.rpc('recompute_all_attribution');
+  }
   return Response.json({ ok: true, mode: 'backfill', processed, page: cursor.page, done: cursor.done, total_pages: cursor.total_pages });
 });
