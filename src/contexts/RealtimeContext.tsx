@@ -75,12 +75,12 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (payload.eventType === 'INSERT') {
         // Para novos inserts, usar delay maior para evitar conflito
         stabilizedInvalidate(queryClient, ['conversas-simples-v5'], 3000);
-        stabilizedInvalidate(queryClient, ['mensagens-por-pessoa-v2'], 2500);
+        stabilizedInvalidate(queryClient, ['mensagens-por-pessoa-v3'], 2500);
         stabilizedInvalidate(queryClient, ['dashboard-conversas-v5', tenantId], 3500);
         console.log('🔄 REALTIME: Invalidando conversas-simples-v5 para INSERT - tenantId:', tenantId);
       } else if (payload.eventType === 'UPDATE') {
         // Updates são menos críticos
-        stabilizedInvalidate(queryClient, ['mensagens-por-pessoa-v2'], 1500);
+        stabilizedInvalidate(queryClient, ['mensagens-por-pessoa-v3'], 1500);
         stabilizedInvalidate(queryClient, ['dashboard-conversas-v5', tenantId], 2000);
       }
     }

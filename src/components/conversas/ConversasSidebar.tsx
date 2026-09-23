@@ -375,7 +375,7 @@ const ConversasSidebar = ({ pessoa, tenantId, onMerged, onSendLink }: ConversasS
     await queryClient.invalidateQueries({ queryKey: ['conversas-simples-v4'], exact: false });
     await queryClient.invalidateQueries({ queryKey: ['negocios-sidebar'], exact: false });
     await queryClient.invalidateQueries({ queryKey: ['negocios'], exact: false });
-    await queryClient.invalidateQueries({ queryKey: ['mensagens-por-pessoa-v2'], exact: false });
+    await queryClient.invalidateQueries({ queryKey: ['mensagens-por-pessoa-v3'], exact: false });
 
     toast.success('Contatos unificados com sucesso');
     setMerging(false);

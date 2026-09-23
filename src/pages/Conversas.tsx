@@ -6,6 +6,7 @@ import { ContactAvatar } from "@/components/ui/contact-avatar";
 import { Search, MessageCircle, Send, User, FileAudio, PhoneCall, Phone, Mail, MessageSquare, List, ChevronDown, Bot, UserCheck, Clock, RefreshCw, FileText, Paperclip, Image as ImageIcon, Mic, Square, X as XIcon, File as FileIcon, Video as VideoIcon, Instagram, SlidersHorizontal, Calendar, Zap, ExternalLink, Heart, CornerUpLeft as ReplyIcon } from "lucide-react";
 import { useEnviarMensagem } from "@/hooks/useConversas";
 import { useMensagensPorPessoa } from "@/hooks/useMensagensPorPessoa";
+import { MessageDaySeparator, sameDay } from "@/components/conversas/MessageDaySeparator";
 import { useConversasPaginadas } from "@/hooks/useConversasPaginadas";
 import { useMarkConversationRead } from "@/hooks/useMarkConversationRead";
 import UnreadBadge from "@/components/common/UnreadBadge";
@@ -399,19 +400,39 @@ const Conversas = () => {
     }
   }, [isManager, selectedTenantId, getTeamFilter, currentUserId]);
   const {
-    data: rawConversasSelecionada = []
+    data: rawConversasSelecionada = [],
+    isLoading: isLoadingMensagens,
+    fetchOlder,
+    hasOlder,
+    isFetchingOlder,
+    refreshLatest,
   } = useMensagensPorPessoa(pessoaSelecionada?.toString(), selectedTenantId);
 
-  // Merge optimistic messages with real data
-  const conversasSelecionada = useMemo(() => {
-    if (optimisticMessages.length === 0) {
-      return rawConversasSelecionada;
-    }
-    const allMessages = [...rawConversasSelecionada, ...optimisticMessages];
+  // Mensagem otimista: some só quando a mesma mensagem chega do servidor (mesmo
+  // texto, enviada por humano, gravada depois do envio). Antes saía após 2 s
+  // fixos — sumia e voltava. Fica sempre no fim (é a mais nova), sem depender
+  // do relógio do navegador para ordenar.
+  const optimisticVisiveis = useMemo(() => optimisticMessages.filter((opt) =>
+    opt.pessoaId === pessoaSelecionada &&
+    !rawConversasSelecionada.some((m) =>
+      m.from_message === 'humano' &&
+      (m.message || '').trim() === (opt.message || '').trim() &&
+      new Date(m.created_at).getTime() >= opt.sentAtMs - 120_000)
+  ), [optimisticMessages, rawConversasSelecionada, pessoaSelecionada]);
 
-    // Sort by timestamp to maintain chronological order
-    return allMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-  }, [rawConversasSelecionada, optimisticMessages]);
+  const conversasSelecionada = useMemo(
+    () => (optimisticVisiveis.length === 0 ? rawConversasSelecionada : [...rawConversasSelecionada, ...optimisticVisiveis]),
+    [rawConversasSelecionada, optimisticVisiveis],
+  );
+
+  // Otimistas já confirmados (ou de outra conversa) saem do estado e liberam o blob da mídia.
+  useEffect(() => {
+    const vivos = new Set(optimisticVisiveis.map((o) => o.id));
+    const mortos = optimisticMessages.filter((o) => o.pessoaId === pessoaSelecionada && !vivos.has(o.id));
+    if (mortos.length === 0) return;
+    mortos.forEach((o) => { if (typeof o.media_url === 'string' && o.media_url.startsWith('blob:')) URL.revokeObjectURL(o.media_url); });
+    setOptimisticMessages((prev) => prev.filter((o) => !mortos.some((m) => m.id === o.id)));
+  }, [optimisticVisiveis, optimisticMessages, pessoaSelecionada]);
 
   const enviarMensagem = useEnviarMensagem();
   const incrementarContador = useIncrementarContadorResumo();
@@ -516,12 +537,12 @@ const Conversas = () => {
     try {
       await queryClient.refetchQueries({ queryKey: ['conversas-simples-v5'], exact: false });
       if (pessoaSelecionada) {
-        await queryClient.refetchQueries({ queryKey: ['mensagens-por-pessoa-v2', pessoaSelecionada], exact: false });
+        await refreshLatest();
       }
     } finally {
       setTimeout(() => setIsRefreshing(false), 600);
     }
-  }, [pessoaSelecionada, queryClient, isRefreshing]);
+  }, [pessoaSelecionada, queryClient, isRefreshing, refreshLatest]);
 
   // Função de atualização manual otimizada
   const handleAtualizarManual = useCallback(async () => {
@@ -534,10 +555,7 @@ const Conversas = () => {
 
       // Se há pessoa selecionada, invalidar mensagens também
       if (pessoaSelecionada) {
-        await queryClient.invalidateQueries({
-          queryKey: ['mensagens-por-pessoa-v2', pessoaSelecionada],
-          refetchType: 'active'
-        });
+        await refreshLatest();
       }
 
       // Reset da paginação após invalidação
@@ -545,7 +563,7 @@ const Conversas = () => {
     } catch {
       // silent
     }
-  }, [pessoaSelecionada, queryClient, resetPagination]);
+  }, [pessoaSelecionada, queryClient, resetPagination, refreshLatest]);
 
   // Atualização silenciosa a cada 30s
   const atualizarListagemCompleta = useCallback(async () => {
@@ -562,16 +580,10 @@ const Conversas = () => {
       exact: false
     });
 
-    // Invalidar queries de mensagens se pessoa selecionada
-    if (pessoaSelecionada) {
-      queryClient.refetchQueries({
-        queryKey: ['mensagens-por-pessoa-v2', pessoaSelecionada],
-        exact: false
-      });
-    }
+    // Mensagens da conversa aberta: o próprio hook cuida (tempo real + checagem de 60 s).
 
     // Não fazer refetch() que causa reset da paginação durante auto-update
-  }, [pessoaSelecionada, queryClient]);
+  }, [queryClient]);
 
   // Atualização automática a cada 30 segundos para reduzir carga
   useEffect(() => {
@@ -601,21 +613,53 @@ const Conversas = () => {
       setFiltroEtapa('todos');
     }
   }, [filtroPipeline]);
-  useEffect(() => {
-    // Scroll apenas dentro do container de mensagens, não da página inteira
-    if (conversasSelecionada.length > 0 && messagesEndRef.current) {
-      // Aguardar um frame para garantir que o DOM foi atualizado
-      requestAnimationFrame(() => {
-        const messagesContainer = messagesEndRef.current?.closest('.overflow-y-auto');
-        if (messagesContainer) {
-          messagesContainer.scrollTo({
-            top: messagesContainer.scrollHeight,
-            behavior: 'smooth'
-          });
-        }
-      });
+  // ── Rolagem da conversa ────────────────────────────────────────────────
+  // · abriu a conversa → vai direto pro fim (sem animação);
+  // · chegou mensagem nova → desce só se a pessoa já estava no fim (ou se foi
+  //   ela quem enviou); lendo o histórico, não é arrancada de lá;
+  // · carregou mensagens antigas no topo → mantém o ponto de leitura.
+  const threadRef = useRef<HTMLDivElement>(null);
+  const nearBottomRef = useRef(true);
+  const scrolledForPessoaRef = useRef<string | null>(null);
+  const lastMsgKeyRef = useRef<string | null>(null);
+  const prependAnchorRef = useRef<{ height: number; top: number } | null>(null);
+
+  useEffect(() => { scrolledForPessoaRef.current = null; lastMsgKeyRef.current = null; nearBottomRef.current = true; }, [pessoaSelecionada]);
+
+  React.useLayoutEffect(() => {
+    const el = threadRef.current;
+    if (!el || conversasSelecionada.length === 0) return;
+    const last = conversasSelecionada[conversasSelecionada.length - 1] as { id: number | string; isOptimistic?: boolean };
+    const lastKey = String(last.id);
+
+    if (prependAnchorRef.current) {
+      const a = prependAnchorRef.current;
+      prependAnchorRef.current = null;
+      el.scrollTop = el.scrollHeight - a.height + a.top;
+      lastMsgKeyRef.current = lastKey;
+      return;
     }
-  }, [conversasSelecionada]);
+    if (scrolledForPessoaRef.current !== pessoaSelecionada) {
+      scrolledForPessoaRef.current = pessoaSelecionada ?? null;
+      el.scrollTop = el.scrollHeight;
+      lastMsgKeyRef.current = lastKey;
+      return;
+    }
+    if (lastKey !== lastMsgKeyRef.current) {
+      lastMsgKeyRef.current = lastKey;
+      if (nearBottomRef.current || last.isOptimistic) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    }
+  }, [conversasSelecionada, pessoaSelecionada]);
+
+  const handleThreadScroll = useCallback(() => {
+    const el = threadRef.current;
+    if (!el) return;
+    nearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+    if (el.scrollTop < 120 && hasOlder && !isFetchingOlder) {
+      prependAnchorRef.current = { height: el.scrollHeight, top: el.scrollTop };
+      void fetchOlder();
+    }
+  }, [hasOlder, isFetchingOlder, fetchOlder]);
   // Clear send error when person or channel changes
   useEffect(() => { setSendError(null); }, [pessoaSelecionada, canalAtivo]);
 
@@ -933,7 +977,9 @@ const Conversas = () => {
       media_url: capturedPreviewUrl, // blob URL — valid until we manually revoke below
       media_metadata: capturedMedia ? { file_name: capturedMedia.name, mime_type: capturedMedia.type, file_size: capturedMedia.size } : null,
       status: 'pending',
-      isOptimistic: true
+      isOptimistic: true,
+      pessoaId: pessoaSelecionada,
+      sentAtMs: Date.now(),
     };
     setOptimisticMessages(prev => [...prev, optimisticMessage]);
     setNovaMensagem(''); // Limpar input imediatamente
@@ -1020,12 +1066,8 @@ const Conversas = () => {
         tenantId: selectedTenantId
       });
 
-      // Remover mensagem otimista e aguardar dados reais
-      setTimeout(() => {
-        setOptimisticMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
-        // Revogar blob URL só agora — depois que o DB message real já chegou
-        if (capturedPreviewUrl) URL.revokeObjectURL(capturedPreviewUrl);
-      }, 2000);
+      // A otimista sai sozinha quando a mensagem real chegar (ver optimisticVisiveis).
+      void refreshLatest();
     } catch (error: any) {
       console.error('❌ CONVERSA: Erro ao enviar mensagem:', error);
 
@@ -1578,13 +1620,28 @@ const Conversas = () => {
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0 bg-background">
-              {conversasSelecionada.length === 0 ? <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <div ref={threadRef} onScroll={handleThreadScroll} className="flex-1 overflow-y-auto min-h-0 bg-background">
+              {conversasSelecionada.length === 0 && isLoadingMensagens ? <div className="space-y-4 max-w-3xl mx-auto px-5 py-6" aria-busy="true" aria-label="Carregando mensagens">
+                  {[62, 44, 70, 38, 55, 48].map((w, i) => (
+                    <div key={i} className={`flex ${i % 2 ? 'justify-end' : 'justify-start'}`}>
+                      <div className="h-10 rounded-md bg-muted/60 animate-pulse" style={{ width: `${w}%` }} />
+                    </div>
+                  ))}
+                </div> : conversasSelecionada.length === 0 ? <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <MessageCircle className="w-10 h-10 text-muted-foreground/20 mb-3" strokeWidth={1} />
                   <p className="text-[13px] font-medium text-foreground/40">{t('conversationsPage.chat.noMessages')}</p>
                   <p className="text-[12px] text-muted-foreground/35 mt-0.5">{t('conversationsPage.chat.startConversation')}</p>
                 </div> : <div className="space-y-4 max-w-3xl mx-auto px-5 py-6">
-                  {conversasSelecionada.map((conversa, idx) => {
+                  {isFetchingOlder ? (
+                    <div className="flex justify-center py-1 text-[11px] text-muted-foreground/60">Carregando mensagens anteriores…</div>
+                  ) : !hasOlder ? (
+                    <div className="flex justify-center py-1 text-[11px] text-muted-foreground/40">Início da conversa</div>
+                  ) : null}
+                  {conversasSelecionada.map((conversa, idx) => <React.Fragment key={`msg-${conversa.id}`}>
+                  {(idx === 0 || !sameDay(conversasSelecionada[idx - 1].created_at, conversa.created_at)) && (
+                    <MessageDaySeparator date={conversa.created_at} />
+                  )}
+                  {(() => {
               const isFromClient = conversa.from_message === 'cliente';
               const isIA        = conversa.from_message === 'agente_ia';
               const isCall      = conversa.tipo_mensagem === 'chamada';
@@ -1888,7 +1945,8 @@ const Conversas = () => {
                   {isFromClient && replyButton}
                 </div>
               );
-            })}
+            })()}
+                  </React.Fragment>)}
                   {/* AI typing bubble */}
                   {pessoaAtual?.ai_enabled && aiIsProcessing && (
                     <div className="flex justify-end">

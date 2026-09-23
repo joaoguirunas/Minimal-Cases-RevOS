@@ -561,7 +561,7 @@ export const useEnviarMensagem = () => {
 
       setTimeout(() => {
         queryClient.invalidateQueries({ 
-          queryKey: ['mensagens-por-pessoa-v2', variables.pessoa_id, variables.tenant_id],
+          queryKey: ['mensagens-por-pessoa-v3', variables.pessoa_id],
           exact: true,
           refetchType: 'active'
         });
