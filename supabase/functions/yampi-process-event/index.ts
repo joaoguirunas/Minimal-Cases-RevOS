@@ -560,6 +560,20 @@ Deno.serve(async (req) => {
         if (leadId && recoveredByUs) {
           await moveToStageByName(supabase, leadId, 'Recuperado');
         }
+
+        // A mesma pessoa pode ter lead aberto em outro pipeline de esteira (ex.:
+        // Esteira Validação, Fase 2). Pagou → esses leads também fecham como
+        // ganhos, na etapa que a prova manda (se o pipeline tiver a etapa).
+        {
+          const { data: outros } = await supabase.from('leads').select('id')
+            .eq('people_id', peopleId).eq('status', 'in_progress')
+            .lte('created_at', paidAt.toISOString())
+            .neq('id', leadId ?? '00000000-0000-0000-0000-000000000000');
+          for (const o of (outros ?? []) as Array<{ id: string }>) {
+            await moveToStageByName(supabase, o.id, recoveredByUs ? 'Recuperado' : 'Comprou sozinho');
+            await supabase.from('leads').update({ status: 'won', won_at: paidAt.toISOString() }).eq('id', o.id);
+          }
+        }
         log.info('reconversion_recorded', { order_id: event.order_id, attributed, level: attributionLevel, coupon: couponCode ?? 'none', touches: rows.length, ab_variant: (abRow as { variant_id?: string } | null)?.variant_id ?? 'none', recovered_by: humanSnapshot.recovered_by ?? 'none', basis: humanSnapshot.recovery_basis ?? 'none' });
 
         // Fecha o loop no painel da loja: tag no pedido (e no cliente) quando a

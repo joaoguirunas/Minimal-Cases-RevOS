@@ -134,7 +134,12 @@ export function parseYampiPayload(raw: AnyRec): NormalizedYampiEvent {
 
   const tsRaw = asString(raw.time) ?? asString(resource.updated_at) ?? asString(resource.created_at) ??
     asString(asRecord(resource.updated_at)?.date) ?? asString(asRecord(resource.created_at)?.date);
-  const tsParsed = tsRaw ? Date.parse(tsRaw.replace(' ', 'T')) : NaN;
+  // A Yampi manda horário de São Paulo SEM fuso ("2026-09-23 10:31:14"). Lido
+  // como UTC, todo paid_at ficava 3 h adiantado e toques/cliques das últimas 3 h
+  // antes do pagamento sumiam da atribuição. Sem fuso explícito = -03:00 (BR não
+  // tem horário de verão desde 2019).
+  const tsIso = tsRaw ? tsRaw.trim().replace(' ', 'T') : '';
+  const tsParsed = tsIso ? Date.parse(/(Z|[+-]\d{2}:?\d{2})$/.test(tsIso) ? tsIso : `${tsIso}-03:00`) : NaN;
 
   const promo = asRecord(asRecord(resource.promocode)?.data) ?? asRecord(resource.promocode);
   const couponCode = asString(promo?.code) ?? asString(resource.coupon_code) ?? asString(resource.promocode_code);
