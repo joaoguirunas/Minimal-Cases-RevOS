@@ -1,12 +1,12 @@
 {
-  "version": "5.74",
+  "version": "5.76",
   "major": 5,
-  "minor": 74,
-  "created_at": "2026-09-23T23:42:52.000Z",
-  "git_sha": "06c92aba1e30e81cfda6e873f30dba491cfc693c",
+  "minor": 76,
+  "created_at": "2026-09-24T23:27:50.000Z",
+  "git_sha": "e94c1118e150f018683d307da0e60c2af609d20e",
   "migrations": [
-    "supabase/migrations/20260924160000_etapa_influenciado.sql"
+    "supabase/migrations/20260925100000_sac_redirects.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): etapa Influenciado (comprou até 7 dias após toque, sem prova)|fix(bi): carga do histórico mês a mês (Yampi não pagina além de 10 mil pedidos)|chore(release): release.json v5.72 [skip ci]"
+  "changelog": "feat(sac): agente que direciona pedidos de atendimento pós-venda para o número do SAC|feat(esteira): W2 só para quem clicou em algum link da esteira (only_if_clicked)|chore(release): release.json v5.74 [skip ci]"
 }
