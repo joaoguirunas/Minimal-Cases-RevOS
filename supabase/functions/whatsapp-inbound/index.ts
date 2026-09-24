@@ -1074,6 +1074,31 @@ Deno.serve(async (req) => {
     console.log(`whatsapp-inbound: channel ${metadata.phone_number_id} is paused — message stored but AI skipped`);
   }
 
+  // ── SAC: quem pede atendimento pós-venda recebe o número do atendimento ──────
+  // A função decide tudo (flag sac_redirect_enabled, 24 h, testadores). 20 s de
+  // espera para juntar a rajada de mensagens ("oi" + "cadê meu pedido").
+  if (msgType === 'texto' && content && !channelBlocked) {
+    const _sacUrl = `${supabaseUrl}/functions/v1/sac-redirect`;
+    const _sacKey = serviceRoleKey;
+    const _sacPeople = person.id;
+    EdgeRuntime.waitUntil(
+      new Promise<void>(resolve => {
+        setTimeout(async () => {
+          try {
+            await fetch(_sacUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_sacKey}` },
+              body: JSON.stringify({ people_id: _sacPeople }),
+            });
+          } catch (e) {
+            console.error('whatsapp-inbound: sac-redirect trigger failed:', (e as Error).message);
+          }
+          resolve();
+        }, 20_000);
+      })
+    );
+  }
+
   return new Response('OK', { status: 200 });
 
   } catch (topLevelErr) {
