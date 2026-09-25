@@ -84,3 +84,18 @@ with a as (select x from jsonb_array_elements(public.bi_customers_list(null,null
      b as (select x from jsonb_array_elements(public.bi_customers_list(null,null,'revenue',true,5,5)->'rows') x)
 select (select min((x->>'revenue')::numeric) from a) >= (select max((x->>'revenue')::numeric) from b)
    and not exists (select 1 from a join b on a.x->>'customer_id' = b.x->>'customer_id') as ok;
+-- K1: taxa de recompra = consulta independente (agosto/26)
+with per as (select distinct customer_yampi_id cid from orders where is_paid and paid_at >= '2026-08-01 03:00+00' and paid_at < '2026-09-01 03:00+00'),
+ life as (select p.cid, count(o.*) n from per p join orders o on o.customer_yampi_id=p.cid and o.is_paid and o.paid_at < '2026-09-01 03:00+00' group by 1)
+select abs((public.bi_recompra('2026-08-01 03:00+00','2026-09-01 03:00+00')->>'repurchase_rate')::numeric
+  - (select round(count(*) filter (where n>=2)::numeric / count(*),4) from life)) < 0.0001 as ok;
+-- K2: coorte de abril/26 — mês 1 = % dos clientes com 1ª compra em abril que compraram em maio
+with f as (select customer_yampi_id cid, min(paid_at) f from orders where is_paid group by 1),
+ c as (select cid from f where date_trunc('month', f at time zone 'America/Sao_Paulo') = '2026-04-01'),
+ v as (select round(100.0 * count(distinct o.customer_yampi_id) / (select count(*) from c), 1) p from orders o join c on c.cid=o.customer_yampi_id
+       where o.is_paid and date_trunc('month', o.paid_at at time zone 'America/Sao_Paulo') = '2026-05-01'),
+ j as (select x from jsonb_array_elements(public.bi_recompra('2026-08-01 03:00+00','2026-09-01 03:00+00')->'cohorts') x where x->>'month'='2026-04')
+select ((select (x->'retention'->>1)::numeric from j) = (select p from v)) as ok;
+-- K3: distribuição soma o nº de clientes
+with r as (select public.bi_recompra('2026-08-01 03:00+00','2026-09-01 03:00+00') j)
+select (select sum((x->>'customers')::int) from r, jsonb_array_elements(j->'distribution') x) = (j->>'customers')::int as ok from r;
