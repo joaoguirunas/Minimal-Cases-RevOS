@@ -1,12 +1,15 @@
 {
-  "version": "5.76",
+  "version": "5.77",
   "major": 5,
-  "minor": 76,
-  "created_at": "2026-09-24T23:27:50.000Z",
-  "git_sha": "e94c1118e150f018683d307da0e60c2af609d20e",
+  "minor": 77,
+  "created_at": "2026-09-25T00:37:38.000Z",
+  "git_sha": "dceb1c9ee247e417921ad959fd53ba23a0d16898",
   "migrations": [
-    "supabase/migrations/20260925100000_sac_redirects.sql"
+    "supabase/migrations/20260925120000_bi_customers.sql",
+    "supabase/migrations/20260925121000_bi_overview_plus.sql",
+    "supabase/migrations/20260925122000_bi_rfm_clientes.sql",
+    "supabase/migrations/20260925123000_bi_recompra.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(sac): agente que direciona pedidos de atendimento pós-venda para o número do SAC|feat(esteira): W2 só para quem clicou em algum link da esteira (only_if_clicked)|chore(release): release.json v5.74 [skip ci]"
+  "changelog": "feat(bi): aba Recompra com coortes e abas novas no /bipro|fix(omni): separador de dia usa a data de referência (teste dependia do relógio)|feat(bi): aba Clientes com matriz RFM, lista filtrável e exportação|feat(bi): visão geral nível Zoppy+ (insight cards, 12 meses, dia×hora, fontes)|feat(bi): componentes Insight Card, treemap RFM, coortes, dia×hora e evolução mensal|feat(bi): utilitários de insight, treemap, segmentos e exportação paginada|feat(bi): recompra com taxa, frequência, tempo entre compras e coortes|test(bi): C1 compara com pedidos até o último refresh da base de clientes|feat(bi): matriz RFM e lista de clientes paginada com busca|feat(bi): visão geral com retenção, LTV, ROI, 12 meses, dia×hora e fontes|feat(bi): bi_customers com RFM e refresh de hora em hora|chore(release): release.json v5.76 [skip ci]"
 }
