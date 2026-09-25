@@ -45,3 +45,12 @@ with r as (select public.bi_overview(now()-interval '30 days', now(), now()-inte
 select ((j->'kpis'->'cur'->>'net')::numeric = (select coalesce(sum(value_total),0) from orders where is_paid and paid_at >= now()-interval '30 days' and status not in ('cancelled','refunded','refused'))) as ok from r;
 -- F3: função de recálculo em lotes existe e avança
 select (public.recompute_attribution_chunk(0, 10) > 0) as ok;
+-- C1: um cliente por customer_yampi_id pago, receita total bate
+select ((select count(*) from bi_customers) = (select count(distinct customer_yampi_id) from orders where is_paid and customer_yampi_id is not null)
+    and (select sum(revenue) from bi_customers) = (select sum(value_total) from orders where is_paid and customer_yampi_id is not null)) as ok;
+-- C2: todo cliente tem segmento válido
+select not exists (select 1 from bi_customers where segment is null or segment not in ('Campeões','Leais','Potenciais leais','Novos clientes','Promissores','Precisam de atenção','Quase dormindo','Não pode perder','Em risco','Hibernando','Perdidos')) as ok;
+-- C3: regras do segmento
+select (_rfm_segment(5,5,5)='Campeões' and _rfm_segment(3,3,1)='Leais' and _rfm_segment(1,5,5)='Não pode perder' and _rfm_segment(2,3,2)='Em risco'
+    and _rfm_segment(5,1,1)='Novos clientes' and _rfm_segment(4,1,4)='Potenciais leais' and _rfm_segment(4,1,1)='Promissores'
+    and _rfm_segment(3,1,3)='Precisam de atenção' and _rfm_segment(3,1,1)='Quase dormindo' and _rfm_segment(2,1,5)='Hibernando' and _rfm_segment(1,1,1)='Perdidos') as ok;
