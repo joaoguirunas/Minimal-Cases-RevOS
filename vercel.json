@@ -1,7 +1,48 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "link.minimalcases.com.br"
+        }
+      ],
+      "destination": "https://minimalcases.com.br",
+      "permanent": false
+    },
+    {
+      "source": "/r",
+      "has": [
+        {
+          "type": "host",
+          "value": "link.minimalcases.com.br"
+        }
+      ],
+      "destination": "https://maigkwlgzinykfvemexf.supabase.co/functions/v1/r",
+      "permanent": false
+    },
+    {
+      "source": "/:token([A-Za-z0-9_-]{4,40})",
+      "has": [
+        {
+          "type": "host",
+          "value": "link.minimalcases.com.br"
+        }
+      ],
+      "destination": "https://maigkwlgzinykfvemexf.supabase.co/functions/v1/r?t=:token",
+      "permanent": false
+    }
+  ],
   "rewrites": [
-    { "source": "/embed.js", "destination": "/embed.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/embed.js",
+      "destination": "/embed.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
