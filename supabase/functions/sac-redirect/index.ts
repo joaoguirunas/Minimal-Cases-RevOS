@@ -13,7 +13,7 @@
  * approve, note? }; cada decisão desconta 1. Com o contador em 0, envia direto.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { classifyIntent, shouldRedirect, redirectText } from '../_shared/sac-redirect.ts';
+import { classifyIntent, shouldRedirect, redirectText, SAC_WA_URL, SAC_BUTTON_TEXT } from '../_shared/sac-redirect.ts';
 
 const MODEL = 'gpt-6-luna';
 
@@ -123,7 +123,8 @@ async function sendApproved(sb: SB, srk: string, id: number): Promise<{ redirect
       to: (person as { whatsapp?: string } | null)?.whatsapp, people_id: r.people_id,
       channel_id: (meta as { id?: string } | null)?.id, sac_redirect_id: id,
       message_ids: msgRow ? [(msgRow as { id: number }).id] : [],
-      messages: [{ type: 'text', text: r.proposed_text }],
+      // texto aprovado + botão que abre o WhatsApp do atendimento
+      messages: [{ type: 'cta_url', text: r.proposed_text, url: SAC_WA_URL, button_text: SAC_BUTTON_TEXT }],
     }),
   });
   const body = await out.json().catch(() => ({})) as { failed?: number; error?: string };

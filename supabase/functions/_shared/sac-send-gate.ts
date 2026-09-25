@@ -9,12 +9,13 @@
  * A trava geral (sends_locked) não é afetada.
  */
 import { phoneMatches } from './whatsapp-send-lock.ts';
+import { SAC_WA_URL } from './sac-redirect.ts';
 
 export interface SacGateInput {
   callerIsService: boolean;
   row: { status: string; people_id: string; proposed_text: string | null } | null;
   bodyPeopleId: string | null | undefined;
-  messages: { type?: string; text?: string }[];
+  messages: { type?: string; text?: string; url?: string }[];
   personPhone: string | null | undefined;
   to: string;
   lastInboundAt: Date | null;
@@ -32,7 +33,10 @@ export function sacBypassReason(i: SacGateInput): string | null {
   if (!i.row) return 'direcionamento SAC não encontrado';
   if (i.row.status !== 'approved') return `direcionamento SAC em status ${i.row.status}`;
   if (!i.bodyPeopleId || i.row.people_id !== i.bodyPeopleId) return 'pessoa diferente da aprovada';
-  if (i.messages.length !== 1 || i.messages[0].type !== 'text' || i.messages[0].text !== i.row.proposed_text) return 'mensagem diferente da aprovada';
+  const m = i.messages[0];
+  const sameContent = i.messages.length === 1 && m.text === i.row.proposed_text &&
+    (m.type === 'text' || (m.type === 'cta_url' && m.url === SAC_WA_URL));
+  if (!sameContent) return 'mensagem diferente da aprovada';
   if (!i.personPhone || !phoneMatches(withBR(i.personPhone), withBR(i.to))) return 'número diferente do cliente';
   if (!i.lastInboundAt || i.now.getTime() - i.lastInboundAt.getTime() > WINDOW_MS) return 'fora da janela de 24 h';
   return null;

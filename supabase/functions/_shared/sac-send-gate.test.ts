@@ -1,5 +1,6 @@
 import { assert, assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { sacBypassReason } from './sac-send-gate.ts';
+import { SAC_WA_URL } from './sac-redirect.ts';
 
 const now = new Date('2026-09-25T15:00:00Z');
 const ok = {
@@ -41,4 +42,11 @@ Deno.test('tolera o nono dígito', () => {
 });
 Deno.test('cadastro sem o 55 bate com o número enviado com 55', () => {
   assertEquals(sacBypassReason({ ...ok, personPhone: '(61) 98170-3286' }), null);
+});
+
+Deno.test('botão do SAC passa só com o texto aprovado e o link do atendimento', () => {
+  const btn = { type: 'cta_url', text: ok.row.proposed_text, url: SAC_WA_URL, button_text: 'Falar no WhatsApp' };
+  assertEquals(sacBypassReason({ ...ok, messages: [btn] }), null);
+  assert(sacBypassReason({ ...ok, messages: [{ ...btn, url: 'https://golpe.example' }] }));
+  assert(sacBypassReason({ ...ok, messages: [{ ...btn, text: 'outro texto' }] }));
 });

@@ -9,6 +9,8 @@
 
 export const SAC_PHONE_DISPLAY = '(11) 93751-6806';
 export const SAC_PHONE_WA = '5511937516806';
+export const SAC_WA_URL = `https://wa.me/${SAC_PHONE_WA}`;
+export const SAC_BUTTON_TEXT = 'Falar no WhatsApp';
 
 export const SAC_INTENTS = [
   'rastreio',               // onde está / código de rastreio / quando chega (pedido já feito)
@@ -56,7 +58,12 @@ export function redirectText(firstName: string | null | undefined): string {
   return `${oi} Aqui é da Minimal Cases 😊\n\n` +
     `Para rastreio, informações do seu pedido, trocas ou qualquer ajuda depois da compra, ` +
     `nosso time de atendimento fala com você pelo WhatsApp ${SAC_PHONE_DISPLAY}.\n\n` +
-    `É só chamar por lá 👉 https://wa.me/${SAC_PHONE_WA}`;
+    `É só tocar no botão abaixo 👇`;
+}
+
+/** Mensagem pronta para o whatsapp-outbound: texto fixo + botão que abre o WhatsApp do atendimento. */
+export function sacMessage(firstName: string | null | undefined) {
+  return { type: 'cta_url' as const, text: redirectText(firstName), url: SAC_WA_URL, button_text: SAC_BUTTON_TEXT };
 }
 
 export const CLASSIFIER_SYSTEM = `Você classifica mensagens que clientes de uma loja online de capinhas de celular (Minimal Cases) mandam no WhatsApp.

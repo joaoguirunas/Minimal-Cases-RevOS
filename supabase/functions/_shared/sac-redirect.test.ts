@@ -1,5 +1,5 @@
 import { assertEquals, assert } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { parseClassification, shouldRedirect, redirectText, SAC_PHONE_DISPLAY } from './sac-redirect.ts';
+import { parseClassification, shouldRedirect, redirectText, sacMessage, SAC_PHONE_DISPLAY, SAC_WA_URL } from './sac-redirect.ts';
 
 Deno.test('só aceita intenções da lista; qualquer outra coisa vira outro', () => {
   assertEquals(parseClassification('{"intent":"rastreio","confidence":0.93}'), { intent: 'rastreio', confidence: 0.93 });
@@ -21,7 +21,7 @@ Deno.test('texto fixo com o número do atendimento e o nome (quando houver)', ()
   const t = redirectText('Ana');
   assert(t.startsWith('Oi, Ana!'));
   assert(t.includes(SAC_PHONE_DISPLAY));
-  assert(t.includes('https://wa.me/5511937516806'));
+  assert(!t.includes('https://'), 'o link vai no botão, não no texto');
   assert(redirectText(null).startsWith('Oi!'));
   assert(redirectText('   ').startsWith('Oi!'));
 });
@@ -33,4 +33,13 @@ Deno.test('nome estranho não entra na saudação; maiúsculas viram nome própr
   assert(redirectText('NICACIO').startsWith('Oi, Nicacio!'));
   assert(redirectText('Ícaro').startsWith('Oi, Ícaro!'));
   assert(redirectText('Vitor 🇧🇷').startsWith('Oi, Vitor!'));
+});
+
+Deno.test('mensagem do SAC sai com botão que abre o WhatsApp do atendimento', () => {
+  const m = sacMessage('Ana');
+  assertEquals(m.type, 'cta_url');
+  assertEquals(m.url, 'https://wa.me/5511937516806');
+  assertEquals(m.url, SAC_WA_URL);
+  assertEquals(m.text, redirectText('Ana'));
+  assert(m.button_text.length <= 20);
 });
