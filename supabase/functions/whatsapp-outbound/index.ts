@@ -1334,8 +1334,23 @@ Deno.serve(async (req: Request) => {
           else if (r && 'error' in r) errors.push(r.error);
         } else {
           const r = await sendCtaUrlToMeta(accessToken, phoneNumberId, to, item.text ?? '', item.url, btnText, item.image);
-          if (r && 'wamid' in r) wamids.push(r.wamid);
-          else if (r && 'error' in r) errors.push(r.error);
+          // Igual ao caminho de template: grava wamid/status na linha e conta a falha.
+          const msgId = message_ids?.[i];
+          if (r && 'wamid' in r && r.wamid) {
+            wamids.push(r.wamid);
+            if (msgId) {
+              await supabase.from('messages').update({ wa_message_id: r.wamid, status: 'sent', sent_at: new Date().toISOString() }).eq('id', msgId);
+              await recordDeliveryAttempt(supabase, msgId, { success: true, wamid: r.wamid });
+            }
+          } else {
+            const errReason = (r && 'error' in r) ? r.error : 'Meta API returned no wamid';
+            errors.push(errReason);
+            failed.push(i);
+            if (msgId) {
+              await supabase.from('messages').update({ status: 'error' }).eq('id', msgId);
+              await recordDeliveryAttempt(supabase, msgId, { success: false, error: errReason });
+            }
+          }
         }
         continue;
       }
