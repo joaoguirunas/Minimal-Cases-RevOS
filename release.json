@@ -2,11 +2,11 @@
   "version": "5.78",
   "major": 5,
   "minor": 78,
-  "created_at": "2026-09-25T00:48:48.000Z",
-  "git_sha": "620c2a6b22cf6089d29360f63dba41e7e2046d55",
+  "created_at": "2026-09-25T10:55:30.000Z",
+  "git_sha": "a732dc38c147db551a8c6eb598df95929bce3f0c",
   "migrations": [
-    "supabase/migrations/20260925124000_bi_review_fixes.sql"
+    "supabase/migrations/20260925150000_sac_redirect_aprovacao.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "fix(bi): correções da revisão final da Onda 1|chore(release): release.json v5.77 [skip ci]"
+  "changelog": "feat(sac): agente SAC no ar com aprovação das 20 primeiras respostas"
 }
