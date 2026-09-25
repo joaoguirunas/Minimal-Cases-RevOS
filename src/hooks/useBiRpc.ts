@@ -1,7 +1,7 @@
 // src/hooks/useBiRpc.ts
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-export function useBiRpc<T>(fn: 'bi_overview' | 'bi_recuperacao' | 'bi_esteira', args: Record<string, string>) {
+export function useBiRpc<T>(fn: 'bi_overview' | 'bi_recuperacao' | 'bi_esteira' | 'bi_rfm' | 'bi_recompra', args: Record<string, string>) {
   return useQuery({
     queryKey: ['bi', fn, args],
     queryFn: async () => {
