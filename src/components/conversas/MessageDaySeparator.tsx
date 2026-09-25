@@ -1,4 +1,4 @@
-import { format, isToday, isYesterday, differenceInCalendarDays } from 'date-fns';
+import { format, isSameDay, differenceInCalendarDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 /** Mesmo dia no calendário local. */
@@ -11,8 +11,8 @@ export function sameDay(a: string, b: string): boolean {
 /** "Hoje", "Ontem", "segunda-feira" (últimos 7 dias) ou "22 de setembro de 2026". */
 export function dayLabel(iso: string, now: Date = new Date()): string {
   const d = new Date(iso);
-  if (isToday(d)) return 'Hoje';
-  if (isYesterday(d)) return 'Ontem';
+  if (isSameDay(d, now)) return 'Hoje';
+  if (differenceInCalendarDays(now, d) === 1) return 'Ontem';
   if (differenceInCalendarDays(now, d) < 7) return format(d, "EEEE", { locale: ptBR });
   return format(d, d.getFullYear() === now.getFullYear() ? "d 'de' MMMM" : "d 'de' MMMM 'de' yyyy", { locale: ptBR });
 }
