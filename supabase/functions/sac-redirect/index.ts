@@ -15,7 +15,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { classifyIntent, shouldRedirect, redirectText } from '../_shared/sac-redirect.ts';
 
-const MODEL = 'gpt-5.6-luna';
+const MODEL = 'gpt-6-luna';
 
 Deno.serve(async (req) => {
   const srk = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
