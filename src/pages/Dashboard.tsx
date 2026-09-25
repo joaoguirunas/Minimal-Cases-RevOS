@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
-import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2, LayoutDashboard, RotateCcw, Send, type LucideIcon } from "lucide-react";
+import { TrendingUp, Briefcase, Megaphone, Sparkles, RefreshCw, Loader2, LayoutDashboard, RotateCcw, Send, Users, Repeat, type LucideIcon } from "lucide-react";
 import { BiFiltersBar, type BiFilters } from "@/components/bi/BiFiltersBar";
 import { resolvePeriod, comparePeriod } from "@/lib/bi/period";
 import { firstAllowedTab } from "@/lib/bi/tabs";
@@ -27,10 +27,12 @@ const BIProReconversaoTab = lazy(() => import("@/components/dashboard/BIProRecon
 const VisaoGeralTab  = lazy(() => import("@/components/bi/tabs/VisaoGeralTab"));
 const RecuperacaoTab = lazy(() => import("@/components/bi/tabs/RecuperacaoTab"));
 const EsteiraTab     = lazy(() => import("@/components/bi/tabs/EsteiraTab"));
+const ClientesTab    = lazy(() => import("@/components/bi/tabs/ClientesTab"));
+const RecompraTab    = lazy(() => import("@/components/bi/tabs/RecompraTab"));
 
-type TabKey = 'visao' | 'recuperacao' | 'esteira' | 'reconversao' | 'revops' | 'comercial' | 'marketing' | 'insights';
+type TabKey = 'visao' | 'clientes' | 'recompra' | 'recuperacao' | 'esteira' | 'reconversao' | 'revops' | 'comercial' | 'marketing' | 'insights';
 /** Abas do BI novo (filtros próprios, cálculo no banco). */
-const BI_TABS: TabKey[] = ['visao', 'recuperacao', 'esteira'];
+const BI_TABS: TabKey[] = ['visao', 'clientes', 'recompra', 'recuperacao', 'esteira'];
 
 const TAB_TRIGGER_CLASS =
   'flex items-center gap-1.5 px-4 h-full text-[13px] font-medium transition-colors ' +
@@ -48,6 +50,8 @@ const ALL_TABS: Array<{
   icon: LucideIcon;
 }> = [
   { key: 'visao',       label: 'Visão Geral', icon: LayoutDashboard },
+  { key: 'clientes',    label: 'Clientes',    icon: Users },
+  { key: 'recompra',    label: 'Recompra',    icon: Repeat },
   { key: 'recuperacao', label: 'Recuperação', icon: RotateCcw },
   { key: 'esteira',     label: 'Esteira',     icon: Send },
   // Reconversão: só para o comercial (é onde ele vê a própria comissão).
@@ -277,6 +281,20 @@ const Dashboard = () => {
             <SectionErrorBoundary section="BI Visão Geral">
               <Suspense fallback={tabLoader}>
                 <VisaoGeralTab from={biCur.from} to={biCur.to} cmpFrom={biCmp.from} cmpTo={biCmp.to} />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
+          <TabsContent value="clientes" className="mt-0">
+            <SectionErrorBoundary section="BI Clientes">
+              <Suspense fallback={tabLoader}>
+                <ClientesTab />
+              </Suspense>
+            </SectionErrorBoundary>
+          </TabsContent>
+          <TabsContent value="recompra" className="mt-0">
+            <SectionErrorBoundary section="BI Recompra">
+              <Suspense fallback={tabLoader}>
+                <RecompraTab from={biCur.from} to={biCur.to} />
               </Suspense>
             </SectionErrorBoundary>
           </TabsContent>
