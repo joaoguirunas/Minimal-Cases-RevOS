@@ -99,3 +99,12 @@ select ((select (x->'retention'->>1)::numeric from j) = (select p from v)) as ok
 -- K3: distribuição soma o nº de clientes
 with r as (select public.bi_recompra('2026-08-01 03:00+00','2026-09-01 03:00+00') j)
 select (select sum((x->>'customers')::int) from r, jsonb_array_elements(j->'distribution') x) = (j->>'customers')::int as ok from r;
+-- C8: empate de receita/recência dá a mesma nota (segmento não muda a cada refresh)
+select not exists (select 1 from bi_customers group by revenue having count(distinct m_score) > 1)
+   and not exists (select 1 from bi_customers group by last_order_at having count(distinct r_score) > 1) as ok;
+-- C9: número colado do WhatsApp com +55 acha o cliente
+with c as (select phone from bi_customers where phone ~ '^\d{11}$' limit 1)
+select (public.bi_customers_list(null, '+55 (' || substr(phone,1,2) || ') ' || substr(phone,3,5) || '-' || right(phone,4), 'revenue', true, 10, 0)->>'total')::int >= 1 as ok from c;
+-- O8: overview informa se o custo fixo do CRM está configurado
+with r as (select public.bi_overview('2026-08-26 03:00+00','2026-09-25 03:00+00','2026-07-27 03:00+00','2026-08-26 03:00+00') j)
+select (j->'kpis'->'cur'->'fixed_cost_configured') = to_jsonb(public._bi_setting('crm_monthly_cost_brl', 0) > 0) as ok from r;

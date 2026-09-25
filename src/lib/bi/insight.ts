@@ -14,10 +14,14 @@ export function driverNote(parts: { label: string; cur: number; prev: number }[]
   return `${up ? '▲' : '▼'} ${pct1(d)}% vs comparação, puxado por ${top.label}`;
 }
 
-export function roiLabel(roi: number | null | undefined, cost: number | null | undefined): { value: string; note: string } {
+/** ROI de retenção. Sem o custo fixo do CRM configurado, o número considera só as mensagens — e o cartão avisa. */
+export function roiLabel(roi: number | null | undefined, cost: number | null | undefined, fixedCostConfigured = false): { value: string; note: string } {
   if (roi == null || !cost) return { value: '—', note: 'Configure o custo mensal do CRM para ver o ROI.' };
   const custo = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(cost);
-  return { value: `${roi.toFixed(1).replace('.', ',')}x`, note: `Cada R$ 1 investido voltou R$ ${roi.toFixed(2).replace('.', ',')} (custo ${custo})` };
+  // arredonda meio para cima (8,85 → 8,9); toFixed sozinho erra pela representação binária
+  const value = `${(Math.round(roi * 10 + 1e-9) / 10).toFixed(1).replace('.', ',')}x`;
+  if (!fixedCostConfigured) return { value, note: `Só o custo das mensagens (${custo}). Configure o custo mensal do CRM para o ROI real.` };
+  return { value, note: `Cada R$ 1 investido voltou R$ ${roi.toFixed(2).replace('.', ',')} (custo ${custo})` };
 }
 
 export function sparkPercents(values: number[]): number[] {

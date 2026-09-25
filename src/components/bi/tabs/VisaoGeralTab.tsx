@@ -32,7 +32,7 @@ export default function VisaoGeralTab({ from, to, cmpFrom, cmpTo }: { from: Date
     </div>);
   const c = data.kpis.cur, p = data.kpis.cmp;
   const spark = (k: 'organico' | 'influenciado' | 'recuperado' | 'total') => data.daily.map((d) => k === 'total' ? d.organico + d.influenciado + d.recuperado : d[k]);
-  const roi = roiLabel(c.retention_roi, c.crm_cost);
+  const roi = roiLabel(c.retention_roi, c.crm_cost, Boolean((c as Record<string, unknown>).fixed_cost_configured));
   const gross = Number(c.gross ?? 0);
   return (
     <div className="space-y-5">

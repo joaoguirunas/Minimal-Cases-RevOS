@@ -21,7 +21,13 @@ describe('roiLabel', () => {
     expect(roiLabel(null, 0)).toEqual({ value: '—', note: 'Configure o custo mensal do CRM para ver o ROI.' });
   });
   it('formata multiplicador', () => {
-    expect(roiLabel(12.5, 58.3).value).toBe('12,5x');
+    expect(roiLabel(12.5, 58.3, true).value).toBe('12,5x');
+  });
+  it('sem custo fixo configurado avisa que é só o custo das mensagens', () => {
+    const r = roiLabel(8.85, 83.03, false);
+    expect(r.value).toBe('8,9x');
+    expect(r.note).toMatch(/só o custo das mensagens/i);
+    expect(r.note).toMatch(/configure o custo mensal/i);
   });
 });
 
