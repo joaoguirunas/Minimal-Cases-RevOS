@@ -35,7 +35,7 @@ export function normalizePhone(phone: string): string {
  * `5511987654321` mas grava/recebe `551187654321` em números antigos, e o
  * operador pode digitar de qualquer um dos dois jeitos na allowlist.
  */
-function phoneMatches(a: string, b: string): boolean {
+export function phoneMatches(a: string, b: string): boolean {
   const x = normalizePhone(a);
   const y = normalizePhone(b);
   if (x === y) return true;

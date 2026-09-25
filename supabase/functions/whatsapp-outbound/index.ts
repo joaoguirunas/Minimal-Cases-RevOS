@@ -31,6 +31,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createLogger } from '../_shared/logger.ts';
 import { createEvolutionClient, formatRecipient as formatEvolutionRecipient } from '../_shared/evolution-client.ts';
 import { getWhatsAppSendLock, isAllowedRecipient } from '../_shared/whatsapp-send-lock.ts';
+import { sacBypassReason } from '../_shared/sac-send-gate.ts';
 import { handoffToHumanAfterFirstContact, shouldHandoffToHuman } from '../_shared/comercial-contact.ts';
 import {
   buildInteractiveFallbackText,
@@ -1059,7 +1060,33 @@ Deno.serve(async (req: Request) => {
     }
 
     // Trava aberta, mas em modo teste: só os números da allowlist recebem.
-    if (!isAllowedRecipient(sendLock, to)) {
+    // Única exceção: resposta do SAC já aprovada, para quem nos escreveu há < 24 h
+    // (regras em _shared/sac-send-gate.ts). Só vale quando sac_redirect_id vem no body.
+    let sacBypass = false;
+    const sacId = Number((body as { sac_redirect_id?: unknown }).sac_redirect_id);
+    if (sendLock.allowlist.length > 0 && Number.isFinite(sacId) && sacId > 0) {
+      let callerIsService = incomingToken === serviceRoleKey;
+      try { callerIsService ||= JSON.parse(atob(incomingToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role === 'service_role'; } catch (_) { /* não é JWT */ }
+      const [{ data: sacRow }, { data: sacPerson }, { data: lastIn }] = await Promise.all([
+        supabase.from('sac_redirects').select('status, people_id, proposed_text').eq('id', sacId).maybeSingle(),
+        supabase.from('clients_people').select('whatsapp').eq('id', people_id).maybeSingle(),
+        supabase.from('messages').select('created_at').eq('people_id', people_id).eq('from_contact', 'cliente')
+          .eq('channel', 'whatsapp').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      const why = sacBypassReason({
+        callerIsService,
+        row: sacRow as { status: string; people_id: string; proposed_text: string | null } | null,
+        bodyPeopleId: people_id,
+        messages: messages as { type?: string; text?: string }[],
+        personPhone: (sacPerson as { whatsapp?: string } | null)?.whatsapp,
+        to,
+        lastInboundAt: lastIn ? new Date((lastIn as { created_at: string }).created_at) : null,
+        now: new Date(),
+      });
+      sacBypass = why === null;
+      if (!sacBypass) log.warn('resposta SAC não liberada', { sac_redirect_id: sacId, why });
+    }
+    if (!sacBypass && !isAllowedRecipient(sendLock, to)) {
       log.warn('destinatario fora da allowlist de teste', { to });
       return new Response(
         JSON.stringify({ error: 'whatsapp_recipient_not_allowlisted', blocked: true, to }),
