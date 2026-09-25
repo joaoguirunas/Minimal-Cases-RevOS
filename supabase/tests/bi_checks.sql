@@ -69,3 +69,16 @@ select (j->'kpis'->'cur'->'retention_roi') = 'null'::jsonb as ok from r;
 -- O7: weekday_hour soma = pedidos do período
 with r as (select public.bi_overview('2026-08-01 03:00+00','2026-09-01 03:00+00','2026-07-01 03:00+00','2026-08-01 03:00+00') j)
 select (select sum((x->>'orders')::int) from r, jsonb_array_elements(j->'weekday_hour') x) = (j->'kpis'->'cur'->>'orders')::int as ok from r;
+-- C4: busca com curinga digitado é literal
+select (public.bi_customers_list(null, '%', 'revenue', true, 10, 0)->>'total')::int = (select count(*) from bi_customers where position('%' in coalesce(name,'')||coalesce(email,'')) > 0) as ok;
+-- C5: telefone formatado acha pelos dígitos
+with c as (select phone from bi_customers where phone ~ '^\d{10,13}$' limit 1)
+select (public.bi_customers_list(null, '(' || substr(right(phone,11),1,2) || ') ' || substr(right(phone,11),3,5) || '-' || right(phone,4), 'revenue', true, 10, 0)->>'total')::int >= 1 as ok from c;
+-- C6: segmentos do bi_rfm somam o total
+with r as (select public.bi_rfm() j)
+select (select sum((x->>'customers')::int) from r, jsonb_array_elements(j->'segments') x) = (j->>'total')::int as ok from r;
+-- C7: ordenação por receita desc e paginação sem sobreposição
+with a as (select x from jsonb_array_elements(public.bi_customers_list(null,null,'revenue',true,5,0)->'rows') x),
+     b as (select x from jsonb_array_elements(public.bi_customers_list(null,null,'revenue',true,5,5)->'rows') x)
+select (select min((x->>'revenue')::numeric) from a) >= (select max((x->>'revenue')::numeric) from b)
+   and not exists (select 1 from a join b on a.x->>'customer_id' = b.x->>'customer_id') as ok;
