@@ -54,3 +54,18 @@ select not exists (select 1 from bi_customers where segment is null or segment n
 select (_rfm_segment(5,5,5)='Campeões' and _rfm_segment(3,3,1)='Leais' and _rfm_segment(1,5,5)='Não pode perder' and _rfm_segment(2,3,2)='Em risco'
     and _rfm_segment(5,1,1)='Novos clientes' and _rfm_segment(4,1,4)='Potenciais leais' and _rfm_segment(4,1,1)='Promissores'
     and _rfm_segment(3,1,3)='Precisam de atenção' and _rfm_segment(3,1,1)='Quase dormindo' and _rfm_segment(2,1,5)='Hibernando' and _rfm_segment(1,1,1)='Perdidos') as ok;
+-- O4: retention_share = receita recorrente / (nova + recorrente)
+with r as (select public.bi_overview('2026-08-01 03:00+00','2026-09-01 03:00+00','2026-07-01 03:00+00','2026-08-01 03:00+00') j)
+select abs((j->'kpis'->'cur'->>'retention_share')::numeric - (select round(sum(value_total) filter (where is_first_order=false) / nullif(sum(value_total),0),4) from orders where is_paid and paid_at >= '2026-08-01 03:00+00' and paid_at < '2026-09-01 03:00+00')) < 0.0001 as ok from r;
+-- O5: monthly tem 12 meses e o mês de agosto/26 bate com a soma direta
+with r as (select public.bi_overview('2026-08-01 03:00+00','2026-09-01 03:00+00','2026-07-01 03:00+00','2026-08-01 03:00+00') j),
+ m as (select x from r, jsonb_array_elements(j->'monthly') x)
+select (select count(*) from m) = 12 and
+  (select (x->>'new_revenue')::numeric + (x->>'returning_revenue')::numeric from m where x->>'month'='2026-08')
+   = (select sum(value_total) from orders where is_paid and paid_at >= '2026-08-01 03:00+00' and paid_at < '2026-09-01 03:00+00') as ok;
+-- O6: sem custo configurado e sem envio → roi null
+with r as (select public.bi_overview('2020-01-01','2020-01-02','2019-12-31','2020-01-01') j)
+select (j->'kpis'->'cur'->'retention_roi') = 'null'::jsonb as ok from r;
+-- O7: weekday_hour soma = pedidos do período
+with r as (select public.bi_overview('2026-08-01 03:00+00','2026-09-01 03:00+00','2026-07-01 03:00+00','2026-08-01 03:00+00') j)
+select (select sum((x->>'orders')::int) from r, jsonb_array_elements(j->'weekday_hour') x) = (j->'kpis'->'cur'->>'orders')::int as ok from r;
