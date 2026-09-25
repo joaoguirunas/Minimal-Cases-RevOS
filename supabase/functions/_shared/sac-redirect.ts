@@ -43,10 +43,16 @@ export function shouldRedirect(c: Classification): boolean {
   return REDIRECT.has(c.intent) && c.confidence >= MIN_CONFIDENCE;
 }
 
+/** Primeiro nome usável na saudação: só letras (@handle, número, emoji → sem nome); MAIÚSCULAS viram Nome. */
+export function cleanName(raw: string | null | undefined): string {
+  const first = (raw ?? '').trim().split(/\s+/)[0] ?? '';
+  if (!/^\p{L}{2,}$/u.test(first) || !/^[A-Za-zÀ-ÿ]+$/.test(first)) return '';
+  return first === first.toUpperCase() ? first[0] + first.slice(1).toLowerCase() : first;
+}
+
 /** A única mensagem que o agente manda. Fixa — revisada pelo cliente. */
 export function redirectText(firstName: string | null | undefined): string {
-  const nome = (firstName ?? '').trim().split(/\s+/)[0];
-  const oi = nome ? `Oi, ${nome}!` : 'Oi!';
+  const oi = cleanName(firstName) ? `Oi, ${cleanName(firstName)}!` : 'Oi!';
   return `${oi} Aqui é da Minimal Cases 😊\n\n` +
     `Para rastreio, informações do seu pedido, trocas ou qualquer ajuda depois da compra, ` +
     `nosso time de atendimento fala com você pelo WhatsApp ${SAC_PHONE_DISPLAY}.\n\n` +

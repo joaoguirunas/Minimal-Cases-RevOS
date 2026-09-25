@@ -26,10 +26,12 @@ Deno.serve(async (req) => {
 
   const sb = createClient(Deno.env.get('SUPABASE_URL')!, srk);
   const payload = await req.json().catch(() => ({})) as {
-    people_id?: string; dry_run?: boolean; action?: string; id?: number; approve?: boolean; note?: string;
+    people_id?: string; dry_run?: boolean; backfill?: boolean; action?: string; id?: number; approve?: boolean; note?: string;
   };
   if (payload.action === 'decide') return decide(sb, srk, payload);
   const { people_id, dry_run } = payload;
+  // Repescagem (chamada manual): olha as últimas 24 h em vez da rajada de 15 min.
+  const lookbackMs = payload.backfill ? 24 * 3600_000 : 15 * 60_000;
   if (!people_id) return Response.json({ ok: false, error: 'people_id obrigatório' });
   const skip = (reason: string) => Response.json({ ok: true, redirected: false, reason });
 
@@ -47,11 +49,12 @@ Deno.serve(async (req) => {
     .or('redirected.eq.true,status.in.(awaiting_approval,approved)').eq('dry_run', false).gte('created_at', new Date(Date.now() - 24 * 3600_000).toISOString()).limit(1);
   if ((recent ?? []).length && !dry_run) return skip('já direcionado nas últimas 24 h');
 
-  // Mensagens de texto do cliente nos últimos 15 min (a rajada inteira).
+  // Mensagens de texto do cliente na janela (rajada de 15 min, ou 24 h na repescagem) — as 10 mais recentes, em ordem.
   const { data: msgs } = await sb.from('messages').select('content, channel, wa_phone_number_id')
-    .eq('people_id', people_id).eq('from_contact', 'cliente').gte('created_at', new Date(Date.now() - 15 * 60_000).toISOString())
-    .order('created_at', { ascending: true }).limit(10);
-  const rows = ((msgs ?? []) as { content: string | null; channel: string | null; wa_phone_number_id: string | null }[]).filter((m) => m.channel === 'whatsapp');
+    .eq('people_id', people_id).eq('from_contact', 'cliente').gte('created_at', new Date(Date.now() - lookbackMs).toISOString())
+    .order('created_at', { ascending: false }).limit(10);
+  const rows = ((msgs ?? []) as { content: string | null; channel: string | null; wa_phone_number_id: string | null }[])
+    .filter((m) => m.channel === 'whatsapp' && !/^\[Mensagem do tipo|^\[Imagem recebida\]$/.test(m.content ?? '')).reverse();
   const texts = rows.map((m) => (m.content ?? '').trim()).filter(Boolean);
   if (!texts.length) return skip('sem texto recente');
 

@@ -25,3 +25,12 @@ Deno.test('texto fixo com o número do atendimento e o nome (quando houver)', ()
   assert(redirectText(null).startsWith('Oi!'));
   assert(redirectText('   ').startsWith('Oi!'));
 });
+
+Deno.test('nome estranho não entra na saudação; maiúsculas viram nome próprio', () => {
+  assert(redirectText('@Lemao').startsWith('Oi! '));
+  assert(redirectText('_teuz1n').startsWith('Oi! '));
+  assert(redirectText('𝓢𝓸𝓵𝓮𝓻愛').startsWith('Oi! '));
+  assert(redirectText('NICACIO').startsWith('Oi, Nicacio!'));
+  assert(redirectText('Ícaro').startsWith('Oi, Ícaro!'));
+  assert(redirectText('Vitor 🇧🇷').startsWith('Oi, Vitor!'));
+});
