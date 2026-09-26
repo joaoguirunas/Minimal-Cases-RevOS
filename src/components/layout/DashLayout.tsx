@@ -27,6 +27,7 @@ import {
   Briefcase,
   FolderKanban,
   Inbox,
+  Workflow,
   CalendarCheck,
   FormInput,
 } from "lucide-react";
@@ -97,6 +98,12 @@ const fixedSidebarItems: SidebarItem[] = [
     icon: Inbox,
     path: "/omni",
     module: "conversas" as const,
+  },
+  {
+    title: "FLOW PRO™",
+    icon: Workflow,
+    path: "/fluxos",
+    requireGestor: true,
   },
 ];
 
@@ -272,6 +279,7 @@ const DashLayout = () => {
     if (path === '/settings' || path.startsWith('/settings/')) return t('sidebar.settings');
     if (path === '/schedules' || path.startsWith('/schedules/')) return t('sidebar.mySchedule');
     if (path === '/followups' || path.startsWith('/followups/')) return 'Follow-ups';
+    if (path === '/fluxos' || path.startsWith('/fluxos/')) return 'Fluxos';
     if (path === '/profile' || path.startsWith('/profile/')) return t('sidebar.profile');
     return '';
   };

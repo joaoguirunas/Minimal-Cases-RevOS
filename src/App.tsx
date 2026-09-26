@@ -35,6 +35,8 @@ import NegocioSingle from "@/pages/NegocioSingle";
 import Conversas from "@/pages/Conversas";
 import ConversasDemo from "@/pages/ConversasDemo";
 import OmniAutomacoes from "@/pages/OmniAutomacoes";
+import Fluxos from "@/pages/Fluxos";
+import FluxoEditor from "@/pages/FluxoEditor";
 import OmniLogs from "@/pages/OmniLogs";
 import Horarios from "@/pages/Horarios";
 import Brandbook from "@/pages/Brandbook";
@@ -576,6 +578,18 @@ function AppContent() {
             </RestrictedRoute>
           </ModuleProtectedRoute>
         } />
+      </Route>
+
+      {/* FLUXOS */}
+      <Route path="/fluxos" element={
+        <ProtectedRoute>
+          <SectionErrorBoundary section="Layout">
+            <DashLayout />
+          </SectionErrorBoundary>
+        </ProtectedRoute>
+      }>
+        <Route index element={<SectionErrorBoundary section="Fluxos"><Fluxos /></SectionErrorBoundary>} />
+        <Route path=":id" element={<SectionErrorBoundary section="Editor de fluxo"><FluxoEditor /></SectionErrorBoundary>} />
       </Route>
 
       {/* FOLLOW-UPS */}
