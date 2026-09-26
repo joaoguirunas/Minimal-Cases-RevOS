@@ -5,6 +5,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { sendTrackedEmail } from "../_shared/email-sender.ts";
+import { effectiveVars } from "../_shared/flows/queue-vars.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
@@ -353,10 +354,10 @@ serve(async (req) => {
 
       // Cupom pessoal (NOME15): criado na Yampi ANTES do envio. Falhou → espera e
       // tenta de novo; nunca sai mensagem com código que não existe.
-      let ruleVarsTop: Record<string, unknown> = {};
+      let ruleVarsTop: Record<string, unknown> = effectiveVars(entry as never, null);
       if (entry.followup_id) {
         const { data: rvRow } = await supabase.from('leads_stages_followups').select('vars').eq('id', entry.followup_id).maybeSingle();
-        ruleVarsTop = ((rvRow as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
+        ruleVarsTop = effectiveVars(entry as never, ((rvRow as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>);
       }
       // Toque só para quem já clicou (ex.: W2 da esteira v2): quem nunca abriu um
       // link nosso não recebe — evita centenas de WhatsApp para quem ignorou o 1º.
@@ -427,7 +428,7 @@ serve(async (req) => {
             const { data: waRule } = entry.followup_id
               ? await supabase.from('leads_stages_followups').select('vars').eq('id', entry.followup_id).maybeSingle()
               : { data: null };
-            const rv = ((waRule as { vars?: Record<string, unknown> } | null)?.vars ?? {}) as Record<string, unknown>;
+            const rv = effectiveVars(entry as never, ((waRule as { vars?: Record<string, unknown> } | null)?.vars ?? null) as Record<string, unknown> | null);
             const waParams = Array.isArray(rv.wa_params) ? (rv.wa_params as string[]) : [];
             const needsCart = waParams.length > 0 || !!rv.wa_button_url || headerKind === 'image';
             const waCart = needsCart && entry.person_id ? await resolveCartForPerson(supabase, entry.person_id) : null;
@@ -587,6 +588,20 @@ serve(async (req) => {
               if (tpl && tpl.active !== false) {
                 subject = tpl.subject ?? subject;
                 html = tpl.html_body ?? html;
+                emailTemplateName = (tpl as { name?: string }).name ?? null;
+              }
+            }
+          }
+
+          // Linha de fluxo (sem regra): vars e template de e-mail vêm na própria fila.
+          if (!entry.followup_id) {
+            const fv = effectiveVars(entry as never, null);
+            ruleVars = Object.fromEntries(Object.entries(fv).filter(([k]) => k !== 'flow_variants').map(([k, v]) => [k, String(v ?? '')]));
+            if (fv.email_template_id) {
+              const { data: tpl } = await supabase.from('email_templates').select('name, subject, html_body, active').eq('id', String(fv.email_template_id)).maybeSingle();
+              if (tpl && (tpl as { active?: boolean }).active !== false) {
+                subject = (tpl as { subject?: string }).subject ?? subject;
+                html = (tpl as { html_body?: string }).html_body ?? html;
                 emailTemplateName = (tpl as { name?: string }).name ?? null;
               }
             }
@@ -846,7 +861,7 @@ serve(async (req) => {
       // Progressão da esteira (YMP-7): 1º toque enviado avança o lead para o
       // stage "Em recuperação" do pipeline dele (forward-only; no-op se o
       // pipeline não tem esse stage ou o lead já passou dele).
-      if (success && entry.source_type === 'stage' && entry.lead_id) {
+      if (success && (entry.source_type === 'stage' || entry.source_type === 'flow') && entry.lead_id) {
         try {
           await progressEsteiraStage(supabase, entry.lead_id, 'Em recuperação');
         } catch (_) { /* progressão nunca falha o disparo */ }
