@@ -37,6 +37,8 @@ export async function resendSend(
       signal: AbortSignal.timeout(30_000),
     });
     const txt = await res.text();
+    // 409 de idempotência: uma tentativa anterior com a mesma chave já foi aceita — não reenviar
+    if (res.status === 409) return { ok: true, id: '' };
     if (!res.ok) {
       const ra = Number(res.headers.get('retry-after'));
       return { ok: false, error: `Resend ${res.status}: ${txt.slice(0, 200)}`, ...(Number.isFinite(ra) && ra > 0 ? { retryAfter: ra } : {}) };
@@ -46,6 +48,11 @@ export async function resendSend(
   } catch (e) {
     return { ok: false, error: `Resend: ${(e as Error).message}` };
   }
+}
+
+/** Chave anti-duplicidade: a mesma em toda tentativa do mesmo toque (retry não duplica e-mail). */
+export function idempotencyKey(followupQueueId: string | null | undefined, msgId: string): string {
+  return followupQueueId ? `followup:${followupQueueId}` : `msg:${msgId}`;
 }
 
 // Tags do Resend aceitam só [A-Za-z0-9_-].
@@ -64,7 +71,9 @@ export async function sendTrackedEmail(
     return { success: false, status: 'failed', error: 'e-mail inválido' };
   }
 
-  const { data: st } = await supabase.rpc('email_contact_status', { p_email: email });
+  const { data: st, error: stErr } = await supabase.rpc('email_contact_status', { p_email: email });
+  // sem saber se a pessoa pode receber, não envia: falha e o worker tenta de novo
+  if (stErr) return { success: false, status: 'failed', error: `supressão indisponível: ${stErr.message}` };
   const plan = planSend({ contactStatus: String(st ?? 'subscribed'), email, sharePct: Number(creds.resend_share_pct ?? 0) || 0, forceProvider: p.forceProvider });
   if (plan.action === 'suppress') {
     await supabase.from('email_messages').insert({ ...base, status: 'suppressed', error: `contato ${st}` });
@@ -76,8 +85,9 @@ export async function sendTrackedEmail(
   const links = unsubLinks(await makeUnsubToken(email, secret));
   const vars = { ...p.vars, unsubscribe: links.page };
 
-  const { data: row } = await supabase.from('email_messages')
+  const { data: row, error: insErr } = await supabase.from('email_messages')
     .insert({ ...base, provider: plan.action, status: 'failed', error: 'enviando' }).select('id').single();
+  if (insErr || !row) return { success: false, status: 'failed', error: `registro do envio falhou: ${insErr?.message ?? 'sem id'}` };
   const msgId = (row as { id: string }).id;
 
   if (plan.action === 'klaviyo') {
@@ -97,11 +107,11 @@ export async function sendTrackedEmail(
         from: creds.from_name ? `${creds.from_name} <${fromEmail}>` : fromEmail, to: email, subject, html,
         headers: listUnsubscribeHeaders(links.oneClick, fromEmail),
         tags: [{ name: 'kind', value: p.kind }, ...(p.followupQueueId ? [{ name: 'followup_queue_id', value: tagValue(p.followupQueueId) }] : [])],
-        idempotencyKey: msgId,
+        idempotencyKey: idempotencyKey(p.followupQueueId, msgId),
       })
     : { ok: false as const, error: 'RESEND_API_KEY não configurada' };
   await supabase.from('email_messages').update(r.ok
-    ? { status: 'sent', error: null, provider_message_id: r.id, subject, sent_at: new Date().toISOString() }
+    ? { status: 'sent', error: null, provider_message_id: r.id || null, subject, sent_at: new Date().toISOString() }
     : { status: 'failed', error: r.error, subject }).eq('id', msgId);
   return r.ok ? { success: true, status: 'sent', messageId: msgId, provider: 'resend' } : { success: false, status: 'failed', provider: 'resend', error: r.error };
 }

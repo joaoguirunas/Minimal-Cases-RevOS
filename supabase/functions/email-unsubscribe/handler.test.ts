@@ -42,3 +42,13 @@ Deno.test('GET redireciona para a página no domínio da Minimal', async () => {
   assertEquals(res.status, 302);
   assert(res.headers.get('location')!.startsWith('https://link.minimalcases.com.br/sair/abc.def'));
 });
+
+Deno.test('erro no banco ao descadastrar → 500 (Gmail tenta de novo; página mostra erro), nunca "pronto"', async () => {
+  const t = await makeUnsubToken('joao@gmail.com', secret);
+  const d = { secret, unsubscribe: async () => { throw new Error('timeout'); }, status: async () => { throw new Error('timeout'); } };
+  const one = await handleUnsubscribe(new Request(`${U}?t=${t}`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'List-Unsubscribe=One-Click' }), d);
+  assertEquals(one.status, 500);
+  assertEquals((await one.json()).ok, false);
+  const peek = await handleUnsubscribe(new Request(U, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: t, action: 'peek' }) }), d);
+  assertEquals(peek.status, 500);
+});

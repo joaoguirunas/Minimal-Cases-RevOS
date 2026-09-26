@@ -29,7 +29,12 @@ export async function handleUnsubscribe(req: Request, deps: {
   }
   const email = await readUnsubToken(token, deps.secret);
   if (!email) return json({ ok: false }, 400);
-  if (action === 'peek') return json({ ok: true, email: maskEmail(email), status: await deps.status(email) });
-  const status = await deps.unsubscribe(email, reason);
-  return json({ ok: true, email: maskEmail(email), status });
+  try {
+    if (action === 'peek') return json({ ok: true, email: maskEmail(email), status: await deps.status(email) });
+    const status = await deps.unsubscribe(email, reason);
+    return json({ ok: true, email: maskEmail(email), status });
+  } catch (_) {
+    // nunca dizer "pronto" sem ter gravado: 500 faz o Gmail tentar de novo e a página mostrar erro
+    return json({ ok: false }, 500);
+  }
 }

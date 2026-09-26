@@ -32,3 +32,46 @@ Deno.test('resendSend manda Idempotency-Key e devolve id; 429 devolve retryAfter
 Deno.test('e-mail com maiúsculas/espaços é tratado igual (supressão por e-mail normalizado)', () => {
   assertEquals(planSend({ contactStatus: 'unsubscribed', email: ' Joao@Gmail.com ', sharePct: 100 }).action, 'suppress');
 });
+
+import { sendTrackedEmail, idempotencyKey } from './email-sender.ts';
+
+// Supabase falso mínimo: rpc(), from().insert().select().single(), from().insert(), from().update().eq()
+function fakeSb(opts: { rpcError?: boolean; insertError?: boolean }) {
+  const inserted: unknown[] = [];
+  const sb = {
+    rpc: async () => opts.rpcError ? { data: null, error: { message: 'timeout' } } : { data: 'subscribed', error: null },
+    from: () => ({
+      insert: (row: unknown) => {
+        inserted.push(row);
+        const res = opts.insertError ? { data: null, error: { message: 'insert falhou' } } : { data: { id: 'msg-1' }, error: null };
+        return Object.assign(Promise.resolve(res), { select: () => ({ single: async () => res }) });
+      },
+      update: () => ({ eq: async () => ({ data: null, error: null }) }),
+    }),
+  };
+  return { sb, inserted };
+}
+const cfg = { is_active: true, credentials: { provider: 'klaviyo', resend_share_pct: '0', from_email: 'contato@minimalcases.com.br' } };
+
+Deno.test('erro ao consultar supressão → falha (retry), nunca envia', async () => {
+  Deno.env.set('EMAIL_UNSUBSCRIBE_SECRET', 's');
+  const { sb } = fakeSb({ rpcError: true });
+  const r = await sendTrackedEmail(sb as never, { config: cfg as never, to: 'a@b.com', subject: 's', html: 'h', vars: {}, kind: 'esteira' });
+  assertEquals(r.status, 'failed');
+  assertEquals(r.success, false);
+});
+Deno.test('falha ao gravar o registro → devolve falha em vez de derrubar o worker', async () => {
+  Deno.env.set('EMAIL_UNSUBSCRIBE_SECRET', 's');
+  const { sb } = fakeSb({ insertError: true });
+  const r = await sendTrackedEmail(sb as never, { config: cfg as never, to: 'a@b.com', subject: 's', html: 'h', vars: {}, kind: 'esteira' });
+  assertEquals(r.status, 'failed');
+});
+Deno.test('chave anti-duplicidade é a do toque (igual em toda tentativa)', () => {
+  assertEquals(idempotencyKey('fq-1', 'msg-a'), idempotencyKey('fq-1', 'msg-b'));
+  assertEquals(idempotencyKey(null, 'msg-a'), 'msg:msg-a');
+});
+Deno.test('Resend 409 de idempotência = já enviado antes (não conta como falha)', async () => {
+  const r = await resendSend('re_x', { from: 'a', to: 'b', subject: 's', html: 'h', headers: {}, tags: [], idempotencyKey: 'k' },
+    (async () => new Response('{"name":"invalid_idempotent_request"}', { status: 409 })) as typeof fetch);
+  assertEquals(r.ok, true);
+});
