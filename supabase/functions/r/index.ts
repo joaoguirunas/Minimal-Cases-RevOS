@@ -90,6 +90,10 @@ Deno.serve(async (req) => {
                 });
                 console.log('[r] toque de clique', { lead_id: row.lead_id, channel: clickChannel, result: why });
               } catch (e) { console.warn('[r] schedule_esteira_click_touch falhou', { lead_id: row.lead_id, error: String(e) }); }
+              // Fluxos: gatilho "clicou num link" (aditivo; com o funil em 'rules' só roda em simulação)
+              try {
+                await supabase.rpc('flow_trigger', { p_event: 'link_clicked', p_people_id: row.people_id, p_lead_id: row.lead_id, p_payload: { channel: clickChannel } });
+              } catch (e) { console.warn('[r] flow_trigger falhou', { lead_id: row.lead_id, error: String(e) }); }
             }
             // Retorno reativo só no PRIMEIRO clique humano do link (config decide se agenda).
             if (row.first_human) {

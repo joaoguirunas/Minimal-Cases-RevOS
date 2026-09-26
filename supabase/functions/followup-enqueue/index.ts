@@ -80,6 +80,17 @@ serve(async (req) => {
       );
     }
 
+    // Pipeline já rodando em fluxos: as regras por etapa não enfileiram nada (o fluxo cuida).
+    if (source_type === 'stage') {
+      const { data: pl } = await supabase.from('leads').select('leads_pipelines(name)').eq('id', lead_id).maybeSingle();
+      const pipelineName = (pl as unknown as { leads_pipelines: { name: string } | null } | null)?.leads_pipelines?.name ?? '';
+      const { data: eng } = await supabase.rpc('flow_engine_for', { p_pipeline: pipelineName });
+      if (eng === 'flows') {
+        return new Response(JSON.stringify({ message: 'Pipeline em fluxos — regras por etapa desligadas', enqueued: 0 }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+
     // ESTEIRA-AB: atribui (ou recupera) a variante do lead — só há experimento running no pipeline dele. Nunca derruba o enqueue.
     let abVariantId: string | null = null;
     if (source_type === 'stage') {

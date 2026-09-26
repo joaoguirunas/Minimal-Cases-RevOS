@@ -414,6 +414,20 @@ Deno.serve(async (req) => {
       if (!cancelErr) log.info('pending_fups_cancelled', { lead_id: leadId, people_id: peopleId, trigger });
     }
 
+    // ── Fluxos: gatilhos (aditivo — as regras continuam como estão) ──────────
+    try {
+      if (trigger === 'pedido_pago') {
+        await supabase.rpc('flow_exit_person', { p_people_id: peopleId, p_reason: 'purchased' });
+        await supabase.rpc('flow_trigger', { p_event: 'purchased', p_people_id: peopleId, p_lead_id: leadId, p_payload: { order_id: event.order_id ?? null } });
+      } else if ((trigger === 'carrinho_abandonado' || trigger === 'checkout_iniciado') && leadId) {
+        await supabase.rpc('flow_trigger', { p_event: 'cart_abandoned', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} });
+      } else if ((trigger === 'pix_gerado' || trigger === 'boleto_gerado') && leadId) {
+        await supabase.rpc('flow_trigger', { p_event: 'payment_pending', p_people_id: peopleId, p_lead_id: leadId, p_payload: { method: trigger === 'pix_gerado' ? 'pix' : 'billet' } });
+      } else if (trigger === 'pagamento_recusado' && leadId) {
+        await supabase.rpc('flow_trigger', { p_event: 'payment_refused', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} });
+      }
+    } catch (e) { log.warn('flow_trigger_failed', { trigger, error: String(e) }); }
+
     // ── Status do lead: pago = ganho, cancelado = perdido ───────────────────
     // A etapa ("Comprou sozinho" vs "Recuperado") é decidida mais abaixo, com a
     // atribuição. Aqui só o status, que nunca pode depender do enriquecimento.
