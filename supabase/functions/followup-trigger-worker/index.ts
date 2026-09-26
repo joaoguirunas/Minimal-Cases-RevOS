@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  sendEmailWithConfig,
   hasDirectEmailProvider,
   type EmailConfig,
 } from "../_shared/email-provider.ts";
+import { sendTrackedEmail } from "../_shared/email-sender.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
@@ -391,6 +391,7 @@ serve(async (req) => {
 
       let success = false;
       let errorMsg: string | null = null;
+      let cancelReason: string | null = null;
 
       // ── whatsapp_template: disparo direto via whatsapp-outbound ─────────
       if (entry.channel === 'whatsapp_template' && entry.template_id) {
@@ -592,7 +593,7 @@ serve(async (req) => {
           }
 
           // Var-map canônico (tokens do VariablePicker: pessoa.*, lead.*). Valores de
-          // dados do lead são escapados no render de HTML dentro de sendEmailWithConfig.
+          // dados do lead são escapados no render de HTML dentro de sendTrackedEmail.
           const vars: Record<string, string> = {
             'pessoa.nome': pessoa?.name ?? '',
             'pessoa.email': pessoa?.email ?? '',
@@ -704,9 +705,16 @@ serve(async (req) => {
             errorMsg = 'Produto do carrinho esgotado/indisponível — toques cancelados';
             console.warn(`[followup-trigger-worker] Entry ${entry.id}: ${errorMsg}`);
           }
-          const result = soldOut ? { success: false, error: errorMsg ?? '' } : await sendEmailWithConfig(emailConfig!, { to: toEmail, subject, html, vars });
+          const result = soldOut
+            ? { success: false, status: 'failed' as const, error: errorMsg ?? '' }
+            : await sendTrackedEmail(supabase, {
+                config: emailConfig!, to: toEmail, subject, html, vars, kind: 'esteira',
+                peopleId: entry.person_id ?? null, followupQueueId: entry.id, templateName: emailTemplateName,
+              });
           success = result.success;
-          if (!result.success) {
+          if (result.status === 'suppressed') {
+            cancelReason = `e-mail suprimido (${result.error ?? 'descadastrado'})`;
+          } else if (!result.success) {
             errorMsg = result.error ?? 'Falha no envio de e-mail';
             console.warn(`[followup-trigger-worker] Entry ${entry.id} (email): ${errorMsg}`);
           }
@@ -825,12 +833,14 @@ serve(async (req) => {
       // Atualizar status na fila
       await supabase
         .from('followup_queue')
-        .update({
-          status:        success ? 'queued' : 'failed',
-          fired_at:      new Date().toISOString(),
-          error_message: errorMsg,
-          retry_count:   entry.retry_count + (success ? 0 : 1),
-        })
+        .update(cancelReason
+          ? { status: 'cancelled', fired_at: new Date().toISOString(), error_message: cancelReason }
+          : {
+              status:        success ? 'queued' : 'failed',
+              fired_at:      new Date().toISOString(),
+              error_message: errorMsg,
+              retry_count:   entry.retry_count + (success ? 0 : 1),
+            })
         .eq('id', entry.id);
 
       // Progressão da esteira (YMP-7): 1º toque enviado avança o lead para o
