@@ -1,12 +1,13 @@
 {
-  "version": "5.85",
+  "version": "5.87",
   "major": 5,
-  "minor": 85,
-  "created_at": "2026-09-26T19:13:58.000Z",
-  "git_sha": "e49f0df3ad32f6af80eea29bc0c3d49baf5f2c04",
+  "minor": 87,
+  "created_at": "2026-09-26T20:22:09.000Z",
+  "git_sha": "798bbe031c4b62b016d9ae186f1ce7293ff28203",
   "migrations": [
-    "supabase/migrations/20260926110000_correio_email_index.sql"
+    "supabase/migrations/20260927100000_flows_core.sql",
+    "supabase/migrations/20260927120000_flows_esteira_seed.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(correio): importação das supressões do Klaviyo para email_contacts|chore(release): release.json v5.84 [skip ci]"
+  "changelog": "feat(fluxos): esteira v2 recriada como fluxo (simulação) ligada aos carrinhos da loja|feat(fluxos): gatilhos (carrinho, Pix/boleto, recusado, compra, clique) e chave do motor por funil|feat(fluxos): editor visual em nós (paleta, painel, pré-visualização, estatísticas, publicar/simular)|feat(fluxos): API do editor (listar, salvar, validar, publicar, status, simulação, motor)|feat(fluxos): worker envia linhas de fluxo com vars/template da própria fila|feat(fluxos): cron flow-runner (avança execuções; envio vira linha na fila)|feat(fluxos): executor de nós (espera, condição, A/B, envio, simulação, saída na compra)|feat(fluxos): formato do grafo, navegação e validação para publicar|feat(fluxos): banco do motor (versões, execuções, gatilho, saída na compra, estatísticas, simulação)|fix(correio): correções da revisão final da Parte 1|chore(release): release.json v5.85 [skip ci]"
 }
