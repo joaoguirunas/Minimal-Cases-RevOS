@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EmailInfraPanel } from './EmailInfraPanel';
 import { useOmniChannelConfig, useUpdateOmniChannelConfig } from '@/hooks/useOmniChannelConfig';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -146,6 +147,8 @@ export default function EmailMegaConfig() {
       </div>
 
       {/* Provider tabs */}
+      <EmailInfraPanel />
+
       <Tabs value={provider} onValueChange={(v) => setProvider(v as EmailProvider)} className="space-y-5">
         <TabsList className="h-auto w-full justify-start gap-0 bg-muted border border-border rounded-md p-1">
           {([
