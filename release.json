@@ -1,13 +1,12 @@
 {
-  "version": "5.83",
+  "version": "5.84",
   "major": 5,
-  "minor": 83,
-  "created_at": "2026-09-25T16:49:23.000Z",
-  "git_sha": "dc1bf99268ee2f82d01d0d714bd749b29efca4f8",
+  "minor": 84,
+  "created_at": "2026-09-26T18:59:50.000Z",
+  "git_sha": "cf4b0fd0bccf3f7a919b0b6661b5ca6df2c4f7fc",
   "migrations": [
-    "supabase/migrations/20260925150000_sac_redirect_aprovacao.sql",
-    "supabase/migrations/20260925170000_esteira_fase3.sql"
+    "supabase/migrations/20260926100000_correio_infra.sql"
   ],
   "min_compat_from": "1.0",
-  "changelog": "feat(esteira): Fase 3 — 18 carrinhos de 3 a 10 dias (pós-Reportana) na esteira v2|fix(whatsapp): mensagem com botão (cta_url) grava wamid/status e conta falha|feat(links): link.minimalcases.com.br redireciona para o rastreador de cliques|feat(sac): link do atendimento vai como botão (cta_url) em vez de URL no texto|feat(sac): repescagem de 24 h e nome limpo na saudação|feat(sac): classificador do agente SAC usa gpt-6-luna|chore(release): release.json v5.78 [skip ci]|feat(sac): agente SAC no ar com aprovação das 20 primeiras respostas"
+  "changelog": "feat(correio): painel do envio próprio (domínio, aquecimento, números, teste, supressão)|feat(correio): webhook do Resend assinado (Svix) aplicando eventos de entrega|feat(correio): descadastro de um clique (RFC 8058) e página /sair no design da Minimal|feat(correio): esteira envia e-mail pelo remetente único; suprimido cancela o toque|feat(correio): remetente único com supressão, descadastro e divisão Resend/Klaviyo|feat(correio): token de descadastro, divisão estável e verificação Svix|feat(correio): tabelas de contatos/envios/eventos, supressão e freio do Resend|chore(release): release.json v5.83 [skip ci]"
 }
