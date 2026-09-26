@@ -36,6 +36,16 @@
   ],
   "rewrites": [
     {
+      "source": "/u/:token",
+      "has": [
+        {
+          "type": "host",
+          "value": "link.minimalcases.com.br"
+        }
+      ],
+      "destination": "https://maigkwlgzinykfvemexf.supabase.co/functions/v1/email-unsubscribe?t=:token"
+    },
+    {
       "source": "/embed.js",
       "destination": "/embed.js"
     },

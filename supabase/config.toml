@@ -151,3 +151,9 @@ verify_jwt = true # Teste de template de e-mail — JWT do usuário; gate gestor
 
 [functions.commercial-coupon-create]
 verify_jwt = true # Cupom pessoal criado pelo comercial — JWT do usuário; gate comercial no código
+
+[functions.email-unsubscribe]
+verify_jwt = false # Descadastro público (one-click do Gmail/Yahoo e página /sair)
+
+[functions.resend-webhook]
+verify_jwt = false # Webhook do Resend — autenticado pela assinatura Svix

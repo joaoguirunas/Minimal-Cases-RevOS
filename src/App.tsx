@@ -53,6 +53,7 @@ import ReuniaoSingle from "@/pages/ReuniaoSingle";
 import ScheduleCalendarioConfig from "@/components/config/horarios/ScheduleCalendarioConfig";
 import AgendamentoPublico from "@/pages/AgendamentoPublico";
 import PublicFormPage from "@/pages/PublicFormPage";
+import Descadastro from "@/pages/Descadastro";
 import DataDeletionPage from "@/pages/DataDeletionPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfServicePage from "@/pages/TermsOfServicePage";
@@ -168,6 +169,13 @@ function AppContent() {
       <Route path="/agendar/:leadId" element={
         <SectionErrorBoundary section="Agendamento Público">
           <AgendamentoPublico />
+        </SectionErrorBoundary>
+      } />
+
+      {/* Descadastro de e-mail — público (link.minimalcases.com.br/sair/:token) */}
+      <Route path="/sair/:token" element={
+        <SectionErrorBoundary section="Descadastro">
+          <Descadastro />
         </SectionErrorBoundary>
       } />
 
