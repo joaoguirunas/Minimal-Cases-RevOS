@@ -91,6 +91,12 @@ serve(async (req) => {
       }
     }
 
+    // Fluxos: gatilho "entrou na etapa" (aditivo)
+    if (source_type === 'stage' && stage_id) {
+      const { error: ftErr } = await supabase.rpc('flow_trigger', { p_event: 'stage_entered', p_people_id: (lead as { people_id: string | null }).people_id, p_lead_id: lead_id, p_payload: { stage_id } });
+      if (ftErr) console.warn('[followup-enqueue] flow_trigger stage_entered falhou:', ftErr.message);
+    }
+
     // ESTEIRA-AB: atribui (ou recupera) a variante do lead — só há experimento running no pipeline dele. Nunca derruba o enqueue.
     let abVariantId: string | null = null;
     if (source_type === 'stage') {

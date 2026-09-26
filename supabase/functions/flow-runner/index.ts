@@ -2,7 +2,7 @@
 /** Cron (1/min): avança execuções de fluxo que acordaram. Envio real = linha na followup_queue (o worker envia). */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { advanceRun, type RunnerDeps, type RunState } from '../_shared/flows/runner.ts';
-import type { FlowGraph } from '../_shared/flows/graph.ts';
+import { leadCheckFor, liveAllowed, type FlowGraph } from '../_shared/flows/graph.ts';
 
 const BATCH = 100;
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
@@ -42,11 +42,16 @@ Deno.serve(async (req) => {
   const flowIds = [...new Set(list.map((r) => r.flow_id))];
   const [{ data: versions }, { data: flows }, { data: bhRow }] = await Promise.all([
     sb.from('flow_versions').select('id, graph').in('id', versionIds),
-    sb.from('flows').select('id, exit_on_purchase, trigger_config, name').in('id', flowIds),
+    sb.from('flows').select('id, exit_on_purchase, trigger_config, trigger_type, status, name').in('id', flowIds),
     sb.from('settings_business_hours').select('*').limit(1).maybeSingle(),
   ]);
   const graphOf = new Map((versions ?? []).map((v: { id: string; graph: FlowGraph }) => [v.id, v.graph]));
-  const flowOf = new Map((flows ?? []).map((f: { id: string; exit_on_purchase: boolean; trigger_config: Record<string, unknown>; name: string }) => [f.id, f]));
+  type FlowRow = { id: string; exit_on_purchase: boolean; trigger_config: Record<string, unknown>; trigger_type: string; status: string; name: string };
+  const flowOf = new Map((flows ?? []).map((f: FlowRow) => [f.id, f]));
+  // motor de cada funil citado (para rechecar se execuções 'live' ainda podem enviar)
+  const pipelines = [...new Set(((flows ?? []) as FlowRow[]).map((f) => String(f.trigger_config?.pipeline ?? '')).filter(Boolean))];
+  const engineOf = new Map<string, string>();
+  for (const p of pipelines) engineOf.set(p, String((await sb.rpc('flow_engine_for', { p_pipeline: p })).data ?? 'rules'));
   const bh = bhRow as BhSettings | null;
 
   const deps: RunnerDeps = {
@@ -55,10 +60,11 @@ Deno.serve(async (req) => {
       const { count } = await sb.from('orders').select('id', { count: 'exact', head: true }).eq('people_id', pid).eq('is_paid', true).gte('paid_at', since);
       return (count ?? 0) > 0;
     },
-    leadActive: async (leadId) => {
+    leadActive: async (leadId, mode) => {
       const { data } = await sb.from('leads').select('status, leads_stages(name)').eq('id', leadId).maybeSingle();
-      const l = data as { status: string; leads_stages: { name: string } | null } | null;
-      return !!l && l.status === 'in_progress' && ['Carrinho abandonado', 'Em recuperação', 'Engajou'].includes(l.leads_stages?.name ?? '');
+      const l = data as unknown as { status: string; leads_stages: { name: string } | null } | null;
+      if (!l || l.status !== 'in_progress') return false;
+      return mode === 'open' || ['Carrinho abandonado', 'Em recuperação', 'Engajou'].includes(l.leads_stages?.name ?? '');
     },
     clickedSince: async (pid, since, channel) => {
       let q = sb.from('tracked_link_clicks').select('id, tracked_links!inner(channel)', { count: 'exact', head: true })
@@ -82,6 +88,9 @@ Deno.serve(async (req) => {
         leadId = (l as { id?: string } | null)?.id ?? null;
       }
       if (!leadId) throw new Error('pessoa sem lead: não dá para enfileirar o envio');
+      // a execução pode ter sido encerrada (compra/etapa) depois de ser pega nesta rodada
+      const { data: cur } = await sb.from('flow_runs').select('status').eq('id', run.id).maybeSingle();
+      if ((cur as { status?: string } | null)?.status !== 'active') throw new Error('RUN_NOT_ACTIVE');
       const tplId = channel === 'whatsapp_template' ? String(node.data.template_id) : null;
       let subject: string | null = null;
       if (channel === 'email') {
@@ -93,7 +102,14 @@ Deno.serve(async (req) => {
         source_type: 'flow', scheduled_for: new Date().toISOString(), status: 'pending',
         flow_run_id: run.id, flow_node_id: node.id, vars,
       }).select('id').single();
-      if (error) throw new Error(`enfileirar: ${error.message}`);
+      if (error) {
+        // reprocessamento: o nó já tinha entrado na fila para esta execução (índice único) → reaproveita
+        if ((error as { code?: string }).code === '23505') {
+          const { data: ex } = await sb.from('followup_queue').select('id').eq('flow_run_id', run.id).eq('flow_node_id', node.id).maybeSingle();
+          if (ex) return (ex as { id: string }).id;
+        }
+        throw new Error(`enfileirar: ${error.message}`);
+      }
       return (data as { id: string }).id;
     },
     moveStage: async (leadId, stageId) => { const { error } = await sb.from('leads').update({ leads_stages_id: stageId }).eq('id', leadId); if (error) throw new Error(error.message); },
@@ -108,16 +124,25 @@ Deno.serve(async (req) => {
   for (const r of list) {
     const graph = graphOf.get(r.version_id); const flow = flowOf.get(r.flow_id);
     if (!graph || !flow) continue;
+    // execução 'live' cujo fluxo não pode mais enviar (pausado para simular, motor voltou para 'rules'): encerra
+    if (r.mode === 'live' && !liveAllowed(flow, (p) => engineOf.get(p) ?? 'rules')) {
+      await sb.from('flow_runs').update({ status: 'exited', exit_reason: 'envio real desligado (status/motor)', ended_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', r.id).eq('status', 'active');
+      await sb.from('followup_queue').update({ status: 'cancelled', error_message: 'auto-cancel: envio real do fluxo desligado' }).eq('flow_run_id', r.id).eq('status', 'pending');
+      continue;
+    }
     const state: RunState = { id: r.id, flowId: r.flow_id, peopleId: r.people_id, leadId: r.lead_id, mode: r.mode, currentNodeId: r.current_node_id, context: r.context ?? {}, startedAt: r.started_at };
     try {
-      const res = await advanceRun(state, graph, { exitOnPurchase: flow.exit_on_purchase }, deps);
+      const res = await advanceRun(state, graph, { exitOnPurchase: flow.exit_on_purchase, leadCheck: leadCheckFor(flow.trigger_type) }, deps);
       if (res.logs.length) await sb.from('flow_run_steps').insert(res.logs.map((l) => ({ run_id: r.id, flow_id: r.flow_id, node_id: l.nodeId, node_type: l.nodeType, action: l.action, detail: l.detail ?? {} })));
-      await sb.from('flow_runs').update({
+      // só atualiza se ninguém encerrou a execução no meio (compra/etapa): nunca "ressuscita" uma execução
+      const { error: upErr } = await sb.from('flow_runs').update({
         status: res.status, current_node_id: res.currentNodeId, wake_at: res.wakeAt, context: res.context, attempts: 0,
         exit_reason: res.exitReason ?? null, ended_at: res.status === 'active' ? null : new Date().toISOString(), updated_at: new Date().toISOString(),
-      }).eq('id', r.id);
+      }).eq('id', r.id).eq('status', 'active');
+      if (upErr) throw new Error(`atualizar execução: ${upErr.message}`);
       done++;
     } catch (e) {
+      if (String(e).includes('RUN_NOT_ACTIVE')) continue; // encerrada no meio da rodada: nada a fazer
       const attempts = (r.attempts ?? 0) + 1;
       await sb.from('flow_run_steps').insert({ run_id: r.id, flow_id: r.flow_id, node_id: r.current_node_id ?? '-', node_type: 'error', action: 'error', detail: { message: String(e).slice(0, 300), attempt: attempts } });
       await sb.from('flow_runs').update(attempts >= 3

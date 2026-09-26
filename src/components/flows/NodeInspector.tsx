@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { NODE_CATALOG, type NodeType } from '@/lib/flows/catalog';
+import { NODE_CATALOG, templateParamCount, defaultWaParams, WA_VAR_OPTIONS, type NodeType } from '@/lib/flows/catalog';
 import type { Catalog } from '@/hooks/useFlows';
 import { WhatsAppPreview, EmailPreview } from './MessagePreview';
 
@@ -12,6 +12,8 @@ export function NodeInspector({ type, data, onChange, onDelete, catalog }: {
   type: NodeType; data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onDelete: () => void; catalog?: Catalog;
 }) {
   const set = (k: string, v: unknown) => onChange({ ...data, [k]: v });
+  const vars = (data.vars as Record<string, unknown> | undefined) ?? {};
+  const setVar = (k: string, v: unknown) => onChange({ ...data, vars: { ...vars, [k]: v } });
   const meta = NODE_CATALOG[type];
   const wa = catalog?.wa_templates.find((t) => String(t.id_template) === String(data.template_id));
   return (
@@ -58,12 +60,34 @@ export function NodeInspector({ type, data, onChange, onDelete, catalog }: {
         }}>+ variante</button>
       </div>)}
       {type === 'send_whatsapp' && (<>
-        <Select value={String(data.template_id ?? '')} onValueChange={(v) => set('template_id', v)}>
+        <Select value={String(data.template_id ?? '')} onValueChange={(v) => {
+          const body = catalog?.wa_templates.find((t) => String(t.id_template) === v)?.body ?? '';
+          onChange({ ...data, template_id: v, vars: { ...vars, wa_params: defaultWaParams(templateParamCount(body)) } });
+        }}>
           <SelectTrigger className="h-8"><SelectValue placeholder="Template aprovado" /></SelectTrigger>
           <SelectContent>{(catalog?.wa_templates ?? []).filter((t) => String(t.status).toLowerCase() === 'approved')
             .map((t) => <SelectItem key={t.id_template} value={String(t.id_template)}>{t.name}</SelectItem>)}</SelectContent>
         </Select>
         {wa && <WhatsAppPreview body={wa.body} coupon={data.use_personal_coupon === true} />}
+        {wa && templateParamCount(wa.body) > 0 && (
+          <div className="space-y-1.5">
+            <Label className="text-[12px]">Variáveis do template</Label>
+            {Array.from({ length: templateParamCount(wa.body) }, (_, i) => {
+              const params = (vars.wa_params as string[] | undefined) ?? defaultWaParams(templateParamCount(wa.body));
+              return (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-10 text-[11px] font-mono text-muted-foreground">{`{{${i + 1}}}`}</span>
+                  <Select value={params[i] ?? 'nome'} onValueChange={(v) => { const next = [...params]; next[i] = v; setVar('wa_params', next); }}>
+                    <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>{WA_VAR_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>);
+            })}
+          </div>)}
+        <div className="flex items-center justify-between"><Label className="text-[12px]">Botão abre o carrinho da pessoa</Label>
+          <Switch checked={vars.wa_button_url === true || vars.wa_button_url === 'true'} onCheckedChange={(c) => setVar('wa_button_url', c)} /></div>
+        <div className="space-y-1"><Label className="text-[12px]">Origem no link (utm_content)</Label>
+          <Input value={String(vars.utm_content ?? '')} onChange={(e) => setVar('utm_content', e.target.value)} placeholder="ex.: w1" className="h-8" /></div>
       </>)}
       {type === 'send_email' && (<>
         <Select value={String(data.email_template_id ?? '')} onValueChange={(v) => set('email_template_id', v)}>
@@ -72,9 +96,12 @@ export function NodeInspector({ type, data, onChange, onDelete, catalog }: {
         </Select>
         <EmailPreview templateId={String(data.email_template_id ?? '')} />
       </>)}
-      {(type === 'send_whatsapp' || type === 'send_email') && (
+      {(type === 'send_whatsapp' || type === 'send_email') && (<>
         <div className="flex items-center justify-between"><Label className="text-[12px]">Usar cupom pessoal (NOME15)</Label>
-          <Switch checked={data.use_personal_coupon === true} onCheckedChange={(c) => set('use_personal_coupon', c)} /></div>)}
+          <Switch checked={data.use_personal_coupon === true} onCheckedChange={(c) => set('use_personal_coupon', c)} /></div>
+        <div className="flex items-center justify-between"><Label className="text-[12px]">Só em horário comercial</Label>
+          <Switch checked={vars.business_hours_only === true || vars.business_hours_only === 'true'} onCheckedChange={(c) => setVar('business_hours_only', c)} /></div>
+      </>)}
       {type === 'move_stage' && (
         <Select value={String(data.stage_id ?? '')} onValueChange={(v) => set('stage_id', v)}>
           <SelectTrigger className="h-8"><SelectValue placeholder="Etapa" /></SelectTrigger>

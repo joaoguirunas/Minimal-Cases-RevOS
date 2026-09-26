@@ -1,7 +1,7 @@
 // supabase/functions/flow-admin/index.ts
 /** API do editor de fluxos (admin/manager). Validação e publicação no servidor. */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { validateGraph, type FlowGraph } from '../_shared/flows/graph.ts';
+import { validateGraph, validateTriggerConfig, type FlowGraph } from '../_shared/flows/graph.ts';
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type' };
 const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } });
@@ -56,6 +56,8 @@ Deno.serve(async (req) => {
       return json({ ok: true, flow, versions: versions ?? [], stats: stats ?? {} });
     }
     case 'create': {
+      const cfgErr = validateTriggerConfig(String(b.trigger_type ?? 'manual'), (b.trigger_config ?? {}) as Record<string, unknown>);
+      if (cfgErr) return json({ ok: false, error: cfgErr }, 400);
       const { data, error } = await sb.from('flows').insert({
         name: String(b.name ?? 'Novo fluxo').slice(0, 120), trigger_type: String(b.trigger_type ?? 'manual'), trigger_config: b.trigger_config ?? {},
         created_by: m.id, draft_graph: { nodes: [{ id: 'trigger', type: 'trigger', position: { x: 0, y: 0 }, data: {} }], edges: [] },
@@ -64,6 +66,12 @@ Deno.serve(async (req) => {
       return json({ ok: true, id: (data as { id: string }).id });
     }
     case 'save_draft': {
+      if ('trigger_type' in b || 'trigger_config' in b) {
+        const { data: cur } = await sb.from('flows').select('trigger_type, trigger_config').eq('id', id).maybeSingle();
+        const c = cur as { trigger_type: string; trigger_config: Record<string, unknown> } | null;
+        const cfgErr = validateTriggerConfig(String(b.trigger_type ?? c?.trigger_type), (b.trigger_config ?? c?.trigger_config ?? {}) as Record<string, unknown>);
+        if (cfgErr) return json({ ok: false, error: cfgErr }, 400);
+      }
       const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
       for (const k of ['name', 'draft_graph', 'trigger_config', 'exit_on_purchase', 'reentry', 'description', 'trigger_type']) if (k in b) patch[k] = b[k];
       const { error } = await sb.from('flows').update(patch).eq('id', id);
@@ -89,8 +97,12 @@ Deno.serve(async (req) => {
     case 'set_status': {
       const status = String(b.status);
       if (!STATUSES.includes(status)) return json({ ok: false, error: 'status inválido' }, 400);
-      const { data: f } = await sb.from('flows').select('live_version_id').eq('id', id).maybeSingle();
-      if (['simulation', 'live'].includes(status) && !(f as { live_version_id?: string } | null)?.live_version_id) return json({ ok: false, error: 'publique uma versão antes' }, 400);
+      const { data: f } = await sb.from('flows').select('live_version_id, trigger_type, trigger_config').eq('id', id).maybeSingle();
+      const fr = f as { live_version_id?: string; trigger_type?: string; trigger_config?: Record<string, unknown> } | null;
+      if (['simulation', 'live'].includes(status) && !fr?.live_version_id) return json({ ok: false, error: 'publique uma versão antes' }, 400);
+      // fluxos de esteira precisam de funil: é o funil em 'flows' que libera o envio real
+      if (status === 'live' && !['manual', 'purchased'].includes(String(fr?.trigger_type)) && !fr?.trigger_config?.pipeline)
+        return json({ ok: false, error: 'defina o funil do gatilho antes de ativar' }, 400);
       await sb.from('flows').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
       if (status === 'archived') await sb.from('flow_runs').update({ status: 'exited', exit_reason: 'archived', ended_at: new Date().toISOString() }).eq('flow_id', id).eq('status', 'active');
       return json({ ok: true });

@@ -55,3 +55,27 @@ Deno.test('erros apontam o nó', () => {
     edges: [{ id: '1', source: 't', target: 'sp' }, { id: '2', source: 'sp', sourceHandle: 'a', target: 'e' }, { id: '3', source: 'sp', sourceHandle: 'b', target: 'e' }] };
   assert(validateGraph(split, ctx).errors.some((e) => e.nodeId === 'sp' && /100/.test(e.message)));
 });
+
+import { validateTriggerConfig, liveAllowed, leadCheckFor } from './graph.ts';
+Deno.test('config do gatilho: rejeita tipo e campos inválidos', () => {
+  assertEquals(validateTriggerConfig('cart_abandoned', { pipeline: 'Esteira Minimal — Loja' }), null);
+  assert(validateTriggerConfig('xyz', {}));
+  assert(validateTriggerConfig('link_clicked', { require_active_flow: 'lixo' }));
+  assert(validateTriggerConfig('link_clicked', { channel: 'sms' }));
+  assert(validateTriggerConfig('payment_pending', { methods: 'pix' }));
+  assert(validateTriggerConfig('stage_entered', { stage_id: 'nao-uuid' }));
+  assertEquals(validateTriggerConfig('link_clicked', { channel: 'email', require_active_flow: '97adac28-81a4-411e-bedb-738dfb6aba36', pipeline: 'X' }), null);
+});
+Deno.test('envio real só com fluxo live e funil em flows (manual/compra sem funil podem)', () => {
+  const eng = (p: string) => (p === 'A' ? 'flows' : 'rules');
+  assertEquals(liveAllowed({ status: 'live', trigger_type: 'cart_abandoned', trigger_config: {} }, eng), false);
+  assertEquals(liveAllowed({ status: 'live', trigger_type: 'cart_abandoned', trigger_config: { pipeline: 'B' } }, eng), false);
+  assertEquals(liveAllowed({ status: 'live', trigger_type: 'cart_abandoned', trigger_config: { pipeline: 'A' } }, eng), true);
+  assertEquals(liveAllowed({ status: 'simulation', trigger_type: 'cart_abandoned', trigger_config: { pipeline: 'A' } }, eng), false);
+  assertEquals(liveAllowed({ status: 'live', trigger_type: 'purchased', trigger_config: {} }, eng), true);
+});
+Deno.test('checagem de lead por gatilho', () => {
+  assertEquals(leadCheckFor('cart_abandoned'), 'esteira'); assertEquals(leadCheckFor('link_clicked'), 'esteira');
+  assertEquals(leadCheckFor('payment_pending'), 'open'); assertEquals(leadCheckFor('payment_refused'), 'open');
+  assertEquals(leadCheckFor('purchased'), 'none'); assertEquals(leadCheckFor('manual'), 'none'); assertEquals(leadCheckFor('stage_entered'), 'open');
+});

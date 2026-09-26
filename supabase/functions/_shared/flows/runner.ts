@@ -6,7 +6,7 @@ export interface RunState { id: string; flowId: string; peopleId: string; leadId
 export interface RunnerDeps {
   now(): Date;
   purchasedSince(peopleId: string, sinceIso: string): Promise<boolean>;
-  leadActive(leadId: string): Promise<boolean>;
+  leadActive(leadId: string, mode: 'esteira' | 'open'): Promise<boolean>;
   clickedSince(peopleId: string, sinceIso: string, channel: 'whatsapp' | 'email' | null): Promise<boolean>;
   contact(peopleId: string): Promise<{ whatsapp: boolean; email: boolean; tags: string[] }>;
   nextBusinessOpen(from: Date): Promise<Date>;
@@ -19,7 +19,7 @@ export interface StepResult { status: 'active' | 'completed' | 'exited'; current
 
 const MAX_NODES = 50;
 
-export async function advanceRun(run: RunState, graph: FlowGraph, flow: { exitOnPurchase: boolean }, deps: RunnerDeps): Promise<StepResult> {
+export async function advanceRun(run: RunState, graph: FlowGraph, flow: { exitOnPurchase: boolean; leadCheck?: 'esteira' | 'open' | 'none' }, deps: RunnerDeps): Promise<StepResult> {
   const logs: StepLog[] = [];
   const ctx: Record<string, unknown> = { ...run.context };
   const now = deps.now();
@@ -28,7 +28,8 @@ export async function advanceRun(run: RunState, graph: FlowGraph, flow: { exitOn
     return { status: 'exited', currentNodeId: nodeId, wakeAt: null, context: ctx, logs, exitReason: reason };
   };
   if (flow.exitOnPurchase && await deps.purchasedSince(run.peopleId, run.startedAt)) return exit('purchased', run.currentNodeId);
-  if (run.leadId && !(await deps.leadActive(run.leadId))) return exit('lead_inativo', run.currentNodeId);
+  const leadCheck = flow.leadCheck ?? 'esteira';
+  if (run.leadId && leadCheck !== 'none' && !(await deps.leadActive(run.leadId, leadCheck))) return exit('lead_inativo', run.currentNodeId);
 
   let node: FlowNode | null = run.currentNodeId
     ? graph.nodes.find((n) => n.id === run.currentNodeId) ?? null

@@ -35,6 +35,21 @@ export const NODE_CATALOG: Record<NodeType, {
   exit: { label: 'Sair', icon: CircleStop, tone: '#475569', defaults: {}, handles: () => [], summary: () => 'Fim' },
 };
 
+/** Quantos {{n}} distintos o corpo do template tem. */
+export function templateParamCount(body: string): number {
+  return new Set([...(body ?? '').matchAll(/\{\{(\d+)\}\}/g)].map((m) => m[1])).size;
+}
+/** Variáveis que o worker sabe preencher (mesmos nomes das regras da esteira). */
+export const WA_VAR_OPTIONS: { value: string; label: string }[] = [
+  { value: 'nome', label: 'Primeiro nome' }, { value: 'produto', label: 'Produto do carrinho' }, { value: 'cupom', label: 'Cupom' },
+  { value: 'expira_em', label: 'Validade do cupom' }, { value: 'modelo_celular', label: 'Modelo do celular' },
+  { value: 'preco', label: 'Preço' }, { value: 'preco_com_cupom', label: 'Preço com cupom' }, { value: 'link_checkout', label: 'Link do carrinho' },
+];
+const DEFAULT_ORDER = ['nome', 'produto', 'cupom', 'expira_em'];
+export function defaultWaParams(n: number): string[] {
+  return Array.from({ length: n }, (_, i) => DEFAULT_ORDER[i] ?? 'nome');
+}
+
 let seq = 0;
 export function newNode(type: NodeType, position: { x: number; y: number }) {
   seq += 1;

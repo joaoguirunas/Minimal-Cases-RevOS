@@ -85,3 +85,33 @@ export function validateGraph(g: FlowGraph, ctx: { approvedWaTemplates: Set<stri
   const uniq = errors.filter((e) => { const k = `${e.nodeId}|${e.message}`; if (seen.has(k)) return false; seen.add(k); return true; });
   return { ok: uniq.length === 0, errors: uniq };
 }
+
+// ── Gatilho: validação da configuração, quando o envio é real e que checagem de lead usar ──
+export const TRIGGER_TYPES = ['cart_abandoned', 'payment_pending', 'payment_refused', 'purchased', 'stage_entered', 'link_clicked', 'manual'] as const;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** null = ok; string = motivo do erro. */
+export function validateTriggerConfig(type: string, cfg: Record<string, unknown>): string | null {
+  if (!(TRIGGER_TYPES as readonly string[]).includes(type)) return `gatilho desconhecido: ${type}`;
+  if ('pipeline' in cfg && (typeof cfg.pipeline !== 'string' || !cfg.pipeline.trim())) return 'funil inválido';
+  if ('stage_id' in cfg && !UUID.test(String(cfg.stage_id))) return 'etapa inválida';
+  if ('require_active_flow' in cfg && !UUID.test(String(cfg.require_active_flow))) return 'fluxo de referência inválido';
+  if ('channel' in cfg && !['whatsapp', 'email', 'any'].includes(String(cfg.channel))) return 'canal inválido';
+  if ('methods' in cfg && (!Array.isArray(cfg.methods) || !(cfg.methods as unknown[]).every((m) => m === 'pix' || m === 'billet'))) return 'formas de pagamento inválidas';
+  return null;
+}
+
+/** Mesma regra do flow_trigger: sem funil só manual/compra enviam de verdade. */
+export function liveAllowed(f: { status: string; trigger_type: string; trigger_config: Record<string, unknown> }, engineFor: (pipeline: string) => string): boolean {
+  if (f.status !== 'live') return false;
+  const pipe = f.trigger_config?.pipeline;
+  if (typeof pipe === 'string' && pipe) return engineFor(pipe) === 'flows';
+  return f.trigger_type === 'manual' || f.trigger_type === 'purchased';
+}
+
+/** esteira = lead aberto numa etapa da esteira; open = lead aberto; none = não checa. */
+export function leadCheckFor(triggerType: string): 'esteira' | 'open' | 'none' {
+  if (triggerType === 'cart_abandoned' || triggerType === 'link_clicked') return 'esteira';
+  if (triggerType === 'purchased' || triggerType === 'manual') return 'none';
+  return 'open';
+}

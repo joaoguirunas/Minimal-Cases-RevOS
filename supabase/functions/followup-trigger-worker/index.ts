@@ -5,7 +5,7 @@ import {
   type EmailConfig,
 } from "../_shared/email-provider.ts";
 import { sendTrackedEmail } from "../_shared/email-sender.ts";
-import { effectiveVars } from "../_shared/flows/queue-vars.ts";
+import { effectiveVars, bhOnlyFor } from "../_shared/flows/queue-vars.ts";
 import { hasDirectSmsProvider, sendSmsWithConfig, type SmsConfig } from "../_shared/sms-provider.ts";
 import { createTrackedLink, createTrackedLinkDetailed, attachTrackedLinkMessage, resolveCartForPerson, resolvePendingPaymentForPerson, formatBRL } from "../_shared/tracked-links.ts";
 import { progressEsteiraStage } from "../_shared/esteira-progress.ts";
@@ -236,14 +236,17 @@ serve(async (req) => {
 
     for (const entry of queue) {
       // ── Business hours hold logic ────────────────────────────────────────
-      if (entry.followup_id && bhSettings?.enabled) {
-        const { data: rule } = await supabase
-          .from('leads_stages_followups')
-          .select('business_hours_only, bh_only_last')
-          .eq('id', entry.followup_id)
-          .maybeSingle();
+      if ((entry.followup_id || (entry as { flow_run_id?: string | null }).flow_run_id) && bhSettings?.enabled) {
+        const { data: rule } = entry.followup_id
+          ? await supabase
+            .from('leads_stages_followups')
+            .select('business_hours_only, bh_only_last')
+            .eq('id', entry.followup_id)
+            .maybeSingle()
+          : { data: null };
 
-        if (rule?.business_hours_only) {
+        // linha de regra: flag da regra; linha de fluxo: opção "só em horário comercial" do nó
+        if (bhOnlyFor(entry as never, (rule as { business_hours_only?: boolean } | null)?.business_hours_only ?? null)) {
           const nowDate = new Date();
           if (!isWithinBusinessHours(nowDate, bhSettings)) {
             const nextOpen = getNextBusinessHoursStart(nowDate, bhSettings);
@@ -321,7 +324,13 @@ serve(async (req) => {
       // Quem já comprou não recebe mais nada da esteira. O cancelamento no
       // pedido_pago cobre o caso comum; isto cobre o resto (pessoa com lead em
       // outro pipeline de esteira, pedido que chegou antes da fila existir).
-      if (entry.source_type === 'stage' && lead) {
+      // Linhas de fluxo: mesma proteção quando o fluxo encerra na compra (fluxos pós-compra ficam de fora).
+      let flowExitsOnPurchase = false;
+      if (entry.source_type === 'flow' && (entry as { flow_run_id?: string | null }).flow_run_id) {
+        const { data: fr } = await supabase.from('flow_runs').select('flows(exit_on_purchase)').eq('id', (entry as { flow_run_id: string }).flow_run_id).maybeSingle();
+        flowExitsOnPurchase = (fr as unknown as { flows: { exit_on_purchase: boolean } | null } | null)?.flows?.exit_on_purchase === true;
+      }
+      if ((entry.source_type === 'stage' || flowExitsOnPurchase) && lead) {
         const l = lead as { status?: string; created_at?: string };
         if (l.status && l.status !== 'in_progress') { await cancelEntry(`auto-cancel: lead ${l.status}`); continue; }
         if (entry.person_id && l.created_at) {

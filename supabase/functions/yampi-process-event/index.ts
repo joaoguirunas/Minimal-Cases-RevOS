@@ -417,14 +417,15 @@ Deno.serve(async (req) => {
     // ── Fluxos: gatilhos (aditivo — as regras continuam como estão) ──────────
     try {
       if (trigger === 'pedido_pago') {
-        await supabase.rpc('flow_exit_person', { p_people_id: peopleId, p_reason: 'purchased' });
-        await supabase.rpc('flow_trigger', { p_event: 'purchased', p_people_id: peopleId, p_lead_id: leadId, p_payload: { order_id: event.order_id ?? null } });
+        const { error: exErr } = await supabase.rpc('flow_exit_person', { p_people_id: peopleId, p_reason: 'purchased' });
+        if (exErr) log.warn('flow_exit_person_failed', { error: exErr.message });
+        { const { error: ftErr } = await supabase.rpc('flow_trigger', { p_event: 'purchased', p_people_id: peopleId, p_lead_id: leadId, p_payload: { order_id: event.order_id ?? null } }); if (ftErr) log.warn('flow_trigger_failed', { trigger, error: ftErr.message }); }
       } else if ((trigger === 'carrinho_abandonado' || trigger === 'checkout_iniciado') && leadId) {
-        await supabase.rpc('flow_trigger', { p_event: 'cart_abandoned', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} });
+        { const { error: ftErr } = await supabase.rpc('flow_trigger', { p_event: 'cart_abandoned', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} }); if (ftErr) log.warn('flow_trigger_failed', { trigger, error: ftErr.message }); }
       } else if ((trigger === 'pix_gerado' || trigger === 'boleto_gerado') && leadId) {
-        await supabase.rpc('flow_trigger', { p_event: 'payment_pending', p_people_id: peopleId, p_lead_id: leadId, p_payload: { method: trigger === 'pix_gerado' ? 'pix' : 'billet' } });
+        { const { error: ftErr } = await supabase.rpc('flow_trigger', { p_event: 'payment_pending', p_people_id: peopleId, p_lead_id: leadId, p_payload: { method: trigger === 'pix_gerado' ? 'pix' : 'billet' } }); if (ftErr) log.warn('flow_trigger_failed', { trigger, error: ftErr.message }); }
       } else if (trigger === 'pagamento_recusado' && leadId) {
-        await supabase.rpc('flow_trigger', { p_event: 'payment_refused', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} });
+        { const { error: ftErr } = await supabase.rpc('flow_trigger', { p_event: 'payment_refused', p_people_id: peopleId, p_lead_id: leadId, p_payload: {} }); if (ftErr) log.warn('flow_trigger_failed', { trigger, error: ftErr.message }); }
       }
     } catch (e) { log.warn('flow_trigger_failed', { trigger, error: String(e) }); }
 

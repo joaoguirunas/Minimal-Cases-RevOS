@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
-import { useFlows, flowApi, useFlowInvalidate } from '@/hooks/useFlows';
+import { useFlows, flowApi, useFlowInvalidate, useFlowCatalog } from '@/hooks/useFlows';
 import { STATUS_LABEL, TRIGGER_LABEL } from '@/lib/flows/catalog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,13 @@ export default function Fluxos() {
   const { data, isLoading } = useFlows();
   const invalidate = useFlowInvalidate();
   const [name, setName] = useState(''); const [trigger, setTrigger] = useState('cart_abandoned');
+  const [pipeline, setPipeline] = useState('');
+  const { data: catalog } = useFlowCatalog();
+  const pipelines = [...new Set((catalog?.stages ?? []).map((s) => s.pipeline).filter(Boolean))];
+  const needsPipeline = !['manual', 'purchased'].includes(trigger);
   const create = async () => {
-    try { const r = await flowApi<{ id: string }>({ action: 'create', name: name || 'Novo fluxo', trigger_type: trigger, trigger_config: {} }); invalidate(); nav(`/fluxos/${r.id}`); }
+    if (needsPipeline && !pipeline) { toast.error('Escolha o funil do gatilho'); return; }
+    try { const r = await flowApi<{ id: string }>({ action: 'create', name: name || 'Novo fluxo', trigger_type: trigger, trigger_config: needsPipeline ? { pipeline } : {} }); invalidate(); nav(`/fluxos/${r.id}`); }
     catch (e) { toast.error((e as Error).message); }
   };
   return (
@@ -25,6 +30,9 @@ export default function Fluxos() {
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do fluxo" className="h-9 w-56" />
           <Select value={trigger} onValueChange={setTrigger}><SelectTrigger className="h-9 w-52"><SelectValue /></SelectTrigger>
             <SelectContent>{Object.entries(TRIGGER_LABEL).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
+          {needsPipeline && (
+            <Select value={pipeline} onValueChange={setPipeline}><SelectTrigger className="h-9 w-56"><SelectValue placeholder="Funil" /></SelectTrigger>
+              <SelectContent>{pipelines.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent></Select>)}
           <button onClick={create} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-foreground px-3 text-[13px] text-background"><Plus className="size-4" />Criar</button>
         </div>
       </div>

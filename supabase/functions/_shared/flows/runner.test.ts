@@ -82,3 +82,14 @@ Deno.test('proteção: no máximo 50 nós por rodada', async () => {
   const r = await advanceRun(run(), { nodes, edges }, { exitOnPurchase: true }, d);
   assertEquals(r.status, 'active'); assert(r.logs.length <= 51);
 });
+
+Deno.test('fluxo de Pix/recusado não exige etapa da esteira; fluxo de compra não checa lead', async () => {
+  const calls: string[] = [];
+  const { d } = deps({ leadActive: async (_l: string, mode: string) => { calls.push(mode); return mode !== 'esteira'; } });
+  const r1 = await advanceRun(run(), g, { exitOnPurchase: true, leadCheck: 'open' }, d);
+  assertEquals(r1.status, 'active'); assertEquals(calls, ['open']);
+  const r2 = await advanceRun(run(), g, { exitOnPurchase: false, leadCheck: 'none' }, d);
+  assertEquals(r2.status, 'active'); assertEquals(calls, ['open']);
+  const r3 = await advanceRun(run(), g, { exitOnPurchase: true, leadCheck: 'esteira' }, d);
+  assertEquals(r3.status, 'exited');
+});

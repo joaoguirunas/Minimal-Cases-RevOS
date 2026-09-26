@@ -6,3 +6,11 @@ Deno.test('linha de regra usa as vars da regra; linha de fluxo usa as vars da fi
   assertEquals(effectiveVars({ followup_id: null, vars: { cupom_pessoal: true } }, null), { cupom_pessoal: true });
   assertEquals(effectiveVars({ followup_id: null, vars: null }, null), {});
 });
+
+import { bhOnlyFor } from './queue-vars.ts';
+Deno.test('horário comercial: regra decide nas linhas de regra; var do nó nas linhas de fluxo', () => {
+  assertEquals(bhOnlyFor({ followup_id: 'r', vars: null }, true), true);
+  assertEquals(bhOnlyFor({ followup_id: 'r', vars: { business_hours_only: true } }, false), false);
+  assertEquals(bhOnlyFor({ followup_id: null, vars: { business_hours_only: true } }, null), true);
+  assertEquals(bhOnlyFor({ followup_id: null, vars: {} }, null), false);
+});

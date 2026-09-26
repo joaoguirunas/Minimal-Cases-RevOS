@@ -20,3 +20,17 @@ describe('catálogo de nós', () => {
     expect(a.id).not.toBe(b.id); expect(a.data).toEqual({ amount: 1, unit: 'hours' });
   });
 });
+
+import { templateParamCount, defaultWaParams, WA_VAR_OPTIONS } from './catalog';
+describe('parâmetros do template de WhatsApp', () => {
+  it('conta {{n}} do corpo', () => {
+    expect(templateParamCount('Oi {{1}}, sua *{{2}}* com cupom {{3}} até {{4}}')).toBe(4);
+    expect(templateParamCount('sem variáveis')).toBe(0);
+    expect(templateParamCount('{{1}} e {{1}} de novo')).toBe(1);
+  });
+  it('sugere variáveis na ordem da esteira', () => {
+    expect(defaultWaParams(4)).toEqual(['nome', 'produto', 'cupom', 'expira_em']);
+    expect(defaultWaParams(1)).toEqual(['nome']);
+    expect(WA_VAR_OPTIONS.map((o) => o.value)).toContain('link_checkout');
+  });
+});
